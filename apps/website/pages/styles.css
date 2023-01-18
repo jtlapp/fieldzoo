@@ -1,3 +1,6 @@
+@tailwind components;
+@tailwind base;
+@tailwind utilities;
 html {
   -webkit-text-size-adjust: 100%;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
@@ -41,7 +44,6 @@ pre {
 }
 svg {
   display: block;
-  vertical-align: middle;
   shape-rendering: auto;
   text-rendering: optimizeLegibility;
 }
@@ -214,15 +216,11 @@ pre {
   color: rgba(255, 255, 255, 1);
   background-color: hsla(162, 47%, 50%, 1);
 }
-.list-item-link:hover > span {
-}
 .list-item-link:hover > span > span {
   color: rgba(243, 244, 246, 1);
 }
 .list-item-link:hover svg:last-child {
   transform: translateX(0.25rem);
-}
-#other-links {
 }
 .button-pill {
   padding: 1.5rem 2rem;
