@@ -1,4 +1,4 @@
-import { FieldsOf } from '@fieldzoo/utilities';
+import { FieldsOf } from "@fieldzoo/utilities";
 
 export class User {
   readonly name: string;
