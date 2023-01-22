@@ -17,7 +17,8 @@
     "paths": {
       "@fieldzoo/database": ["libs/database/src/index.ts"],
       "@fieldzoo/model": ["libs/model/src/index.ts"],
-      "@fieldzoo/services": ["libs/services/src/index.ts"]
+      "@fieldzoo/services": ["libs/services/src/index.ts"],
+      "@fieldzoo/utilities": ["libs/utilities/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
