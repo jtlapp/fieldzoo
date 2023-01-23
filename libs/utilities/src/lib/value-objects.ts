@@ -1,7 +1,14 @@
+/**
+ * Generically useful DDD value objects.
+ */
+
 import { IsEmail } from "class-validator";
 
 import { assertValid } from "./validation";
 
+/**
+ * Email address value object
+ */
 export class EmailAddress {
   @IsEmail()
   readonly value: string;
