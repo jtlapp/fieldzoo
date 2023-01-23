@@ -8,6 +8,8 @@ import { ClassType } from "./generic-types";
  * @param obj Object whose fields are annotated with validation decorators
  * @param message Message to provide with error, in addition to any per-field
  *    error messages, excluding those of nested fields
+ * @param reportFieldMessages Whether to include per-field error messages
+ *    in exception message
  * @throws ValidationError when `obj` is invalid
  */
 export function assertValid<T extends ClassType<T>>(
