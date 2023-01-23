@@ -15,7 +15,7 @@ export function assertValid<T extends ClassType<T>>(
   message: string,
   reportFieldMessages = true
 ): void {
-  const errors = validateSync(obj);
+  const errors = validateSync(obj, { stopAtFirstError: true });
   if (errors.length > 0) {
     let fieldMessages: string[] = [];
     if (reportFieldMessages) {

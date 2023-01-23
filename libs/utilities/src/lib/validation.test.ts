@@ -12,8 +12,8 @@ class TestObj {
   @IsInt()
   delta: number;
 
-  @IsInt()
   @IsPositive()
+  @IsInt()
   count: number;
 
   @IsAlpha()
@@ -37,7 +37,7 @@ describe("assertValid()", () => {
     expect(() => assertValid(obj, "oops")).not.toThrow();
   });
 
-  it("rejects objects with single invalid fields", () => {
+  it("rejects objects with single invalid fields having single errors", () => {
     let obj = new TestObj(0.5, 1, "ABCDE");
     expectErrors(obj, "bad", true, ["bad:", "delta", "integer"], []);
     expectErrors(obj, "bad", false, ["bad"], ["delta", "integer"]);
@@ -49,14 +49,18 @@ describe("assertValid()", () => {
     obj = new TestObj(0, 1, "12345");
     expectErrors(obj, "bad", true, ["bad:", "name", "letters"], []);
     expectErrors(obj, "bad", false, ["bad"], ["name", "letters"]);
+  });
 
-    obj = new TestObj(0, 1, "123");
+  it("rejects objects with single invalid fields having multiple errors", () => {
+    // validation quits after first error for each property
+
+    let obj = new TestObj(0, 1, "123");
     expectErrors(
       obj,
       "bad",
       true,
-      ["bad:", "name", "letters", ";", "longer"],
-      ["shorter"]
+      ["bad:", "name", "longer"],
+      ["shorter", "letters"]
     );
     expectErrors(
       obj,
@@ -71,8 +75,8 @@ describe("assertValid()", () => {
       obj,
       "bad",
       true,
-      ["bad:", "name", "letters", ";", "shorter"],
-      ["longer"]
+      ["bad:", "name", "shorter"],
+      ["longer", "letters"]
     );
     expectErrors(
       obj,
@@ -105,17 +109,8 @@ describe("assertValid()", () => {
       obj,
       "oops",
       true,
-      [
-        "oops:",
-        "delta",
-        "integer",
-        "count",
-        "positive",
-        "name",
-        "letters",
-        "longer",
-      ],
-      []
+      ["oops:", "delta", "integer", "count", "positive", "name", "longer"],
+      ["letters"]
     );
     expectErrors(
       obj,
