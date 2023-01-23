@@ -1,4 +1,10 @@
 /**
+ * Type matching only classes.
+ */
+// TODO: revisit need for this given InstanceType
+export type ClassType<T> = { new (): T };
+
+/**
  * Matches object properties beginning with neither `_` nor `#`.
  */
 export type PublicProperty<P> = P extends `_${string}` ? never : P;
