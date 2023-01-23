@@ -1,6 +1,6 @@
 import { IsEmail } from "class-validator";
 
-import { assertValidSync } from "./validation";
+import { assertValid } from "./validation";
 
 export class EmailAddress {
   @IsEmail()
@@ -8,7 +8,7 @@ export class EmailAddress {
 
   constructor(email: string) {
     this.value = email;
-    assertValidSync(this, "Invalid email");
+    assertValid(this, "Invalid email");
     Object.freeze(this);
   }
 }

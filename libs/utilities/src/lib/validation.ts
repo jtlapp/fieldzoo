@@ -10,7 +10,7 @@ import { ClassType } from "./generic-types";
  *    error messages, excluding those of nested fields
  * @throws ValidationError when `obj` is invalid
  */
-export function assertValidSync<T extends ClassType<T>>(
+export function assertValid<T extends ClassType<T>>(
   obj: InstanceType<T>,
   message: string,
   reportFieldMessages = true

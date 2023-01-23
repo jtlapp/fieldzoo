@@ -6,7 +6,7 @@ import {
   MinLength,
 } from "class-validator";
 
-import { assertValidSync, ValidationError } from "./validation";
+import { assertValid, ValidationError } from "./validation";
 
 class TestObj {
   @IsInt()
@@ -28,13 +28,13 @@ class TestObj {
   }
 }
 
-describe("assertValidSync()", () => {
+describe("assertValid()", () => {
   it("accepts valid objects", () => {
     let obj = new TestObj(0, 1, "ABCDE");
-    expect(() => assertValidSync(obj, "oops")).not.toThrow();
+    expect(() => assertValid(obj, "oops")).not.toThrow();
 
     obj = new TestObj(-5, 125, "ABCDEDEFGH");
-    expect(() => assertValidSync(obj, "oops")).not.toThrow();
+    expect(() => assertValid(obj, "oops")).not.toThrow();
   });
 
   it("rejects objects with single invalid fields", () => {
@@ -135,7 +135,7 @@ function expectErrors(
   unexpectedSubstrings: string[]
 ): void {
   try {
-    assertValidSync(obj, message, reportFieldMessages);
+    assertValid(obj, message, reportFieldMessages);
     fail("expected validation errors");
   } catch (err: any) {
     expect(err).toBeInstanceOf(ValidationError);
