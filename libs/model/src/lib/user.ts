@@ -1,13 +1,16 @@
 import { Matches, MaxLength, MinLength } from "class-validator";
 
-import { assertValid, EmailAddress, FieldsOf } from "@fieldzoo/utilities";
+import {
+  assertValid,
+  EmailAddress,
+  FieldsOf,
+  USER_NAME_REGEX,
+} from "@fieldzoo/utilities";
 
 /** Min. length of user name */
 export const MIN_USER_NAME_LENGTH = 2;
 /** Max. length of user name */
 export const MAX_USER_NAME_LENGTH = 40;
-
-const USER_NAME_REGEX = /^\p{L}+((\. |[-.' ])\p{L}+\.?)*$/u;
 
 /** Database ID of a user record */
 export type UserID = string & { readonly __typeID: unique symbol };
