@@ -2,20 +2,21 @@ import { Matches, MaxLength, MinLength } from "class-validator";
 
 import { assertValid, EmailAddress, FieldsOf } from "@fieldzoo/utilities";
 
-import { RecordID } from "./record-id";
-
 /** Min. length of user name */
-export const MIN_NAME_LENGTH = 2;
+export const MIN_USER_NAME_LENGTH = 2;
 /** Max. length of user name */
-export const MAX_NAME_LENGTH = 40;
+export const MAX_USER_NAME_LENGTH = 40;
 
 const USER_NAME_REGEX = /^\p{L}+((\. |[-.' ])\p{L}+\.?)*$/u;
+
+/** Database ID of a user record */
+export type UserID = string & { readonly __typeID: unique symbol };
 
 /**
  * Class representing a user
  */
 export class User {
-  readonly id: RecordID;
+  readonly id: UserID;
   readonly name: UserName;
   readonly email: EmailAddress;
 
@@ -34,8 +35,8 @@ export interface User {
  */
 export class UserName {
   @Matches(USER_NAME_REGEX)
-  @MinLength(MIN_NAME_LENGTH)
-  @MaxLength(MAX_NAME_LENGTH) // checked first
+  @MinLength(MIN_USER_NAME_LENGTH)
+  @MaxLength(MAX_USER_NAME_LENGTH) // checked first
   readonly value: string;
 
   constructor(userName: string) {
