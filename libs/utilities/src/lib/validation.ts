@@ -17,6 +17,8 @@ export function assertValid<T extends ClassType<T>>(
   message: string,
   reportFieldMessages = true
 ): void {
+  // Stop at first error so can prevent excessive-length
+  // strings from being parsed in subsequent validations.
   const errors = validateSync(obj, { stopAtFirstError: true });
   if (errors.length > 0) {
     let fieldMessages: string[] = [];
