@@ -26,7 +26,7 @@ export class User {
   }
 }
 export interface User {
-  readonly __type: unique symbol;
+  readonly __typeID: unique symbol;
 }
 
 /**
@@ -45,5 +45,5 @@ export class UserName {
   }
 }
 export interface UserName {
-  readonly __type: unique symbol;
+  readonly __typeID: unique symbol;
 }

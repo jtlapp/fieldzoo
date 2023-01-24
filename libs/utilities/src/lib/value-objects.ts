@@ -24,5 +24,5 @@ export class EmailAddress {
   }
 }
 export interface EmailAddress {
-  readonly __type: unique symbol;
+  readonly __typeID: unique symbol;
 }
