@@ -12,7 +12,7 @@ describe("UserName value object", () => {
     expect(() => new UserName("Mike O'Brien")).not.toThrow();
     expect(() => new UserName("Mary-Sue Blue-Green")).not.toThrow();
     expect(() => new UserName("Mary-Sue B.-Green")).not.toThrow();
-    expect(() => new UserName("Mark Heße")).not.toThrow();
+    expect(() => new UserName("Mark Heüße")).not.toThrow();
   });
 
   it("rejects invalid user names", () => {
