@@ -1,7 +1,6 @@
 /**
  * Type matching only classes.
  */
-// TODO: revisit need for this given InstanceType
 export type ClassType<T> = { new (): T };
 
 /**
