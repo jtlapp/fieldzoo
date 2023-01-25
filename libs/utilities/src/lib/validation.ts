@@ -7,14 +7,15 @@ import { ClassType } from "./generic-types";
  *
  * @param obj Object whose fields are annotated with validation decorators
  * @param message Message to provide with error, in addition to any per-field
- *    error messages, excluding those of nested fields
+ *    error messages, excluding those of nested fields; may be a function that
+ *    returns a string, in order to lazily construct the message as needed
  * @param reportFieldMessages Whether to include per-field error messages
  *    in exception message
  * @throws ValidationError when `obj` is invalid
  */
 export function assertValid<T extends ClassType<T>>(
   obj: InstanceType<T>,
-  message: string,
+  message: string | (() => string),
   reportFieldMessages = true
 ): void {
   // Stop at first error so can prevent excessive-length
@@ -27,7 +28,7 @@ export function assertValid<T extends ClassType<T>>(
         err.constraints ? Object.values(err.constraints) : []
       );
     }
-    let combinedMessage = message;
+    let combinedMessage = typeof message == "function" ? message() : message;
     if (fieldMessages.length > 0) {
       combinedMessage += ": " + fieldMessages.join("; ");
     }

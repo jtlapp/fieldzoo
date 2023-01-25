@@ -120,6 +120,18 @@ describe("assertValid()", () => {
       ["delta", "integer", "count", "positive", "name", "letters", "longer"]
     );
   });
+
+  it("lazily evaluates error messages", () => {
+    const ERROR_MESSAGE = "Invalid test object";
+    const obj = new TestObj(0.5, 1, "ABCDE");
+    try {
+      assertValid(obj, () => ERROR_MESSAGE, false);
+      fail("expected validation error");
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ValidationError);
+      expect(err.message).toEqual(ERROR_MESSAGE);
+    }
+  });
 });
 
 function expectErrors(
