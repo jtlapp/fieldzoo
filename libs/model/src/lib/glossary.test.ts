@@ -9,7 +9,7 @@ import { UserID } from "./user";
 describe("Glossary value object", () => {
   // The regex itself is already well tested elsewhere.
 
-  it("accepts valid glosssaries", () => {
+  it("accepts valid glossaries", () => {
     expect(
       () =>
         new Glossary({
