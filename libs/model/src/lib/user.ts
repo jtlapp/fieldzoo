@@ -7,9 +7,9 @@ import {
   USER_NAME_REGEX,
 } from "@fieldzoo/utilities";
 
-/** Min. length of user name */
+/** Min. length of user name (chars) */
 export const MIN_USER_NAME_LENGTH = 2;
-/** Max. length of user name */
+/** Max. length of user name (chars) */
 export const MAX_USER_NAME_LENGTH = 40;
 
 /** Database ID of a user record */
