@@ -42,9 +42,9 @@ export class UserName {
   @MaxLength(MAX_USER_NAME_LENGTH) // checked first
   readonly value: string;
 
-  constructor(userName: string) {
+  constructor(userName: string, assumeValid = false) {
     this.value = userName;
-    assertValid(this, "Invalid user name", false);
+    if (!assumeValid) assertValid(this, "Invalid user name", false);
     Object.freeze(this);
   }
 }

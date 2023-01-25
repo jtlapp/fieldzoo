@@ -17,9 +17,9 @@ export class EmailAddress {
   @MaxLength(MAX_EMAIL_LENGTH) // checked first
   readonly value: string;
 
-  constructor(email: string) {
+  constructor(email: string, assumeValid = false) {
     this.value = email;
-    assertValid(this, "Invalid email");
+    if (!assumeValid) assertValid(this, "Invalid email");
     Object.freeze(this);
   }
 }

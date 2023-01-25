@@ -15,6 +15,10 @@ describe("EmailAddress value object", () => {
     expect(() => new EmailAddress("foo@abc def")).toThrow("email");
   });
 
+  it("doesn't validate when assumed valid", () => {
+    expect(() => new EmailAddress("", true)).not.toThrow();
+  });
+
   it("cannot be changed", () => {
     const email = new EmailAddress("foo@abc.com");
     expect(() => ((email as any).value = "bar@def.com")).toThrow("read only");

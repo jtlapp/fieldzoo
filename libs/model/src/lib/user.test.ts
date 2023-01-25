@@ -21,6 +21,10 @@ describe("UserName value object", () => {
     expect(() => new UserName(tooLong)).toThrow("user name");
   });
 
+  it("doesn't validate when assumed valid", () => {
+    expect(() => new UserName("", true)).not.toThrow();
+  });
+
   it("cannot be changed", () => {
     const userName = new UserName("Jeff Blarg");
     expect(() => ((userName as any).value = "Jeff Blurg")).toThrow("read only");
