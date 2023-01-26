@@ -2,6 +2,7 @@ import { Matches, MaxLength, MinLength } from "class-validator";
 
 import {
   assertValid,
+  ValidatingObject,
   EmailAddress,
   FieldsOf,
   USER_NAME_REGEX,
@@ -16,17 +17,19 @@ export const MAX_USER_NAME_LENGTH = 40;
 export type UserID = string & { readonly __typeID: unique symbol };
 
 /**
- * Class representing a user
+ * Class representing a user entity
  */
-export class User {
+export class User extends ValidatingObject {
   readonly id: UserID;
-  readonly name: UserName;
-  readonly email: EmailAddress;
+  name: UserName;
+  email: EmailAddress;
 
   constructor(fields: FieldsOf<User>) {
+    super();
     this.id = fields.id;
     this.name = fields.name;
     this.email = fields.email;
+    this.freezeField("id");
   }
 }
 export interface User {
@@ -36,15 +39,16 @@ export interface User {
 /**
  * Class representing a valid user name
  */
-export class UserName {
+export class UserName extends ValidatingObject {
   @Matches(USER_NAME_REGEX)
   @MinLength(MIN_USER_NAME_LENGTH)
   @MaxLength(MAX_USER_NAME_LENGTH) // checked first
   readonly value: string;
 
   constructor(userName: string, assumeValid = false) {
+    super();
     this.value = userName;
-    if (!assumeValid) assertValid(this, "Invalid user name", false);
+    if (!assumeValid) this.validate("user name", false);
     Object.freeze(this);
   }
 }

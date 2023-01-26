@@ -114,14 +114,13 @@ describe("Glossary value object", () => {
     ).not.toThrow();
   });
 
-  it("cannot be changed", () => {
+  it("cannot change id", () => {
     const glossary = new Glossary({
       id: "abc" as GlossaryID,
       ownerID: "def" as UserID,
       name: "X",
       description: null,
     });
-    expect(() => ((glossary as any).name = "XX")).toThrow("read only");
-    expect(() => ((glossary as any).description = "XX")).toThrow("read only");
+    expect(() => ((glossary as any).id = "XX")).toThrow("read only");
   });
 });

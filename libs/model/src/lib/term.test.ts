@@ -122,7 +122,6 @@ describe("Term value object", () => {
       name: "X",
       description: "Good description",
     });
-    expect(() => ((term as any).name = "XX")).toThrow("read only");
-    expect(() => ((term as any).description = "XX")).toThrow("read only");
+    expect(() => ((term as any).id = "abc")).toThrow("read only");
   });
 });

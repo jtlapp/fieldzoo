@@ -1,8 +1,8 @@
 import { Matches, MaxLength, MinLength, IsOptional } from "class-validator";
 
 import {
-  assertValid,
   FieldsOf,
+  ValidatingObject,
   MULTI_LINE_UNICODE_REGEX,
   SINGLE_LINE_UNICODE_REGEX,
 } from "@fieldzoo/utilities";
@@ -22,28 +22,29 @@ export type GlossaryID = string & { readonly __typeID: unique symbol };
 /**
  * Class representing a valid glossary
  */
-export class Glossary {
+export class Glossary extends ValidatingObject {
   readonly id: GlossaryID;
-  readonly ownerID: UserID;
+  ownerID: UserID;
 
   @Matches(SINGLE_LINE_UNICODE_REGEX)
   @MinLength(MIN_GLOSSARY_NAME_LENGTH)
   @MaxLength(MAX_GLOSSARY_NAME_LENGTH) // checked first
-  readonly name: string;
+  name: string;
 
   @Matches(MULTI_LINE_UNICODE_REGEX)
   @MaxLength(MAX_GLOSSARY_DESCRIPTION_LENGTH)
   @IsOptional()
-  readonly description: string | null;
+  description: string | null;
 
   constructor(fields: FieldsOf<Glossary>, assumeValid = false) {
+    super();
     this.id = fields.id;
     this.ownerID = fields.ownerID;
     this.name = fields.name;
     this.description = fields.description;
 
-    if (!assumeValid) assertValid(this, "Invalid glossary");
-    Object.freeze(this);
+    if (!assumeValid) this.validate("glossary");
+    this.freezeField("id");
   }
 }
 export interface Glossary {
