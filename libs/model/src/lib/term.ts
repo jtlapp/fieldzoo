@@ -27,7 +27,7 @@ export type TermID = string & { readonly __typeID: unique symbol };
  */
 export class Term extends ValidatingObject {
   readonly id: TermID;
-  readonly ownerID: UserID;
+  ownerID: UserID;
 
   @Matches(SINGLE_LINE_UNICODE_REGEX)
   @MinLength(MIN_TERM_NAME_LENGTH)
@@ -36,7 +36,7 @@ export class Term extends ValidatingObject {
 
   @Matches(MULTI_LINE_UNICODE_REGEX)
   @MinLength(MIN_TERM_DESCRIPTION_LENGTH)
-  @MaxLength(MAX_TERM_DESCRIPTION_LENGTH)
+  @MaxLength(MAX_TERM_DESCRIPTION_LENGTH) // checked first
   description: string;
 
   constructor(fields: FieldsOf<Term>, assumeValid = false) {
