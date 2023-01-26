@@ -1,7 +1,6 @@
 import { Matches, MaxLength, MinLength } from "class-validator";
 
 import {
-  assertValid,
   ValidatingObject,
   FieldsOf,
   MULTI_LINE_UNICODE_REGEX,
