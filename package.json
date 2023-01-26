@@ -4,7 +4,9 @@
   "license": "GPL-3.0",
   "author": "Joseph T. Lapp",
   "description": "An exploration of REACT and DDD creating online collaborative glossaries and taxonomic keys.",
-  "scripts": {},
+  "scripts": {
+    "test": "nx run-many --all --target=test"
+  },
   "private": true,
   "dependencies": {
     "@nrwl/next": "15.5.2",
