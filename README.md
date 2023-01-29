@@ -35,7 +35,7 @@ And if amateurs can learn to do taxonomy, they can also create field guides for 
 
 [NX](https://nx.dev), a tool for managing monorepos. I expect this platform to consist of a number of apps and tools that need to share code, and monorepos make this possible. I settled on NX primarily for its simplicity, but it's also the fastest at building from cache.
 
-[Node.js](https://nodejs.org/en/about/), a server-side JavaScript runtime. Node's asynchronous, non-blocking event-driven architecture makes it easy to build high-throughput web apps.
+[Node.js](https://nodejs.org/en/about/), a server-side JavaScript runtime. Node's asynchronous, non-blocking event-driven architecture makes it easy to build high-throughput web apps. Node apps are also easy to deploy on any OS, and it allows backend devs to also work on frontend code.
 
 [TypeScript](https://typescriptlang.org/), a statically-typed superset of JavaScript. TypeScript allows for running JavaScript on Node with static typing checking, eliminating a whole class of errors at compile time and making it easy to refactor code from VSCode.
 
