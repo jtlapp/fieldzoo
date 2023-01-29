@@ -13,6 +13,7 @@ This platform implements a website and web API having the following features:
 - Users can annotate images and reference those annotations from text. Editor annotations are public, while end user annotations are only visible to editors.
 - All data is version controlled so editors can see the evolution of the data structures and revert edits as needed.
 - All hypotheses and decisions are tracked so editors can be sure not to undo prior understanding as they incorporate new understanding.
+- Tracks outstanding issues with the data structures that editors would like to eventually resolve.
 - Will eventually support filtering the data structure by end user location.
 
 ## Objective
