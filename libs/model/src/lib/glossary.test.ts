@@ -4,6 +4,7 @@ import {
   MAX_GLOSSARY_DESCRIPTION_LENGTH,
   MAX_GLOSSARY_NAME_LENGTH,
 } from "./glossary";
+import { UserID } from "./user";
 
 describe("Glossary value object", () => {
   // The regex itself is already well tested elsewhere.
@@ -13,6 +14,7 @@ describe("Glossary value object", () => {
       () =>
         new Glossary({
           id: "abc" as GlossaryID,
+          ownerID: "def" as UserID,
           name: "X",
           description: null,
         })
@@ -21,6 +23,7 @@ describe("Glossary value object", () => {
       () =>
         new Glossary({
           id: "abc" as GlossaryID,
+          ownerID: "def" as UserID,
           name: "Good Name",
           description: "This\nis\nfine.",
         })
@@ -29,6 +32,7 @@ describe("Glossary value object", () => {
       () =>
         new Glossary({
           id: "abc" as GlossaryID,
+          ownerID: "def" as UserID,
           name: "A".repeat(MAX_GLOSSARY_NAME_LENGTH),
           description: "A".repeat(MAX_GLOSSARY_DESCRIPTION_LENGTH),
         })
@@ -40,6 +44,7 @@ describe("Glossary value object", () => {
       () =>
         new Glossary({
           id: "abc" as GlossaryID,
+          ownerID: "def" as UserID,
           name: "",
           description: "This\nis\nfine.",
         })
@@ -48,6 +53,7 @@ describe("Glossary value object", () => {
       () =>
         new Glossary({
           id: "abc" as GlossaryID,
+          ownerID: "def" as UserID,
           name: "X  Y",
           description: "This\nis\nfine.",
         })
@@ -56,6 +62,7 @@ describe("Glossary value object", () => {
       () =>
         new Glossary({
           id: "abc" as GlossaryID,
+          ownerID: "def" as UserID,
           name: "A".repeat(MAX_GLOSSARY_NAME_LENGTH + 1),
           description: "This\nis\nfine.",
         })
@@ -67,6 +74,7 @@ describe("Glossary value object", () => {
       () =>
         new Glossary({
           id: "abc" as GlossaryID,
+          ownerID: "def" as UserID,
           name: "Good Name",
           description: "",
         })
@@ -75,6 +83,7 @@ describe("Glossary value object", () => {
       () =>
         new Glossary({
           id: "abc" as GlossaryID,
+          ownerID: "def" as UserID,
           name: "Good Name",
           description: "\n\n",
         })
@@ -83,6 +92,7 @@ describe("Glossary value object", () => {
       () =>
         new Glossary({
           id: "abc" as GlossaryID,
+          ownerID: "def" as UserID,
           name: "Good Name",
           description: "A".repeat(MAX_GLOSSARY_DESCRIPTION_LENGTH + 1),
         })
@@ -95,6 +105,7 @@ describe("Glossary value object", () => {
         new Glossary(
           {
             id: "abc" as GlossaryID,
+            ownerID: "def" as UserID,
             name: "",
             description: "",
           },
@@ -106,6 +117,7 @@ describe("Glossary value object", () => {
   it("cannot change id", () => {
     const glossary = new Glossary({
       id: "abc" as GlossaryID,
+      ownerID: "def" as UserID,
       name: "X",
       description: null,
     });
