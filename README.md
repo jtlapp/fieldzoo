@@ -43,7 +43,7 @@ And if amateurs can learn to do taxonomy, they can also create field guides for 
 
 [TailwindCSS](https://tailwindcss.com/), a CSS utility library for components. I find that CSS sometimes requires much trial and error to resolve unexpected interactions between classes, and I'm hoping that I'll be dealing with this less in TailWind than in vanilla CSS or Bootstrap.
 
-[PostgreSQL](https://www.postgresql.org/), an advanced, open-source RDBMS. Postgres seems to be the best open source RDBMS, allowing for object queries and minimally-blocking transactions. I briefly considered using NoSQL such as MongoDB but it seemed to vastly increase the complexity of working with non-static relational data.
+[PostgreSQL](https://www.postgresql.org/), an advanced, open-source RDBMS. Postgres seems to be the best open source RDBMS, allowing for object queries and minimally-blocking transactions. I briefly considered using NoSQL such as MongoDB but it seemed to vastly increase the complexity of working with non-static relational data. It doesn't appear realistic to generically support both Postgres and MySQL, but it will be possible to add MySQL and other DB support in a way that entails redundantly maintaining code.
 
 [Kysely](https://koskimas.github.io/kysely/), a type-safe, autocompleting typescript SQL query builder. This library leverages TypeScript's amazing type support to allow for writing SQL queries that are free of syntax errors and typos in table and column names, eliminating another class of errors.
 
