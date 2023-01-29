@@ -56,4 +56,4 @@ I'll probably also use [Storyteller](https://www.getstoryteller.com/), once I un
 
 I'm not yet decided on whether to use [Cypress](https://www.cypress.io/) or [Playwright](https://playwright.dev/) or both. I have experience with Playwright.
 
-I'm also experimenting with techniques for writing robust TypeScript using [Domain-Driven Design](https://medium.com/ssense-tech/domain-driven-design-everything-you-always-wanted-to-know-about-it-but-were-afraid-to-ask-a85e7b74497a) (DDD). This aspect of the solution is likely to evolve until I'm happy with a particular approach.
+I'm also experimenting with techniques for writing robust TypeScript using [Domain-Driven Design (DDD)](https://medium.com/ssense-tech/domain-driven-design-everything-you-always-wanted-to-know-about-it-but-were-afraid-to-ask-a85e7b74497a). This aspect of the solution is likely to evolve until I'm happy with a particular approach.
