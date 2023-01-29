@@ -5,7 +5,7 @@ import {
   MAX_TERM_DESCRIPTION_LENGTH,
   MAX_TERM_NAME_LENGTH,
 } from "./term";
-import { UserID } from "./user";
+import { GlossaryID } from "./glossary";
 
 describe("Term value object", () => {
   // The regex itself is already well tested elsewhere.
@@ -15,7 +15,7 @@ describe("Term value object", () => {
       () =>
         new Term({
           id: "abc" as TermID,
-          ownerID: "def" as UserID,
+          glossaryID: "def" as GlossaryID,
           name: "Good Name",
           description: "A".repeat(MIN_TERM_DESCRIPTION_LENGTH),
         })
@@ -24,7 +24,7 @@ describe("Term value object", () => {
       () =>
         new Term({
           id: "abc" as TermID,
-          ownerID: "def" as UserID,
+          glossaryID: "def" as GlossaryID,
           name: "Good Name",
           description: "This\nis\nfine.",
         })
@@ -33,7 +33,7 @@ describe("Term value object", () => {
       () =>
         new Term({
           id: "abc" as TermID,
-          ownerID: "def" as UserID,
+          glossaryID: "def" as GlossaryID,
           name: "A".repeat(MAX_TERM_NAME_LENGTH),
           description: "A".repeat(MAX_TERM_DESCRIPTION_LENGTH),
         })
@@ -45,7 +45,7 @@ describe("Term value object", () => {
       () =>
         new Term({
           id: "abc" as TermID,
-          ownerID: "def" as UserID,
+          glossaryID: "def" as GlossaryID,
           name: "",
           description: "This\nis\nfine.",
         })
@@ -54,7 +54,7 @@ describe("Term value object", () => {
       () =>
         new Term({
           id: "abc" as TermID,
-          ownerID: "def" as UserID,
+          glossaryID: "def" as GlossaryID,
           name: "X  Y",
           description: "This\nis\nfine.",
         })
@@ -63,7 +63,7 @@ describe("Term value object", () => {
       () =>
         new Term({
           id: "abc" as TermID,
-          ownerID: "def" as UserID,
+          glossaryID: "def" as GlossaryID,
           name: "A".repeat(MAX_TERM_NAME_LENGTH + 1),
           description: "This\nis\nfine.",
         })
@@ -75,7 +75,7 @@ describe("Term value object", () => {
       () =>
         new Term({
           id: "abc" as TermID,
-          ownerID: "def" as UserID,
+          glossaryID: "def" as GlossaryID,
           name: "Good Name",
           description: "",
         })
@@ -84,7 +84,7 @@ describe("Term value object", () => {
       () =>
         new Term({
           id: "abc" as TermID,
-          ownerID: "def" as UserID,
+          glossaryID: "def" as GlossaryID,
           name: "Good Name",
           description: "\n\n",
         })
@@ -93,7 +93,7 @@ describe("Term value object", () => {
       () =>
         new Term({
           id: "abc" as TermID,
-          ownerID: "def" as UserID,
+          glossaryID: "def" as GlossaryID,
           name: "Good Name",
           description: "A".repeat(MAX_TERM_DESCRIPTION_LENGTH + 1),
         })
@@ -106,7 +106,7 @@ describe("Term value object", () => {
         new Term(
           {
             id: "abc" as TermID,
-            ownerID: "def" as UserID,
+            glossaryID: "def" as GlossaryID,
             name: "",
             description: "",
           },
@@ -118,7 +118,7 @@ describe("Term value object", () => {
   it("cannot be changed", () => {
     const term = new Term({
       id: "abc" as TermID,
-      ownerID: "def" as UserID,
+      glossaryID: "def" as GlossaryID,
       name: "X",
       description: "Good description",
     });

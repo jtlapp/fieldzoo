@@ -7,7 +7,7 @@ import {
   SINGLE_LINE_UNICODE_REGEX,
 } from "@fieldzoo/utilities";
 
-import { UserID } from "./user";
+import { GlossaryID } from "./glossary";
 
 /** Min. length of term name (chars) */
 export const MIN_TERM_NAME_LENGTH = 1;
@@ -26,7 +26,7 @@ export type TermID = string & { readonly __typeID: unique symbol };
  */
 export class Term extends ValidatingObject {
   readonly id: TermID;
-  ownerID: UserID;
+  glossaryID: GlossaryID;
 
   @Matches(SINGLE_LINE_UNICODE_REGEX)
   @MinLength(MIN_TERM_NAME_LENGTH)
@@ -41,7 +41,7 @@ export class Term extends ValidatingObject {
   constructor(fields: FieldsOf<Term>, assumeValid = false) {
     super();
     this.id = fields.id;
-    this.ownerID = fields.ownerID;
+    this.glossaryID = fields.glossaryID;
     this.name = fields.name;
     this.description = fields.description;
 
