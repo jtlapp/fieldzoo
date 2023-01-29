@@ -40,6 +40,8 @@ And if amateurs can learn to do taxonomy, they can also create field guides for 
 
 [TypeScript](https://typescriptlang.org/), a statically-typed superset of JavaScript. TypeScript allows for running JavaScript on Node with static typing checking, eliminating a whole class of errors at compile time and making it easy to refactor code from VSCode.
 
+[REACT](https://reactjs.org/), a reactive library for building web components. There are many options for UI frameworks, but I'm going with REACT because there are more OTS components I won't have to reinvent, it has robust/proven SSR solutions, and it opens up the most job opportunities for me. I'm experienced with [Svelte](https://svelte.dev/) and love it but don't think [SvelteKit](https://kit.svelte.dev/) is mature enough yet.
+
 [Next.js](https://nextjs.org/), an integrated REACT framework. I want the platform to feel like an SPA but be readily indexable by search engines. Next.js supports CSR, SSR, and REST APIs all on one Node.js server.
 
 [TailwindCSS](https://tailwindcss.com/), a CSS utility library for components. I find that CSS sometimes requires much trial and error to resolve unexpected interactions between classes, and I'm hoping that I'll be dealing with this less in TailWind than in vanilla CSS or Bootstrap.
