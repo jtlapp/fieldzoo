@@ -1,8 +1,41 @@
 import {
+  CODE_WORD_REGEX,
   MULTI_LINE_UNICODE_REGEX,
   SINGLE_LINE_UNICODE_REGEX,
   USER_NAME_REGEX,
 } from "./regexes";
+
+describe("CODE_WORD_REGEX", () => {
+  const regex = CODE_WORD_REGEX;
+
+  it("accepts valid text", () => {
+    expect(matches("a", regex)).toBe(true);
+    expect(matches("A", regex)).toBe(true);
+    expect(matches("_", regex)).toBe(true);
+    expect(matches("abc", regex)).toBe(true);
+    expect(matches("ABC", regex)).toBe(true);
+    expect(matches("Abc", regex)).toBe(true);
+    expect(matches("abCdef", regex)).toBe(true);
+    expect(matches("a_b", regex)).toBe(true);
+    expect(matches("_", regex)).toBe(true);
+    expect(matches("__", regex)).toBe(true);
+    expect(matches("abc_", regex)).toBe(true);
+    expect(matches("a1", regex)).toBe(true);
+    expect(matches("_1", regex)).toBe(true);
+    expect(matches("_1abc", regex)).toBe(true);
+    expect(matches("abc123", regex)).toBe(true);
+  });
+
+  it("rejects invalid text", () => {
+    expect(matches("", regex)).toBe(false);
+    expect(matches("Gü", regex)).toBe(false);
+    expect(matches("123", regex)).toBe(false);
+    expect(matches("123abc", regex)).toBe(false);
+    expect(matches("abc-def", regex)).toBe(false);
+    expect(matches("*!", regex)).toBe(false);
+    expect(matches("abc!", regex)).toBe(false);
+  });
+});
 
 describe("SINGLE_LINE_UNICODE_REGEX", () => {
   const regex = SINGLE_LINE_UNICODE_REGEX;
