@@ -1,5 +1,6 @@
 import {
   CODE_WORD_REGEX,
+  HOST_NAME_REGEX,
   MULTI_LINE_UNICODE_REGEX,
   SINGLE_LINE_UNICODE_REGEX,
   USER_NAME_REGEX,
@@ -34,6 +35,28 @@ describe("CODE_WORD_REGEX", () => {
     expect(matches("abc-def", regex)).toBe(false);
     expect(matches("*!", regex)).toBe(false);
     expect(matches("abc!", regex)).toBe(false);
+  });
+});
+
+describe("HOST_NAME_REGEX", () => {
+  const regex = HOST_NAME_REGEX;
+
+  it("accepts valid text", () => {
+    expect(matches("localhost", regex)).toBe(true);
+    expect(matches("foo.com", regex)).toBe(true);
+    expect(matches("foo.bar.com", regex)).toBe(true);
+    expect(matches("foo-bar.foo-bar.co", regex)).toBe(true);
+    expect(matches("foo123.foo-123.co", regex)).toBe(true);
+  });
+
+  it("rejects invalid text", () => {
+    expect(matches("", regex)).toBe(false);
+    expect(matches(".com", regex)).toBe(false);
+    expect(matches("foo.", regex)).toBe(false);
+    expect(matches("foo..bar", regex)).toBe(false);
+    expect(matches("foo foo.com", regex)).toBe(false);
+    expect(matches("foo.foo com", regex)).toBe(false);
+    expect(matches("foo!com", regex)).toBe(false);
   });
 });
 
