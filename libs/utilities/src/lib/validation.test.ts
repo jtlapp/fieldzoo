@@ -7,6 +7,7 @@ import {
 } from "class-validator";
 
 import { assertValid, ValidatingObject, ValidationError } from "./validation";
+import { expectInvalid } from "../test-utils/validation-expect";
 
 describe("assertValid()", () => {
   class TestObj1 {
@@ -39,49 +40,41 @@ describe("assertValid()", () => {
 
   it("rejects objects with single invalid fields having single errors", () => {
     let obj = new TestObj1(0.5, 1, "ABCDE");
-    expectErrors(obj, "bad", true, ["bad:", "delta", "integer"], []);
-    expectErrors(obj, "bad", false, ["bad"], ["delta", "integer"]);
+    expectInvalid([obj, "bad", true], ["bad:", "delta", "integer"], []);
+    expectInvalid([obj, "bad", false], ["bad"], ["delta", "integer"]);
 
     obj = new TestObj1(0, 0, "ABCDE");
-    expectErrors(obj, "oops", true, ["oops:", "count", "positive"], []);
-    expectErrors(obj, "oops", false, ["oops"], ["count", "positive"]);
+    expectInvalid([obj, "oops", true], ["oops:", "count", "positive"], []);
+    expectInvalid([obj, "oops", false], ["oops"], ["count", "positive"]);
 
     obj = new TestObj1(0, 1, "12345");
-    expectErrors(obj, "bad", true, ["bad:", "name", "letters"], []);
-    expectErrors(obj, "bad", false, ["bad"], ["name", "letters"]);
+    expectInvalid([obj, "bad", true], ["bad:", "name", "letters"], []);
+    expectInvalid([obj, "bad", false], ["bad"], ["name", "letters"]);
   });
 
   it("rejects objects with single invalid fields having multiple errors", () => {
     // validation quits after first error for each property
 
     let obj = new TestObj1(0, 1, "123");
-    expectErrors(
-      obj,
-      "bad",
-      true,
+    expectInvalid(
+      [obj, "bad", true],
       ["bad:", "name", "longer"],
       ["shorter", "letters"]
     );
-    expectErrors(
-      obj,
-      "bad",
-      false,
+    expectInvalid(
+      [obj, "bad", false],
       ["bad"],
       ["name", "letters", ";", "longer", "shorter"]
     );
 
     obj = new TestObj1(0, 1, "123456789012345");
-    expectErrors(
-      obj,
-      "bad",
-      true,
+    expectInvalid(
+      [obj, "bad", true],
       ["bad:", "name", "shorter"],
       ["longer", "letters"]
     );
-    expectErrors(
-      obj,
-      "bad",
-      false,
+    expectInvalid(
+      [obj, "bad", false],
       ["bad"],
       ["name", "letters", ";", "shorter", "longer"]
     );
@@ -89,33 +82,25 @@ describe("assertValid()", () => {
 
   it("rejects objects with multiple invalid fields", () => {
     let obj = new TestObj1(0.5, 0, "ABCDE");
-    expectErrors(
-      obj,
-      "bad",
-      true,
+    expectInvalid(
+      [obj, "bad", true],
       ["bad:", "delta", "integer", "count", "positive"],
       []
     );
-    expectErrors(
-      obj,
-      "bad",
-      false,
+    expectInvalid(
+      [obj, "bad", false],
       ["bad"],
       ["delta", "integer", "count", "positive"]
     );
 
     obj = new TestObj1(0.5, 0, "123");
-    expectErrors(
-      obj,
-      "oops",
-      true,
+    expectInvalid(
+      [obj, "oops", true],
       ["oops:", "delta", "integer", "count", "positive", "name", "longer"],
       ["letters"]
     );
-    expectErrors(
-      obj,
-      "oops",
-      false,
+    expectInvalid(
+      [obj, "oops", false],
       ["oops"],
       ["delta", "integer", "count", "positive", "name", "letters", "longer"]
     );
@@ -161,24 +146,18 @@ describe("ValidatingObject", () => {
   });
 
   it("rejects invalid objects", () => {
-    expectErrors(
+    expectInvalid(
       () => new TestObj2("abc", 0, true),
-      "oops",
-      false,
       ["Invalid test obj 2", "positive"],
       []
     );
-    expectErrors(
+    expectInvalid(
       () => new TestObj2("abc", 0, false),
-      "oops",
-      false,
       ["Invalid test obj 2"],
       ["positive"]
     );
-    expectErrors(
+    expectInvalid(
       () => new TestObj3("abc", 0, true),
-      "oops",
-      false,
       ["Bad test obj 2", "positive"],
       []
     );
@@ -189,28 +168,3 @@ describe("ValidatingObject", () => {
     expect(() => ((testObj as any).id = "xyz")).toThrow("read only");
   });
 });
-
-function expectErrors(
-  objectOrFunc: object | (() => object),
-  message: string,
-  reportFieldMessages: boolean,
-  expectedSubstrings: string[],
-  unexpectedSubstrings: string[]
-): void {
-  try {
-    if (typeof objectOrFunc == "function") {
-      objectOrFunc();
-    } else {
-      assertValid(objectOrFunc, message, reportFieldMessages);
-    }
-    fail("expected validation errors");
-  } catch (err: any) {
-    expect(err).toBeInstanceOf(ValidationError);
-    for (const substr of expectedSubstrings) {
-      expect(err.message).toContain(substr);
-    }
-    for (const substr of unexpectedSubstrings) {
-      expect(err.message).not.toContain(substr);
-    }
-  }
-}
