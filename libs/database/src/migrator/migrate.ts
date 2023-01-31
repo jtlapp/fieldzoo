@@ -9,7 +9,9 @@ import {
   DatabaseConfig,
 } from "@fieldzoo/config";
 
-const MIGRATIONS_FOLDER = "../../libs/migrations/src";
+const MIGRATIONS_FOLDER = "../libs/migrations";
+//const HELP_SWITCHES = ["-h", "--help"];
+const TEST_SWITCH = "--test";
 
 import {
   Kysely,
@@ -20,8 +22,13 @@ import {
 import { run } from "kysely-migration-cli";
 
 let config = TEST_DB_CONFIG;
-if (!process.argv.includes("--test")) {
-  dotenv.config();
+if (!process.argv.includes(TEST_SWITCH)) {
+  try {
+    dotenv.config();
+  } catch (_err: any) {
+    console.log("Please create a .env file or use the --test switch.");
+    process.exit(1);
+  }
   config = DatabaseConfig.fromEnv(ENVVAR_PREFIX + "DB_");
 }
 
