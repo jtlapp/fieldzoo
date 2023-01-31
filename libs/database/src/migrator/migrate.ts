@@ -1,8 +1,15 @@
 import * as path from "path";
 import { promises as fs } from "fs";
 import { Pool } from "pg";
+import * as dotenv from "dotenv";
 
-const MIGRATIONS_FOLDER = "../../libs/migrations";
+import {
+  ENVVAR_PREFIX,
+  TEST_DB_CONFIG,
+  DatabaseConfig,
+} from "@fieldzoo/config";
+
+const MIGRATIONS_FOLDER = "../../libs/migrations/src";
 
 import {
   Kysely,
@@ -12,13 +19,14 @@ import {
 } from "kysely";
 import { run } from "kysely-migration-cli";
 
+let config = TEST_DB_CONFIG;
+if (!process.argv.includes("--test")) {
+  dotenv.config();
+  config = DatabaseConfig.fromEnv(ENVVAR_PREFIX + "DB_");
+}
+
 const db = new Kysely<any>({
-  dialect: new PostgresDialect({
-    pool: new Pool({
-      host: "localhost",
-      database: "kysely_test",
-    }),
-  }),
+  dialect: new PostgresDialect({ pool: new Pool(config) }),
 });
 
 const migrator = new Migrator({
