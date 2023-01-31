@@ -14,7 +14,7 @@ describe("database configuration", () => {
           host: "localhost",
           port: 123,
           database: "foo",
-          username: "bar",
+          user: "bar",
           password: "xyz",
         })
     ).not.toThrow();
@@ -24,7 +24,7 @@ describe("database configuration", () => {
           host: "abc.def.com",
           port: 2001,
           database: "_foo123",
-          username: "_bar123",
+          user: "_bar123",
           password: "d kd #$ !",
         })
     ).not.toThrow();
@@ -37,7 +37,7 @@ describe("database configuration", () => {
           host: undefined!,
           port: undefined!,
           database: undefined!,
-          username: undefined!,
+          user: undefined!,
           password: undefined!,
         }),
       ["host", "port", "database", "user", "password"]
@@ -48,7 +48,7 @@ describe("database configuration", () => {
           host: null!,
           port: null!,
           database: null!,
-          username: null!,
+          user: null!,
           password: null!,
         }),
       ["host", "port", "database", "user", "password"]
@@ -59,7 +59,7 @@ describe("database configuration", () => {
           host: "",
           port: 65536,
           database: "",
-          username: "",
+          user: "",
           password: "",
         }),
       ["host", "port", "database", "user", "password"]
@@ -70,7 +70,7 @@ describe("database configuration", () => {
           host: "foo foo",
           port: -1,
           database: "bar bar",
-          username: "baz baz ",
+          user: "baz baz ",
           password: "abcdef",
         }),
       ["host", "port", "database", "user"]
@@ -81,7 +81,7 @@ describe("database configuration", () => {
           host: "localhost:32",
           port: 9.5,
           database: "*",
-          username: "*",
+          user: "*",
           password: "adfadfad",
         }),
       ["host", "port", "database", "user"]
@@ -95,7 +95,7 @@ describe("database configuration", () => {
           host: "localhost:32",
           port: 123,
           database: "foo",
-          username: "bar",
+          user: "bar",
           password: "xyz",
         }),
       ["invalid host name"]
@@ -106,7 +106,7 @@ describe("database configuration", () => {
           host: "localhost",
           port: 65536,
           database: "foo",
-          username: "bar",
+          user: "bar",
           password: "xyz",
         }),
       ["port must be a number >= 0 and <= 65535"]
@@ -117,7 +117,7 @@ describe("database configuration", () => {
           host: "localhost",
           port: 1000,
           database: "foo bar",
-          username: "bar",
+          user: "bar",
           password: "xyz",
         }),
       ["invalid database name"]
@@ -128,10 +128,10 @@ describe("database configuration", () => {
           host: "localhost",
           port: 1000,
           database: "foo",
-          username: "foo bar",
+          user: "foo bar",
           password: "xyz",
         }),
-      ["invalid username"]
+      ["invalid user"]
     );
     expectInvalid(
       () =>
@@ -139,7 +139,7 @@ describe("database configuration", () => {
           host: "localhost",
           port: 1000,
           database: "foo",
-          username: "bar",
+          user: "bar",
           password: "",
         }),
       ["password should not be empty"]
@@ -157,7 +157,7 @@ describe("database configuration", () => {
     expect(config.host).toEqual(process.env.DB_HOST);
     expect(config.port).toEqual(parseInt(process.env.DB_PORT));
     expect(config.database).toEqual(process.env.DB_DATABASE);
-    expect(config.username).toEqual(process.env.DB_USERNAME);
+    expect(config.user).toEqual(process.env.DB_USERNAME);
     expect(config.password).toEqual(process.env.DB_PASSWORD);
   });
 
@@ -165,7 +165,7 @@ describe("database configuration", () => {
     process.env.DB_HOST = "localhost:1000";
     process.env.DB_PORT = "";
     process.env.DB_DATABASE = "my database";
-    process.env.DB_USERNAME = "my username";
+    process.env.DB_USERNAME = "my user";
     process.env.DB_PASSWORD = "";
 
     try {
@@ -187,7 +187,7 @@ describe("database configuration", () => {
         },
         {
           envVarName: "DB_USERNAME",
-          errorMessage: "invalid username",
+          errorMessage: "invalid user name",
         },
         {
           envVarName: "DB_PASSWORD",

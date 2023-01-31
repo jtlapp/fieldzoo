@@ -6,6 +6,7 @@
  */
 
 import { IsInt, IsString, IsNotEmpty, Matches } from "class-validator";
+import { ClientConfig } from "pg";
 
 import type { FieldsOf } from "@fieldzoo/utilities";
 import {
@@ -21,7 +22,7 @@ import { InvalidEnvironmentError } from "../util/invalid-env-error";
 /**
  * Configuration governing database access, validated on construction.
  */
-export class DatabaseConfig extends ValidatingObject {
+export class DatabaseConfig extends ValidatingObject implements ClientConfig {
   @Matches(HOST_NAME_REGEX, { message: "invalid host name" })
   readonly host: string;
 
@@ -32,8 +33,8 @@ export class DatabaseConfig extends ValidatingObject {
   @Matches(CODE_WORD_REGEX, { message: "invalid database name" })
   readonly database: string;
 
-  @Matches(CODE_WORD_REGEX, { message: "invalid username" })
-  readonly username: string;
+  @Matches(CODE_WORD_REGEX, { message: "invalid user name" })
+  readonly user: string;
 
   @IsString()
   @IsNotEmpty()
@@ -44,7 +45,7 @@ export class DatabaseConfig extends ValidatingObject {
     this.host = fields.host;
     this.port = fields.port;
     this.database = fields.database;
-    this.username = fields.username;
+    this.user = fields.user;
     this.password = fields.password;
 
     this.validate("database configuration");
@@ -74,7 +75,7 @@ export class DatabaseConfig extends ValidatingObject {
         host: process.env[hostEnvVar]!,
         port: parseInt(portString),
         database: process.env[databaseEnvVar]!,
-        username: process.env[usernameEnvVar]!,
+        user: process.env[usernameEnvVar]!,
         password: process.env[passwordEnvVar]!,
       });
     } catch (err: any) {
@@ -84,7 +85,7 @@ export class DatabaseConfig extends ValidatingObject {
         host: hostEnvVar,
         port: portEnvVar,
         database: databaseEnvVar,
-        username: usernameEnvVar,
+        user: usernameEnvVar,
         password: passwordEnvVar,
       };
       const fieldNames = Object.keys(fieldToEnvVarMap);
