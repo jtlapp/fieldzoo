@@ -1,4 +1,4 @@
-# Fieldzoo
+# Field Zoo
 
 An open source platform for collaboratively developing online field guides and multi-branching taxonomic keys.
 
