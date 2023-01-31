@@ -17,10 +17,10 @@
     "paths": {
       "@fieldzoo/config": ["libs/config/src/index.ts"],
       "@fieldzoo/database": ["libs/database/src/index.ts"],
-      "@fieldzoo/migrations": ["libs/migrations/src/index.ts"],
       "@fieldzoo/model": ["libs/model/src/index.ts"],
       "@fieldzoo/services": ["libs/services/src/index.ts"],
       "@fieldzoo/utilities": ["libs/utilities/src/index.ts"],
+      "@fieldzoo/validation": ["libs/validation/src/index.ts"],
       "@fieldzoo/validators": ["libs/validators/src/index.ts"]
     }
   },

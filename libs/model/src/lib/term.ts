@@ -1,11 +1,11 @@
 import { Matches, MaxLength, MinLength } from "class-validator";
 
+import { FieldsOf } from "@fieldzoo/utilities";
 import {
   ValidatingObject,
-  FieldsOf,
   MULTI_LINE_UNICODE_REGEX,
   SINGLE_LINE_UNICODE_REGEX,
-} from "@fieldzoo/utilities";
+} from "@fieldzoo/validation";
 
 import { GlossaryID } from "./glossary";
 

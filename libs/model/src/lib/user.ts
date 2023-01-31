@@ -1,11 +1,11 @@
 import { Matches, MaxLength, MinLength } from "class-validator";
 
+import { FieldsOf } from "@fieldzoo/utilities";
 import {
   ValidatingObject,
   EmailAddress,
-  FieldsOf,
   USER_NAME_REGEX,
-} from "@fieldzoo/utilities";
+} from "@fieldzoo/validation";
 
 /** Min. length of user name (chars) */
 export const MIN_USER_NAME_LENGTH = 2;

@@ -1,6 +1,6 @@
 import { DatabaseConfig } from "./database-config";
 
-import { expectInvalid } from "@fieldzoo/utilities";
+import { expectInvalid } from "@fieldzoo/validation";
 
 import { InvalidEnvironmentError } from "../util/invalid-env-error";
 

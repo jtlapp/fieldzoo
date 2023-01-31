@@ -1,11 +1,11 @@
 import { Matches, MaxLength, MinLength, IsOptional } from "class-validator";
 
+import { FieldsOf } from "@fieldzoo/utilities";
 import {
-  FieldsOf,
   ValidatingObject,
   MULTI_LINE_UNICODE_REGEX,
   SINGLE_LINE_UNICODE_REGEX,
-} from "@fieldzoo/utilities";
+} from "@fieldzoo/validation";
 
 import { UserID } from "./user";
 

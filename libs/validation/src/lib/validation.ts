@@ -5,7 +5,7 @@
 
 import { validateSync } from "class-validator";
 
-import { ClassType } from "./generic-types";
+import { ClassType } from "@fieldzoo/utilities";
 
 /**
  * Base class with convenience methods for validating objects.

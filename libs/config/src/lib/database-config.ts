@@ -7,13 +7,13 @@
 
 import { IsInt, IsString, IsNotEmpty, Matches } from "class-validator";
 
+import type { FieldsOf } from "@fieldzoo/utilities";
 import {
-  FieldsOf,
   ValidatingObject,
   CODE_WORD_REGEX,
   HOST_NAME_REGEX,
   ValidationError,
-} from "@fieldzoo/utilities";
+} from "@fieldzoo/validation";
 import { InRange } from "@fieldzoo/validators";
 
 import { InvalidEnvironmentError } from "../util/invalid-env-error";
