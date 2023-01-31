@@ -59,3 +59,7 @@ I'll probably also use [Storyteller](https://www.getstoryteller.com/), once I un
 I'm not yet decided on whether to use [Cypress](https://www.cypress.io/) or [Playwright](https://playwright.dev/) or both. I have experience with Playwright.
 
 I'm also experimenting with techniques for writing robust TypeScript using [Domain-Driven Design (DDD)](https://medium.com/ssense-tech/domain-driven-design-everything-you-always-wanted-to-know-about-it-but-were-afraid-to-ask-a85e7b74497a). This aspect of the solution is likely to evolve until I'm happy with a particular approach.
+
+## License
+
+The platform and tooling is licensed under GPL-3.0, but some of the generically useful tools and libraries use the MIT license. Assume GPL-3.0 unless the tool or library includes a LICENSE file saying otherwise.
