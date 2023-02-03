@@ -1,9 +1,5 @@
-import { DatabaseConfig } from "./database-config";
+/**
+ * Constants used for testing.
+ */
 
-export const TEST_DB_CONFIG = new DatabaseConfig({
-  host: "localhost",
-  port: 5432,
-  database: "fieldzoo_test",
-  user: "test_user",
-  password: "test_pass",
-});
+export const TEST_ENV = ".env-test";
