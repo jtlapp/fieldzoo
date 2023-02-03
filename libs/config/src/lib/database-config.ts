@@ -22,7 +22,7 @@ import { InvalidEnvironmentError } from "../util/invalid-env-error";
 const HOST_SUFFIX = "HOST";
 const PORT_SUFFIX = "PORT";
 const DATABASE_SUFFIX = "DATABASE";
-const USER_SUFFIX = "USER";
+const USER_SUFFIX = "USERNAME";
 const PASSWORD_SUFFIX = "PASSWORD";
 
 /**
