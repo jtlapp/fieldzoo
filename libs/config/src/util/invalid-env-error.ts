@@ -14,10 +14,20 @@ export interface EnvironmentVariableError {
 /**
  * Class representing one or more problems with one or more environment variables.
  */
-export class InvalidEnvironmentError {
+export class InvalidEnvironmentError extends Error {
   errors: EnvironmentVariableError[] = [];
+
+  constructor() {
+    super("Invalid environment variable(s)");
+  }
 
   add(error: EnvironmentVariableError) {
     this.errors.push(error);
+  }
+
+  toString(): string {
+    return `${this.message}:\n${this.errors
+      .map((err) => `  ${err.envVarName}: ${err.errorMessage}`)
+      .join("\n")}`;
   }
 }
