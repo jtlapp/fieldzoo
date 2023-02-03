@@ -3,7 +3,7 @@ import { Kysely } from "kysely";
 import {
   createTimestampedTable,
   createCollaborativeTable,
-} from "./utils/migration-utils";
+} from "../utils/migration-utils";
 
 export async function up(db: Kysely<any>): Promise<void> {
   await createTimestampedTable(db, "users")

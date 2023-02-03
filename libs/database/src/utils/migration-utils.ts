@@ -1,8 +1,14 @@
 /**
- * Table builder functions supporting migration.
+ * Migration utility constants and functions
  */
 
+import * as path from "path";
 import { Kysely, sql } from "kysely";
+
+/**
+ * Returns the path to the migration files.
+ */
+export const MIGRATION_FILE_PATH = path.join(__dirname, "../migrations");
 
 /**
  * Creates a table having `createdAt` and `updatedAt` timestamps.
