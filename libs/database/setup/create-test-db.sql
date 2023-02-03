@@ -4,5 +4,5 @@
 -- create the production database with different user credentials.
 
 create database fieldzoo_test;
-create user test_user with encrypted password 'test_pass';
-grant all privileges on database fieldzoo_test to test_user;
+create user fieldzoo_tester with encrypted password 'tester_pass';
+grant all privileges on database fieldzoo_test to fieldzoo_tester;
