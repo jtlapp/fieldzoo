@@ -6,7 +6,7 @@
  */
 
 import { IsInt, IsString, IsNotEmpty, Matches } from "class-validator";
-import { ClientConfig } from "pg";
+import type { ClientConfig } from "pg";
 
 import type { FieldsOf } from "@fieldzoo/utilities";
 import {
@@ -18,6 +18,12 @@ import {
 import { InRange } from "@fieldzoo/validators";
 
 import { InvalidEnvironmentError } from "../util/invalid-env-error";
+
+const HOST_SUFFIX = "HOST";
+const PORT_SUFFIX = "PORT";
+const DATABASE_SUFFIX = "DATABASE";
+const USER_SUFFIX = "USER";
+const PASSWORD_SUFFIX = "PASSWORD";
 
 /**
  * Configuration governing database access, validated on construction.
@@ -60,11 +66,11 @@ export class DatabaseConfig extends ValidatingObject implements ClientConfig {
    *    specify a valid database configuration
    */
   static fromEnv(variablePrefix: string): DatabaseConfig {
-    const hostEnvVar = variablePrefix + "HOST";
-    const portEnvVar = variablePrefix + "PORT";
-    const databaseEnvVar = variablePrefix + "DATABASE";
-    const usernameEnvVar = variablePrefix + "USERNAME";
-    const passwordEnvVar = variablePrefix + "PASSWORD";
+    const hostEnvVar = variablePrefix + HOST_SUFFIX;
+    const portEnvVar = variablePrefix + PORT_SUFFIX;
+    const databaseEnvVar = variablePrefix + DATABASE_SUFFIX;
+    const usernameEnvVar = variablePrefix + USER_SUFFIX;
+    const passwordEnvVar = variablePrefix + PASSWORD_SUFFIX;
 
     try {
       let portString = process.env[portEnvVar];
@@ -104,5 +110,24 @@ export class DatabaseConfig extends ValidatingObject implements ClientConfig {
       }
       throw error;
     }
+  }
+
+  /**
+   * Returns help information for the expected environment variables.
+   *
+   * @param variablePrefix Prefix starting each environment variable name
+   * @returns An object mapping environment variable names to text that
+   *    can be used to describe the environment variables in help output.
+   */
+  static getHelpInfo(variablePrefix: string): Record<string, string> {
+    return {
+      [variablePrefix + HOST_SUFFIX]:
+        "host of database server (e.g. 'localhost')",
+      [variablePrefix + PORT_SUFFIX]: "port number of database server at host",
+      [variablePrefix + DATABASE_SUFFIX]: "name of database on database server",
+      [variablePrefix + USER_SUFFIX]:
+        "user name with which to login to database",
+      [variablePrefix + PASSWORD_SUFFIX]: "password for this user",
+    };
   }
 }
