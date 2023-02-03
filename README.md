@@ -4,6 +4,8 @@ An open source platform for collaboratively developing online field guides and m
 
 _UNDER DEVELOPMENT_
 
+NOTE: Nx is unable to build node-based CLI apps, due to a bug in Nx, so I'm investigating other monorepo options.
+
 ## Overview
 
 This platform implements a website and web API having the following features:
