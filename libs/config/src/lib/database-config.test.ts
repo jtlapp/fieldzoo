@@ -1,3 +1,5 @@
+/* eslint-disable turbo/no-undeclared-env-vars */
+
 import { DatabaseConfig } from "./database-config";
 
 import { expectInvalid } from "@fieldzoo/validation";
@@ -16,7 +18,7 @@ describe("database configuration", () => {
           database: "foo",
           user: "bar",
           password: "xyz",
-        })
+        }),
     ).not.toThrow();
     expect(
       () =>
@@ -26,12 +28,13 @@ describe("database configuration", () => {
           database: "_foo123",
           user: "_bar123",
           password: "d kd #$ !",
-        })
+        }),
     ).not.toThrow();
   });
 
   it("rejects invalid configurations", () => {
     expectInvalid(
+      expect,
       () =>
         new DatabaseConfig({
           host: undefined!,
@@ -40,9 +43,10 @@ describe("database configuration", () => {
           user: undefined!,
           password: undefined!,
         }),
-      ["host", "port", "database", "user", "password"]
+      ["host", "port", "database", "user", "password"],
     );
     expectInvalid(
+      expect,
       () =>
         new DatabaseConfig({
           host: null!,
@@ -51,9 +55,10 @@ describe("database configuration", () => {
           user: null!,
           password: null!,
         }),
-      ["host", "port", "database", "user", "password"]
+      ["host", "port", "database", "user", "password"],
     );
     expectInvalid(
+      expect,
       () =>
         new DatabaseConfig({
           host: "",
@@ -62,9 +67,10 @@ describe("database configuration", () => {
           user: "",
           password: "",
         }),
-      ["host", "port", "database", "user", "password"]
+      ["host", "port", "database", "user", "password"],
     );
     expectInvalid(
+      expect,
       () =>
         new DatabaseConfig({
           host: "foo foo",
@@ -73,9 +79,10 @@ describe("database configuration", () => {
           user: "baz baz ",
           password: "abcdef",
         }),
-      ["host", "port", "database", "user"]
+      ["host", "port", "database", "user"],
     );
     expectInvalid(
+      expect,
       () =>
         new DatabaseConfig({
           host: "localhost:32",
@@ -84,12 +91,13 @@ describe("database configuration", () => {
           user: "*",
           password: "adfadfad",
         }),
-      ["host", "port", "database", "user"]
+      ["host", "port", "database", "user"],
     );
   });
 
   it("produces friendly error messages", () => {
     expectInvalid(
+      expect,
       () =>
         new DatabaseConfig({
           host: "localhost:32",
@@ -98,9 +106,10 @@ describe("database configuration", () => {
           user: "bar",
           password: "xyz",
         }),
-      ["invalid host name"]
+      ["invalid host name"],
     );
     expectInvalid(
+      expect,
       () =>
         new DatabaseConfig({
           host: "localhost",
@@ -109,9 +118,10 @@ describe("database configuration", () => {
           user: "bar",
           password: "xyz",
         }),
-      ["port must be a number >= 0 and <= 65535"]
+      ["port must be a number >= 0 and <= 65535"],
     );
     expectInvalid(
+      expect,
       () =>
         new DatabaseConfig({
           host: "localhost",
@@ -120,9 +130,10 @@ describe("database configuration", () => {
           user: "bar",
           password: "xyz",
         }),
-      ["invalid database name"]
+      ["invalid database name"],
     );
     expectInvalid(
+      expect,
       () =>
         new DatabaseConfig({
           host: "localhost",
@@ -131,9 +142,10 @@ describe("database configuration", () => {
           user: "foo bar",
           password: "xyz",
         }),
-      ["invalid user"]
+      ["invalid user"],
     );
     expectInvalid(
+      expect,
       () =>
         new DatabaseConfig({
           host: "localhost",
@@ -142,7 +154,7 @@ describe("database configuration", () => {
           user: "bar",
           password: "",
         }),
-      ["password should not be empty"]
+      ["password should not be empty"],
     );
   });
 

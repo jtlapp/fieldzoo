@@ -40,16 +40,26 @@ describe("assertValid()", () => {
 
   it("rejects objects with single invalid fields having single errors", () => {
     let obj = new TestObj1(0.5, 1, "ABCDE");
-    expectInvalid([obj, "bad", true], ["bad:", "delta", "integer"], []);
-    expectInvalid([obj, "bad", false], ["bad"], ["delta", "integer"]);
+    expectInvalid(expect, [obj, "bad", true], ["bad:", "delta", "integer"], []);
+    expectInvalid(expect, [obj, "bad", false], ["bad"], ["delta", "integer"]);
 
     obj = new TestObj1(0, 0, "ABCDE");
-    expectInvalid([obj, "oops", true], ["oops:", "count", "positive"], []);
-    expectInvalid([obj, "oops", false], ["oops"], ["count", "positive"]);
+    expectInvalid(
+      expect,
+      [obj, "oops", true],
+      ["oops:", "count", "positive"],
+      [],
+    );
+    expectInvalid(
+      expect,
+      [obj, "oops", false],
+      ["oops"],
+      ["count", "positive"],
+    );
 
     obj = new TestObj1(0, 1, "12345");
-    expectInvalid([obj, "bad", true], ["bad:", "name", "letters"], []);
-    expectInvalid([obj, "bad", false], ["bad"], ["name", "letters"]);
+    expectInvalid(expect, [obj, "bad", true], ["bad:", "name", "letters"], []);
+    expectInvalid(expect, [obj, "bad", false], ["bad"], ["name", "letters"]);
   });
 
   it("rejects objects with single invalid fields having multiple errors", () => {
@@ -57,52 +67,60 @@ describe("assertValid()", () => {
 
     let obj = new TestObj1(0, 1, "123");
     expectInvalid(
+      expect,
       [obj, "bad", true],
       ["bad:", "name", "longer"],
-      ["shorter", "letters"]
+      ["shorter", "letters"],
     );
     expectInvalid(
+      expect,
       [obj, "bad", false],
       ["bad"],
-      ["name", "letters", ";", "longer", "shorter"]
+      ["name", "letters", ";", "longer", "shorter"],
     );
 
     obj = new TestObj1(0, 1, "123456789012345");
     expectInvalid(
+      expect,
       [obj, "bad", true],
       ["bad:", "name", "shorter"],
-      ["longer", "letters"]
+      ["longer", "letters"],
     );
     expectInvalid(
+      expect,
       [obj, "bad", false],
       ["bad"],
-      ["name", "letters", ";", "shorter", "longer"]
+      ["name", "letters", ";", "shorter", "longer"],
     );
   });
 
   it("rejects objects with multiple invalid fields", () => {
     let obj = new TestObj1(0.5, 0, "ABCDE");
     expectInvalid(
+      expect,
       [obj, "bad", true],
       ["bad:", "delta", "integer", "count", "positive"],
-      []
+      [],
     );
     expectInvalid(
+      expect,
       [obj, "bad", false],
       ["bad"],
-      ["delta", "integer", "count", "positive"]
+      ["delta", "integer", "count", "positive"],
     );
 
     obj = new TestObj1(0.5, 0, "123");
     expectInvalid(
+      expect,
       [obj, "oops", true],
       ["oops:", "delta", "integer", "count", "positive", "name", "longer"],
-      ["letters"]
+      ["letters"],
     );
     expectInvalid(
+      expect,
       [obj, "oops", false],
       ["oops"],
-      ["delta", "integer", "count", "positive", "name", "letters", "longer"]
+      ["delta", "integer", "count", "positive", "name", "letters", "longer"],
     );
   });
 
@@ -147,19 +165,22 @@ describe("ValidatingObject", () => {
 
   it("rejects invalid objects", () => {
     expectInvalid(
+      expect,
       () => new TestObj2("abc", 0, true),
       ["Invalid test obj 2", "positive"],
-      []
+      [],
     );
     expectInvalid(
+      expect,
       () => new TestObj2("abc", 0, false),
       ["Invalid test obj 2"],
-      ["positive"]
+      ["positive"],
     );
     expectInvalid(
+      expect,
       () => new TestObj3("abc", 0, true),
       ["Bad test obj 2", "positive"],
-      []
+      [],
     );
   });
 
