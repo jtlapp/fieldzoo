@@ -23,7 +23,7 @@ import { MIGRATION_FILE_PATH } from "@fieldzoo/database";
 
 import { dropAllTables, existingTables } from "@fieldzoo/utilities";
 
-const PATH_TO_ROOT = path.join(__dirname, "../../../..");
+const PATH_TO_ROOT = path.join(__dirname, "../../..");
 
 /** Root-relative path name of .env file having DB credentials */
 let envFileName: string; // has a default value, so never null
