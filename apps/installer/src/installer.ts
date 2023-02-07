@@ -114,6 +114,7 @@ async function doInstall(db: Kysely<any>) {
   if (!(await migrateToLatestSchema(db))) {
     throw new CommandFailure("Installation failed");
   }
+  console.log("Installed.");
 }
 
 async function doReinstall(db: Kysely<any>) {
@@ -127,6 +128,7 @@ async function doReinstall(db: Kysely<any>) {
   if (!(await migrateToLatestSchema(db))) {
     throw new CommandFailure("Reinstallation failed");
   }
+  console.log("Reinstalled.");
 }
 
 async function doUpgrade(db: Kysely<any>) {
@@ -139,6 +141,7 @@ async function doUpgrade(db: Kysely<any>) {
   if (!(await migrateToLatestSchema(db))) {
     throw new CommandFailure("Upgrade failed");
   }
+  console.log("Upgraded.");
 }
 
 async function migrateToLatestSchema(db: Kysely<any>): Promise<boolean> {
@@ -160,6 +163,8 @@ async function migrateToLatestSchema(db: Kysely<any>): Promise<boolean> {
       }`,
     );
   });
-  console.error(error);
-  return !!error;
+  if (error) {
+    console.error(error);
+  }
+  return !error;
 }
