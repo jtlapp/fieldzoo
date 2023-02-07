@@ -20,16 +20,25 @@ import { MIGRATION_FILE_PATH } from "./migration-utils";
 
 const PATH_TO_ROOT = path.join(__dirname, "../../../..");
 
-export async function resetTestDB(): Promise<void> {
-  // Open the database using the test environment.
+let db: Kysely<any> | null = null;
 
-  dotenv.config({ path: path.join(PATH_TO_ROOT, TEST_ENV) });
-  const db = new Kysely<any>({
-    dialect: new PostgresDialect({
-      pool: new Pool(DatabaseConfig.fromEnv(DB_ENVVAR_PREFIX)),
-    }),
-  });
+export function getDB(): Kysely<any> {
+  if (!db) {
+    dotenv.config({ path: path.join(PATH_TO_ROOT, TEST_ENV) });
+    db = new Kysely<any>({
+      dialect: new PostgresDialect({
+        pool: new Pool(DatabaseConfig.fromEnv(DB_ENVVAR_PREFIX)),
+      }),
+    });
+  }
+  return db;
+}
 
+export async function closeDB(): Promise<void> {
+  if (db) await db.destroy();
+}
+
+export async function resetTestDB(db: Kysely<any>): Promise<void> {
   // Drop any tables already present in the database.
 
   await dropAllTables(db);
