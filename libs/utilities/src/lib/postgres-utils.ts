@@ -12,18 +12,24 @@ interface Schema {
 /**
  * Drops all tables in the current database.
  */
-export function dropAllTables(db: Kysely<Schema>) {
-  return sql`select 'drop table if exists "' || tablename || '" cascade;' 
-      from pg_tables where schemaname = 'public';`.execute(db);
+export async function dropAllTables(db: Kysely<Schema>): Promise<void> {
+  const tableNames = await existingTables(db);
+  if (tableNames.length > 0) {
+    const dropSql = `${tableNames
+      .map((tableName) => `drop table if exists ${tableName} cascade;`)
+      .join("\n")}`;
+    await sql.raw(dropSql).execute(db);
+  }
 }
 
 /**
  * Returns the names of all tables in the current database.
  */
-export function existingTables(db: Kysely<Schema>) {
-  return db
+export async function existingTables(db: Kysely<Schema>): Promise<string[]> {
+  const rows = await db
     .selectFrom("pg_tables")
     .select("tablename")
     .where("schemaname", "=", "public")
     .execute();
+  return rows.map((row) => row.tablename);
 }
