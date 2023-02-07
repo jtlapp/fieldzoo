@@ -1,10 +1,10 @@
 import { execSync } from "child_process";
 import { join } from "path";
-import { type Kysely } from "kysely";
+import type { Kysely } from "kysely";
 
 import { TEST_ENV } from "@fieldzoo/config";
 import { getDB, closeDB, resetTestDB } from "@fieldzoo/database";
-import { getError } from "@fieldzoo/utilities";
+import { dropAllTables, getError } from "@fieldzoo/utilities";
 
 let db: Kysely<any>;
 
@@ -14,6 +14,20 @@ afterAll(() => closeDB());
 
 describe("installer", () => {
   it("should install tables from scratch by default", async () => {
+    await dropAllTables(db);
+    const cliPath = join(__dirname, "../dist/installer.js");
+    try {
+      const stdout = execSync(
+        `node --enable-source-maps ${cliPath} --env ${TEST_ENV}`,
+      );
+      expect(stdout.toString()).toMatch(/Installed/);
+    } catch (err: any) {
+      if (!err.stdout) throw err;
+      throw new Error("Command failed with stdout: " + err.stdout.toString());
+    }
+  });
+
+  it("should decline installation when one is present", async () => {
     await resetTestDB(db);
     const cliPath = join(__dirname, "../dist/installer.js");
     const err = await getError<any>(() =>
