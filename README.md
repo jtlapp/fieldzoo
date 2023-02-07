@@ -4,8 +4,6 @@ An open source platform for collaboratively developing online field guides and m
 
 _UNDER DEVELOPMENT_
 
-NOTE: Nx is unable to build node-based CLI apps, due to a bug in Nx, so I'm investigating other monorepo options.
-
 ## Overview
 
 This platform implements a website and web API having the following features:
@@ -36,7 +34,7 @@ And if amateurs can learn to do taxonomy, they can also create field guides for 
 
 ## Technologies
 
-[NX](https://nx.dev), a tool for managing monorepos. I expect this platform to consist of a number of apps and tools that need to share code, and monorepos make this possible. I settled on NX primarily for its simplicity, but it's also the fastest at building from cache.
+[Turborepo](https://turbo.build/repo), a tool for managing monorepos. I expect this platform to consist of a number of apps and tools that need to share code, and monorepos make this possible. I started with Nx but found the file structure too messy and indirection too hard to make work. Turborepo is a simple veneer over familiar package structures.
 
 [Node.js](https://nodejs.org/en/about/), a server-side JavaScript runtime. Node's asynchronous, non-blocking event-driven architecture makes it easy to build high-throughput web apps. Node is also easy to deploy on any OS, and it allows backend devs to also work on frontend code in the same language.
 
