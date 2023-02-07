@@ -13,6 +13,7 @@ import {
   PostgresDialect,
   FileMigrationProvider,
 } from "kysely";
+import ExtendableError from "es6-error";
 
 import {
   DB_ENVVAR_PREFIX,
@@ -28,7 +29,7 @@ const PATH_TO_ROOT = path.join(__dirname, "../../..");
 /** Root-relative path name of .env file having DB credentials */
 let envFileName: string; // has a default value, so never null
 
-class CommandFailure extends Error {
+class CommandFailure extends ExtendableError {
   constructor(message: string) {
     super(message);
   }
@@ -75,6 +76,7 @@ async function commandWrapper(
   action: (db: Kysely<any>) => Promise<void>,
 ): Promise<void> {
   let db: Kysely<any> | null = null;
+  let errored = false;
   try {
     try {
       dotenv.config({ path: path.join(PATH_TO_ROOT, envFileName) });
@@ -88,16 +90,18 @@ async function commandWrapper(
     });
     await action(db);
   } catch (err: any) {
+    errored = true;
     if (err instanceof CommandFailure) {
-      console.log(`Failed: ${err.message} (-h for help)`);
+      console.error(`FAILED: ${err.message} (-h for help)\n`);
     } else if (err instanceof InvalidEnvironmentError) {
-      console.log("Failed: " + err.toString());
+      console.error("FAILED: " + err.toString() + "\n");
     } else {
       throw err;
     }
   } finally {
     if (db) await db.destroy();
   }
+  process.exit(errored ? 1 : 0);
 }
 
 async function doInstall(db: Kysely<any>) {
