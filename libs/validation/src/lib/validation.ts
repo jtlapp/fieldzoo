@@ -4,6 +4,7 @@
  */
 
 import { validateSync } from "class-validator";
+import ExtendableError from "es6-error";
 
 import { ClassType } from "@fieldzoo/utilities";
 
@@ -37,7 +38,7 @@ export abstract class ValidatingObject {
     assertValid(
       this,
       () => this.toErrorMessage(kindOfObject),
-      reportFieldMessages
+      reportFieldMessages,
     );
   }
 
@@ -68,7 +69,7 @@ export abstract class ValidatingObject {
 export function assertValid<T extends ClassType<T>>(
   obj: InstanceType<T>,
   messageOrFunc: string | (() => string),
-  reportFieldMessages = true
+  reportFieldMessages = true,
 ): void {
   // Stop at first error so can prevent excessive-length
   // strings from being parsed in subsequent validations.
@@ -77,7 +78,7 @@ export function assertValid<T extends ClassType<T>>(
     let fieldMessages: string[] = [];
     if (reportFieldMessages) {
       fieldMessages = errors.flatMap((err) =>
-        err.constraints ? Object.values(err.constraints) : []
+        err.constraints ? Object.values(err.constraints) : [],
       );
     }
     let combinedMessage =
@@ -92,7 +93,7 @@ export function assertValid<T extends ClassType<T>>(
 /**
  * Class reporting a validation error
  */
-export class ValidationError extends Error {
+export class ValidationError extends ExtendableError {
   constructor(message: string) {
     super(message);
   }

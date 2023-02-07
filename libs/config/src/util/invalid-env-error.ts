@@ -14,12 +14,9 @@ export interface EnvironmentVariableError {
 /**
  * Class representing one or more problems with one or more environment variables.
  */
-export class InvalidEnvironmentError extends Error {
+export class InvalidEnvironmentError {
+  readonly message = "Invalid environment variable(s)";
   errors: EnvironmentVariableError[] = [];
-
-  constructor() {
-    super("Invalid environment variable(s)");
-  }
 
   add(error: EnvironmentVariableError) {
     this.errors.push(error);
