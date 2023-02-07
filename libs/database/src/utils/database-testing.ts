@@ -18,10 +18,12 @@ import { dropAllTables } from "@fieldzoo/utilities";
 
 import { MIGRATION_FILE_PATH } from "./migration-utils";
 
+const PATH_TO_ROOT = path.join(__dirname, "../../../..");
+
 export async function resetTestDB(): Promise<void> {
   // Open the database using the test environment.
 
-  dotenv.config({ path: path.join(process.cwd(), TEST_ENV) });
+  dotenv.config({ path: path.join(PATH_TO_ROOT, TEST_ENV) });
   const db = new Kysely<any>({
     dialect: new PostgresDialect({
       pool: new Pool(DatabaseConfig.fromEnv(DB_ENVVAR_PREFIX)),

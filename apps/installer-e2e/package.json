@@ -1,0 +1,24 @@
+{
+  "name": "installer-e2e",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "dev": "tsc -w",
+    "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
+    "test": "jest"
+  },
+  "jest": {
+    "preset": "jest-presets/node"
+  },
+  "dependencies": {
+    "@fieldzoo/config": "*",
+    "@fieldzoo/database": "*"
+  },
+  "devDependencies": {
+    "eslint-config-custom": "*",
+    "jest-presets": "*",
+    "tsconfig": "*"
+  }
+}

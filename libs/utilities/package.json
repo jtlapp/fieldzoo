@@ -1,0 +1,26 @@
+{
+  "name": "@fieldzoo/utilities",
+  "version": "0.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "dev": "tsc -w",
+    "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
+    "test": "jest --passWithNoTests"
+  },
+  "jest": {
+    "preset": "jest-presets/node"
+  },
+  "devDependencies": {
+    "eslint-config-custom": "*",
+    "jest-presets": "*",
+    "tsconfig": "*"
+  }
+}

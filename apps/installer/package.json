@@ -1,0 +1,22 @@
+{
+  "name": "installer",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "dev": "tsc -w",
+    "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "@fieldzoo/config": "*",
+    "@fieldzoo/database": "*",
+    "@fieldzoo/utilities": "*"
+  },
+  "devDependencies": {
+    "eslint-config-custom": "*",
+    "jest-presets": "*",
+    "tsconfig": "*"
+  }
+}
