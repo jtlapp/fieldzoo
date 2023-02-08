@@ -1,0 +1,56 @@
+{
+  "folders": [
+    {
+      "name": "fieldzoo",
+      "path": "."
+    },
+    {
+      "name": "apps/installer",
+      "path": "apps/installer"
+    },
+    {
+      "name": "apps/website",
+      "path": "apps/website"
+    },
+    {
+      "name": "libs/config",
+      "path": "libs/config"
+    },
+    {
+      "name": "libs/database",
+      "path": "libs/database"
+    },
+    {
+      "name": "libs/eslint-config-custom",
+      "path": "libs/eslint-config-custom"
+    },
+    {
+      "name": "libs/jest-presets",
+      "path": "libs/jest-presets"
+    },
+    {
+      "name": "libs/model",
+      "path": "libs/model"
+    },
+    {
+      "name": "libs/services",
+      "path": "libs/services"
+    },
+    {
+      "name": "libs/tsconfig",
+      "path": "libs/tsconfig"
+    },
+    {
+      "name": "libs/utilities",
+      "path": "libs/utilities"
+    },
+    {
+      "name": "libs/validation",
+      "path": "libs/validation"
+    },
+    {
+      "name": "libs/validators",
+      "path": "libs/validators"
+    }
+  ]
+}
