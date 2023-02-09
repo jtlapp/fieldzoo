@@ -41,6 +41,10 @@
       "path": "libs/tsconfig"
     },
     {
+      "name": "libs/ui",
+      "path": "libs/ui"
+    },
+    {
       "name": "libs/utilities",
       "path": "libs/utilities"
     },
