@@ -19,12 +19,16 @@
     "preset": "jest-presets/node"
   },
   "dependencies": {
-    "@fieldzoo/utilities": "*",
-    "@fieldzoo/validation": "*"
+    "@fieldzoo/utilities": "workspace:*",
+    "@fieldzoo/validation": "workspace:*",
+    "class-validator": "^0.14.0"
   },
   "devDependencies": {
-    "eslint-config-custom": "*",
-    "jest-presets": "*",
-    "tsconfig": "*"
+    "@types/jest": "^29.4.0",
+    "eslint-config-custom": "workspace:*",
+    "jest": "^29.4.2",
+    "jest-presets": "workspace:*",
+    "ts-jest": "^29.0.5",
+    "tsconfig": "workspace:*"
   }
 }

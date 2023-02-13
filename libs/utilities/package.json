@@ -12,15 +12,17 @@
     "build": "tsc",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
-    "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
-    "test": "jest --passWithNoTests"
+    "lint": "TIMING=1 eslint \"src/**/*.ts*\""
   },
   "jest": {
     "preset": "jest-presets/node"
   },
   "devDependencies": {
-    "eslint-config-custom": "*",
-    "jest-presets": "*",
-    "tsconfig": "*"
+    "eslint-config-custom": "workspace:*",
+    "jest-presets": "workspace:*",
+    "tsconfig": "workspace:*"
+  },
+  "dependencies": {
+    "kysely": "^0.23.4"
   }
 }

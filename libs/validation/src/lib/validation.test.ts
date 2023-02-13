@@ -127,9 +127,9 @@ describe("assertValid()", () => {
   it("lazily evaluates error messages", () => {
     const ERROR_MESSAGE = "Invalid test object";
     const obj = new TestObj1(0.5, 1, "ABCDE");
+    expect.assertions(2);
     try {
       assertValid(obj, () => ERROR_MESSAGE, false);
-      fail("expected validation error");
     } catch (err: any) {
       expect(err).toBeInstanceOf(ValidationError);
       expect(err.message).toEqual(ERROR_MESSAGE);

@@ -2,6 +2,7 @@
   "name": "@fieldzoo/validators",
   "version": "0.0.0",
   "private": true,
+  "license": "MIT",
   "main": "dist/index.js",
   "source": "src/index.ts",
   "types": "src/index.ts",
@@ -19,8 +20,14 @@
     "preset": "jest-presets/node"
   },
   "devDependencies": {
-    "eslint-config-custom": "*",
-    "jest-presets": "*",
-    "tsconfig": "*"
+    "@types/jest": "^29.4.0",
+    "eslint-config-custom": "workspace:*",
+    "jest": "^29.4.2",
+    "jest-presets": "workspace:*",
+    "ts-jest": "^29.0.5",
+    "tsconfig": "workspace:*"
+  },
+  "dependencies": {
+    "class-validator": "^0.14.0"
   }
 }

@@ -12,11 +12,11 @@
       "dependsOn": [],
       "outputMode": "errors-only"
     },
-    "lint": {
-      "outputs": []
-    },
+    "lint": {},
+    "check-types": {},
     "dev": {
-      "cache": false
+      "cache": false,
+      "persistent": true
     },
     "clean": {
       "cache": false,

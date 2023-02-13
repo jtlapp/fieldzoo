@@ -2,8 +2,6 @@
  * Utilities for testing `class-validator`-based validation.
  */
 
-import { fail } from "assert";
-
 import { assertValid, ValidationError } from "../lib/validation";
 
 /**
@@ -12,7 +10,7 @@ import { assertValid, ValidationError } from "../lib/validation";
  * object. Require certain substrings to be present among the error messages
  * and certain substrings to be absent.
  *
- * @param expectFunc The jest `expect` function, provided at runtime so it
+ * @param jestExpect The jest `expect` function, provided at runtime so it
  *    doesn't get linked in with production code
  * @param validationSpecOrFunc Either a validation specification tuple [
  *    <object-to-validate>, <error-message-prefix>, <report-field-messages>]
@@ -24,7 +22,7 @@ import { assertValid, ValidationError } from "../lib/validation";
  * @throws Whatever jest's `expect` method throws on a failed test
  */
 export function expectInvalid(
-  expectFunc: jest.Expect,
+  jestExpect: any, // Jest does not make it easy to import the correct type
   validationSpecOrFunc: [object, string, boolean] | (() => object),
   expectedSubstrings: string[],
   unexpectedSubstrings: string[] = [],
@@ -36,14 +34,14 @@ export function expectInvalid(
       const [obj, message, reportFieldMessages] = validationSpecOrFunc;
       assertValid(obj, message, reportFieldMessages);
     }
-    fail("expected validation errors");
+    throw new Error("expected an exception");
   } catch (err: any) {
-    expectFunc(err).toBeInstanceOf(ValidationError);
+    jestExpect(err).toBeInstanceOf(ValidationError);
     for (const substr of expectedSubstrings) {
-      expectFunc(err.message).toContain(substr);
+      jestExpect(err.message).toContain(substr);
     }
     for (const substr of unexpectedSubstrings) {
-      expectFunc(err.message).not.toContain(substr);
+      jestExpect(err.message).not.toContain(substr);
     }
   }
 }

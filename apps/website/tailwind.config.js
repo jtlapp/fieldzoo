@@ -1,14 +1,3 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  ...require("ui/tailwind.config"),
-  content: [
-    "./pages/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
-    "./app/**/*.{js,ts,jsx,tsx}",
-    "../../libs/ui/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-};
+// tailwind config is required for editor support
+
+module.exports = require("tailwind-config/tailwind.config.js");

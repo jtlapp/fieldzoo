@@ -12,19 +12,23 @@
     "build": "tsc",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
-    "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
-    "test": "jest --passWithNoTests"
+    "lint": "TIMING=1 eslint \"src/**/*.ts*\""
   },
   "jest": {
     "preset": "jest-presets/node"
   },
   "dependencies": {
-    "@fieldzoo/config": "*",
-    "@fieldzoo/utilities": "*"
+    "@fieldzoo/config": "workspace:*",
+    "@fieldzoo/utilities": "workspace:*",
+    "dotenv": "^16.0.3",
+    "kysely": "^0.23.4",
+    "pg": "^8.9.0"
   },
   "devDependencies": {
-    "eslint-config-custom": "*",
-    "jest-presets": "*",
-    "tsconfig": "*"
+    "@types/node": "^18.11.17",
+    "@types/pg": "^8.6.6",
+    "eslint-config-custom": "workspace:*",
+    "jest-presets": "workspace:*",
+    "tsconfig": "workspace:*"
   }
 }
