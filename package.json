@@ -6,13 +6,17 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "clean": "turbo run clean",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "list-packages": "npx syncpack list",
+    "list-mismatches": "npx syncpack list-mismatches",
+    "fix-mismatches": "npx syncpack fix-mismatches"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
     "eslint-config-custom": "workspace:*",
     "prettier": "^2.8.4",
     "prettier-plugin-tailwindcss": "^0.1.13",
+    "syncpack": "^8.5.14",
     "turbo": "latest"
   },
   "packageManager": "pnpm@7.15.0"
