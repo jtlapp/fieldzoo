@@ -13,20 +13,24 @@
       "path": "apps/website"
     },
     {
-      "name": "libs/app-config",
-      "path": "libs/app-config"
+      "name": "config/app-config",
+      "path": "config/app-config"
+    },
+    {
+      "name": "config/eslint-config-custom",
+      "path": "config/eslint-config-custom"
+    },
+    {
+      "name": "config/jest-presets",
+      "path": "config/jest-presets"
+    },
+    {
+      "name": "config/tsconfig",
+      "path": "config/tsconfig"
     },
     {
       "name": "libs/database",
       "path": "libs/database"
-    },
-    {
-      "name": "libs/eslint-config-custom",
-      "path": "libs/eslint-config-custom"
-    },
-    {
-      "name": "libs/jest-presets",
-      "path": "libs/jest-presets"
     },
     {
       "name": "libs/model",
@@ -37,24 +41,20 @@
       "path": "libs/services"
     },
     {
-      "name": "libs/tsconfig",
-      "path": "libs/tsconfig"
-    },
-    {
       "name": "libs/ui",
       "path": "libs/ui"
     },
     {
-      "name": "libs/utilities",
-      "path": "libs/utilities"
+      "name": "utils/utilities",
+      "path": "utils/utilities"
     },
     {
-      "name": "libs/validation",
-      "path": "libs/validation"
+      "name": "utils/validation",
+      "path": "utils/validation"
     },
     {
-      "name": "libs/validators",
-      "path": "libs/validators"
+      "name": "utils/validators",
+      "path": "utils/validators"
     }
   ]
 }

@@ -12,7 +12,7 @@ importers:
       turbo: latest
     devDependencies:
       eslint: 7.32.0
-      eslint-config-custom: link:libs/eslint-config-custom
+      eslint-config-custom: link:config/eslint-config-custom
       prettier: 2.8.4
       prettier-plugin-tailwindcss: 0.1.13_prettier@2.8.4
       syncpack: 8.5.14
@@ -36,9 +36,9 @@ importers:
       ts-jest: ^29.0.5
       tsconfig: workspace:*
     dependencies:
-      '@fieldzoo/app-config': link:../../libs/app-config
+      '@fieldzoo/app-config': link:../../config/app-config
       '@fieldzoo/database': link:../../libs/database
-      '@fieldzoo/utilities': link:../../libs/utilities
+      '@fieldzoo/utilities': link:../../utils/utilities
       commander: 10.0.0
       dotenv: 16.0.3
       es6-error: 4.1.1
@@ -47,11 +47,11 @@ importers:
       '@types/jest': 29.4.0
       '@types/node': 18.11.17
       '@types/pg': 8.6.6
-      eslint-config-custom: link:../../libs/eslint-config-custom
+      eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.2_@types+node@18.11.17
-      jest-presets: link:../../libs/jest-presets
+      jest-presets: link:../../config/jest-presets
       ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
-      tsconfig: link:../../libs/tsconfig
+      tsconfig: link:../../config/tsconfig
 
   apps/website:
     specifiers:
@@ -79,14 +79,14 @@ importers:
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.9
       autoprefixer: 10.4.13_postcss@8.4.20
-      eslint-config-custom: link:../../libs/eslint-config-custom
+      eslint-config-custom: link:../../config/eslint-config-custom
       postcss: 8.4.20
-      tailwind-config: link:../../libs/tailwind-config
+      tailwind-config: link:../../config/tailwind-config
       tailwindcss: 3.2.4_postcss@8.4.20
-      tsconfig: link:../../libs/tsconfig
+      tsconfig: link:../../config/tsconfig
       typescript: 4.9.4
 
-  libs/app-config:
+  config/app-config:
     specifiers:
       '@fieldzoo/utilities': workspace:*
       '@fieldzoo/validation': workspace:*
@@ -102,9 +102,9 @@ importers:
       ts-jest: ^29.0.5
       tsconfig: workspace:*
     dependencies:
-      '@fieldzoo/utilities': link:../utilities
-      '@fieldzoo/validation': link:../validation
-      '@fieldzoo/validators': link:../validators
+      '@fieldzoo/utilities': link:../../utils/utilities
+      '@fieldzoo/validation': link:../../utils/validation
+      '@fieldzoo/validators': link:../../utils/validators
       class-validator: 0.14.0
       pg: 8.9.0
     devDependencies:
@@ -116,6 +116,30 @@ importers:
       jest-presets: link:../jest-presets
       ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
       tsconfig: link:../tsconfig
+
+  config/eslint-config-custom:
+    specifiers:
+      eslint-config-next: latest
+      eslint-config-prettier: ^8.3.0
+      eslint-config-turbo: latest
+      eslint-plugin-react: 7.28.0
+    dependencies:
+      eslint-config-next: 13.1.6_pku7h6lsbnh7tcsfjudlqd5qce
+      eslint-config-prettier: 8.5.0_eslint@8.28.0
+      eslint-config-turbo: 0.0.7_eslint@8.28.0
+      eslint-plugin-react: 7.28.0_eslint@8.28.0
+
+  config/jest-presets:
+    specifiers: {}
+
+  config/tailwind-config:
+    specifiers:
+      tailwindcss: ^3.2.4
+    devDependencies:
+      tailwindcss: 3.2.4_postcss@8.4.20
+
+  config/tsconfig:
+    specifiers: {}
 
   libs/database:
     specifiers:
@@ -130,32 +154,17 @@ importers:
       pg: ^8.9.0
       tsconfig: workspace:*
     dependencies:
-      '@fieldzoo/app-config': link:../app-config
-      '@fieldzoo/utilities': link:../utilities
+      '@fieldzoo/app-config': link:../../config/app-config
+      '@fieldzoo/utilities': link:../../utils/utilities
       dotenv: 16.0.3
       kysely: 0.23.4
       pg: 8.9.0
     devDependencies:
       '@types/node': 18.11.17
       '@types/pg': 8.6.6
-      eslint-config-custom: link:../eslint-config-custom
-      jest-presets: link:../jest-presets
-      tsconfig: link:../tsconfig
-
-  libs/eslint-config-custom:
-    specifiers:
-      eslint-config-next: latest
-      eslint-config-prettier: ^8.3.0
-      eslint-config-turbo: latest
-      eslint-plugin-react: 7.28.0
-    dependencies:
-      eslint-config-next: 13.1.6_pku7h6lsbnh7tcsfjudlqd5qce
-      eslint-config-prettier: 8.5.0_eslint@8.28.0
-      eslint-config-turbo: 0.0.7_eslint@8.28.0
-      eslint-plugin-react: 7.28.0_eslint@8.28.0
-
-  libs/jest-presets:
-    specifiers: {}
+      eslint-config-custom: link:../../config/eslint-config-custom
+      jest-presets: link:../../config/jest-presets
+      tsconfig: link:../../config/tsconfig
 
   libs/model:
     specifiers:
@@ -169,16 +178,16 @@ importers:
       ts-jest: ^29.0.5
       tsconfig: workspace:*
     dependencies:
-      '@fieldzoo/utilities': link:../utilities
-      '@fieldzoo/validation': link:../validation
+      '@fieldzoo/utilities': link:../../utils/utilities
+      '@fieldzoo/validation': link:../../utils/validation
       class-validator: 0.14.0
     devDependencies:
       '@types/jest': 29.4.0
-      eslint-config-custom: link:../eslint-config-custom
+      eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.2
-      jest-presets: link:../jest-presets
+      jest-presets: link:../../config/jest-presets
       ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
-      tsconfig: link:../tsconfig
+      tsconfig: link:../../config/tsconfig
 
   libs/services:
     specifiers:
@@ -190,20 +199,11 @@ importers:
       tsconfig: workspace:*
     devDependencies:
       '@types/jest': 29.4.0
-      eslint-config-custom: link:../eslint-config-custom
+      eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.2
-      jest-presets: link:../jest-presets
+      jest-presets: link:../../config/jest-presets
       ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
-      tsconfig: link:../tsconfig
-
-  libs/tailwind-config:
-    specifiers:
-      tailwindcss: ^3.2.4
-    devDependencies:
-      tailwindcss: 3.2.4_postcss@8.4.20
-
-  libs/tsconfig:
-    specifiers: {}
+      tsconfig: link:../../config/tsconfig
 
   libs/ui:
     specifiers:
@@ -219,15 +219,15 @@ importers:
     devDependencies:
       '@types/react': 18.0.26
       eslint: 7.32.0
-      eslint-config-custom: link:../eslint-config-custom
+      eslint-config-custom: link:../../config/eslint-config-custom
       postcss: 8.4.20
       react: 18.2.0
-      tailwind-config: link:../tailwind-config
-      tsconfig: link:../tsconfig
+      tailwind-config: link:../../config/tailwind-config
+      tsconfig: link:../../config/tsconfig
       tsup: 6.5.0_rjjztofv3neoollaos63msgx3q
       typescript: 4.9.4
 
-  libs/utilities:
+  utils/utilities:
     specifiers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
@@ -236,11 +236,11 @@ importers:
     dependencies:
       kysely: 0.23.4
     devDependencies:
-      eslint-config-custom: link:../eslint-config-custom
-      jest-presets: link:../jest-presets
-      tsconfig: link:../tsconfig
+      eslint-config-custom: link:../../config/eslint-config-custom
+      jest-presets: link:../../config/jest-presets
+      tsconfig: link:../../config/tsconfig
 
-  libs/validation:
+  utils/validation:
     specifiers:
       '@fieldzoo/utilities': workspace:*
       '@jest/globals': ^29.4.2
@@ -259,13 +259,13 @@ importers:
     devDependencies:
       '@jest/globals': 29.4.2
       '@types/jest': 29.4.0
-      eslint-config-custom: link:../eslint-config-custom
+      eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.2
-      jest-presets: link:../jest-presets
+      jest-presets: link:../../config/jest-presets
       ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
-      tsconfig: link:../tsconfig
+      tsconfig: link:../../config/tsconfig
 
-  libs/validators:
+  utils/validators:
     specifiers:
       '@types/jest': ^29.4.0
       class-validator: ^0.14.0
@@ -278,11 +278,11 @@ importers:
       class-validator: 0.14.0
     devDependencies:
       '@types/jest': 29.4.0
-      eslint-config-custom: link:../eslint-config-custom
+      eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.2
-      jest-presets: link:../jest-presets
+      jest-presets: link:../../config/jest-presets
       ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
-      tsconfig: link:../tsconfig
+      tsconfig: link:../../config/tsconfig
 
 packages:
 
