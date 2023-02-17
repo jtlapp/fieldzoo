@@ -4,7 +4,7 @@ import { DatabaseConfig } from "./database-config";
 
 import { expectInvalid } from "@fieldzoo/validation";
 
-import { InvalidEnvironmentError } from "../util/invalid-env-error";
+import { InvalidEnvironmentError } from "./invalid-env-error";
 
 describe("database configuration", () => {
   // The regex itself is already well tested elsewhere.

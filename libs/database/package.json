@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@fieldzoo/app-config": "workspace:*",
+    "@fieldzoo/database-config": "workspace:*",
     "@fieldzoo/utilities": "workspace:*",
     "dotenv": "^16.0.3",
     "kysely": "^0.23.4",

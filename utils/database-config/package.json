@@ -1,5 +1,5 @@
 {
-  "name": "@fieldzoo/app-config",
+  "name": "@fieldzoo/database-config",
   "version": "0.0.0",
   "private": true,
   "main": "dist/index.js",
@@ -12,14 +12,23 @@
     "build": "tsc",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
-    "lint": "TIMING=1 eslint \"src/**/*.ts*\""
+    "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
+    "test": "jest"
   },
   "jest": {
     "preset": "jest-presets/node"
   },
+  "dependencies": {
+    "@fieldzoo/utilities": "workspace:*",
+    "@fieldzoo/validation": "workspace:*",
+    "@fieldzoo/validators": "workspace:*",
+    "class-validator": "^0.14.0",
+    "pg": "^8.9.0"
+  },
   "devDependencies": {
     "@types/jest": "^29.4.0",
     "@types/node": "^18.11.17",
+    "@types/pg": "^8.6.6",
     "eslint-config-custom": "workspace:*",
     "jest": "^29.4.2",
     "jest-presets": "workspace:*",

@@ -22,6 +22,7 @@ importers:
     specifiers:
       '@fieldzoo/app-config': workspace:*
       '@fieldzoo/database': workspace:*
+      '@fieldzoo/database-config': workspace:*
       '@fieldzoo/utilities': workspace:*
       '@types/jest': ^29.4.0
       '@types/node': ^18.11.17
@@ -38,6 +39,7 @@ importers:
     dependencies:
       '@fieldzoo/app-config': link:../../config/app-config
       '@fieldzoo/database': link:../../libs/database
+      '@fieldzoo/database-config': link:../../utils/database-config
       '@fieldzoo/utilities': link:../../utils/utilities
       commander: 10.0.0
       dotenv: 16.0.3
@@ -88,29 +90,16 @@ importers:
 
   config/app-config:
     specifiers:
-      '@fieldzoo/utilities': workspace:*
-      '@fieldzoo/validation': workspace:*
-      '@fieldzoo/validators': workspace:*
       '@types/jest': ^29.4.0
       '@types/node': ^18.11.17
-      '@types/pg': ^8.6.6
-      class-validator: ^0.14.0
       eslint-config-custom: workspace:*
       jest: ^29.4.2
       jest-presets: workspace:*
-      pg: ^8.9.0
       ts-jest: ^29.0.5
       tsconfig: workspace:*
-    dependencies:
-      '@fieldzoo/utilities': link:../../utils/utilities
-      '@fieldzoo/validation': link:../../utils/validation
-      '@fieldzoo/validators': link:../../utils/validators
-      class-validator: 0.14.0
-      pg: 8.9.0
     devDependencies:
       '@types/jest': 29.4.0
       '@types/node': 18.13.0
-      '@types/pg': 8.6.6
       eslint-config-custom: link:../eslint-config-custom
       jest: 29.4.2_@types+node@18.13.0
       jest-presets: link:../jest-presets
@@ -144,6 +133,7 @@ importers:
   libs/database:
     specifiers:
       '@fieldzoo/app-config': workspace:*
+      '@fieldzoo/database-config': workspace:*
       '@fieldzoo/utilities': workspace:*
       '@types/node': ^18.11.17
       '@types/pg': ^8.6.6
@@ -155,6 +145,7 @@ importers:
       tsconfig: workspace:*
     dependencies:
       '@fieldzoo/app-config': link:../../config/app-config
+      '@fieldzoo/database-config': link:../../utils/database-config
       '@fieldzoo/utilities': link:../../utils/utilities
       dotenv: 16.0.3
       kysely: 0.23.4
@@ -226,6 +217,37 @@ importers:
       tsconfig: link:../../config/tsconfig
       tsup: 6.5.0_rjjztofv3neoollaos63msgx3q
       typescript: 4.9.4
+
+  utils/database-config:
+    specifiers:
+      '@fieldzoo/utilities': workspace:*
+      '@fieldzoo/validation': workspace:*
+      '@fieldzoo/validators': workspace:*
+      '@types/jest': ^29.4.0
+      '@types/node': ^18.11.17
+      '@types/pg': ^8.6.6
+      class-validator: ^0.14.0
+      eslint-config-custom: workspace:*
+      jest: ^29.4.2
+      jest-presets: workspace:*
+      pg: ^8.9.0
+      ts-jest: ^29.0.5
+      tsconfig: workspace:*
+    dependencies:
+      '@fieldzoo/utilities': link:../utilities
+      '@fieldzoo/validation': link:../validation
+      '@fieldzoo/validators': link:../validators
+      class-validator: 0.14.0
+      pg: 8.9.0
+    devDependencies:
+      '@types/jest': 29.4.0
+      '@types/node': 18.13.0
+      '@types/pg': 8.6.6
+      eslint-config-custom: link:../../config/eslint-config-custom
+      jest: 29.4.2_@types+node@18.13.0
+      jest-presets: link:../../config/jest-presets
+      ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
+      tsconfig: link:../../config/tsconfig
 
   utils/utilities:
     specifiers:

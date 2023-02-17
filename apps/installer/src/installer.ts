@@ -15,11 +15,11 @@ import {
 } from "kysely";
 import ExtendableError from "es6-error";
 
+import { DB_ENVVAR_PREFIX } from "@fieldzoo/app-config";
 import {
-  DB_ENVVAR_PREFIX,
   DatabaseConfig,
   InvalidEnvironmentError,
-} from "@fieldzoo/app-config";
+} from "@fieldzoo/database-config";
 import { MIGRATION_FILE_PATH } from "@fieldzoo/database";
 
 import { dropAllTables, existingTables } from "@fieldzoo/utilities";

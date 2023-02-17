@@ -45,6 +45,10 @@
       "path": "libs/ui"
     },
     {
+      "name": "utils/database-config",
+      "path": "utils/database-config"
+    },
+    {
       "name": "utils/utilities",
       "path": "utils/utilities"
     },

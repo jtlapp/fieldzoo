@@ -17,7 +17,7 @@ import {
 } from "@fieldzoo/validation";
 import { InRange } from "@fieldzoo/validators";
 
-import { InvalidEnvironmentError } from "../util/invalid-env-error";
+import { InvalidEnvironmentError } from "./invalid-env-error";
 
 const HOST_SUFFIX = "HOST";
 const PORT_SUFFIX = "PORT";
