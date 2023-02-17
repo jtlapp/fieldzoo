@@ -36,11 +36,13 @@ And if amateurs can learn to do taxonomy, they can also create field guides for 
 
 [Turborepo](https://turbo.build/repo), a tool for managing monorepos. I expect this platform to consist of a number of apps and tools that need to share code, and monorepos make this possible. I started with Nx but found the file structure too messy and indirection too hard to make work. Turborepo is a simple veneer over familiar package structures.
 
+[pnpm](https://pnpm.io/), a tool for managing packages. I chose pnpm because it's the fastest, because it doesn't have the phantom dependencies problem, and because [the Turborepo docs](https://turbo.build/repo/docs/getting-started/create-new) recommends it.
+
 [Node.js](https://nodejs.org/en/about/), a server-side JavaScript runtime. Node's asynchronous, non-blocking event-driven architecture makes it easy to build high-throughput web apps. Node is also easy to deploy on any OS, and it allows backend devs to also work on frontend code in the same language.
 
 [TypeScript](https://typescriptlang.org/), a statically-typed superset of JavaScript. TypeScript allows for running JavaScript on Node with static typing checking, eliminating a whole class of errors at compile time and making it easy to refactor code from VSCode.
 
-[REACT](https://reactjs.org/), a reactive library for building web components. There are many options for UI frameworks, but I'm going with REACT because there are more OTS components I won't have to reinvent, it has robust/proven SSR solutions, and it opens up the most job opportunities for me. I'm experienced with [Svelte](https://svelte.dev/) and love it but don't think [SvelteKit](https://kit.svelte.dev/) is mature enough yet.
+[REACT](https://reactjs.org/), a reactive library for building web components. There are many options for UI frameworks, but I'm going with REACT because there are more OTS components I won't have to reinvent, it has robust/proven SSR solutions, and it opens up the most job opportunities for me. I'm experienced with [Svelte](https://svelte.dev/) and love it but worry that [SvelteKit](https://kit.svelte.dev/) isn't mature enough yet.
 
 [Next.js](https://nextjs.org/), an integrated REACT framework. I want the platform to feel like an SPA but be readily indexable by search engines. Next.js supports CSR, SSR, and REST APIs all on one Node.js server.
 
@@ -62,4 +64,4 @@ I'm also experimenting with techniques for writing robust TypeScript using [Doma
 
 ## License
 
-The platform and tooling is licensed under GPL-3.0, but some of the generically useful tools and libraries use the MIT license. Assume GPL-3.0 unless the tool or library includes a LICENSE file saying otherwise.
+The project is licensed under GPL-3.0, except for the generically useful libraries, which use the MIT license. These generic libraries are found in `utils/` and have their own LICENSE files.
