@@ -13,8 +13,8 @@
       "path": "apps/website"
     },
     {
-      "name": "libs/config",
-      "path": "libs/config"
+      "name": "libs/app-config",
+      "path": "libs/app-config"
     },
     {
       "name": "libs/database",

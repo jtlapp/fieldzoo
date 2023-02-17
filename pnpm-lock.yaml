@@ -20,7 +20,7 @@ importers:
 
   apps/installer:
     specifiers:
-      '@fieldzoo/config': workspace:*
+      '@fieldzoo/app-config': workspace:*
       '@fieldzoo/database': workspace:*
       '@fieldzoo/utilities': workspace:*
       '@types/jest': ^29.4.0
@@ -36,7 +36,7 @@ importers:
       ts-jest: ^29.0.5
       tsconfig: workspace:*
     dependencies:
-      '@fieldzoo/config': link:../../libs/config
+      '@fieldzoo/app-config': link:../../libs/app-config
       '@fieldzoo/database': link:../../libs/database
       '@fieldzoo/utilities': link:../../libs/utilities
       commander: 10.0.0
@@ -86,7 +86,7 @@ importers:
       tsconfig: link:../../libs/tsconfig
       typescript: 4.9.4
 
-  libs/config:
+  libs/app-config:
     specifiers:
       '@fieldzoo/utilities': workspace:*
       '@fieldzoo/validation': workspace:*
@@ -119,7 +119,7 @@ importers:
 
   libs/database:
     specifiers:
-      '@fieldzoo/config': workspace:*
+      '@fieldzoo/app-config': workspace:*
       '@fieldzoo/utilities': workspace:*
       '@types/node': ^18.11.17
       '@types/pg': ^8.6.6
@@ -130,7 +130,7 @@ importers:
       pg: ^8.9.0
       tsconfig: workspace:*
     dependencies:
-      '@fieldzoo/config': link:../config
+      '@fieldzoo/app-config': link:../app-config
       '@fieldzoo/utilities': link:../utilities
       dotenv: 16.0.3
       kysely: 0.23.4
@@ -1791,11 +1791,6 @@ packages:
       readdirp: 3.6.0
     optionalDependencies:
       fsevents: 2.3.2
-    dev: true
-
-  /ci-info/3.7.1:
-    resolution: {integrity: sha512-4jYS4MOAaCIStSRwiuxc4B8MYhIe676yO1sYGzARnjXkWpmzZMMYxY6zu8WYWDhSuth5zhrQ1rhNSibyyvv4/w==}
-    engines: {node: '>=8'}
     dev: true
 
   /ci-info/3.8.0:
@@ -3810,7 +3805,7 @@ packages:
       '@jest/types': 29.4.2
       '@types/node': 18.13.0
       chalk: 4.1.2
-      ci-info: 3.7.1
+      ci-info: 3.8.0
       graceful-fs: 4.2.10
       picomatch: 2.3.1
     dev: true

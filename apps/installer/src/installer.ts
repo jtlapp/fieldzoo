@@ -19,7 +19,7 @@ import {
   DB_ENVVAR_PREFIX,
   DatabaseConfig,
   InvalidEnvironmentError,
-} from "@fieldzoo/config";
+} from "@fieldzoo/app-config";
 import { MIGRATION_FILE_PATH } from "@fieldzoo/database";
 
 import { dropAllTables, existingTables } from "@fieldzoo/utilities";

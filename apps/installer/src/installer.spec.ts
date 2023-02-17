@@ -2,7 +2,7 @@ import { execSync } from "child_process";
 import { join } from "path";
 import type { Kysely } from "kysely";
 
-import { TEST_ENV } from "@fieldzoo/config";
+import { TEST_ENV } from "@fieldzoo/app-config";
 import { getDB, closeDB, resetTestDB } from "@fieldzoo/database";
 import { dropAllTables, getError } from "@fieldzoo/utilities";
 

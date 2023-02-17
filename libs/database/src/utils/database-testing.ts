@@ -13,7 +13,11 @@ import {
   FileMigrationProvider,
 } from "kysely";
 
-import { DatabaseConfig, DB_ENVVAR_PREFIX, TEST_ENV } from "@fieldzoo/config";
+import {
+  DatabaseConfig,
+  DB_ENVVAR_PREFIX,
+  TEST_ENV,
+} from "@fieldzoo/app-config";
 import { dropAllTables } from "@fieldzoo/utilities";
 
 import { MIGRATION_FILE_PATH } from "./migration-utils";

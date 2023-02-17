@@ -18,7 +18,7 @@
     "preset": "jest-presets/node"
   },
   "dependencies": {
-    "@fieldzoo/config": "workspace:*",
+    "@fieldzoo/app-config": "workspace:*",
     "@fieldzoo/utilities": "workspace:*",
     "dotenv": "^16.0.3",
     "kysely": "^0.23.4",
