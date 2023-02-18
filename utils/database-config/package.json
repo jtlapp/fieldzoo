@@ -22,8 +22,7 @@
     "@fieldzoo/utilities": "workspace:*",
     "@fieldzoo/validation": "workspace:*",
     "@fieldzoo/validators": "workspace:*",
-    "class-validator": "^0.14.0",
-    "pg": "^8.9.0"
+    "class-validator": "^0.14.0"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",
@@ -32,6 +31,7 @@
     "eslint-config-custom": "workspace:*",
     "jest": "^29.4.2",
     "jest-presets": "workspace:*",
+    "pg": "^8.9.0",
     "ts-jest": "^29.0.5",
     "tsconfig": "workspace:*"
   }
