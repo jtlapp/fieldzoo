@@ -1,5 +1,3 @@
-/* eslint-disable turbo/no-undeclared-env-vars */
-
 import { DatabaseConfig } from "./database-config";
 
 import { expectInvalid } from "@fieldzoo/validation";

@@ -14,8 +14,8 @@
   },
   "dependencies": {
     "@fieldzoo/app-config": "workspace:*",
-    "@fieldzoo/database-config": "workspace:*",
     "@fieldzoo/database": "workspace:*",
+    "@fieldzoo/database-config": "workspace:*",
     "@fieldzoo/utilities": "workspace:*",
     "commander": "^10.0.0",
     "dotenv": "^16.0.3",

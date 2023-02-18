@@ -21,6 +21,10 @@
       "path": "config/eslint-config-custom"
     },
     {
+      "name": "config/eslint-config-custom-react",
+      "path": "config/eslint-config-custom-react"
+    },
+    {
       "name": "config/jest-presets",
       "path": "config/jest-presets"
     },
