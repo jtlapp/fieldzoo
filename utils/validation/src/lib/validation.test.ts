@@ -1,27 +1,26 @@
-import {
-  IsInt,
-  IsAlpha,
-  IsPositive,
-  MaxLength,
-  MinLength,
-} from "class-validator";
+import { Type } from "@sinclair/typebox";
+import { TypeCompiler } from "@sinclair/typebox/compiler";
 
-import { assertValid, ValidatingObject, ValidationError } from "./validation";
+import { freezeField, validate, ValidationError } from "./validation";
 import { expectInvalid } from "../test-utils/validation-expect";
 
-describe("assertValid()", () => {
+describe("validate()", () => {
   class TestObj1 {
-    @IsInt()
     delta: number;
-
-    @IsPositive()
-    @IsInt()
     count: number;
-
-    @IsAlpha()
-    @MinLength(5)
-    @MaxLength(10)
     name: string;
+
+    static readonly checker = TypeCompiler.Compile(
+      Type.Object({
+        delta: Type.Integer(),
+        count: Type.Integer({ exclusiveMinimum: 0 }),
+        name: Type.RegEx(/[a-zA-Z]/, {
+          minLength: 5,
+          maxLength: 10,
+          message: "name should consist of 5-10 letters",
+        }),
+      }),
+    );
 
     constructor(delta: number, count: number, name: string) {
       this.delta = delta;
@@ -30,67 +29,125 @@ describe("assertValid()", () => {
     }
   }
 
+  class TestObj3 {
+    int1: number;
+    int2: number;
+    alpha: string;
+
+    static readonly checker = TypeCompiler.Compile(
+      Type.Object({
+        int1: Type.Integer({ message: "<> must be an integer" }),
+        int2: Type.Integer({ message: "<> must be an integer" }),
+        alpha: Type.RegEx(/a-zA-Z/, { maxLength: 4 }),
+      }),
+    );
+
+    constructor(int1: number, int2: number, alpha: string) {
+      this.int1 = int1;
+      this.int2 = int2;
+      this.alpha = alpha;
+    }
+  }
+
   it("accepts valid objects", () => {
     let obj = new TestObj1(0, 1, "ABCDE");
-    expect(() => assertValid(obj, "oops")).not.toThrow();
+    expect(() => validate(TestObj1.checker, obj, "oops")).not.toThrow();
 
     obj = new TestObj1(-5, 125, "ABCDEDEFGH");
-    expect(() => assertValid(obj, "oops")).not.toThrow();
+    expect(() => validate(TestObj1.checker, obj, "oops")).not.toThrow();
   });
 
   it("rejects objects with single invalid fields having single errors", () => {
     let obj = new TestObj1(0.5, 1, "ABCDE");
-    expectInvalid(expect, [obj, "bad", true], ["bad:", "delta", "integer"], []);
-    expectInvalid(expect, [obj, "bad", false], ["bad"], ["delta", "integer"]);
+    expectInvalid(
+      expect,
+      TestObj1.checker,
+      [obj, "bad"],
+      ["bad:", "delta", "integer"],
+      [],
+      true,
+    );
+    expectInvalid(
+      expect,
+      TestObj1.checker,
+      [obj, "bad"],
+      ["bad"],
+      ["delta", "integer"],
+      false,
+    );
 
     obj = new TestObj1(0, 0, "ABCDE");
     expectInvalid(
       expect,
-      [obj, "oops", true],
-      ["oops:", "count", "positive"],
+      TestObj1.checker,
+      [obj, "oops"],
+      ["oops:", "count", "greater than 0"],
       [],
+      true,
     );
     expectInvalid(
       expect,
-      [obj, "oops", false],
+      TestObj1.checker,
+      [obj, "oops"],
       ["oops"],
-      ["count", "positive"],
+      ["count", "greater than 0"],
+      false,
     );
 
     obj = new TestObj1(0, 1, "12345");
-    expectInvalid(expect, [obj, "bad", true], ["bad:", "name", "letters"], []);
-    expectInvalid(expect, [obj, "bad", false], ["bad"], ["name", "letters"]);
-  });
-
-  it("rejects objects with single invalid fields having multiple errors", () => {
-    // validation quits after first error for each property
-
-    let obj = new TestObj1(0, 1, "123");
     expectInvalid(
       expect,
-      [obj, "bad", true],
-      ["bad:", "name", "longer"],
-      ["shorter", "letters"],
+      TestObj1.checker,
+      [obj, "bad"],
+      ["bad:", "name", "letters"],
+      [],
+      true,
     );
     expectInvalid(
       expect,
-      [obj, "bad", false],
+      TestObj1.checker,
+      [obj, "bad"],
       ["bad"],
-      ["name", "letters", ";", "longer", "shorter"],
+      ["name", "letters"],
+      false,
+    );
+  });
+
+  it("rejects objects with single invalid fields having multiple errors", () => {
+    let obj = new TestObj1(0, 1, "123");
+    expectInvalid(
+      expect,
+      TestObj1.checker,
+      [obj, "bad"],
+      ["bad:", "name", "5-10 letters"],
+      [],
+      true,
+    );
+    expectInvalid(
+      expect,
+      TestObj1.checker,
+      [obj, "bad"],
+      ["bad"],
+      ["name", "letters", ";", "5-10 letters"],
+      false,
     );
 
     obj = new TestObj1(0, 1, "123456789012345");
     expectInvalid(
       expect,
-      [obj, "bad", true],
-      ["bad:", "name", "shorter"],
-      ["longer", "letters"],
+      TestObj1.checker,
+      [obj, "bad"],
+      ["bad:", "name", "5-10 letters"],
+      [],
+      true,
     );
     expectInvalid(
       expect,
-      [obj, "bad", false],
+      TestObj1.checker,
+      [obj, "bad"],
       ["bad"],
-      ["name", "letters", ";", "shorter", "longer"],
+      ["name", "letters", ";", "5-10 letters", "longer"],
+      false,
     );
   });
 
@@ -98,29 +155,53 @@ describe("assertValid()", () => {
     let obj = new TestObj1(0.5, 0, "ABCDE");
     expectInvalid(
       expect,
-      [obj, "bad", true],
-      ["bad:", "delta", "integer", "count", "positive"],
+      TestObj1.checker,
+      [obj, "bad"],
+      ["bad:", "delta", "integer", "count", "greater than 0"],
       [],
+      true,
     );
     expectInvalid(
       expect,
-      [obj, "bad", false],
+      TestObj1.checker,
+      [obj, "bad"],
       ["bad"],
-      ["delta", "integer", "count", "positive"],
+      ["delta", "integer", "count", "greater than 0"],
+      false,
     );
 
     obj = new TestObj1(0.5, 0, "123");
     expectInvalid(
       expect,
-      [obj, "oops", true],
-      ["oops:", "delta", "integer", "count", "positive", "name", "longer"],
-      ["letters"],
+      TestObj1.checker,
+      [obj, "oops"],
+      [
+        "oops:",
+        "delta",
+        "integer",
+        "count",
+        "greater than 0",
+        "name",
+        "5-10 letters",
+      ],
+      [],
+      true,
     );
     expectInvalid(
       expect,
-      [obj, "oops", false],
+      TestObj1.checker,
+      [obj, "oops"],
       ["oops"],
-      ["delta", "integer", "count", "positive", "name", "letters", "longer"],
+      [
+        "delta",
+        "integer",
+        "count",
+        "greater than 0",
+        "name",
+        "letters",
+        "5-10 letters",
+      ],
+      false,
     );
   });
 
@@ -129,63 +210,79 @@ describe("assertValid()", () => {
     const obj = new TestObj1(0.5, 1, "ABCDE");
     expect.assertions(2);
     try {
-      assertValid(obj, () => ERROR_MESSAGE, false);
+      validate(TestObj1.checker, obj, () => ERROR_MESSAGE);
     } catch (err: any) {
       expect(err).toBeInstanceOf(ValidationError);
       expect(err.message).toEqual(ERROR_MESSAGE);
     }
   });
+
+  it("substitutes the field name in custom error messages", () => {
+    const obj = new TestObj3("abc" as any, "def" as any, "abc");
+    expectInvalid(
+      expect,
+      TestObj3.checker,
+      [obj, "oops"],
+      ["oops", "int1 must be an integer", "int2 must be an integer"],
+      ["a-z"],
+      true,
+    );
+
+    expectInvalid(
+      expect,
+      TestObj3.checker,
+      [obj, "oops"],
+      ["oops"],
+      ["int1 must be an integer", "int2 must be an integer", "a-z"],
+      false,
+    );
+  });
 });
 
-describe("ValidatingObject", () => {
-  class TestObj2 extends ValidatingObject {
+describe("validating object", () => {
+  class TestObj2 {
     id: string;
-
-    @IsPositive()
     count: number;
 
-    constructor(id: string, count: number, reportFieldMessages: boolean) {
-      super();
+    static readonly checker = TypeCompiler.Compile(
+      Type.Object({
+        count: Type.Integer({ exclusiveMinimum: 0 }),
+      }),
+    );
+
+    constructor(id: string, count: number) {
       this.id = id;
       this.count = count;
-      this.validate("test obj 2", reportFieldMessages);
-      this.freezeField("id");
-    }
-  }
-
-  class TestObj3 extends TestObj2 {
-    protected toErrorMessage(kindOfObject: string): string {
-      return "Bad " + kindOfObject;
+      validate(TestObj2.checker, this, "Invalid test obj 2");
+      freezeField(this, "id");
     }
   }
 
   it("accepts valid objects", () => {
-    expect(() => new TestObj2("abc", 1, true)).not.toThrow();
+    expect(() => new TestObj2("abc", 1)).not.toThrow();
   });
 
   it("rejects invalid objects", () => {
     expectInvalid(
       expect,
-      () => new TestObj2("abc", 0, true),
-      ["Invalid test obj 2", "positive"],
+      TestObj2.checker,
+      () => new TestObj2("abc", 0),
+      ["Invalid test obj 2", "greater than 0"],
       [],
+      true,
     );
     expectInvalid(
       expect,
-      () => new TestObj2("abc", 0, false),
+      TestObj2.checker,
+      () => new TestObj2("abc", 0),
       ["Invalid test obj 2"],
-      ["positive"],
-    );
-    expectInvalid(
-      expect,
-      () => new TestObj3("abc", 0, true),
-      ["Bad test obj 2", "positive"],
-      [],
+      ["greater than 0"],
+      false,
     );
   });
 
   it("cannot change frozen field", () => {
-    const testObj = new TestObj2("abc", 1, true);
+    const testObj = new TestObj2("abc", 1);
     expect(() => ((testObj as any).id = "xyz")).toThrow("read only");
   });
 });

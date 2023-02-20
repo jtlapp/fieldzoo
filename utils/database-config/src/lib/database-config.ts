@@ -5,17 +5,17 @@
  * non-technical users may attempt to install and run the platform.
  */
 
-import { IsInt, IsString, IsNotEmpty, Matches } from "class-validator";
+import { Type } from "@sinclair/typebox";
+import { TypeCompiler } from "@sinclair/typebox/compiler";
 import type { ClientConfig } from "pg";
 
 import type { FieldsOf } from "@fieldzoo/utilities";
 import {
-  ValidatingObject,
+  validate,
   CODE_WORD_REGEX,
   HOST_NAME_REGEX,
   ValidationError,
 } from "@fieldzoo/validation";
-import { InRange } from "@fieldzoo/validators";
 
 import { InvalidEnvironmentError } from "./invalid-env-error";
 
@@ -28,33 +28,30 @@ const PASSWORD_SUFFIX = "PASSWORD";
 /**
  * Configuration governing database access, validated on construction.
  */
-export class DatabaseConfig extends ValidatingObject implements ClientConfig {
-  @Matches(HOST_NAME_REGEX, { message: "invalid host name" })
+export class DatabaseConfig implements ClientConfig {
   readonly host: string;
-
-  @IsInt()
-  @InRange(0, 65535)
   readonly port: number;
-
-  @Matches(CODE_WORD_REGEX, { message: "invalid database name" })
   readonly database: string;
-
-  @Matches(CODE_WORD_REGEX, { message: "invalid user name" })
   readonly user: string;
-
-  @IsString()
-  @IsNotEmpty()
   readonly password: string;
 
+  private static checker = TypeCompiler.Compile(
+    Type.Object({
+      host: Type.RegEx(HOST_NAME_REGEX),
+      port: Type.Integer({ minimum: 0, maximum: 65535 }),
+      database: Type.RegEx(CODE_WORD_REGEX),
+      user: Type.RegEx(CODE_WORD_REGEX),
+      password: Type.String({ minLength: 1 }),
+    }),
+  );
+
   constructor(fields: FieldsOf<DatabaseConfig>) {
-    super();
     this.host = fields.host;
     this.port = fields.port;
     this.database = fields.database;
     this.user = fields.user;
     this.password = fields.password;
-
-    this.validate("database configuration");
+    validate(DatabaseConfig.checker, this, "Invalid database configuration");
   }
 
   /**

@@ -22,7 +22,7 @@
     "@fieldzoo/utilities": "workspace:*",
     "@fieldzoo/validation": "workspace:*",
     "@fieldzoo/validators": "workspace:*",
-    "class-validator": "^0.14.0"
+    "@sinclair/typebox": "^0.25.23"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",

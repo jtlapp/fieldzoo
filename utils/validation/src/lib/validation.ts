@@ -1,100 +1,86 @@
 /**
- * Tools supporting data and object validation. Relies on the
- * `class-validator` package for validating object fields.
+ * Tools supporting data and object validation with `@sinclair/typebox`.
  */
 
-import { validateSync } from "class-validator";
+import { TypeCompiler, type ValueError } from "@sinclair/typebox/compiler";
 import ExtendableError from "es6-error";
 
-import { ClassType } from "@fieldzoo/utilities";
-
 /**
- * Base class with convenience methods for validating objects.
+ * Makes an object key readonly at runtime.
+ *
+ * @param obj Object containing field to freeze.
+ * @param field Name of the field to make read only.
  */
-export abstract class ValidatingObject {
-  /**
-   * Make an object field readonly during runtime.
-   *
-   * @param field Name of the field to make read only.
-   */
-  protected freezeField(field: string): void {
-    Object.defineProperty(this, field, {
-      configurable: false,
-      writable: false,
-    });
-  }
-
-  /**
-   * Validate object against its `class-validator` field decorators,
-   * throwing `ValidationError` on failure to validate.
-   *
-   * @param kindOfObject Human-readable name for the kind of object being
-   *    validated; used to describe error in error messages
-   * @param reportFieldMessages Whether to include per-field error messages
-   *    in exception message
-   * @throws ValidationError when the object is invalid
-   */
-  protected validate(kindOfObject: string, reportFieldMessages = true): void {
-    assertValid(
-      this,
-      () => this.toErrorMessage(kindOfObject),
-      reportFieldMessages,
-    );
-  }
-
-  /**
-   * Constructs the error message to display when the object is invalid.
-   * When reporting field error messages, this message precedes the
-   * field error messages, delimited by a colon. Can be overridden to
-   * provide friendlier messages than "Invalid <kindOfObject>".
-   *
-   * @param kindOfObject Human-readable name for the kind of object
-   */
-  protected toErrorMessage(kindOfObject: string): string {
-    return "Invalid " + kindOfObject;
-  }
+export function freezeField(obj: object, field: string): void {
+  Object.defineProperty(obj, field, {
+    configurable: false,
+    writable: false,
+  });
 }
 
 /**
- * Synchronously validate an object, throwing an error when invalid.
+ * Validates a value against its compiled TypeBox schema,
+ * throwing `ValidationError` on failure to validate.
  *
- * @param obj Object whose fields are annotated with validation decorators
+ * @param checker The compiled TypeBox schema against which to validate the value.
+ * @param value Value to validate.
  * @param messageOrFunc Message to provide with error, in addition to any per-field
  *    error messages, excluding those of nested fields; may be a function that
- *    returns a string, in order to lazily construct the message as needed
- * @param reportFieldMessages Whether to include per-field error messages
- *    in exception message
- * @throws ValidationError when `obj` is invalid
+ *    returns a string, in order to lazily construct the message as needed. Set to
+ *    null to use the default error messages.
+ * @throws ValidationError when the value is invalid
  */
-export function assertValid<T extends ClassType<T>>(
-  obj: InstanceType<T>,
-  messageOrFunc: string | (() => string),
-  reportFieldMessages = true,
+export function validate(
+  checker: ReturnType<typeof TypeCompiler.Compile>,
+  value: unknown,
+  errorMessageOrFunc: string | (() => string) | null = null,
 ): void {
-  // Stop at first error so can prevent excessive-length
-  // strings from being parsed in subsequent validations.
-  const errors = validateSync(obj, { stopAtFirstError: true });
+  const errors = [...checker.Errors(value)];
   if (errors.length > 0) {
-    let fieldMessages: string[] = [];
-    if (reportFieldMessages) {
-      fieldMessages = errors.flatMap((err) =>
-        err.constraints ? Object.values(err.constraints) : [],
-      );
-    }
-    let combinedMessage =
-      typeof messageOrFunc == "function" ? messageOrFunc() : messageOrFunc;
-    if (fieldMessages.length > 0) {
-      combinedMessage += ": " + fieldMessages.join("; ");
-    }
-    throw new ValidationError(combinedMessage);
+    throw new ValidationError(
+      typeof errorMessageOrFunc == "function"
+        ? errorMessageOrFunc()
+        : errorMessageOrFunc,
+      errors,
+    );
   }
 }
 
 /**
- * Class reporting a validation error
+ * Class reporting a validation error.
  */
 export class ValidationError extends ExtendableError {
-  constructor(message: string) {
-    super(message);
+  /**
+   * Constructs a ValidationError.
+   *
+   * @param message Error message
+   */
+  constructor(message: string | null, public errors: ValueError[]) {
+    super(message || "Invalid value");
+  }
+
+  /**
+   * Returns a string representation of the error.
+   *
+   * @param appendFieldErrors Whether to append per-field error messages.
+   */
+  toString(appendFieldErrors = true): string {
+    let fieldMessages: string[] = [];
+    if (!appendFieldErrors) {
+      return this.message;
+    }
+    fieldMessages = this.errors.flatMap((err) => {
+      if (err.schema.message) {
+        const path = err.path ? err.path.substring(1) : "";
+        return err.schema.message.replace("<>", path);
+      }
+      if (err.path) {
+        const firstChar = err.message.substring(0, 1).toLowerCase();
+        const remainder = err.message.substring(1);
+        return `${err.path.substring(1)} - ${firstChar}${remainder}`;
+      }
+      return err.message;
+    });
+    return `${this.message}: ${fieldMessages.join("; ")}`;
   }
 }
