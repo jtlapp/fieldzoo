@@ -15,16 +15,13 @@ import {
   ValueError,
 } from "@sinclair/typebox/compiler";
 
-import { ValidationError } from "./validation-error";
+import { InvalidShapeError } from "./invalid-shape";
 
 /**
  * Class whose instances can safely validate object fields.
  */
-export class SafeValidator<S extends TSchema> {
-  /** TypeBox schema provided to the validator */
-  readonly schema: S;
-
-  readonly #checker: TypeCheck<S>;
+export class ShapeChecker<S extends TSchema> {
+  readonly #compiledType: TypeCheck<S>;
 
   /**
    * Constructor
@@ -36,8 +33,7 @@ export class SafeValidator<S extends TSchema> {
    *    replaced with the name of the field that failed validation.
    */
   constructor(schema: S) {
-    this.schema = schema;
-    this.#checker = TypeCompiler.Compile(schema);
+    this.#compiledType = TypeCompiler.Compile(schema);
   }
 
   /**
@@ -50,9 +46,10 @@ export class SafeValidator<S extends TSchema> {
    * @throws ValidationException when the value is invalid.
    */
   safeValidate(value: unknown, errorMessage: string): void {
-    if (!this.#checker.Check(value)) {
-      const firstError: ValueError = this.#checker.Errors(value).next()!.value;
-      throw new ValidationError(errorMessage, [firstError]);
+    if (!this.#compiledType.Check(value)) {
+      const firstError: ValueError = this.#compiledType.Errors(value).next()!
+        .value;
+      throw new InvalidShapeError(errorMessage, [firstError]);
     }
   }
 
@@ -66,8 +63,10 @@ export class SafeValidator<S extends TSchema> {
    * @throws ValidationException when the value is invalid.
    */
   unsafeValidate(value: unknown, errorMessage: string): void {
-    if (!this.#checker.Check(value)) {
-      throw new ValidationError(errorMessage, [...this.#checker.Errors(value)]);
+    if (!this.#compiledType.Check(value)) {
+      throw new InvalidShapeError(errorMessage, [
+        ...this.#compiledType.Errors(value),
+      ]);
     }
   }
 }

@@ -61,8 +61,8 @@
       "path": "utils/validation"
     },
     {
-      "name": "utils/safe-validator",
-      "path": "utils/safe-validator"
+      "name": "utils/shapechecker",
+      "path": "utils/shapechecker"
     }
   ]
 }
