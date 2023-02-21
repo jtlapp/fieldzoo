@@ -1,5 +1,5 @@
 /**
- * TypeBox wrappers facilitating safe server-side data validation. The
+ * TypeBox wrapper facilitating safe server-side data validation. The
  * `safeValidate` method short-circuits at the first validation error and
  * reports only this error. TypeBox will test a `maxLength` constraint
  * before testing a regex pattern, so `safeValidate` will prevent an
