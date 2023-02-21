@@ -228,7 +228,7 @@ importers:
     specifiers:
       '@fieldzoo/utilities': workspace:*
       '@fieldzoo/validation': workspace:*
-      '@fieldzoo/validators': workspace:*
+      '@fieldzoo/validator': workspace:*
       '@sinclair/typebox': ^0.25.23
       '@types/jest': ^29.4.0
       '@types/node': ^18.11.17
@@ -242,7 +242,7 @@ importers:
     dependencies:
       '@fieldzoo/utilities': link:../utilities
       '@fieldzoo/validation': link:../validation
-      '@fieldzoo/validators': link:../validators
+      '@fieldzoo/validator': link:../validator
       '@sinclair/typebox': 0.25.23
     devDependencies:
       '@types/jest': 29.4.0
@@ -293,17 +293,21 @@ importers:
       ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
       tsconfig: link:../../config/tsconfig
 
-  utils/validators:
+  utils/validator:
     specifiers:
+      '@sinclair/typebox': ^0.25.23
       '@types/jest': ^29.4.0
       class-validator: ^0.14.0
+      es6-error: ^4.1.1
       eslint-config-custom: workspace:*
       jest: ^29.4.2
       jest-presets: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
     dependencies:
+      '@sinclair/typebox': 0.25.23
       class-validator: 0.14.0
+      es6-error: 4.1.1
     devDependencies:
       '@types/jest': 29.4.0
       eslint-config-custom: link:../../config/eslint-config-custom

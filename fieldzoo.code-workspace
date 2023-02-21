@@ -61,8 +61,8 @@
       "path": "utils/validation"
     },
     {
-      "name": "utils/validators",
-      "path": "utils/validators"
+      "name": "utils/safe-validator",
+      "path": "utils/safe-validator"
     }
   ]
 }

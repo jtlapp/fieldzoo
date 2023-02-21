@@ -21,7 +21,7 @@
   "dependencies": {
     "@fieldzoo/utilities": "workspace:*",
     "@fieldzoo/validation": "workspace:*",
-    "@fieldzoo/validators": "workspace:*",
+    "@fieldzoo/validator": "workspace:*",
     "@sinclair/typebox": "^0.25.23"
   },
   "devDependencies": {
