@@ -19,9 +19,9 @@
     "preset": "jest-presets/node"
   },
   "dependencies": {
+    "@fieldzoo/generic-types": "workspace:*",
     "@fieldzoo/safe-validator": "workspace:*",
     "@fieldzoo/typebox-types": "workspace:*",
-    "@fieldzoo/utilities": "workspace:*",
     "@sinclair/typebox": "^0.25.23"
   },
   "devDependencies": {

@@ -1,10 +1,10 @@
 {
-  "name": "@fieldzoo/database",
+  "name": "@fieldzoo/postgres-utils",
   "version": "0.0.0",
   "private": true,
-  "main": "dist/index.js",
-  "source": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "dist/postgres-utils.js",
+  "source": "src/postgres-utils.ts",
+  "types": "src/postgres-utils.ts",
   "files": [
     "dist/**"
   ],
@@ -18,16 +18,9 @@
     "preset": "jest-presets/node"
   },
   "dependencies": {
-    "@fieldzoo/app-config": "workspace:*",
-    "@fieldzoo/database-config": "workspace:*",
-    "@fieldzoo/postgres-utils": "workspace:*",
-    "dotenv": "^16.0.3",
-    "kysely": "^0.23.4",
-    "pg": "^8.9.0"
+    "kysely": "^0.23.4"
   },
   "devDependencies": {
-    "@types/node": "^18.11.17",
-    "@types/pg": "^8.6.6",
     "eslint-config-custom": "workspace:*",
     "jest-presets": "workspace:*",
     "tsconfig": "workspace:*"

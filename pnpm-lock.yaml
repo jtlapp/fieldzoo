@@ -19,7 +19,8 @@ importers:
       '@fieldzoo/app-config': workspace:*
       '@fieldzoo/database': workspace:*
       '@fieldzoo/database-config': workspace:*
-      '@fieldzoo/utilities': workspace:*
+      '@fieldzoo/postgres-utils': workspace:*
+      '@fieldzoo/testing-utils': workspace:*
       '@types/jest': ^29.4.0
       '@types/node': ^18.11.17
       '@types/pg': ^8.6.6
@@ -36,7 +37,8 @@ importers:
       '@fieldzoo/app-config': link:../../config/app-config
       '@fieldzoo/database': link:../../libs/database
       '@fieldzoo/database-config': link:../../utils/database-config
-      '@fieldzoo/utilities': link:../../utils/utilities
+      '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
+      '@fieldzoo/testing-utils': link:../../utils/testing-utils
       commander: 10.0.0
       dotenv: 16.0.3
       es6-error: 4.1.1
@@ -140,7 +142,7 @@ importers:
     specifiers:
       '@fieldzoo/app-config': workspace:*
       '@fieldzoo/database-config': workspace:*
-      '@fieldzoo/utilities': workspace:*
+      '@fieldzoo/postgres-utils': workspace:*
       '@types/node': ^18.11.17
       '@types/pg': ^8.6.6
       dotenv: ^16.0.3
@@ -152,7 +154,7 @@ importers:
     dependencies:
       '@fieldzoo/app-config': link:../../config/app-config
       '@fieldzoo/database-config': link:../../utils/database-config
-      '@fieldzoo/utilities': link:../../utils/utilities
+      '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
       dotenv: 16.0.3
       kysely: 0.23.4
       pg: 8.9.0
@@ -166,9 +168,9 @@ importers:
   libs/model:
     specifiers:
       '@fieldzoo/freeze-field': workspace:*
+      '@fieldzoo/generic-types': workspace:*
       '@fieldzoo/safe-validator': workspace:*
       '@fieldzoo/typebox-types': workspace:*
-      '@fieldzoo/utilities': workspace:*
       '@sinclair/typebox': ^0.25.23
       '@types/jest': ^29.4.0
       '@types/node': ^18.11.17
@@ -179,9 +181,9 @@ importers:
       tsconfig: workspace:*
     dependencies:
       '@fieldzoo/freeze-field': link:../../utils/freeze-field
+      '@fieldzoo/generic-types': link:../../utils/generic-types
       '@fieldzoo/safe-validator': link:../../utils/safe-validator
       '@fieldzoo/typebox-types': link:../../utils/typebox-types
-      '@fieldzoo/utilities': link:../../utils/utilities
       '@sinclair/typebox': 0.25.23
     devDependencies:
       '@types/jest': 29.4.0
@@ -232,9 +234,9 @@ importers:
 
   utils/database-config:
     specifiers:
+      '@fieldzoo/generic-types': workspace:*
       '@fieldzoo/safe-validator': workspace:*
       '@fieldzoo/typebox-types': workspace:*
-      '@fieldzoo/utilities': workspace:*
       '@sinclair/typebox': ^0.25.23
       '@types/jest': ^29.4.0
       '@types/node': ^18.11.17
@@ -246,9 +248,9 @@ importers:
       ts-jest: ^29.0.5
       tsconfig: workspace:*
     dependencies:
+      '@fieldzoo/generic-types': link:../generic-types
       '@fieldzoo/safe-validator': link:../safe-validator
       '@fieldzoo/typebox-types': link:../typebox-types
-      '@fieldzoo/utilities': link:../utilities
       '@sinclair/typebox': 0.25.23
     devDependencies:
       '@types/jest': 29.4.0
@@ -277,6 +279,29 @@ importers:
       ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
       tsconfig: link:../../config/tsconfig
 
+  utils/generic-types:
+    specifiers:
+      eslint-config-custom: workspace:*
+      jest-presets: workspace:*
+      tsconfig: workspace:*
+    devDependencies:
+      eslint-config-custom: link:../../config/eslint-config-custom
+      jest-presets: link:../../config/jest-presets
+      tsconfig: link:../../config/tsconfig
+
+  utils/postgres-utils:
+    specifiers:
+      eslint-config-custom: workspace:*
+      jest-presets: workspace:*
+      kysely: ^0.23.4
+      tsconfig: workspace:*
+    dependencies:
+      kysely: 0.23.4
+    devDependencies:
+      eslint-config-custom: link:../../config/eslint-config-custom
+      jest-presets: link:../../config/jest-presets
+      tsconfig: link:../../config/tsconfig
+
   utils/safe-validator:
     specifiers:
       '@sinclair/typebox': ^0.25.23
@@ -296,6 +321,16 @@ importers:
       jest: 29.4.2
       jest-presets: link:../../config/jest-presets
       ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
+      tsconfig: link:../../config/tsconfig
+
+  utils/testing-utils:
+    specifiers:
+      eslint-config-custom: workspace:*
+      jest-presets: workspace:*
+      tsconfig: workspace:*
+    devDependencies:
+      eslint-config-custom: link:../../config/eslint-config-custom
+      jest-presets: link:../../config/jest-presets
       tsconfig: link:../../config/tsconfig
 
   utils/typebox-types:
@@ -319,21 +354,6 @@ importers:
       jest: 29.4.2
       jest-presets: link:../../config/jest-presets
       ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
-      tsconfig: link:../../config/tsconfig
-
-  utils/utilities:
-    specifiers:
-      '@sinclair/typebox': ^0.25.23
-      eslint-config-custom: workspace:*
-      jest-presets: workspace:*
-      kysely: ^0.23.4
-      tsconfig: workspace:*
-    dependencies:
-      '@sinclair/typebox': 0.25.23
-      kysely: 0.23.4
-    devDependencies:
-      eslint-config-custom: link:../../config/eslint-config-custom
-      jest-presets: link:../../config/jest-presets
       tsconfig: link:../../config/tsconfig
 
 packages:

@@ -1,7 +1,7 @@
 import { Type } from "@sinclair/typebox";
 
+import { FieldsOf } from "@fieldzoo/generic-types";
 import { SafeValidator } from "@fieldzoo/safe-validator";
-import { FieldsOf } from "@fieldzoo/utilities";
 import {
   NonEmptyString,
   SingleLineUniString,

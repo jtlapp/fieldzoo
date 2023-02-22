@@ -4,7 +4,8 @@ import type { Kysely } from "kysely";
 
 import { TEST_ENV } from "@fieldzoo/app-config";
 import { getDB, closeDB, resetTestDB } from "@fieldzoo/database";
-import { dropAllTables, getError } from "@fieldzoo/utilities";
+import { dropAllTables } from "@fieldzoo/postgres-utils";
+import { getError } from "@fieldzoo/testing-utils";
 
 let db: Kysely<any>;
 

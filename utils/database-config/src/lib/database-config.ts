@@ -8,7 +8,7 @@
 import { Type } from "@sinclair/typebox";
 import type { ClientConfig } from "pg";
 
-import type { FieldsOf } from "@fieldzoo/utilities";
+import type { FieldsOf } from "@fieldzoo/generic-types";
 import { SafeValidator, InvalidShapeError } from "@fieldzoo/safe-validator";
 import {
   CodeWordString,

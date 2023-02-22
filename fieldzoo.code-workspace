@@ -53,20 +53,28 @@
       "path": "utils/database-config"
     },
     {
-      "name": "utils/typebox-types",
-      "path": "utils/typebox-types"
-    },
-    {
-      "name": "utils/utilities",
-      "path": "utils/utilities"
-    },
-    {
       "name": "utils/freeze-field",
       "path": "utils/freeze-field"
     },
     {
+      "name": "utils/generic-types",
+      "path": "utils/generic-types"
+    },
+    {
+      "name": "utils/postgres-utils",
+      "path": "utils/postgres-utils"
+    },
+    {
       "name": "utils/safe-validator",
       "path": "utils/safe-validator"
+    },
+    {
+      "name": "utils/testing-utils",
+      "path": "utils/testing-utils"
+    },
+    {
+      "name": "utils/typebox-types",
+      "path": "utils/typebox-types"
     }
   ]
 }

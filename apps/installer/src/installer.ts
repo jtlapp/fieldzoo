@@ -21,8 +21,7 @@ import {
   InvalidEnvironmentError,
 } from "@fieldzoo/database-config";
 import { MIGRATION_FILE_PATH } from "@fieldzoo/database";
-
-import { dropAllTables, existingTables } from "@fieldzoo/utilities";
+import { dropAllTables, existingTables } from "@fieldzoo/postgres-utils";
 
 const PATH_TO_ROOT = path.join(__dirname, "../../..");
 
