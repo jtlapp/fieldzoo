@@ -1,7 +1,7 @@
 import { DatabaseConfig } from "./database-config";
 
 import { InvalidEnvironmentError } from "./invalid-env-error";
-import { InvalidShapeError } from "@fieldzoo/shapechecker";
+import { InvalidShapeError } from "@fieldzoo/safe-validator";
 
 const ALL_FIELDS = ["host", "port", "database", "user", "password"];
 

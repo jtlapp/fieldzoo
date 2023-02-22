@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 
-import { ShapeChecker } from "@fieldzoo/shapechecker";
+import { SafeValidator } from "@fieldzoo/safe-validator";
 import { FieldsOf } from "@fieldzoo/utilities";
 import {
   NonEmptyString,
@@ -32,7 +32,7 @@ export class Term {
     }),
     description: MultiLineUniString({ minLength: 1, maxLength: 1000 }),
   });
-  static #checker = new ShapeChecker(this.schema);
+  static #validator = new SafeValidator(this.schema);
 
   constructor(fields: FieldsOf<Term>, assumeValid = false) {
     this.id = fields.id;
@@ -41,7 +41,7 @@ export class Term {
     this.description = fields.description;
 
     if (!assumeValid) {
-      Term.#checker.safeValidate(this, "Invalid term");
+      Term.#validator.safeValidate(this, "Invalid term");
     }
     freezeField(this, "id");
   }

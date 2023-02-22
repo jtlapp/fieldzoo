@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 
-import { ShapeChecker } from "@fieldzoo/shapechecker";
+import { SafeValidator } from "@fieldzoo/safe-validator";
 import { FieldsOf } from "@fieldzoo/utilities";
 import {
   NonEmptyString,
@@ -28,7 +28,7 @@ export class User {
     }),
     email: EmailString({ maxLength: 100 }),
   });
-  static #checker = new ShapeChecker(this.schema);
+  static #validator = new SafeValidator(this.schema);
 
   constructor(fields: FieldsOf<User>, assumeValid = false) {
     this.id = fields.id;
@@ -36,7 +36,7 @@ export class User {
     this.email = fields.email;
 
     if (!assumeValid) {
-      User.#checker.safeValidate(this, "Invalid user");
+      User.#validator.safeValidate(this, "Invalid user");
     }
     freezeField(this, "id");
   }

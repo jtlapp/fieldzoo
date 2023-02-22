@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 
-import { ShapeChecker } from "@fieldzoo/shapechecker";
+import { SafeValidator } from "@fieldzoo/safe-validator";
 import { FieldsOf } from "@fieldzoo/utilities";
 import {
   NonEmptyString,
@@ -33,7 +33,7 @@ export class Glossary {
     }),
     description: Nullable(MultiLineUniString({ maxLength: 1000 })),
   });
-  static #checker = new ShapeChecker(this.schema);
+  static #validator = new SafeValidator(this.schema);
 
   constructor(fields: FieldsOf<Glossary>, assumeValid = false) {
     this.id = fields.id;
@@ -42,7 +42,7 @@ export class Glossary {
     this.description = fields.description;
 
     if (!assumeValid) {
-      Glossary.#checker.safeValidate(this, "Invalid glossary");
+      Glossary.#validator.safeValidate(this, "Invalid glossary");
     }
     freezeField(this, "id");
   }

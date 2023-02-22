@@ -19,7 +19,7 @@
     "preset": "jest-presets/node"
   },
   "dependencies": {
-    "@fieldzoo/shapechecker": "workspace:*",
+    "@fieldzoo/safe-validator": "workspace:*",
     "@fieldzoo/typebox-types": "workspace:*",
     "@fieldzoo/utilities": "workspace:*",
     "@sinclair/typebox": "^0.25.23"

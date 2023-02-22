@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 
-import { ShapeChecker } from "./shape-checker";
+import { SafeValidator } from "./safe-validator";
 import { InvalidShapeError } from "./invalid-shape";
 
 class TestObj1 {
@@ -8,7 +8,7 @@ class TestObj1 {
   count: number;
   name: string;
 
-  static readonly checker = new ShapeChecker(
+  static readonly validator = new SafeValidator(
     Type.Object({
       delta: Type.Integer(),
       count: Type.Integer({ exclusiveMinimum: 0 }),
@@ -27,11 +27,11 @@ class TestObj1 {
   }
 
   safeValidate() {
-    TestObj1.checker.safeValidate(this, "Bad TestObj1");
+    TestObj1.validator.safeValidate(this, "Bad TestObj1");
   }
 
   unsafeValidate() {
-    TestObj1.checker.unsafeValidate(this, "Bad TestObj1");
+    TestObj1.validator.unsafeValidate(this, "Bad TestObj1");
   }
 }
 
@@ -40,7 +40,7 @@ class TestObj2 {
   int2: number;
   alpha: string;
 
-  static readonly checker = new ShapeChecker(
+  static readonly validator = new SafeValidator(
     Type.Object({
       int1: Type.Integer({ message: "{field} must be an integer" }),
       int2: Type.Integer({ message: "{field} must be an integer" }),
@@ -55,11 +55,11 @@ class TestObj2 {
   }
 
   safeValidate() {
-    TestObj2.checker.safeValidate(this, "Bad TestObj2");
+    TestObj2.validator.safeValidate(this, "Bad TestObj2");
   }
 
   unsafeValidate() {
-    TestObj2.checker.unsafeValidate(this, "Bad TestObj2");
+    TestObj2.validator.unsafeValidate(this, "Bad TestObj2");
   }
 }
 

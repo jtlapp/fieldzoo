@@ -1,5 +1,5 @@
 /**
- * Classes supporting ShapeChecker validation errors.
+ * Classes supporting SafeValidator validation errors.
  */
 
 import type { ValueError } from "@sinclair/typebox/compiler";

@@ -65,8 +65,8 @@
       "path": "utils/freeze-field"
     },
     {
-      "name": "utils/shapechecker",
-      "path": "utils/shapechecker"
+      "name": "utils/safe-validator",
+      "path": "utils/safe-validator"
     }
   ]
 }

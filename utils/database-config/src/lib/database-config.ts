@@ -9,7 +9,7 @@ import { Type } from "@sinclair/typebox";
 import type { ClientConfig } from "pg";
 
 import type { FieldsOf } from "@fieldzoo/utilities";
-import { ShapeChecker, InvalidShapeError } from "@fieldzoo/shapechecker";
+import { SafeValidator, InvalidShapeError } from "@fieldzoo/safe-validator";
 import {
   CodeWordString,
   HostNameString,
@@ -45,7 +45,7 @@ export class DatabaseConfig implements ClientConfig {
     user: CodeWordString({ message: "invalid user" }),
     password: NonEmptyString({ message: "password should not be empty" }),
   });
-  static #checker = new ShapeChecker(this.schema);
+  static #validator = new SafeValidator(this.schema);
 
   constructor(fields: FieldsOf<DatabaseConfig>) {
     this.host = fields.host;
@@ -53,7 +53,7 @@ export class DatabaseConfig implements ClientConfig {
     this.database = fields.database;
     this.user = fields.user;
     this.password = fields.password;
-    DatabaseConfig.#checker.unsafeValidate(
+    DatabaseConfig.#validator.unsafeValidate(
       this,
       "Invalid database configuration",
     );

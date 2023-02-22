@@ -20,7 +20,7 @@ import { InvalidShapeError } from "./invalid-shape";
 /**
  * Class whose instances can safely validate object fields.
  */
-export class ShapeChecker<S extends TSchema> {
+export class SafeValidator<S extends TSchema> {
   readonly #compiledType: TypeCheck<S>;
 
   /**

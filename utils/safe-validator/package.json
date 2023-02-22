@@ -1,5 +1,5 @@
 {
-  "name": "@fieldzoo/shapechecker",
+  "name": "@fieldzoo/safe-validator",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
@@ -29,7 +29,6 @@
   },
   "dependencies": {
     "@sinclair/typebox": "^0.25.23",
-    "class-validator": "^0.14.0",
     "es6-error": "^4.1.1"
   }
 }
