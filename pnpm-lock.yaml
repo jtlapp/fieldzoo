@@ -165,23 +165,29 @@ importers:
 
   libs/model:
     specifiers:
+      '@fieldzoo/freeze-field': workspace:*
+      '@fieldzoo/shapechecker': workspace:*
+      '@fieldzoo/typebox-types': workspace:*
       '@fieldzoo/utilities': workspace:*
-      '@fieldzoo/validation': workspace:*
+      '@sinclair/typebox': ^0.25.23
       '@types/jest': ^29.4.0
-      class-validator: ^0.14.0
+      '@types/node': ^18.11.17
       eslint-config-custom: workspace:*
       jest: ^29.4.2
       jest-presets: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
     dependencies:
+      '@fieldzoo/freeze-field': link:../../utils/freeze-field
+      '@fieldzoo/shapechecker': link:../../utils/shapechecker
+      '@fieldzoo/typebox-types': link:../../utils/typebox-types
       '@fieldzoo/utilities': link:../../utils/utilities
-      '@fieldzoo/validation': link:../../utils/validation
-      class-validator: 0.14.0
+      '@sinclair/typebox': 0.25.23
     devDependencies:
       '@types/jest': 29.4.0
+      '@types/node': 18.13.0
       eslint-config-custom: link:../../config/eslint-config-custom
-      jest: 29.4.2
+      jest: 29.4.2_@types+node@18.13.0
       jest-presets: link:../../config/jest-presets
       ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
       tsconfig: link:../../config/tsconfig
@@ -226,9 +232,9 @@ importers:
 
   utils/database-config:
     specifiers:
+      '@fieldzoo/shapechecker': workspace:*
+      '@fieldzoo/typebox-types': workspace:*
       '@fieldzoo/utilities': workspace:*
-      '@fieldzoo/validation': workspace:*
-      '@fieldzoo/validator': workspace:*
       '@sinclair/typebox': ^0.25.23
       '@types/jest': ^29.4.0
       '@types/node': ^18.11.17
@@ -240,9 +246,9 @@ importers:
       ts-jest: ^29.0.5
       tsconfig: workspace:*
     dependencies:
+      '@fieldzoo/shapechecker': link:../shapechecker
+      '@fieldzoo/typebox-types': link:../typebox-types
       '@fieldzoo/utilities': link:../utilities
-      '@fieldzoo/validation': link:../validation
-      '@fieldzoo/validator': link:../validator
       '@sinclair/typebox': 0.25.23
     devDependencies:
       '@types/jest': 29.4.0
@@ -255,37 +261,15 @@ importers:
       ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
       tsconfig: link:../../config/tsconfig
 
-  utils/utilities:
+  utils/freeze-field:
     specifiers:
-      eslint-config-custom: workspace:*
-      jest-presets: workspace:*
-      kysely: ^0.23.4
-      tsconfig: workspace:*
-    dependencies:
-      kysely: 0.23.4
-    devDependencies:
-      eslint-config-custom: link:../../config/eslint-config-custom
-      jest-presets: link:../../config/jest-presets
-      tsconfig: link:../../config/tsconfig
-
-  utils/validation:
-    specifiers:
-      '@fieldzoo/utilities': workspace:*
-      '@jest/globals': ^29.4.2
-      '@sinclair/typebox': ^0.25.23
       '@types/jest': ^29.4.0
-      es6-error: ^4.1.1
       eslint-config-custom: workspace:*
       jest: ^29.4.2
       jest-presets: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
-    dependencies:
-      '@fieldzoo/utilities': link:../utilities
-      '@sinclair/typebox': 0.25.23
-      es6-error: 4.1.1
     devDependencies:
-      '@jest/globals': 29.4.2
       '@types/jest': 29.4.0
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.2
@@ -293,7 +277,7 @@ importers:
       ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
       tsconfig: link:../../config/tsconfig
 
-  utils/validator:
+  utils/shapechecker:
     specifiers:
       '@sinclair/typebox': ^0.25.23
       '@types/jest': ^29.4.0
@@ -314,6 +298,44 @@ importers:
       jest: 29.4.2
       jest-presets: link:../../config/jest-presets
       ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
+      tsconfig: link:../../config/tsconfig
+
+  utils/typebox-types:
+    specifiers:
+      '@jest/globals': ^29.4.2
+      '@sinclair/typebox': ^0.25.23
+      '@types/jest': ^29.4.0
+      ajv-formats: ^2.1.1
+      eslint-config-custom: workspace:*
+      jest: ^29.4.2
+      jest-presets: workspace:*
+      ts-jest: ^29.0.5
+      tsconfig: workspace:*
+    dependencies:
+      '@sinclair/typebox': 0.25.23
+      ajv-formats: 2.1.1
+    devDependencies:
+      '@jest/globals': 29.4.2
+      '@types/jest': 29.4.0
+      eslint-config-custom: link:../../config/eslint-config-custom
+      jest: 29.4.2
+      jest-presets: link:../../config/jest-presets
+      ts-jest: 29.0.5_zgilbyuumz7xbrerspmrtjuxsi
+      tsconfig: link:../../config/tsconfig
+
+  utils/utilities:
+    specifiers:
+      '@sinclair/typebox': ^0.25.23
+      eslint-config-custom: workspace:*
+      jest-presets: workspace:*
+      kysely: ^0.23.4
+      tsconfig: workspace:*
+    dependencies:
+      '@sinclair/typebox': 0.25.23
+      kysely: 0.23.4
+    devDependencies:
+      eslint-config-custom: link:../../config/eslint-config-custom
+      jest-presets: link:../../config/jest-presets
       tsconfig: link:../../config/tsconfig
 
 packages:
@@ -1509,6 +1531,15 @@ packages:
     resolution: {integrity: sha512-7zFpHzhnqYKrkYdUjF1HI1bzd0VygEGX8lFk4k5zVMqHEoES+P+7TKI+EvLO9WVMJ8eekdO0aDEK044xTXwPPA==}
     engines: {node: '>=0.4.0'}
     hasBin: true
+    dev: false
+
+  /ajv-formats/2.1.1:
+    resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
+    peerDependencies:
+      ajv: ^8.0.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
     dev: false
 
   /ajv/6.12.6:
@@ -5271,7 +5302,7 @@ packages:
       '@babel/core': 7.20.12
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 29.4.2
+      jest: 29.4.2_@types+node@18.11.17
       jest-util: 29.4.2
       json5: 2.2.3
       lodash.memoize: 4.1.2

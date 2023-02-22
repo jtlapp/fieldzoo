@@ -1,4 +1,8 @@
 /**
+ * Regexes for use by Field Zoo.
+ */
+
+/**
  * Regex matching ASCII code words, beginning with an underscore or letter
  * and containing only underscores, letters, and digits.
  */
@@ -27,5 +31,5 @@ export const SINGLE_LINE_UNICODE_REGEX =
 /**
  * Regex matching strings suitable for non-handle user names.
  */
-export const USER_NAME_REGEX =
+export const USER_NAME_UNICODE_REGEX =
   /^(?:\p{L}\p{M}*)+(?:(\. |[-.' ])(?:\p{L}\p{M}*)+\.?)*$/u;

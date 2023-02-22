@@ -1,16 +1,13 @@
-import { Matches, MaxLength, MinLength } from "class-validator";
+import { Type } from "@sinclair/typebox";
 
+import { ShapeChecker } from "@fieldzoo/shapechecker";
 import { FieldsOf } from "@fieldzoo/utilities";
 import {
-  ValidatingObject,
-  EmailAddress,
-  USER_NAME_REGEX,
-} from "@fieldzoo/validation";
-
-/** Min. length of user name (chars) */
-export const MIN_USER_NAME_LENGTH = 2;
-/** Max. length of user name (chars) */
-export const MAX_USER_NAME_LENGTH = 40;
+  NonEmptyString,
+  EmailString,
+  UserNameUniString,
+} from "@fieldzoo/typebox-types";
+import { freezeField } from "@fieldzoo/freeze-field";
 
 /** Database ID of a user record */
 export type UserID = string & { readonly __typeID: unique symbol };
@@ -18,39 +15,32 @@ export type UserID = string & { readonly __typeID: unique symbol };
 /**
  * Class representing a user entity
  */
-export class User extends ValidatingObject {
+export class User {
   readonly id: UserID;
-  name: UserName;
-  email: EmailAddress;
+  name: string;
+  email: string;
 
-  constructor(fields: FieldsOf<User>) {
-    super();
+  static schema = Type.Object({
+    id: NonEmptyString(),
+    name: UserNameUniString({
+      minLength: 2,
+      maxLength: 50,
+    }),
+    email: EmailString({ maxLength: 100 }),
+  });
+  static #checker = new ShapeChecker(this.schema);
+
+  constructor(fields: FieldsOf<User>, assumeValid = false) {
     this.id = fields.id;
     this.name = fields.name;
     this.email = fields.email;
-    this.freezeField("id");
+
+    if (!assumeValid) {
+      User.#checker.safeValidate(this, "Invalid user");
+    }
+    freezeField(this, "id");
   }
 }
 export interface User {
-  readonly __typeID: unique symbol;
-}
-
-/**
- * Class representing a valid user name
- */
-export class UserName extends ValidatingObject {
-  @Matches(USER_NAME_REGEX)
-  @MinLength(MIN_USER_NAME_LENGTH)
-  @MaxLength(MAX_USER_NAME_LENGTH) // checked first
-  readonly value: string;
-
-  constructor(userName: string, assumeValid = false) {
-    super();
-    this.value = userName;
-    if (!assumeValid) this.validate("user name", false);
-    Object.freeze(this);
-  }
-}
-export interface UserName {
   readonly __typeID: unique symbol;
 }

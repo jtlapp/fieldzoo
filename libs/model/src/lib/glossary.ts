@@ -1,20 +1,16 @@
-import { Matches, MaxLength, MinLength, IsOptional } from "class-validator";
+import { Type } from "@sinclair/typebox";
 
+import { ShapeChecker } from "@fieldzoo/shapechecker";
 import { FieldsOf } from "@fieldzoo/utilities";
 import {
-  ValidatingObject,
-  MULTI_LINE_UNICODE_REGEX,
-  SINGLE_LINE_UNICODE_REGEX,
-} from "@fieldzoo/validation";
+  NonEmptyString,
+  Nullable,
+  SingleLineUniString,
+  MultiLineUniString,
+} from "@fieldzoo/typebox-types";
+import { freezeField } from "@fieldzoo/freeze-field";
 
 import { UserID } from "./user";
-
-/** Min. length of glossary name (chars) */
-export const MIN_GLOSSARY_NAME_LENGTH = 1;
-/** Max. length of glossary name (chars) */
-export const MAX_GLOSSARY_NAME_LENGTH = 100;
-/** Max. length of glossary description (chars) */
-export const MAX_GLOSSARY_DESCRIPTION_LENGTH = 1000;
 
 /** Database ID of a glossary record */
 export type GlossaryID = string & { readonly __typeID: unique symbol };
@@ -22,29 +18,33 @@ export type GlossaryID = string & { readonly __typeID: unique symbol };
 /**
  * Class representing a valid glossary
  */
-export class Glossary extends ValidatingObject {
+export class Glossary {
   readonly id: GlossaryID;
   ownerID: UserID;
-
-  @Matches(SINGLE_LINE_UNICODE_REGEX)
-  @MinLength(MIN_GLOSSARY_NAME_LENGTH)
-  @MaxLength(MAX_GLOSSARY_NAME_LENGTH) // checked first
   name: string;
-
-  @Matches(MULTI_LINE_UNICODE_REGEX)
-  @MaxLength(MAX_GLOSSARY_DESCRIPTION_LENGTH)
-  @IsOptional()
   description: string | null;
 
+  static schema = Type.Object({
+    id: NonEmptyString(),
+    ownerID: NonEmptyString(),
+    name: SingleLineUniString({
+      minLength: 1,
+      maxLength: 100,
+    }),
+    description: Nullable(MultiLineUniString({ maxLength: 1000 })),
+  });
+  static #checker = new ShapeChecker(this.schema);
+
   constructor(fields: FieldsOf<Glossary>, assumeValid = false) {
-    super();
     this.id = fields.id;
     this.ownerID = fields.ownerID;
     this.name = fields.name;
     this.description = fields.description;
 
-    if (!assumeValid) this.validate("glossary");
-    this.freezeField("id");
+    if (!assumeValid) {
+      Glossary.#checker.safeValidate(this, "Invalid glossary");
+    }
+    freezeField(this, "id");
   }
 }
 export interface Glossary {

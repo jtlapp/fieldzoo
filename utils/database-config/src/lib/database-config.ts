@@ -6,16 +6,15 @@
  */
 
 import { Type } from "@sinclair/typebox";
-import { TypeCompiler } from "@sinclair/typebox/compiler";
 import type { ClientConfig } from "pg";
 
 import type { FieldsOf } from "@fieldzoo/utilities";
+import { ShapeChecker, InvalidShapeError } from "@fieldzoo/shapechecker";
 import {
-  validate,
-  CODE_WORD_REGEX,
-  HOST_NAME_REGEX,
-  ValidationError,
-} from "@fieldzoo/validation";
+  CodeWordString,
+  HostNameString,
+  NonEmptyString,
+} from "@fieldzoo/typebox-types";
 
 import { InvalidEnvironmentError } from "./invalid-env-error";
 
@@ -35,15 +34,18 @@ export class DatabaseConfig implements ClientConfig {
   readonly user: string;
   readonly password: string;
 
-  private static checker = TypeCompiler.Compile(
-    Type.Object({
-      host: Type.RegEx(HOST_NAME_REGEX),
-      port: Type.Integer({ minimum: 0, maximum: 65535 }),
-      database: Type.RegEx(CODE_WORD_REGEX),
-      user: Type.RegEx(CODE_WORD_REGEX),
-      password: Type.String({ minLength: 1 }),
+  static schema = Type.Object({
+    host: HostNameString({ message: "invalid host name" }),
+    port: Type.Integer({
+      minimum: 0,
+      maximum: 65535,
+      message: "port must be an integer >= 0 and <= 65535",
     }),
-  );
+    database: CodeWordString({ message: "invalid database name" }),
+    user: CodeWordString({ message: "invalid user" }),
+    password: NonEmptyString({ message: "password should not be empty" }),
+  });
+  static #checker = new ShapeChecker(this.schema);
 
   constructor(fields: FieldsOf<DatabaseConfig>) {
     this.host = fields.host;
@@ -51,7 +53,10 @@ export class DatabaseConfig implements ClientConfig {
     this.database = fields.database;
     this.user = fields.user;
     this.password = fields.password;
-    validate(DatabaseConfig.checker, this, "Invalid database configuration");
+    DatabaseConfig.#checker.unsafeValidate(
+      this,
+      "Invalid database configuration",
+    );
   }
 
   /**
@@ -82,7 +87,7 @@ export class DatabaseConfig implements ClientConfig {
         password: process.env[passwordEnvVar]!,
       });
     } catch (err: any) {
-      if (!(err instanceof ValidationError)) throw err;
+      if (!(err instanceof InvalidShapeError)) throw err;
 
       const fieldToEnvVarMap: Record<string, string> = {
         host: hostEnvVar,
@@ -91,21 +96,15 @@ export class DatabaseConfig implements ClientConfig {
         user: usernameEnvVar,
         password: passwordEnvVar,
       };
-      const fieldNames = Object.keys(fieldToEnvVarMap);
 
-      const colonOffset = err.message.indexOf(":");
-      const error = new InvalidEnvironmentError();
-      for (const message of err.message.slice(colonOffset + 2).split("; ")) {
-        for (const fieldName of fieldNames) {
-          if (message.includes(fieldName)) {
-            error.add({
-              envVarName: fieldToEnvVarMap[fieldName],
-              errorMessage: message,
-            });
-          }
-        }
+      const envError = new InvalidEnvironmentError();
+      for (const detail of err.details) {
+        envError.add({
+          envVarName: fieldToEnvVarMap[detail.error.path.substring(1)],
+          errorMessage: detail.toString(),
+        });
       }
-      throw error;
+      throw envError;
     }
   }
 

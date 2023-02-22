@@ -1,12 +1,11 @@
 import { DatabaseConfig } from "./database-config";
 
-import { expectInvalid } from "@fieldzoo/validation";
-
 import { InvalidEnvironmentError } from "./invalid-env-error";
+import { InvalidShapeError } from "@fieldzoo/shapechecker";
+
+const ALL_FIELDS = ["host", "port", "database", "user", "password"];
 
 describe("database configuration", () => {
-  // The regex itself is already well tested elsewhere.
-
   it("accepts valid configurations", () => {
     expect(
       () =>
@@ -30,130 +29,104 @@ describe("database configuration", () => {
     ).not.toThrow();
   });
 
-  it("rejects invalid configurations", () => {
-    expectInvalid(
-      expect,
-      () =>
-        new DatabaseConfig({
-          host: undefined!,
-          port: undefined!,
-          database: undefined!,
-          user: undefined!,
-          password: undefined!,
-        }),
-      ["host", "port", "database", "user", "password"],
-    );
-    expectInvalid(
-      expect,
-      () =>
-        new DatabaseConfig({
-          host: null!,
-          port: null!,
-          database: null!,
-          user: null!,
-          password: null!,
-        }),
-      ["host", "port", "database", "user", "password"],
-    );
-    expectInvalid(
-      expect,
-      () =>
-        new DatabaseConfig({
-          host: "",
-          port: 65536,
-          database: "",
-          user: "",
-          password: "",
-        }),
-      ["host", "port", "database", "user", "password"],
-    );
-    expectInvalid(
-      expect,
-      () =>
-        new DatabaseConfig({
-          host: "foo foo",
-          port: -1,
-          database: "bar bar",
-          user: "baz baz ",
-          password: "abcdef",
-        }),
-      ["host", "port", "database", "user"],
-    );
-    expectInvalid(
-      expect,
-      () =>
-        new DatabaseConfig({
-          host: "localhost:32",
-          port: 9.5,
-          database: "*",
-          user: "*",
-          password: "adfadfad",
-        }),
-      ["host", "port", "database", "user"],
-    );
+  it("rejects undefined values", () => {
+    expect.assertions(ALL_FIELDS.length + 1);
+    try {
+      new DatabaseConfig({
+        host: undefined!,
+        port: undefined!,
+        database: undefined!,
+        user: undefined!,
+        password: undefined!,
+      });
+    } catch (err: unknown) {
+      if (!(err instanceof InvalidShapeError)) throw err;
+      expect(err.details.length).toEqual(ALL_FIELDS.length);
+      for (const detail of err.details) {
+        expect(ALL_FIELDS).toContain(detail.error.path.substring(1));
+      }
+    }
+  });
+
+  it("rejects null values", () => {
+    expect.assertions(ALL_FIELDS.length + 1);
+    try {
+      new DatabaseConfig({
+        host: null!,
+        port: null!,
+        database: null!,
+        user: null!,
+        password: null!,
+      });
+    } catch (err: unknown) {
+      if (!(err instanceof InvalidShapeError)) throw err;
+      expect(err.details.length).toEqual(ALL_FIELDS.length);
+      for (const detail of err.details) {
+        expect(ALL_FIELDS).toContain(detail.error.path.substring(1));
+      }
+    }
+  });
+
+  it("rejects empty strings", () => {
+    expect.assertions(ALL_FIELDS.length + 1);
+    try {
+      new DatabaseConfig({
+        host: "",
+        port: 65536,
+        database: "",
+        user: "",
+        password: "",
+      });
+    } catch (err: unknown) {
+      if (!(err instanceof InvalidShapeError)) throw err;
+      expect(err.details.length).toEqual(ALL_FIELDS.length);
+      for (const detail of err.details) {
+        expect(ALL_FIELDS).toContain(detail.error.path.substring(1));
+      }
+    }
+  });
+
+  it("rejects invalid values", () => {
+    expect.assertions(ALL_FIELDS.length);
+    try {
+      new DatabaseConfig({
+        host: "foo foo",
+        port: -1,
+        database: "bar bar",
+        user: "baz baz ",
+        password: "abcdef",
+      });
+    } catch (err: unknown) {
+      if (!(err instanceof InvalidShapeError)) throw err;
+      const invalids = ["host", "port", "database", "user"];
+      expect(err.details.length).toEqual(invalids.length);
+      for (const detail of err.details) {
+        expect(invalids).toContain(detail.error.path.substring(1));
+      }
+    }
   });
 
   it("produces friendly error messages", () => {
-    expectInvalid(
-      expect,
-      () =>
-        new DatabaseConfig({
-          host: "localhost:32",
-          port: 123,
-          database: "foo",
-          user: "bar",
-          password: "xyz",
-        }),
-      ["invalid host name"],
-    );
-    expectInvalid(
-      expect,
-      () =>
-        new DatabaseConfig({
-          host: "localhost",
-          port: 65536,
-          database: "foo",
-          user: "bar",
-          password: "xyz",
-        }),
-      ["port must be a number >= 0 and <= 65535"],
-    );
-    expectInvalid(
-      expect,
-      () =>
-        new DatabaseConfig({
-          host: "localhost",
-          port: 1000,
-          database: "foo bar",
-          user: "bar",
-          password: "xyz",
-        }),
-      ["invalid database name"],
-    );
-    expectInvalid(
-      expect,
-      () =>
-        new DatabaseConfig({
-          host: "localhost",
-          port: 1000,
-          database: "foo",
-          user: "foo bar",
-          password: "xyz",
-        }),
-      ["invalid user"],
-    );
-    expectInvalid(
-      expect,
-      () =>
-        new DatabaseConfig({
-          host: "localhost",
-          port: 1000,
-          database: "foo",
-          user: "bar",
-          password: "",
-        }),
-      ["password should not be empty"],
-    );
+    expect.assertions(ALL_FIELDS.length + 1);
+    try {
+      new DatabaseConfig({
+        host: "localhost:32",
+        port: 125.5,
+        database: "foo bar",
+        user: "foo bar",
+        password: "",
+      });
+    } catch (err: unknown) {
+      if (!(err instanceof InvalidShapeError)) throw err;
+      expect(err.details.length).toEqual(ALL_FIELDS.length);
+      expect(err.details[0].toString()).toEqual("invalid host name");
+      expect(err.details[1].toString()).toEqual(
+        "port must be an integer >= 0 and <= 65535",
+      );
+      expect(err.details[2].toString()).toEqual("invalid database name");
+      expect(err.details[3].toString()).toEqual("invalid user");
+      expect(err.details[4].toString()).toEqual("password should not be empty");
+    }
   });
 
   it("loads from valid environment variables", () => {
@@ -189,7 +162,7 @@ describe("database configuration", () => {
         },
         {
           envVarName: "DB_PORT",
-          errorMessage: "port must be a number >= 0 and <= 65535",
+          errorMessage: "port must be an integer >= 0 and <= 65535",
         },
         {
           envVarName: "DB_DATABASE",
@@ -197,7 +170,7 @@ describe("database configuration", () => {
         },
         {
           envVarName: "DB_USERNAME",
-          errorMessage: "invalid user name",
+          errorMessage: "invalid user",
         },
         {
           envVarName: "DB_PASSWORD",

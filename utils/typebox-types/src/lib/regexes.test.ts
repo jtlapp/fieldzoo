@@ -3,7 +3,7 @@ import {
   HOST_NAME_REGEX,
   MULTI_LINE_UNICODE_REGEX,
   SINGLE_LINE_UNICODE_REGEX,
-  USER_NAME_REGEX,
+  USER_NAME_UNICODE_REGEX,
 } from "./regexes";
 
 describe("CODE_WORD_REGEX", () => {
@@ -102,6 +102,7 @@ describe("MULTI_LINE_UNICODE_REGEX", () => {
   it("rejects invalid text", () => {
     expect(matches("", regex)).toBe(false);
     expect(matches("\n", regex)).toBe(false);
+    expect(matches("\n\n", regex)).toBe(false);
     expect(matches("  ", regex)).toBe(false);
     expect(matches(" Xy", regex)).toBe(false);
     expect(matches("Xy ", regex)).toBe(false);
@@ -110,8 +111,8 @@ describe("MULTI_LINE_UNICODE_REGEX", () => {
   });
 });
 
-describe("USER_NAME_REGEX", () => {
-  const regex = USER_NAME_REGEX;
+describe("USER_NAME_UNICODE_REGEX", () => {
+  const regex = USER_NAME_UNICODE_REGEX;
 
   it("accepts valid user names", () => {
     expect(matches("M", regex)).toBe(true);

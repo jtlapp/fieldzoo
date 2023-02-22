@@ -1,32 +1,49 @@
-import { UserName, MAX_USER_NAME_LENGTH } from "./user";
+import { User, UserID } from "./user";
 
-describe("UserName value object", () => {
-  // The regex itself is already well tested elsewhere.
+const maxNameLength = User.schema.properties.name.maxLength!;
 
+const ID = "abc" as UserID;
+const EMAIL = "x@yz.com";
+
+describe("User entity", () => {
   it("accepts valid user names", () => {
-    expect(() => new UserName("Mo")).not.toThrow();
-    expect(() => new UserName("Jimmy")).not.toThrow();
-    expect(() => new UserName("Mary Q.")).not.toThrow();
-    expect(() => new UserName("Mary Q. Reacher")).not.toThrow();
-    expect(() => new UserName("Mark Heüße")).not.toThrow();
-    const maxLength = "A".repeat(MAX_USER_NAME_LENGTH);
-    expect(() => new UserName(maxLength)).not.toThrow();
+    expect(() => createUser(ID, "Mo", EMAIL)).not.toThrow();
+    expect(() => createUser(ID, "Jimmy", EMAIL)).not.toThrow();
+    expect(() => createUser(ID, "Mary Q.", EMAIL)).not.toThrow();
+    expect(() => createUser(ID, "Mary Q. Reacher", EMAIL)).not.toThrow();
+    expect(() => createUser(ID, "Mark Heüße", EMAIL)).not.toThrow();
+    const maxLength = "A".repeat(maxNameLength);
+    expect(() => createUser(ID, maxLength, EMAIL)).not.toThrow();
+  });
+
+  it("rejects invalid IDs", () => {
+    expect(() => createUser("", "Foo", EMAIL)).toThrow("Invalid user");
   });
 
   it("rejects invalid user names", () => {
-    expect(() => new UserName("")).toThrow("user name");
-    expect(() => new UserName("X")).toThrow("user name");
-    expect(() => new UserName("x/y")).toThrow("user name");
-    const tooLong = "A".repeat(MAX_USER_NAME_LENGTH + 1);
-    expect(() => new UserName(tooLong)).toThrow("user name");
+    expect(() => createUser(ID, "", EMAIL)).toThrow("Invalid user");
+    expect(() => createUser(ID, "X", EMAIL)).toThrow("Invalid user");
+    expect(() => createUser(ID, "x/y", EMAIL)).toThrow("Invalid user");
+    const tooLong = "A".repeat(maxNameLength + 1);
+    expect(() => createUser(ID, tooLong, EMAIL)).toThrow("Invalid user");
+  });
+
+  it("rejects invalid emails", () => {
+    expect(() => createUser(ID, "Tom", "oopsie")).toThrow("Invalid user");
   });
 
   it("doesn't validate when assumed valid", () => {
-    expect(() => new UserName("", true)).not.toThrow();
+    expect(() => new User({ id: ID, name: "", email: "" }, true)).not.toThrow();
   });
 
-  it("cannot be changed", () => {
-    const userName = new UserName("Jeff Blarg");
-    expect(() => ((userName as any).value = "Jeff Blurg")).toThrow("read only");
+  it("ID cannot be changed", () => {
+    const user = createUser(ID, "Jeff Blarg", EMAIL);
+    expect(() => {
+      (user as any).id = "pdq";
+    }).toThrow("read only");
   });
 });
+
+function createUser(id: string, name: string, email: string) {
+  return new User({ id: id as UserID, name, email });
+}

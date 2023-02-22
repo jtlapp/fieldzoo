@@ -53,12 +53,16 @@
       "path": "utils/database-config"
     },
     {
+      "name": "utils/typebox-types",
+      "path": "utils/typebox-types"
+    },
+    {
       "name": "utils/utilities",
       "path": "utils/utilities"
     },
     {
-      "name": "utils/validation",
-      "path": "utils/validation"
+      "name": "utils/freeze-field",
+      "path": "utils/freeze-field"
     },
     {
       "name": "utils/shapechecker",

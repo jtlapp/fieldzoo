@@ -1,14 +1,11 @@
-import {
-  Glossary,
-  GlossaryID,
-  MAX_GLOSSARY_DESCRIPTION_LENGTH,
-  MAX_GLOSSARY_NAME_LENGTH,
-} from "./glossary";
+import { Glossary, GlossaryID } from "./glossary";
 import { UserID } from "./user";
 
-describe("Glossary value object", () => {
-  // The regex itself is already well tested elsewhere.
+const maxNameLength = Glossary.schema.properties.name.maxLength!;
+const maxDescriptionLength =
+  Glossary.schema.properties.description.anyOf[0].maxLength!;
 
+describe("Glossary entity", () => {
   it("accepts valid glossaries", () => {
     expect(
       () =>
@@ -17,7 +14,7 @@ describe("Glossary value object", () => {
           ownerID: "def" as UserID,
           name: "X",
           description: null,
-        })
+        }),
     ).not.toThrow();
     expect(
       () =>
@@ -26,16 +23,16 @@ describe("Glossary value object", () => {
           ownerID: "def" as UserID,
           name: "Good Name",
           description: "This\nis\nfine.",
-        })
+        }),
     ).not.toThrow();
     expect(
       () =>
         new Glossary({
           id: "abc" as GlossaryID,
           ownerID: "def" as UserID,
-          name: "A".repeat(MAX_GLOSSARY_NAME_LENGTH),
-          description: "A".repeat(MAX_GLOSSARY_DESCRIPTION_LENGTH),
-        })
+          name: "A".repeat(maxNameLength),
+          description: "A".repeat(maxDescriptionLength),
+        }),
     ).not.toThrow();
   });
 
@@ -47,8 +44,8 @@ describe("Glossary value object", () => {
           ownerID: "def" as UserID,
           name: "",
           description: "This\nis\nfine.",
-        })
-    ).toThrow("glossary");
+        }),
+    ).toThrow("Invalid glossary");
     expect(
       () =>
         new Glossary({
@@ -56,17 +53,17 @@ describe("Glossary value object", () => {
           ownerID: "def" as UserID,
           name: "X  Y",
           description: "This\nis\nfine.",
-        })
-    ).toThrow("glossary");
+        }),
+    ).toThrow("Invalid glossary");
     expect(
       () =>
         new Glossary({
           id: "abc" as GlossaryID,
           ownerID: "def" as UserID,
-          name: "A".repeat(MAX_GLOSSARY_NAME_LENGTH + 1),
+          name: "A".repeat(maxNameLength + 1),
           description: "This\nis\nfine.",
-        })
-    ).toThrow("glossary");
+        }),
+    ).toThrow("Invalid glossary");
   });
 
   it("rejects invalid glossary descriptions", () => {
@@ -77,8 +74,8 @@ describe("Glossary value object", () => {
           ownerID: "def" as UserID,
           name: "Good Name",
           description: "",
-        })
-    ).toThrow("glossary");
+        }),
+    ).toThrow("Invalid glossary");
     expect(
       () =>
         new Glossary({
@@ -86,17 +83,17 @@ describe("Glossary value object", () => {
           ownerID: "def" as UserID,
           name: "Good Name",
           description: "\n\n",
-        })
-    ).toThrow("glossary");
+        }),
+    ).toThrow("Invalid glossary");
     expect(
       () =>
         new Glossary({
           id: "abc" as GlossaryID,
           ownerID: "def" as UserID,
           name: "Good Name",
-          description: "A".repeat(MAX_GLOSSARY_DESCRIPTION_LENGTH + 1),
-        })
-    ).toThrow("glossary");
+          description: "A".repeat(maxDescriptionLength + 1),
+        }),
+    ).toThrow("Invalid glossary");
   });
 
   it("doesn't validate when assumed valid", () => {
@@ -109,8 +106,8 @@ describe("Glossary value object", () => {
             name: "",
             description: "",
           },
-          true
-        )
+          true,
+        ),
     ).not.toThrow();
   });
 

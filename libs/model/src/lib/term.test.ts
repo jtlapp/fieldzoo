@@ -1,15 +1,11 @@
-import {
-  Term,
-  TermID,
-  MIN_TERM_DESCRIPTION_LENGTH,
-  MAX_TERM_DESCRIPTION_LENGTH,
-  MAX_TERM_NAME_LENGTH,
-} from "./term";
+import { Term, TermID } from "./term";
 import { GlossaryID } from "./glossary";
 
-describe("Term value object", () => {
-  // The regex itself is already well tested elsewhere.
+const maxNameLength = Term.schema.properties.name.maxLength!;
+const minDescriptionLength = Term.schema.properties.description.minLength!;
+const maxDescriptionLength = Term.schema.properties.description.maxLength!;
 
+describe("Term entity", () => {
   it("accepts valid terms", () => {
     expect(
       () =>
@@ -17,8 +13,8 @@ describe("Term value object", () => {
           id: "abc" as TermID,
           glossaryID: "def" as GlossaryID,
           name: "Good Name",
-          description: "A".repeat(MIN_TERM_DESCRIPTION_LENGTH),
-        })
+          description: "A".repeat(minDescriptionLength),
+        }),
     ).not.toThrow();
     expect(
       () =>
@@ -27,16 +23,16 @@ describe("Term value object", () => {
           glossaryID: "def" as GlossaryID,
           name: "Good Name",
           description: "This\nis\nfine.",
-        })
+        }),
     ).not.toThrow();
     expect(
       () =>
         new Term({
           id: "abc" as TermID,
           glossaryID: "def" as GlossaryID,
-          name: "A".repeat(MAX_TERM_NAME_LENGTH),
-          description: "A".repeat(MAX_TERM_DESCRIPTION_LENGTH),
-        })
+          name: "A".repeat(maxNameLength),
+          description: "A".repeat(maxDescriptionLength),
+        }),
     ).not.toThrow();
   });
 
@@ -48,7 +44,7 @@ describe("Term value object", () => {
           glossaryID: "def" as GlossaryID,
           name: "",
           description: "This\nis\nfine.",
-        })
+        }),
     ).toThrow("term");
     expect(
       () =>
@@ -57,16 +53,16 @@ describe("Term value object", () => {
           glossaryID: "def" as GlossaryID,
           name: "X  Y",
           description: "This\nis\nfine.",
-        })
+        }),
     ).toThrow("term");
     expect(
       () =>
         new Term({
           id: "abc" as TermID,
           glossaryID: "def" as GlossaryID,
-          name: "A".repeat(MAX_TERM_NAME_LENGTH + 1),
+          name: "A".repeat(maxNameLength + 1),
           description: "This\nis\nfine.",
-        })
+        }),
     ).toThrow("term");
   });
 
@@ -78,7 +74,7 @@ describe("Term value object", () => {
           glossaryID: "def" as GlossaryID,
           name: "Good Name",
           description: "",
-        })
+        }),
     ).toThrow("term");
     expect(
       () =>
@@ -87,7 +83,7 @@ describe("Term value object", () => {
           glossaryID: "def" as GlossaryID,
           name: "Good Name",
           description: "\n\n",
-        })
+        }),
     ).toThrow("term");
     expect(
       () =>
@@ -95,8 +91,8 @@ describe("Term value object", () => {
           id: "abc" as TermID,
           glossaryID: "def" as GlossaryID,
           name: "Good Name",
-          description: "A".repeat(MAX_TERM_DESCRIPTION_LENGTH + 1),
-        })
+          description: "A".repeat(maxDescriptionLength + 1),
+        }),
     ).toThrow("term");
   });
 
@@ -110,8 +106,8 @@ describe("Term value object", () => {
             name: "",
             description: "",
           },
-          true
-        )
+          true,
+        ),
     ).not.toThrow();
   });
 

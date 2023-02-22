@@ -1,22 +1,15 @@
-import { Matches, MaxLength, MinLength } from "class-validator";
+import { Type } from "@sinclair/typebox";
 
+import { ShapeChecker } from "@fieldzoo/shapechecker";
 import { FieldsOf } from "@fieldzoo/utilities";
 import {
-  ValidatingObject,
-  MULTI_LINE_UNICODE_REGEX,
-  SINGLE_LINE_UNICODE_REGEX,
-} from "@fieldzoo/validation";
+  NonEmptyString,
+  SingleLineUniString,
+  MultiLineUniString,
+} from "@fieldzoo/typebox-types";
+import { freezeField } from "@fieldzoo/freeze-field";
 
 import { GlossaryID } from "./glossary";
-
-/** Min. length of term name (chars) */
-export const MIN_TERM_NAME_LENGTH = 1;
-/** Max. length of term name (chars) */
-export const MAX_TERM_NAME_LENGTH = 100;
-/** Min. length of term description (chars) */
-export const MIN_TERM_DESCRIPTION_LENGTH = 1;
-/** Max. length of term description (chars) */
-export const MAX_TERM_DESCRIPTION_LENGTH = 1000;
 
 /** Database ID of a term record */
 export type TermID = string & { readonly __typeID: unique symbol };
@@ -24,29 +17,33 @@ export type TermID = string & { readonly __typeID: unique symbol };
 /**
  * Class representing a valid term
  */
-export class Term extends ValidatingObject {
+export class Term {
   readonly id: TermID;
   glossaryID: GlossaryID;
-
-  @Matches(SINGLE_LINE_UNICODE_REGEX)
-  @MinLength(MIN_TERM_NAME_LENGTH)
-  @MaxLength(MAX_TERM_NAME_LENGTH) // checked first
   name: string;
-
-  @Matches(MULTI_LINE_UNICODE_REGEX)
-  @MinLength(MIN_TERM_DESCRIPTION_LENGTH)
-  @MaxLength(MAX_TERM_DESCRIPTION_LENGTH) // checked first
   description: string;
 
+  static schema = Type.Object({
+    id: NonEmptyString(),
+    glossaryID: NonEmptyString(),
+    name: SingleLineUniString({
+      minLength: 1,
+      maxLength: 100,
+    }),
+    description: MultiLineUniString({ minLength: 1, maxLength: 1000 }),
+  });
+  static #checker = new ShapeChecker(this.schema);
+
   constructor(fields: FieldsOf<Term>, assumeValid = false) {
-    super();
     this.id = fields.id;
     this.glossaryID = fields.glossaryID;
     this.name = fields.name;
     this.description = fields.description;
 
-    if (!assumeValid) this.validate("term");
-    this.freezeField("id");
+    if (!assumeValid) {
+      Term.#checker.safeValidate(this, "Invalid term");
+    }
+    freezeField(this, "id");
   }
 }
 export interface Term {
