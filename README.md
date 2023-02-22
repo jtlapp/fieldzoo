@@ -34,9 +34,9 @@ And if amateurs can learn to do taxonomy, they can also create field guides for 
 
 ## Technologies
 
-[Turborepo](https://turbo.build/repo), a tool for managing monorepos. I expect this platform to consist of a number of apps and tools that need to share code, and monorepos make this possible. I started with Nx but found the file structure too messy and indirection too hard to make work. Turborepo is a simple veneer over familiar package structures.
+[Turborepo](https://turbo.build/repo), a tool for managing monorepos. This platform consists of several apps and tools that need to share code, and monorepos make this possible. I started with Nx but found the file structure too messy and indirection too hard to make work. Turborepo is a simple veneer over familiar package structures.
 
-[pnpm](https://pnpm.io/), a tool for managing packages. I chose pnpm because it's the fastest, because it doesn't have the phantom dependencies problem, and because [the Turborepo docs](https://turbo.build/repo/docs/getting-started/create-new) recommends it.
+[pnpm](https://pnpm.io/), a tool for managing packages. I chose pnpm because it vastly faster and more space efficient than npm and yarn for monorepo management.
 
 [Node.js](https://nodejs.org/en/about/), a server-side JavaScript runtime. Node's asynchronous, non-blocking event-driven architecture makes it easy to build high-throughput web apps. Node is also easy to deploy on any OS, and it allows backend devs to also work on frontend code in the same language.
 
@@ -53,6 +53,8 @@ And if amateurs can learn to do taxonomy, they can also create field guides for 
 [Kysely](https://koskimas.github.io/kysely/), a type-safe, autocompleting typescript SQL query builder. This library leverages TypeScript's amazing type support to allow for writing SQL queries that are free of syntax errors and typos in table and column names, eliminating another class of errors.
 
 [Kysely-ORM](https://github.com/seeden/kysely-orm), a basic ORM build on Kysely. I prefer working with SQL directly, but this ORM eliminates some of the common boilerplate when mapping data to classes.
+
+[TypeBox](https://github.com/sinclairzx81/typebox), a super-fast data validator. It provides tools for creating JSON schemas and precompiles (at runtime) the schemas into efficient validators.
 
 [Jest](https://jestjs.io/), a testing framework for JavaScript. Jest is the de facto testing framework for JavaScript, at least of unit tests, and it's easy to use.
 
