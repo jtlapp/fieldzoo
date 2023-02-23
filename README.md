@@ -52,9 +52,7 @@ And if amateurs can learn to do taxonomy, they can also create field guides for 
 
 [Kysely](https://koskimas.github.io/kysely/), a type-safe, autocompleting typescript SQL query builder. This library leverages TypeScript's amazing type support to allow for writing SQL queries that are free of syntax errors and typos in table and column names, eliminating another class of errors.
 
-[Kysely-ORM](https://github.com/seeden/kysely-orm), a basic ORM build on Kysely. I prefer working with SQL directly, but this ORM eliminates some of the common boilerplate when mapping data to classes.
-
-[TypeBox](https://github.com/sinclairzx81/typebox), a super-fast data validator. It provides tools for creating JSON schemas and precompiles (at runtime) the schemas into efficient validators.
+[TypeBox](https://github.com/sinclairzx81/typebox), a super-fast data validator. It provides tools for creating JSON schemas and precompiles (at runtime) the schemas into efficient validators. I'm exploring ways to integrate TypeBox with Kysely for error-free SQL development.
 
 [Jest](https://jestjs.io/), a testing framework for JavaScript. Jest is the de facto testing framework for JavaScript, at least of unit tests, and it's easy to use.
 
