@@ -20,16 +20,20 @@
   "dependencies": {
     "@fieldzoo/app-config": "workspace:*",
     "@fieldzoo/database-config": "workspace:*",
+    "@fieldzoo/model": "workspace:*",
     "@fieldzoo/postgres-utils": "workspace:*",
     "dotenv": "^16.0.3",
     "kysely": "^0.23.4",
     "pg": "^8.9.0"
   },
   "devDependencies": {
+    "@types/jest": "^29.4.0",
     "@types/node": "^18.11.17",
     "@types/pg": "^8.6.6",
     "eslint-config-custom": "workspace:*",
+    "jest": "^29.4.2",
     "jest-presets": "workspace:*",
+    "ts-jest": "^29.0.5",
     "tsconfig": "workspace:*"
   }
 }
