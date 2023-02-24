@@ -96,5 +96,8 @@
       "name": "templates/util-lib-template",
       "path": "templates/util-lib-template"
     }
-  ]
+  ],
+  "settings": {
+    "jestrunner.jestPath": "/Users/joe/repos/fieldzoo/node_modules/jest/bin/jest.js"
+  }
 }
