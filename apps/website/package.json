@@ -9,6 +9,7 @@
     "lint": "next lint",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
+  "prettier": "prettier-config",
   "dependencies": {
     "next": "latest",
     "react": "^18.2.0",
