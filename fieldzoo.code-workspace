@@ -75,6 +75,22 @@
     {
       "name": "utils/typebox-types",
       "path": "utils/typebox-types"
+    },
+    {
+      "name": "templates/components-template",
+      "path": "templates/components-template"
+    },
+    {
+      "name": "templates/config-template",
+      "path": "templates/config-template"
+    },
+    {
+      "name": "templates/node-cli-template",
+      "path": "templates/node-cli-template"
+    },
+    {
+      "name": "templates/util-lib-template",
+      "path": "templates/util-lib-template"
     }
   ]
 }

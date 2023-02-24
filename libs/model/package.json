@@ -23,13 +23,13 @@
     "@fieldzoo/generic-types": "workspace:*",
     "@fieldzoo/safe-validator": "workspace:*",
     "@fieldzoo/typebox-types": "workspace:*",
-    "@sinclair/typebox": "^0.25.23"
+    "@sinclair/typebox": "^0.25.24"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",
-    "@types/node": "^18.11.17",
+    "@types/node": "^18.14.1",
     "eslint-config-custom": "workspace:*",
-    "jest": "^29.4.2",
+    "jest": "^29.4.3",
     "jest-presets": "workspace:*",
     "ts-jest": "^29.0.5",
     "tsconfig": "workspace:*"
