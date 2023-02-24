@@ -4,9 +4,11 @@ importers:
 
   .:
     specifiers:
+      prettier: ^2.8.4
       syncpack: ^8.5.14
       turbo: latest
     devDependencies:
+      prettier: 2.8.4
       syncpack: 8.5.14
       turbo: 1.8.2
 

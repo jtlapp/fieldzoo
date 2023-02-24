@@ -12,6 +12,7 @@
     "fix-mismatches": "npx syncpack fix-mismatches && pnpm install"
   },
   "devDependencies": {
+    "prettier": "^2.8.4",
     "syncpack": "^8.5.14",
     "turbo": "latest"
   },
