@@ -32,7 +32,6 @@
     "eslint-config-custom": "workspace:*",
     "jest": "^29.4.3",
     "jest-presets": "workspace:*",
-    "pg": "^8.9.0",
     "prettier": "^2.8.4",
     "prettier-config": "workspace:*",
     "ts-jest": "^29.0.5",

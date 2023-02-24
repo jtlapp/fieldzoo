@@ -29,6 +29,7 @@ importers:
       jest: ^29.4.3
       jest-presets: workspace:*
       kysely: ^0.23.4
+      pg: ^8.9.0
       prettier: ^2.8.4
       prettier-config: workspace:*
       ts-jest: ^29.0.5
@@ -43,6 +44,7 @@ importers:
       dotenv: 16.0.3
       es6-error: 4.1.1
       kysely: 0.23.4
+      pg: 8.9.0
     devDependencies:
       '@types/jest': 29.4.0
       '@types/node': 18.14.1
@@ -350,7 +352,6 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      pg: ^8.9.0
       prettier: ^2.8.4
       prettier-config: workspace:*
       ts-jest: ^29.0.5
@@ -367,7 +368,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.3_@types+node@18.14.1
       jest-presets: link:../../config/jest-presets
-      pg: 8.9.0
       prettier: 2.8.4
       prettier-config: link:../../config/prettier-config
       ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
@@ -2156,6 +2156,7 @@ packages:
   /buffer-writer/2.0.0:
     resolution: {integrity: sha512-a7ZpuTZU1TRtnwyCNW3I5dc0wWNC3VR9S++Ewyk2HHZdrO3CQJqSpd+95Us590V6AL7JqUAH2IwZ/398PmNFgw==}
     engines: {node: '>=4'}
+    dev: false
 
   /bundle-require/4.0.1_esbuild@0.17.10:
     resolution: {integrity: sha512-9NQkRHlNdNpDBGmLpngF3EFDcwodhMUuLz9PaWYciVcQF9SE4LFjM2DB/xV1Li5JiuDMv7ZUWuC3rGbqR0MAXQ==}
@@ -4648,6 +4649,7 @@ packages:
 
   /packet-reader/1.0.0:
     resolution: {integrity: sha512-HAKu/fG3HpHFO0AA8WE8q2g+gBJaZ9MG7fcKk+IJPLTGAD6Psw4443l+9DGRbOIh3/aXr7Phy0TjilYivJo5XQ==}
+    dev: false
 
   /parent-module/1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
@@ -4686,6 +4688,7 @@ packages:
 
   /pg-connection-string/2.5.0:
     resolution: {integrity: sha512-r5o/V/ORTA6TmUnyWZR9nCj1klXCO2CEKNRlVuJptZe85QuhFayC7WeMic7ndayT5IRIR0S0xFxFi2ousartlQ==}
+    dev: false
 
   /pg-int8/1.0.1:
     resolution: {integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==}
@@ -4697,6 +4700,7 @@ packages:
       pg: '>=8.0'
     dependencies:
       pg: 8.9.0
+    dev: false
 
   /pg-protocol/1.6.0:
     resolution: {integrity: sha512-M+PDm637OY5WM307051+bsDia5Xej6d9IR4GwJse1qA1DIhiKlksvrneZOYQq42OM+spubpcNYEo2FcKQrDk+Q==}
@@ -4727,11 +4731,13 @@ packages:
       pg-protocol: 1.6.0
       pg-types: 2.2.0
       pgpass: 1.0.5
+    dev: false
 
   /pgpass/1.0.5:
     resolution: {integrity: sha512-FdW9r/jQZhSeohs1Z3sI1yxFQNFvMcnmfuj4WBMUTxOrAyLMaTcE1aAMBiTlbMNaXvBCQuVi0R7hd8udDSP7ug==}
     dependencies:
       split2: 4.1.0
+    dev: false
 
   /picocolors/1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
@@ -5189,6 +5195,7 @@ packages:
   /split2/4.1.0:
     resolution: {integrity: sha512-VBiJxFkxiXRlUIeyMQi8s4hgvKCSjtknJv/LVYbrgALPwf5zSKmEwV9Lst25AkvMDnvxODugjdl6KZgwKM1WYQ==}
     engines: {node: '>= 10.x'}
+    dev: false
 
   /sprintf-js/1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
@@ -5494,7 +5501,7 @@ packages:
       '@babel/core': 7.21.0
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 29.4.3
+      jest: 29.4.3_@types+node@18.14.1
       jest-util: 29.4.3
       json5: 2.2.3
       lodash.memoize: 4.1.2
