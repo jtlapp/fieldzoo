@@ -16,6 +16,7 @@
     "check-types": "tsc --noEmit",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
+  "prettier": "prettier-config",
   "peerDependencies": {
     "react": "^18.2.0"
   },
@@ -24,6 +25,9 @@
     "eslint": "^7.32.0",
     "eslint-config-custom-react": "workspace:*",
     "postcss": "^8.4.21",
+    "prettier": "^2.8.4",
+    "prettier-config": "workspace:*",
+    "prettier-plugin-tailwindcss": "^0.2.3",
     "react": "^18.2.0",
     "tailwind-config": "workspace:*",
     "tsconfig": "workspace:*",

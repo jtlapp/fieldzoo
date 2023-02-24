@@ -17,12 +17,15 @@
   "jest": {
     "preset": "jest-presets/node"
   },
+  "prettier": "prettier-config",
   "dependencies": {
     "kysely": "^0.23.4"
   },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
     "jest-presets": "workspace:*",
+    "prettier": "^2.8.4",
+    "prettier-config": "workspace:*",
     "tsconfig": "workspace:*"
   }
 }

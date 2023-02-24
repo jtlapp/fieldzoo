@@ -17,6 +17,7 @@
   "jest": {
     "preset": "jest-presets/node"
   },
+  "prettier": "prettier-config",
   "dependencies": {
     "@fieldzoo/app-config": "workspace:*",
     "@fieldzoo/database-config": "workspace:*",
@@ -30,6 +31,8 @@
     "@types/pg": "^8.6.6",
     "eslint-config-custom": "workspace:*",
     "jest-presets": "workspace:*",
+    "prettier": "^2.8.4",
+    "prettier-config": "workspace:*",
     "tsconfig": "workspace:*"
   }
 }

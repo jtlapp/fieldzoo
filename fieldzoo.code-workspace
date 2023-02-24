@@ -29,6 +29,10 @@
       "path": "config/jest-presets"
     },
     {
+      "name": "config/prettier-config",
+      "path": "config/prettier-config"
+    },
+    {
       "name": "config/tsconfig",
       "path": "config/tsconfig"
     },

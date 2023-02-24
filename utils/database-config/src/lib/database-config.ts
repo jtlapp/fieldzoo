@@ -55,7 +55,7 @@ export class DatabaseConfig implements ClientConfig {
     this.password = fields.password;
     DatabaseConfig.#validator.unsafeValidate(
       this,
-      "Invalid database configuration",
+      "Invalid database configuration"
     );
   }
 

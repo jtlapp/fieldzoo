@@ -37,30 +37,30 @@ class CommandFailure extends ExtendableError {
 program
   .name("installer")
   .description(
-    "Field Zoo Installer. Installs or upgrades the Field Zoo database tables, connecting to the database using the information in the specified .env file.",
+    "Field Zoo Installer. Installs or upgrades the Field Zoo database tables, connecting to the database using the information in the specified .env file."
   )
   .option("--env <path>", "Path to and including the .env file", ".env-admin")
   .on("option:env", (value) => (envFileName = value))
   .addHelpText(
     "after",
     `Environment variables (.env):\n${Object.entries(
-      DatabaseConfig.getHelpInfo(DB_ENVVAR_PREFIX),
+      DatabaseConfig.getHelpInfo(DB_ENVVAR_PREFIX)
     )
       .map((entry) => `  ${entry[0]} - ${entry[1]}`)
-      .join("\n")}`,
+      .join("\n")}`
   );
 
 program
   .command("install", { isDefault: true })
   .description(
-    "Install the database tables from scratch, but only if it doesn't already exist (default command when none given)",
+    "Install the database tables from scratch, but only if it doesn't already exist (default command when none given)"
   )
   .action(commandWrapper.bind(null, doInstall));
 
 program
   .command("reinstall")
   .description(
-    "Drop the database tables and then installs them from scratch, if tables already exist in the database",
+    "Drop the database tables and then installs them from scratch, if tables already exist in the database"
   )
   .action(commandWrapper.bind(null, doReinstall));
 
@@ -72,7 +72,7 @@ program
 program.parse();
 
 async function commandWrapper(
-  action: (db: Kysely<any>) => Promise<void>,
+  action: (db: Kysely<any>) => Promise<void>
 ): Promise<void> {
   let db: Kysely<any> | null = null;
   let errored = false;
@@ -107,7 +107,7 @@ async function doInstall(db: Kysely<any>) {
   const tableNames = await existingTables(db);
   if (tableNames.length > 0) {
     throw new CommandFailure(
-      "The database already contains tables. Use the 'reinstall' command to delete these tables before installing.",
+      "The database already contains tables. Use the 'reinstall' command to delete these tables before installing."
     );
   }
   if (!(await migrateToLatestSchema(db))) {
@@ -120,7 +120,7 @@ async function doReinstall(db: Kysely<any>) {
   const tableNames = await existingTables(db);
   if (tableNames.length == 0) {
     throw new CommandFailure(
-      "The database does not contain any tables. Use the 'install' command to install the tables.",
+      "The database does not contain any tables. Use the 'install' command to install the tables."
     );
   }
   await dropAllTables(db);
@@ -134,7 +134,7 @@ async function doUpgrade(db: Kysely<any>) {
   const tableNames = await existingTables(db);
   if (tableNames.length == 0) {
     throw new CommandFailure(
-      "The database does not contain any tables. Use the 'install' command to install the tables.",
+      "The database does not contain any tables. Use the 'install' command to install the tables."
     );
   }
   if (!(await migrateToLatestSchema(db))) {
@@ -159,7 +159,7 @@ async function migrateToLatestSchema(db: Kysely<any>): Promise<boolean> {
     console.log(
       `${result.status == "Success" ? "success" : "failed"}: migration ${
         result.migrationName
-      }`,
+      }`
     );
   });
   if (error) {
