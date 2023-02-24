@@ -1,7 +1,7 @@
-import { services } from './services';
+import { services } from "./services";
 
-describe('services', () => {
-  it('should work', () => {
-    expect(services()).toEqual('services');
+describe("services", () => {
+  it("should work", () => {
+    expect(services()).toEqual("services");
   });
 });

@@ -14,7 +14,7 @@ describe("Term entity", () => {
           glossaryID: "def" as GlossaryID,
           name: "Good Name",
           description: "A".repeat(minDescriptionLength),
-        }),
+        })
     ).not.toThrow();
     expect(
       () =>
@@ -23,7 +23,7 @@ describe("Term entity", () => {
           glossaryID: "def" as GlossaryID,
           name: "Good Name",
           description: "This\nis\nfine.",
-        }),
+        })
     ).not.toThrow();
     expect(
       () =>
@@ -32,7 +32,7 @@ describe("Term entity", () => {
           glossaryID: "def" as GlossaryID,
           name: "A".repeat(maxNameLength),
           description: "A".repeat(maxDescriptionLength),
-        }),
+        })
     ).not.toThrow();
   });
 
@@ -44,7 +44,7 @@ describe("Term entity", () => {
           glossaryID: "def" as GlossaryID,
           name: "",
           description: "This\nis\nfine.",
-        }),
+        })
     ).toThrow("term");
     expect(
       () =>
@@ -53,7 +53,7 @@ describe("Term entity", () => {
           glossaryID: "def" as GlossaryID,
           name: "X  Y",
           description: "This\nis\nfine.",
-        }),
+        })
     ).toThrow("term");
     expect(
       () =>
@@ -62,7 +62,7 @@ describe("Term entity", () => {
           glossaryID: "def" as GlossaryID,
           name: "A".repeat(maxNameLength + 1),
           description: "This\nis\nfine.",
-        }),
+        })
     ).toThrow("term");
   });
 
@@ -74,7 +74,7 @@ describe("Term entity", () => {
           glossaryID: "def" as GlossaryID,
           name: "Good Name",
           description: "",
-        }),
+        })
     ).toThrow("term");
     expect(
       () =>
@@ -83,7 +83,7 @@ describe("Term entity", () => {
           glossaryID: "def" as GlossaryID,
           name: "Good Name",
           description: "\n\n",
-        }),
+        })
     ).toThrow("term");
     expect(
       () =>
@@ -92,7 +92,7 @@ describe("Term entity", () => {
           glossaryID: "def" as GlossaryID,
           name: "Good Name",
           description: "A".repeat(maxDescriptionLength + 1),
-        }),
+        })
     ).toThrow("term");
   });
 
@@ -106,8 +106,8 @@ describe("Term entity", () => {
             name: "",
             description: "",
           },
-          true,
-        ),
+          true
+        )
     ).not.toThrow();
   });
 

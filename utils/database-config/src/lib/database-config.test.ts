@@ -15,7 +15,7 @@ describe("database configuration", () => {
           database: "foo",
           user: "bar",
           password: "xyz",
-        }),
+        })
     ).not.toThrow();
     expect(
       () =>
@@ -25,7 +25,7 @@ describe("database configuration", () => {
           database: "_foo123",
           user: "_bar123",
           password: "d kd #$ !",
-        }),
+        })
     ).not.toThrow();
   });
 
@@ -121,7 +121,7 @@ describe("database configuration", () => {
       expect(err.details.length).toEqual(ALL_FIELDS.length);
       expect(err.details[0].toString()).toEqual("invalid host name");
       expect(err.details[1].toString()).toEqual(
-        "port must be an integer >= 0 and <= 65535",
+        "port must be an integer >= 0 and <= 65535"
       );
       expect(err.details[2].toString()).toEqual("invalid database name");
       expect(err.details[3].toString()).toEqual("invalid user");

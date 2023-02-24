@@ -32,21 +32,21 @@ export function HostNameString(options: StringOptions<string>) {
 }
 
 TypeSystem.CreateFormat("MULTI_LINE_UNICODE", (v) =>
-  MULTI_LINE_UNICODE_REGEX.test(v),
+  MULTI_LINE_UNICODE_REGEX.test(v)
 );
 export function MultiLineUniString(options: StringOptions<string>) {
   return Type.String({ format: "MULTI_LINE_UNICODE", ...options });
 }
 
 TypeSystem.CreateFormat("SINGLE_LINE_UNICODE", (v) =>
-  SINGLE_LINE_UNICODE_REGEX.test(v),
+  SINGLE_LINE_UNICODE_REGEX.test(v)
 );
 export function SingleLineUniString(options: StringOptions<string>) {
   return Type.String({ format: "SINGLE_LINE_UNICODE", ...options });
 }
 
 TypeSystem.CreateFormat("USER_NAME_UNICODE", (v) =>
-  USER_NAME_UNICODE_REGEX.test(v),
+  USER_NAME_UNICODE_REGEX.test(v)
 );
 export function UserNameUniString(options: StringOptions<string>) {
   return Type.String({ format: "USER_NAME_UNICODE", ...options });

@@ -19,7 +19,7 @@ describe("installer", () => {
     const cliPath = join(__dirname, "../dist/installer.js");
     try {
       const stdout = execSync(
-        `node --enable-source-maps ${cliPath} --env ${TEST_ENV}`,
+        `node --enable-source-maps ${cliPath} --env ${TEST_ENV}`
       );
       expect(stdout.toString()).toMatch(/Installed/);
     } catch (err: any) {
@@ -32,10 +32,10 @@ describe("installer", () => {
     await resetTestDB(db);
     const cliPath = join(__dirname, "../dist/installer.js");
     const err = await getError<any>(() =>
-      execSync(`node --enable-source-maps ${cliPath} --env ${TEST_ENV}`),
+      execSync(`node --enable-source-maps ${cliPath} --env ${TEST_ENV}`)
     );
     expect(err?.stderr.toString()).toMatch(
-      /already contains tables.*reinstall/,
+      /already contains tables.*reinstall/
     );
   });
 });

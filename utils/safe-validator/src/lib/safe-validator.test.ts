@@ -17,7 +17,7 @@ class TestObj1 {
         maxLength: 10,
         message: "name should consist of 5-10 letters",
       }),
-    }),
+    })
   );
 
   constructor(delta: number, count: number, name: string) {
@@ -45,7 +45,7 @@ class TestObj2 {
       int1: Type.Integer({ message: "{field} must be an integer" }),
       int2: Type.Integer({ message: "{field} must be an integer" }),
       alpha: Type.RegEx(/[a-zA-Z]+/, { maxLength: 4 }),
-    }),
+    })
   );
 
   constructor(int1: number, int2: number, alpha: string) {
@@ -150,7 +150,7 @@ describe("unsafeValidate()", () => {
       expect(err.details[1].toString()).toEqual(message2);
       expect(err.details[2].toString()).toEqual(message3);
       expect(err.toString()).toEqual(
-        `Bad TestObj1:\n- ${message1}\n- ${message2}\n- ${message3}`,
+        `Bad TestObj1:\n- ${message1}\n- ${message2}\n- ${message3}`
       );
     }
   });
@@ -167,7 +167,7 @@ describe("unsafeValidate()", () => {
       expect(err.details[0].toString()).toEqual(message1);
       expect(err.details[1].toString()).toEqual(message2);
       expect(err.toString()).toEqual(
-        `Bad TestObj2:\n- ${message1}\n- ${message2}`,
+        `Bad TestObj2:\n- ${message1}\n- ${message2}`
       );
     }
   });
@@ -184,7 +184,7 @@ describe("unsafeValidate()", () => {
       expect(err.details[0].toString()).toEqual(message1);
       expect(err.details[1].toString()).toEqual(message2);
       expect(err.toString()).toEqual(
-        `Bad TestObj2:\n- ${message1}\n- ${message2}`,
+        `Bad TestObj2:\n- ${message1}\n- ${message2}`
       );
     }
   });

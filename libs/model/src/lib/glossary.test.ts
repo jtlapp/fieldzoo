@@ -14,7 +14,7 @@ describe("Glossary entity", () => {
           ownerID: "def" as UserID,
           name: "X",
           description: null,
-        }),
+        })
     ).not.toThrow();
     expect(
       () =>
@@ -23,7 +23,7 @@ describe("Glossary entity", () => {
           ownerID: "def" as UserID,
           name: "Good Name",
           description: "This\nis\nfine.",
-        }),
+        })
     ).not.toThrow();
     expect(
       () =>
@@ -32,7 +32,7 @@ describe("Glossary entity", () => {
           ownerID: "def" as UserID,
           name: "A".repeat(maxNameLength),
           description: "A".repeat(maxDescriptionLength),
-        }),
+        })
     ).not.toThrow();
   });
 
@@ -44,7 +44,7 @@ describe("Glossary entity", () => {
           ownerID: "def" as UserID,
           name: "",
           description: "This\nis\nfine.",
-        }),
+        })
     ).toThrow("Invalid glossary");
     expect(
       () =>
@@ -53,7 +53,7 @@ describe("Glossary entity", () => {
           ownerID: "def" as UserID,
           name: "X  Y",
           description: "This\nis\nfine.",
-        }),
+        })
     ).toThrow("Invalid glossary");
     expect(
       () =>
@@ -62,7 +62,7 @@ describe("Glossary entity", () => {
           ownerID: "def" as UserID,
           name: "A".repeat(maxNameLength + 1),
           description: "This\nis\nfine.",
-        }),
+        })
     ).toThrow("Invalid glossary");
   });
 
@@ -74,7 +74,7 @@ describe("Glossary entity", () => {
           ownerID: "def" as UserID,
           name: "Good Name",
           description: "",
-        }),
+        })
     ).toThrow("Invalid glossary");
     expect(
       () =>
@@ -83,7 +83,7 @@ describe("Glossary entity", () => {
           ownerID: "def" as UserID,
           name: "Good Name",
           description: "\n\n",
-        }),
+        })
     ).toThrow("Invalid glossary");
     expect(
       () =>
@@ -92,7 +92,7 @@ describe("Glossary entity", () => {
           ownerID: "def" as UserID,
           name: "Good Name",
           description: "A".repeat(maxDescriptionLength + 1),
-        }),
+        })
     ).toThrow("Invalid glossary");
   });
 
@@ -106,8 +106,8 @@ describe("Glossary entity", () => {
             name: "",
             description: "",
           },
-          true,
-        ),
+          true
+        )
     ).not.toThrow();
   });
 
