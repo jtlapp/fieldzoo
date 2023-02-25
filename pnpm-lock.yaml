@@ -65,7 +65,7 @@ importers:
       ts-jest: ^29.0.5
       tsconfig: workspace:*
     dependencies:
-      '@fieldzoo/app-config': link:../../config/app-config
+      '@fieldzoo/app-config': link:../../libs/app-config
       '@fieldzoo/database': link:../../libs/database
       '@fieldzoo/database-config': link:../../utils/database-config
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
@@ -108,18 +108,6 @@ importers:
       tailwind-config: link:../../config/tailwind-config
       tsconfig: link:../../config/tsconfig
 
-  config/app-config:
-    specifiers:
-      eslint-config-custom: workspace:*
-      jest-presets: workspace:*
-      prettier-config: workspace:*
-      tsconfig: workspace:*
-    devDependencies:
-      eslint-config-custom: link:../eslint-config-custom
-      jest-presets: link:../jest-presets
-      prettier-config: link:../prettier-config
-      tsconfig: link:../tsconfig
-
   config/eslint-config-custom:
     specifiers:
       '@typescript-eslint/eslint-plugin': ^5.53.0
@@ -157,6 +145,18 @@ importers:
   config/tsconfig:
     specifiers: {}
 
+  libs/app-config:
+    specifiers:
+      eslint-config-custom: workspace:*
+      jest-presets: workspace:*
+      prettier-config: workspace:*
+      tsconfig: workspace:*
+    devDependencies:
+      eslint-config-custom: link:../../config/eslint-config-custom
+      jest-presets: link:../../config/jest-presets
+      prettier-config: link:../../config/prettier-config
+      tsconfig: link:../../config/tsconfig
+
   libs/database:
     specifiers:
       '@fieldzoo/app-config': workspace:*
@@ -171,7 +171,7 @@ importers:
       prettier-config: workspace:*
       tsconfig: workspace:*
     dependencies:
-      '@fieldzoo/app-config': link:../../config/app-config
+      '@fieldzoo/app-config': link:../app-config
       '@fieldzoo/database-config': link:../../utils/database-config
       '@fieldzoo/model': link:../model
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils

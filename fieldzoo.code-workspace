@@ -13,28 +13,12 @@
       "path": "apps/website"
     },
     {
-      "name": "config/app-config",
-      "path": "config/app-config"
+      "name": "config",
+      "path": "config"
     },
     {
-      "name": "config/eslint-config-custom",
-      "path": "config/eslint-config-custom"
-    },
-    {
-      "name": "config/eslint-config-custom-react",
-      "path": "config/eslint-config-custom-react"
-    },
-    {
-      "name": "config/jest-presets",
-      "path": "config/jest-presets"
-    },
-    {
-      "name": "config/prettier-config",
-      "path": "config/prettier-config"
-    },
-    {
-      "name": "config/tsconfig",
-      "path": "config/tsconfig"
+      "name": "libs/app-config",
+      "path": "libs/app-config"
     },
     {
       "name": "libs/database",
