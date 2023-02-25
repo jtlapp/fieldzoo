@@ -21,7 +21,7 @@ export class UserRepo {
   }
 
   async find(
-    whereGrouper: WhereGrouper<From<Database, "users">, "users">,
+    whereGrouper: WhereGrouper<From<Database, "users">, "users">
   ): Promise<Selectable<UserTable[]> | null> {
     const users = await this.db
       .selectFrom("users")
