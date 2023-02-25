@@ -26,8 +26,6 @@
   },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
-    "jest-presets": "workspace:*",
-    "prettier-config": "workspace:*",
     "tsconfig": "workspace:*"
   }
 }

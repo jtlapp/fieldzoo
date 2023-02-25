@@ -19,8 +19,6 @@
   "prettier": "prettier-config",
   "peerDependencies": {},
   "devDependencies": {
-    "prettier-config": "workspace:*",
-    "tailwind-config": "workspace:*",
     "tsconfig": "workspace:*"
   }
 }

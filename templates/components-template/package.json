@@ -20,8 +20,6 @@
   "peerDependencies": {},
   "devDependencies": {
     "eslint-config-custom-react": "workspace:*",
-    "prettier-config": "workspace:*",
-    "tailwind-config": "workspace:*",
     "tsconfig": "workspace:*"
   }
 }
