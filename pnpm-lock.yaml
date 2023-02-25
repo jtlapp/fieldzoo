@@ -86,24 +86,15 @@ importers:
       next: latest
       react: ^18.2.0
       react-dom: ^18.2.0
-      tailwind-config: workspace:*
       ui: workspace:*
     dependencies:
       next: 13.2.1_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       ui: link:../../libs/ui
-    devDependencies:
-      tailwind-config: link:../../config/tailwind-config
 
   config/jest-presets:
     specifiers: {}
-
-  config/tailwind-config:
-    specifiers:
-      tailwindcss: ^3.2.7
-    devDependencies:
-      tailwindcss: 3.2.7_postcss@8.4.21
 
   libs/app-config:
     specifiers:
@@ -158,20 +149,14 @@ importers:
   libs/ui:
     specifiers:
       react: ^18.2.0
-      tailwind-config: workspace:*
     dependencies:
       react: 18.2.0
-    devDependencies:
-      tailwind-config: link:../../config/tailwind-config
 
   templates/components-template:
     specifiers:
       react: ^18.2.0
-      tailwind-config: workspace:*
     dependencies:
       react: 18.2.0
-    devDependencies:
-      tailwind-config: link:../../config/tailwind-config
 
   templates/config-template:
     specifiers: {}

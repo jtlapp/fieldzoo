@@ -20,7 +20,5 @@
   "peerDependencies": {
     "react": "^18.2.0"
   },
-  "devDependencies": {
-    "tailwind-config": "workspace:*"
-  }
+  "devDependencies": {}
 }
