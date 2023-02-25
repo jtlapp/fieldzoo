@@ -82,6 +82,7 @@
     }
   ],
   "settings": {
-    "jestrunner.jestCommand": "npx jest"
+    "jestrunner.jestCommand": "npx jest",
+    "jest.jestCommandLine": "npx jest"
   }
 }
