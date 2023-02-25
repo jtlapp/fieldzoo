@@ -26,7 +26,6 @@
     "@sinclair/typebox": "^0.25.24"
   },
   "devDependencies": {
-    "eslint-config-custom": "workspace:*",
     "jest-presets": "workspace:*",
     "prettier-config": "workspace:*"
   }

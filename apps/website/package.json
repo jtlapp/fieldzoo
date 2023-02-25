@@ -17,7 +17,6 @@
     "ui": "workspace:*"
   },
   "devDependencies": {
-    "eslint-config-custom-react": "workspace:*",
     "prettier-config": "workspace:*",
     "tailwind-config": "workspace:*"
   }

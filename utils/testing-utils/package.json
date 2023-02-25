@@ -20,7 +20,6 @@
   "prettier": "prettier-config",
   "dependencies": {},
   "devDependencies": {
-    "eslint-config-custom": "workspace:*",
     "jest-presets": "workspace:*",
     "prettier-config": "workspace:*"
   }
