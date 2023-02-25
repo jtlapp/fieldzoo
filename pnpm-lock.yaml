@@ -132,10 +132,7 @@ importers:
     specifiers: {}
 
   config/tailwind-config:
-    specifiers:
-      tailwindcss: ^3.2.7
-    devDependencies:
-      tailwindcss: 3.2.7_postcss@8.4.21
+    specifiers: {}
 
   config/tsconfig:
     specifiers: {}
