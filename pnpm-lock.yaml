@@ -159,31 +159,39 @@ importers:
     specifiers:
       '@fieldzoo/app-config': workspace:*
       '@fieldzoo/database-config': workspace:*
+      '@fieldzoo/model': workspace:*
       '@fieldzoo/postgres-utils': workspace:*
+      '@types/jest': ^29.4.0
       '@types/node': ^18.14.1
       '@types/pg': ^8.6.6
       dotenv: ^16.0.3
       eslint-config-custom: workspace:*
+      jest: ^29.4.2
       jest-presets: workspace:*
       kysely: ^0.23.4
       pg: ^8.9.0
       prettier: ^2.8.4
       prettier-config: workspace:*
+      ts-jest: ^29.0.5
       tsconfig: workspace:*
     dependencies:
       '@fieldzoo/app-config': link:../../config/app-config
       '@fieldzoo/database-config': link:../../utils/database-config
+      '@fieldzoo/model': link:../model
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
       dotenv: 16.0.3
       kysely: 0.23.4
       pg: 8.9.0
     devDependencies:
+      '@types/jest': 29.4.0
       '@types/node': 18.14.1
       '@types/pg': 8.6.6
       eslint-config-custom: link:../../config/eslint-config-custom
+      jest: 29.4.3_@types+node@18.14.1
       jest-presets: link:../../config/jest-presets
       prettier: 2.8.4
       prettier-config: link:../../config/prettier-config
+      ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
       tsconfig: link:../../config/tsconfig
 
   libs/model:
@@ -2131,7 +2139,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001457
-      electron-to-chromium: 1.4.310
+      electron-to-chromium: 1.4.311
       node-releases: 2.0.10
       update-browserslist-db: 1.0.10_browserslist@4.21.5
     dev: true
@@ -2465,8 +2473,8 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /electron-to-chromium/1.4.310:
-    resolution: {integrity: sha512-/xlATgfwkm5uDDwLw5nt/MNEf7c1oazLURMZLy39vOioGYyYzLWIDT8fZMJak6qTiAJ7udFTy7JG7ziyjNutiA==}
+  /electron-to-chromium/1.4.311:
+    resolution: {integrity: sha512-RoDlZufvrtr2Nx3Yx5MB8jX3aHIxm8nRWPJm3yVvyHmyKaRvn90RjzB6hNnt0AkhS3IInJdyRfQb4mWhPvUjVw==}
     dev: true
 
   /emittery/0.13.1:
@@ -2759,7 +2767,7 @@ packages:
       object.values: 1.1.6
       resolve: 1.22.1
       semver: 6.3.0
-      tsconfig-paths: 3.14.1
+      tsconfig-paths: 3.14.2
     transitivePeerDependencies:
       - eslint-import-resolver-typescript
       - eslint-import-resolver-webpack
@@ -5511,8 +5519,8 @@ packages:
       yargs-parser: 21.1.1
     dev: true
 
-  /tsconfig-paths/3.14.1:
-    resolution: {integrity: sha512-fxDhWnFSLt3VuTwtvJt5fpwxBHg5AdKWMsgcPOOIilyjymcYVZoCQF8fvFRezCNfblEXmi+PcM1eYHeOAgXCOQ==}
+  /tsconfig-paths/3.14.2:
+    resolution: {integrity: sha512-o/9iXgCYc5L/JxCHPe3Hvh8Q/2xm5Z+p18PESBU6Ff33695QnCHBEjcytY2q19ua7Mbl/DavtBOLq+oG0RCL+g==}
     dependencies:
       '@types/json5': 0.0.29
       json5: 1.0.2
