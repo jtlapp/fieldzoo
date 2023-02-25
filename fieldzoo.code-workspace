@@ -80,5 +80,8 @@
       "name": "templates/util-lib-template",
       "path": "templates/util-lib-template"
     }
-  ]
+  ],
+  "settings": {
+    "jestrunner.jestCommand": "npx jest"
+  }
 }
