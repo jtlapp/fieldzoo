@@ -49,21 +49,14 @@ importers:
       '@fieldzoo/database-config': workspace:*
       '@fieldzoo/postgres-utils': workspace:*
       '@fieldzoo/testing-utils': workspace:*
-      '@types/jest': ^29.4.0
-      '@types/node': ^18.14.1
-      '@types/pg': ^8.6.6
       commander: ^10.0.0
       dotenv: ^16.0.3
       es6-error: ^4.1.1
       eslint-config-custom: workspace:*
-      jest: ^29.4.3
       jest-presets: workspace:*
       kysely: ^0.23.4
       pg: ^8.9.0
-      prettier: ^2.8.4
       prettier-config: workspace:*
-      ts-jest: ^29.0.5
-      tsconfig: workspace:*
     dependencies:
       '@fieldzoo/app-config': link:../../libs/app-config
       '@fieldzoo/database': link:../../libs/database
@@ -76,16 +69,9 @@ importers:
       kysely: 0.23.4
       pg: 8.9.0
     devDependencies:
-      '@types/jest': 29.4.0
-      '@types/node': 18.14.1
-      '@types/pg': 8.6.6
       eslint-config-custom: link:../../config/eslint-config-custom
-      jest: 29.4.3_@types+node@18.14.1
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
       prettier-config: link:../../config/prettier-config
-      ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
-      tsconfig: link:../../config/tsconfig
 
   apps/website:
     specifiers:
@@ -95,7 +81,6 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       tailwind-config: workspace:*
-      tsconfig: workspace:*
       ui: workspace:*
     dependencies:
       next: 13.2.1_biqbaboplfbrettd7655fr4n2y
@@ -106,7 +91,6 @@ importers:
       eslint-config-custom-react: link:../../config/eslint-config-custom-react
       prettier-config: link:../../config/prettier-config
       tailwind-config: link:../../config/tailwind-config
-      tsconfig: link:../../config/tsconfig
 
   config/eslint-config-custom:
     specifiers:
@@ -142,20 +126,15 @@ importers:
     devDependencies:
       tailwindcss: 3.2.7_postcss@8.4.21
 
-  config/tsconfig:
-    specifiers: {}
-
   libs/app-config:
     specifiers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
       prettier-config: workspace:*
-      tsconfig: workspace:*
     devDependencies:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
       prettier-config: link:../../config/prettier-config
-      tsconfig: link:../../config/tsconfig
 
   libs/database:
     specifiers:
@@ -169,7 +148,6 @@ importers:
       kysely: ^0.23.4
       pg: ^8.9.0
       prettier-config: workspace:*
-      tsconfig: workspace:*
     dependencies:
       '@fieldzoo/app-config': link:../app-config
       '@fieldzoo/database-config': link:../../utils/database-config
@@ -182,7 +160,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
       prettier-config: link:../../config/prettier-config
-      tsconfig: link:../../config/tsconfig
 
   libs/model:
     specifiers:
@@ -194,7 +171,6 @@ importers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
       prettier-config: workspace:*
-      tsconfig: workspace:*
     dependencies:
       '@fieldzoo/freeze-field': link:../../utils/freeze-field
       '@fieldzoo/generic-types': link:../../utils/generic-types
@@ -205,19 +181,16 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
       prettier-config: link:../../config/prettier-config
-      tsconfig: link:../../config/tsconfig
 
   libs/services:
     specifiers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
       prettier-config: workspace:*
-      tsconfig: workspace:*
     devDependencies:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
       prettier-config: link:../../config/prettier-config
-      tsconfig: link:../../config/tsconfig
 
   libs/ui:
     specifiers:
@@ -225,14 +198,12 @@ importers:
       prettier-config: workspace:*
       react: ^18.2.0
       tailwind-config: workspace:*
-      tsconfig: workspace:*
     dependencies:
       react: 18.2.0
     devDependencies:
       eslint-config-custom-react: link:../../config/eslint-config-custom-react
       prettier-config: link:../../config/prettier-config
       tailwind-config: link:../../config/tailwind-config
-      tsconfig: link:../../config/tsconfig
 
   templates/components-template:
     specifiers:
@@ -240,14 +211,12 @@ importers:
       prettier-config: workspace:*
       react: ^18.2.0
       tailwind-config: workspace:*
-      tsconfig: workspace:*
     dependencies:
       react: 18.2.0
     devDependencies:
       eslint-config-custom-react: link:../../config/eslint-config-custom-react
       prettier-config: link:../../config/prettier-config
       tailwind-config: link:../../config/tailwind-config
-      tsconfig: link:../../config/tsconfig
 
   templates/config-template:
     specifiers: {}
@@ -257,24 +226,20 @@ importers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
       prettier-config: workspace:*
-      tsconfig: workspace:*
     devDependencies:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
       prettier-config: link:../../config/prettier-config
-      tsconfig: link:../../config/tsconfig
 
   templates/util-lib-template:
     specifiers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
       prettier-config: workspace:*
-      tsconfig: workspace:*
     devDependencies:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
       prettier-config: link:../../config/prettier-config
-      tsconfig: link:../../config/tsconfig
 
   utils/database-config:
     specifiers:
@@ -285,7 +250,6 @@ importers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
       prettier-config: workspace:*
-      tsconfig: workspace:*
     dependencies:
       '@fieldzoo/generic-types': link:../generic-types
       '@fieldzoo/safe-validator': link:../safe-validator
@@ -295,31 +259,26 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
       prettier-config: link:../../config/prettier-config
-      tsconfig: link:../../config/tsconfig
 
   utils/freeze-field:
     specifiers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
       prettier-config: workspace:*
-      tsconfig: workspace:*
     devDependencies:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
       prettier-config: link:../../config/prettier-config
-      tsconfig: link:../../config/tsconfig
 
   utils/generic-types:
     specifiers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
       prettier-config: workspace:*
-      tsconfig: workspace:*
     devDependencies:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
       prettier-config: link:../../config/prettier-config
-      tsconfig: link:../../config/tsconfig
 
   utils/postgres-utils:
     specifiers:
@@ -327,14 +286,12 @@ importers:
       jest-presets: workspace:*
       kysely: ^0.23.4
       prettier-config: workspace:*
-      tsconfig: workspace:*
     dependencies:
       kysely: 0.23.4
     devDependencies:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
       prettier-config: link:../../config/prettier-config
-      tsconfig: link:../../config/tsconfig
 
   utils/safe-validator:
     specifiers:
@@ -343,7 +300,6 @@ importers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
       prettier-config: workspace:*
-      tsconfig: workspace:*
     dependencies:
       '@sinclair/typebox': 0.25.24
       es6-error: 4.1.1
@@ -351,19 +307,16 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
       prettier-config: link:../../config/prettier-config
-      tsconfig: link:../../config/tsconfig
 
   utils/testing-utils:
     specifiers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
       prettier-config: workspace:*
-      tsconfig: workspace:*
     devDependencies:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
       prettier-config: link:../../config/prettier-config
-      tsconfig: link:../../config/tsconfig
 
   utils/typebox-types:
     specifiers:
@@ -372,7 +325,6 @@ importers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
       prettier-config: workspace:*
-      tsconfig: workspace:*
     dependencies:
       '@sinclair/typebox': 0.25.24
       ajv-formats: 2.1.1
@@ -380,7 +332,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
       prettier-config: link:../../config/prettier-config
-      tsconfig: link:../../config/tsconfig
 
 packages:
 
@@ -5309,40 +5260,6 @@ packages:
       '@babel/core': 7.21.0
       bs-logger: 0.2.6
       esbuild: 0.17.10
-      fast-json-stable-stringify: 2.1.0
-      jest: 29.4.3_@types+node@18.14.1
-      jest-util: 29.4.3
-      json5: 2.2.3
-      lodash.memoize: 4.1.2
-      make-error: 1.3.6
-      semver: 7.3.8
-      typescript: 4.9.5
-      yargs-parser: 21.1.1
-    dev: true
-
-  /ts-jest/29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4:
-    resolution: {integrity: sha512-PL3UciSgIpQ7f6XjVOmbi96vmDHUqAyqDr8YxzopDqX3kfgYtX1cuNeBjP+L9sFXi6nzsGGA6R3fP3DDDJyrxA==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    hasBin: true
-    peerDependencies:
-      '@babel/core': '>=7.0.0-beta.0 <8'
-      '@jest/types': ^29.0.0
-      babel-jest: ^29.0.0
-      esbuild: '*'
-      jest: ^29.0.0
-      typescript: '>=4.3'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      '@jest/types':
-        optional: true
-      babel-jest:
-        optional: true
-      esbuild:
-        optional: true
-    dependencies:
-      '@babel/core': 7.21.0
-      bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
       jest: 29.4.3_@types+node@18.14.1
       jest-util: 29.4.3
