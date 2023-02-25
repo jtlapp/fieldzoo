@@ -16,7 +16,7 @@
     "test": "jest"
   },
   "jest": {
-    "preset": "jest-presets/node"
+    "preset": "../../config/jest-preset.node.js"
   },
   "prettier": "../../config/prettierrc.json",
   "dependencies": {
@@ -26,7 +26,5 @@
     "@fieldzoo/typebox-types": "workspace:*",
     "@sinclair/typebox": "^0.25.24"
   },
-  "devDependencies": {
-    "jest-presets": "workspace:*"
-  }
+  "devDependencies": {}
 }

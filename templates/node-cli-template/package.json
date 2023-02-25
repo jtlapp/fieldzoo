@@ -10,10 +10,8 @@
     "test": "jest --passWithNoTests"
   },
   "jest": {
-    "preset": "jest-presets/node"
+    "preset": "../../config/jest-preset.node.js"
   },
   "prettier": "../../config/prettierrc.json",
-  "devDependencies": {
-    "jest-presets": "workspace:*"
-  }
+  "devDependencies": {}
 }

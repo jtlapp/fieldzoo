@@ -17,14 +17,12 @@
     "test": "jest"
   },
   "jest": {
-    "preset": "jest-presets/node"
+    "preset": "../../config/jest-preset.node.js"
   },
   "prettier": "../../config/prettierrc.json",
   "dependencies": {
     "@sinclair/typebox": "^0.25.24",
     "es6-error": "^4.1.1"
   },
-  "devDependencies": {
-    "jest-presets": "workspace:*"
-  }
+  "devDependencies": {}
 }
