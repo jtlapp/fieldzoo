@@ -67,7 +67,6 @@ importers:
       jest-presets: workspace:*
       kysely: ^0.23.4
       pg: ^8.9.0
-      prettier-config: workspace:*
     dependencies:
       '@fieldzoo/app-config': link:../../libs/app-config
       '@fieldzoo/database': link:../../libs/database
@@ -81,12 +80,10 @@ importers:
       pg: 8.9.0
     devDependencies:
       jest-presets: link:../../config/jest-presets
-      prettier-config: link:../../config/prettier-config
 
   apps/website:
     specifiers:
       next: latest
-      prettier-config: workspace:*
       react: ^18.2.0
       react-dom: ^18.2.0
       tailwind-config: workspace:*
@@ -97,13 +94,9 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       ui: link:../../libs/ui
     devDependencies:
-      prettier-config: link:../../config/prettier-config
       tailwind-config: link:../../config/tailwind-config
 
   config/jest-presets:
-    specifiers: {}
-
-  config/prettier-config:
     specifiers: {}
 
   config/tailwind-config:
@@ -115,10 +108,8 @@ importers:
   libs/app-config:
     specifiers:
       jest-presets: workspace:*
-      prettier-config: workspace:*
     devDependencies:
       jest-presets: link:../../config/jest-presets
-      prettier-config: link:../../config/prettier-config
 
   libs/database:
     specifiers:
@@ -130,7 +121,6 @@ importers:
       jest-presets: workspace:*
       kysely: ^0.23.4
       pg: ^8.9.0
-      prettier-config: workspace:*
     dependencies:
       '@fieldzoo/app-config': link:../app-config
       '@fieldzoo/database-config': link:../../utils/database-config
@@ -141,7 +131,6 @@ importers:
       pg: 8.9.0
     devDependencies:
       jest-presets: link:../../config/jest-presets
-      prettier-config: link:../../config/prettier-config
 
   libs/model:
     specifiers:
@@ -151,7 +140,6 @@ importers:
       '@fieldzoo/typebox-types': workspace:*
       '@sinclair/typebox': ^0.25.24
       jest-presets: workspace:*
-      prettier-config: workspace:*
     dependencies:
       '@fieldzoo/freeze-field': link:../../utils/freeze-field
       '@fieldzoo/generic-types': link:../../utils/generic-types
@@ -160,36 +148,29 @@ importers:
       '@sinclair/typebox': 0.25.24
     devDependencies:
       jest-presets: link:../../config/jest-presets
-      prettier-config: link:../../config/prettier-config
 
   libs/services:
     specifiers:
       jest-presets: workspace:*
-      prettier-config: workspace:*
     devDependencies:
       jest-presets: link:../../config/jest-presets
-      prettier-config: link:../../config/prettier-config
 
   libs/ui:
     specifiers:
-      prettier-config: workspace:*
       react: ^18.2.0
       tailwind-config: workspace:*
     dependencies:
       react: 18.2.0
     devDependencies:
-      prettier-config: link:../../config/prettier-config
       tailwind-config: link:../../config/tailwind-config
 
   templates/components-template:
     specifiers:
-      prettier-config: workspace:*
       react: ^18.2.0
       tailwind-config: workspace:*
     dependencies:
       react: 18.2.0
     devDependencies:
-      prettier-config: link:../../config/prettier-config
       tailwind-config: link:../../config/tailwind-config
 
   templates/config-template:
@@ -198,18 +179,14 @@ importers:
   templates/node-cli-template:
     specifiers:
       jest-presets: workspace:*
-      prettier-config: workspace:*
     devDependencies:
       jest-presets: link:../../config/jest-presets
-      prettier-config: link:../../config/prettier-config
 
   templates/util-lib-template:
     specifiers:
       jest-presets: workspace:*
-      prettier-config: workspace:*
     devDependencies:
       jest-presets: link:../../config/jest-presets
-      prettier-config: link:../../config/prettier-config
 
   utils/database-config:
     specifiers:
@@ -218,7 +195,6 @@ importers:
       '@fieldzoo/typebox-types': workspace:*
       '@sinclair/typebox': ^0.25.24
       jest-presets: workspace:*
-      prettier-config: workspace:*
     dependencies:
       '@fieldzoo/generic-types': link:../generic-types
       '@fieldzoo/safe-validator': link:../safe-validator
@@ -226,68 +202,55 @@ importers:
       '@sinclair/typebox': 0.25.24
     devDependencies:
       jest-presets: link:../../config/jest-presets
-      prettier-config: link:../../config/prettier-config
 
   utils/freeze-field:
     specifiers:
       jest-presets: workspace:*
-      prettier-config: workspace:*
     devDependencies:
       jest-presets: link:../../config/jest-presets
-      prettier-config: link:../../config/prettier-config
 
   utils/generic-types:
     specifiers:
       jest-presets: workspace:*
-      prettier-config: workspace:*
     devDependencies:
       jest-presets: link:../../config/jest-presets
-      prettier-config: link:../../config/prettier-config
 
   utils/postgres-utils:
     specifiers:
       jest-presets: workspace:*
       kysely: ^0.23.4
-      prettier-config: workspace:*
     dependencies:
       kysely: 0.23.4
     devDependencies:
       jest-presets: link:../../config/jest-presets
-      prettier-config: link:../../config/prettier-config
 
   utils/safe-validator:
     specifiers:
       '@sinclair/typebox': ^0.25.24
       es6-error: ^4.1.1
       jest-presets: workspace:*
-      prettier-config: workspace:*
     dependencies:
       '@sinclair/typebox': 0.25.24
       es6-error: 4.1.1
     devDependencies:
       jest-presets: link:../../config/jest-presets
-      prettier-config: link:../../config/prettier-config
 
   utils/testing-utils:
     specifiers:
       jest-presets: workspace:*
-      prettier-config: workspace:*
     devDependencies:
       jest-presets: link:../../config/jest-presets
-      prettier-config: link:../../config/prettier-config
 
   utils/typebox-types:
     specifiers:
       '@sinclair/typebox': ^0.25.24
       ajv-formats: ^2.1.1
       jest-presets: workspace:*
-      prettier-config: workspace:*
     dependencies:
       '@sinclair/typebox': 0.25.24
       ajv-formats: 2.1.1
     devDependencies:
       jest-presets: link:../../config/jest-presets
-      prettier-config: link:../../config/prettier-config
 
 packages:
 

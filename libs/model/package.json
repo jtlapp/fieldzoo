@@ -18,7 +18,7 @@
   "jest": {
     "preset": "jest-presets/node"
   },
-  "prettier": "prettier-config",
+  "prettier": "../../config/prettierrc.json",
   "dependencies": {
     "@fieldzoo/freeze-field": "workspace:*",
     "@fieldzoo/generic-types": "workspace:*",
@@ -27,7 +27,6 @@
     "@sinclair/typebox": "^0.25.24"
   },
   "devDependencies": {
-    "jest-presets": "workspace:*",
-    "prettier-config": "workspace:*"
+    "jest-presets": "workspace:*"
   }
 }

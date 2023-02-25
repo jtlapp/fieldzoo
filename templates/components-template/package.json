@@ -16,12 +16,11 @@
     "check-types": "tsc --noEmit",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
-  "prettier": "prettier-config",
+  "prettier": "../../config/prettierrc.json",
   "peerDependencies": {
     "react": "^18.2.0"
   },
   "devDependencies": {
-    "prettier-config": "workspace:*",
     "tailwind-config": "workspace:*"
   }
 }

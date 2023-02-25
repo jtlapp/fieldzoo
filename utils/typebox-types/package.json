@@ -18,13 +18,12 @@
   "jest": {
     "preset": "jest-presets/node"
   },
-  "prettier": "prettier-config",
+  "prettier": "../../config/prettierrc.json",
   "dependencies": {
     "@sinclair/typebox": "^0.25.24",
     "ajv-formats": "^2.1.1"
   },
   "devDependencies": {
-    "jest-presets": "workspace:*",
-    "prettier-config": "workspace:*"
+    "jest-presets": "workspace:*"
   }
 }

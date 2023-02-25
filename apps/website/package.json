@@ -9,7 +9,7 @@
     "lint": "next lint",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
-  "prettier": "prettier-config",
+  "prettier": "../../config/prettierrc.json",
   "dependencies": {
     "next": "latest",
     "react": "^18.2.0",
@@ -17,7 +17,6 @@
     "ui": "workspace:*"
   },
   "devDependencies": {
-    "prettier-config": "workspace:*",
     "tailwind-config": "workspace:*"
   }
 }
