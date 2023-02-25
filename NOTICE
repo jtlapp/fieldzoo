@@ -1,2 +1,2 @@
-This monorepo is overall governed by a GPL-3 license, but
-the libraries in utils/ are governed by the MIT license.
+This monorepo is overall governed by a GPL-3 license, but the
+libraries in config/ and utils/ are governed by the MIT license.
