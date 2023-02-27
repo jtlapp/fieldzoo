@@ -41,35 +41,62 @@ describe("user repo", () => {
     const userRepo = new UserRepo(db);
 
     // Add a user
-    const id = await userRepo.insert(USER1);
+    const insertedUser = await userRepo.insert(USER1);
 
     // Verify that the user was added
-    let user = await userRepo.findById(id);
+    let user = await userRepo.findById(insertedUser.id);
     expect(user?.name).toEqual(USER1.name);
     expect(user?.email).toEqual(USER1.email);
 
+    // Verify select-where expression
+    user =
+      (await userRepo
+        .select()
+        .where("id", "=", insertedUser.id)
+        .executeTakeFirst()) || null;
+    expect(user?.name).toEqual(USER1.name);
+    expect(user?.email).toEqual(USER1.email);
+
+    // Verify find expression
+
+    user = await userRepo.findOne("id", "=", insertedUser.id);
+    expect(user?.name).toEqual(USER1.name);
+    expect(user?.email).toEqual(USER1.email);
+
+    let users = await userRepo.find();
+    expect(users?.length).toEqual(1);
+    expect(user?.name).toEqual(USER1.name);
+    expect(user?.email).toEqual(USER1.email);
+
+    users = await userRepo.find((qb) => qb.where("id", "=", insertedUser.id));
+    expect(users?.length).toEqual(1);
+    expect(users![0].name).toEqual(USER1.name);
+    expect(users![0].email).toEqual(USER1.email);
+
     // Delete the user
-    const deleted = await userRepo.deleteById(id);
+    const deleted = await userRepo.deleteById(insertedUser.id);
     expect(deleted).toEqual(true);
 
     // Verify that the user was deleted
-    user = await userRepo.findById(id);
+    user = await userRepo.findById(insertedUser.id);
     expect(user).toBeNull();
-
-    // const selectableUser: Selectable<UserTable> = {
-    //   id: 99,
-    //   name: "foo",
-    //   email: "br",
-    // };
-    // const insertableUser: Insertable<UserTable> = {
-    //   id: undefined,
-    //   name: "foo",
-    //   email: "br",
-    // };
-    // const updateableUser: Updateable<UserTable> = {
-    //   id: undefined,
-    //   name: "foo",
-    //   email: "br",
-    // };
   });
 });
+
+// interface notes
+//
+// const selectableUser: Selectable<UserTable> = {
+//   id: 99,
+//   name: "foo",
+//   email: "br",
+// };
+// const insertableUser: Insertable<UserTable> = {
+//   id: undefined,
+//   name: "foo",
+//   email: "br",
+// };
+// const updateableUser: Updateable<UserTable> = {
+//   id: undefined,
+//   name: "foo",
+//   email: "br",
+// };

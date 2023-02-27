@@ -97,6 +97,7 @@ importers:
     specifiers:
       '@fieldzoo/app-config': workspace:*
       '@fieldzoo/database-config': workspace:*
+      '@fieldzoo/kysely-repo': workspace:*
       '@fieldzoo/model': workspace:*
       '@fieldzoo/postgres-utils': workspace:*
       dotenv: ^16.0.3
@@ -105,6 +106,7 @@ importers:
     dependencies:
       '@fieldzoo/app-config': link:../app-config
       '@fieldzoo/database-config': link:../../utils/database-config
+      '@fieldzoo/kysely-repo': link:../../utils/kysely-repo
       '@fieldzoo/model': link:../model
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
       dotenv: 16.0.3
@@ -140,9 +142,6 @@ importers:
     dependencies:
       react: 18.2.0
 
-  templates/config-template:
-    specifiers: {}
-
   templates/node-cli-template:
     specifiers: {}
 
@@ -166,6 +165,12 @@ importers:
 
   utils/generic-types:
     specifiers: {}
+
+  utils/kysely-repo:
+    specifiers:
+      kysely: ^0.23.4
+    dependencies:
+      kysely: 0.23.4
 
   utils/postgres-utils:
     specifiers:
