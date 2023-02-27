@@ -8,6 +8,8 @@ import {
   Selectable,
 } from "kysely";
 import { WhereGrouper } from "kysely/dist/cjs/parser/binary-operation-parser";
+import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
+import { SingleResultType } from "kysely/dist/cjs/util/type-utils";
 
 export type BinaryKyselyOp<
   DB,
@@ -18,6 +20,13 @@ export type BinaryKyselyOp<
   op: ComparisonOperatorExpression,
   rhs: OperandValueExpressionOrList<DB, TB, RE>
 ];
+
+interface TakeFirstBuilder<O> {
+  executeTakeFirst(): Promise<SingleResultType<O>>;
+}
+interface TakeManyBuilder<O> {
+  execute(): Promise<O[]>;
+}
 
 export class KyselyRepo<
   DB,
@@ -37,6 +46,30 @@ export class KyselyRepo<
       .where(ref(this.idFieldName), "=", id)
       .executeTakeFirst();
     return Number(result.numDeletedRows) == 1;
+  }
+
+  async queryFindOne<
+    QB extends TakeFirstBuilder<Selectable<DB[TB]>>,
+    S extends keyof DB
+  >(
+    query: (
+      qb: ReturnType<SelectAllQueryBuilder<DB, TB, object, S>["selectAll"]>
+    ) => QB
+  ) {
+    const qb = this.db.selectFrom(this.tableName).selectAll();
+    return (await query(qb as any).executeTakeFirst()) || null;
+  }
+
+  async queryFindMany<
+    QB extends TakeManyBuilder<Selectable<DB[TB]>>,
+    S extends keyof DB
+  >(
+    query: (
+      qb: ReturnType<SelectAllQueryBuilder<DB, TB, object, S>["selectAll"]>
+    ) => QB
+  ) {
+    const qb = this.db.selectFrom(this.tableName).selectAll();
+    return query(qb as any).execute();
   }
 
   find(): Promise<Selectable<DB[TB]>[] | null>;

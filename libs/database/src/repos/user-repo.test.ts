@@ -63,6 +63,10 @@ describe("user repo", () => {
     expect(user?.name).toEqual(USER1.name);
     expect(user?.email).toEqual(USER1.email);
 
+    user = await userRepo.queryFindOne((qb) =>
+      qb.where("id", "=", insertedUser.id)
+    );
+
     let users = await userRepo.find();
     expect(users?.length).toEqual(1);
     expect(user?.name).toEqual(USER1.name);
@@ -78,6 +82,20 @@ describe("user repo", () => {
       limit: 1,
       where: ["id", "=", insertedUser.id],
     });
+    expect(users?.length).toEqual(1);
+    expect(users![0].name).toEqual(USER1.name);
+    expect(users![0].email).toEqual(USER1.email);
+
+    users = await userRepo.queryFindMany((qb) =>
+      qb.where("id", "=", insertedUser.id)
+    );
+    expect(users?.length).toEqual(1);
+    expect(users![0].name).toEqual(USER1.name);
+    expect(users![0].email).toEqual(USER1.email);
+
+    users = await userRepo.queryFindMany((qb) =>
+      qb.where("id", "=", insertedUser.id)
+    );
     expect(users?.length).toEqual(1);
     expect(users![0].name).toEqual(USER1.name);
     expect(users![0].email).toEqual(USER1.email);
