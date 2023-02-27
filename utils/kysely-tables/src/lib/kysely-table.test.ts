@@ -6,14 +6,14 @@ import {
   createTables,
   destroyDB,
 } from "../test-utils/test-setup";
-import { UserRepo } from "../test-utils/test-repos";
+import { UserTable } from "../test-utils/test-repos";
 
 let db: Kysely<Database>;
-let userRepo: UserRepo;
+let userTable: UserTable;
 
 beforeAll(async () => {
   db = await createDB();
-  userRepo = new UserRepo(db);
+  userTable = new UserTable(db);
 });
 beforeEach(() => createTables(db));
 afterAll(() => destroyDB(db));
@@ -26,10 +26,10 @@ const USER1 = {
 describe("user repo", () => {
   it("should work", async () => {
     // Add a user
-    const insertedUser = await userRepo.insert(USER1);
+    const insertedUser = await userTable.insert(USER1);
 
     // Verify that the user was added
-    const user = await userRepo.findById(insertedUser.id);
+    const user = await userTable.findById(insertedUser.id);
     expect(user?.handle).toEqual(USER1.handle);
     expect(user?.email).toEqual(USER1.email);
   });
