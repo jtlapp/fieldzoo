@@ -1,12 +1,7 @@
 import { Kysely } from "kysely";
 
-import {
-  Database,
-  createDB,
-  createTables,
-  destroyDB,
-} from "../test-utils/test-setup";
-import { UserTable } from "../test-utils/test-repos";
+import { createDB, resetDB, destroyDB } from "../test-utils/test-setup";
+import { Database, UserTable } from "../test-utils/test-tables";
 
 let db: Kysely<Database>;
 let userTable: UserTable;
@@ -15,7 +10,7 @@ beforeAll(async () => {
   db = await createDB();
   userTable = new UserTable(db);
 });
-beforeEach(() => createTables(db));
+beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 const USER1 = {
