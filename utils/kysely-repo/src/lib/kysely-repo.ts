@@ -48,30 +48,6 @@ export class KyselyRepo<
     return Number(result.numDeletedRows) == 1;
   }
 
-  async queryFindOne<
-    QB extends TakeFirstBuilder<Selectable<DB[TB]>>,
-    S extends keyof DB
-  >(
-    query: (
-      qb: ReturnType<SelectAllQueryBuilder<DB, TB, object, S>["selectAll"]>
-    ) => QB
-  ) {
-    const qb = this.db.selectFrom(this.tableName).selectAll();
-    return (await query(qb as any).executeTakeFirst()) || null;
-  }
-
-  async queryFindMany<
-    QB extends TakeManyBuilder<Selectable<DB[TB]>>,
-    S extends keyof DB
-  >(
-    query: (
-      qb: ReturnType<SelectAllQueryBuilder<DB, TB, object, S>["selectAll"]>
-    ) => QB
-  ) {
-    const qb = this.db.selectFrom(this.tableName).selectAll();
-    return query(qb as any).execute();
-  }
-
   find(): Promise<Selectable<DB[TB]>[] | null>;
   find<RE extends ReferenceExpression<DB, TB>>(
     ...args: BinaryKyselyOp<DB, TB, RE>
@@ -141,5 +117,29 @@ export class KyselyRepo<
 
   select() {
     return this.db.selectFrom(this.tableName).selectAll();
+  }
+
+  async selectOne<
+    QB extends TakeFirstBuilder<Selectable<DB[TB]>>,
+    S extends keyof DB
+  >(
+    query: (
+      qb: ReturnType<SelectAllQueryBuilder<DB, TB, object, S>["selectAll"]>
+    ) => QB
+  ) {
+    const qb = this.db.selectFrom(this.tableName).selectAll();
+    return (await query(qb as any).executeTakeFirst()) || null;
+  }
+
+  async selectMany<
+    QB extends TakeManyBuilder<Selectable<DB[TB]>>,
+    S extends keyof DB
+  >(
+    query: (
+      qb: ReturnType<SelectAllQueryBuilder<DB, TB, object, S>["selectAll"]>
+    ) => QB
+  ) {
+    const qb = this.db.selectFrom(this.tableName).selectAll();
+    return query(qb as any).execute();
   }
 }
