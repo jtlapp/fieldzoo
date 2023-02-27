@@ -1,28 +1,28 @@
 import Sqlite3 from "better-sqlite3";
 import { Kysely, SqliteDialect, Generated } from "kysely";
 
-export interface UserTable {
+export interface Users {
   id: Generated<number>;
   handle: string;
   email: string;
 }
 
-export interface PostTable {
+export interface Posts {
   id: Generated<number>;
   userId: number;
   title: string;
   likeCount: number;
 }
 
-export interface CommentTable {
+export interface Comments {
   userId: number;
   text: string;
 }
 
 export interface Database {
-  users: UserTable;
-  posts: PostTable;
-  comments: CommentTable;
+  users: Users;
+  posts: Posts;
+  comments: Comments;
 }
 
 export async function createDB() {
