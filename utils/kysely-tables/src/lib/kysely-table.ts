@@ -28,7 +28,7 @@ interface TakeManyBuilder<O> {
   execute(): Promise<O[]>;
 }
 
-export class KyselyRepo<
+export class KyselyTable<
   DB,
   TB extends keyof DB & string,
   ID extends keyof DB[TB] & string

@@ -99,7 +99,7 @@ importers:
     specifiers:
       '@fieldzoo/app-config': workspace:*
       '@fieldzoo/database-config': workspace:*
-      '@fieldzoo/kysely-repo': workspace:*
+      '@fieldzoo/kysely-tables': workspace:*
       '@fieldzoo/model': workspace:*
       '@fieldzoo/postgres-utils': workspace:*
       dotenv: ^16.0.3
@@ -108,7 +108,7 @@ importers:
     dependencies:
       '@fieldzoo/app-config': link:../app-config
       '@fieldzoo/database-config': link:../../utils/database-config
-      '@fieldzoo/kysely-repo': link:../../utils/kysely-repo
+      '@fieldzoo/kysely-tables': link:../../utils/kysely-tables
       '@fieldzoo/model': link:../model
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
       dotenv: 16.0.3
@@ -168,7 +168,7 @@ importers:
   utils/generic-types:
     specifiers: {}
 
-  utils/kysely-repo:
+  utils/kysely-tables:
     specifiers:
       '@types/better-sqlite3': ^7.6.3
       better-sqlite3: ^8.1.0

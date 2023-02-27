@@ -21,7 +21,7 @@
   "dependencies": {
     "@fieldzoo/app-config": "workspace:*",
     "@fieldzoo/database-config": "workspace:*",
-    "@fieldzoo/kysely-repo": "workspace:*",
+    "@fieldzoo/kysely-tables": "workspace:*",
     "@fieldzoo/model": "workspace:*",
     "@fieldzoo/postgres-utils": "workspace:*",
     "dotenv": "^16.0.3",

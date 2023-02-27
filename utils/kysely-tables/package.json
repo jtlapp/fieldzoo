@@ -1,5 +1,5 @@
 {
-  "name": "@fieldzoo/kysely-repo",
+  "name": "@fieldzoo/kysely-tables",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",

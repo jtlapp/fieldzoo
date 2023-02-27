@@ -1,9 +1,9 @@
 import { Kysely } from "kysely";
 
-import { KyselyRepo } from "../lib/kysely-repo";
+import { KyselyTable } from "../lib/kysely-table";
 import { Database } from "./test-setup";
 
-export class UserRepo extends KyselyRepo<Database, "users", "id"> {
+export class UserRepo extends KyselyTable<Database, "users", "id"> {
   constructor(readonly db: Kysely<Database>) {
     super(db, "users", "id");
   }
