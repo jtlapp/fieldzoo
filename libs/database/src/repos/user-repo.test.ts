@@ -73,6 +73,15 @@ describe("user repo", () => {
     expect(users![0].name).toEqual(USER1.name);
     expect(users![0].email).toEqual(USER1.email);
 
+    users = await userRepo.findSome({
+      offset: 0,
+      limit: 1,
+      where: ["id", "=", insertedUser.id],
+    });
+    expect(users?.length).toEqual(1);
+    expect(users![0].name).toEqual(USER1.name);
+    expect(users![0].email).toEqual(USER1.email);
+
     // Delete the user
     const deleted = await userRepo.deleteById(insertedUser.id);
     expect(deleted).toEqual(true);

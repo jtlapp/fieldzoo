@@ -19,10 +19,6 @@ export type BinaryKyselyOp<
   rhs: OperandValueExpressionOrList<DB, TB, RE>
 ];
 
-// type TupleToObject<T extends readonly any[]> = {
-//   [K in T[number]]: T[K];
-// };
-
 export class KyselyRepo<
   DB,
   TB extends keyof DB & string,
@@ -45,9 +41,7 @@ export class KyselyRepo<
 
   find(): Promise<Selectable<DB[TB]>[] | null>;
   find<RE extends ReferenceExpression<DB, TB>>(
-    lhs: RE,
-    op: ComparisonOperatorExpression,
-    rhs: OperandValueExpressionOrList<DB, TB, RE>
+    ...args: BinaryKyselyOp<DB, TB, RE>
   ): Promise<Selectable<DB[TB]>[] | null>;
   find(grouper: WhereGrouper<DB, TB>): Promise<Selectable<DB[TB]>[] | null>;
   find(expression: Expression<any>): Promise<Selectable<DB[TB]>[] | null>;
@@ -60,9 +54,7 @@ export class KyselyRepo<
   }
 
   findOne<RE extends ReferenceExpression<DB, TB>>(
-    lhs: RE,
-    op: ComparisonOperatorExpression,
-    rhs: OperandValueExpressionOrList<DB, TB, RE>
+    ...args: BinaryKyselyOp<DB, TB, RE>
   ): Promise<Selectable<DB[TB]> | null>;
   findOne(grouper: WhereGrouper<DB, TB>): Promise<Selectable<DB[TB]> | null>;
   findOne(expression: Expression<any>): Promise<Selectable<DB[TB]> | null>;
@@ -75,20 +67,24 @@ export class KyselyRepo<
     return obj || null;
   }
 
-  findSome(): Promise<Selectable<DB[TB]>[] | null>;
-  findSome<RE extends ReferenceExpression<DB, TB>>(
-    lhs: RE,
-    op: ComparisonOperatorExpression,
-    rhs: OperandValueExpressionOrList<DB, TB, RE>
-  ): Promise<Selectable<DB[TB]>[] | null>;
-  findSome(grouper: WhereGrouper<DB, TB>): Promise<Selectable<DB[TB]>[] | null>;
-  findSome(expression: Expression<any>): Promise<Selectable<DB[TB]>[] | null>;
-  async findSome(...args: [any?, any?, any?]): Promise<any> {
+  async findSome<RE extends ReferenceExpression<DB, TB>>(constraints: {
+    offset: number;
+    limit: number;
+    where?: BinaryKyselyOp<DB, TB, RE> | WhereGrouper<DB, TB> | Expression<any>;
+  }): Promise<any> {
     let qb = this.db.selectFrom(this.tableName).selectAll();
-    if (args.length > 0) {
-      qb = qb.where(...args);
+    if (constraints.where) {
+      if (Array.isArray(constraints.where)) {
+        qb = qb.where(...(constraints.where as [any, any, any]));
+      } else {
+        qb = qb.where(constraints.where as any);
+      }
     }
-    return (await qb.execute()) || null;
+    const objs = await qb
+      .offset(constraints.offset)
+      .limit(constraints.limit)
+      .execute();
+    return objs || null;
   }
 
   async findById(id: number) {
