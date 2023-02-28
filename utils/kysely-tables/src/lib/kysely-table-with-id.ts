@@ -1,4 +1,4 @@
-import { Kysely, Updateable } from "kysely";
+import { Kysely, SelectType, Updateable } from "kysely";
 
 import { KyselyTable } from "./kysely-table";
 
@@ -15,7 +15,9 @@ export class KyselyTableWithID<
     super(db, tableName);
   }
 
-  async deleteById(id: number): Promise<boolean> {
+  async deleteById(
+    id: SelectType<DB[TableName][IdColumnName]>
+  ): Promise<boolean> {
     const { ref } = this.db.dynamic;
     const result = await this.db
       .deleteFrom(this.tableName)
@@ -24,7 +26,7 @@ export class KyselyTableWithID<
     return Number(result.numDeletedRows) == 1;
   }
 
-  async selectById(id: number) {
+  async selectById(id: SelectType<DB[TableName][IdColumnName]>) {
     const { ref } = this.db.dynamic;
     const obj = await this.db
       .selectFrom(this.tableName)
