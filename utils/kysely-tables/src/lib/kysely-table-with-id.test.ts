@@ -31,7 +31,8 @@ describe("tables with unique keys", () => {
     // Update a user
     const NEW_EMAIL = "new@baz.com";
     user2.email = NEW_EMAIL;
-    await userTable.updateById(user2);
+    const updated = await userTable.updateById(user2);
+    expect(updated).toEqual(true);
 
     // Retrieves a user by ID
     const readUser2 = await userTable.selectById(user2.id);

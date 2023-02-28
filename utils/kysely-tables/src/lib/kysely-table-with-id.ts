@@ -38,10 +38,11 @@ export class KyselyTableWithID<
 
   async updateById(obj: Updateable<DB[TableName]>) {
     const { ref } = this.db.dynamic;
-    await this.db
+    const result = await this.db
       .updateTable(this.tableName)
       .set(obj as any)
       .where(ref(this.idColumnName), "=", (obj as any)[this.idColumnName])
       .executeTakeFirst();
+    return Number(result.numUpdatedRows) == 1;
   }
 }
