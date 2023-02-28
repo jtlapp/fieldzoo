@@ -40,25 +40,17 @@ describe("user repo", () => {
     await resetTestDB(db);
     const userRepo = new UserRepo(db);
 
+    // DONE
     // Add a user
-    const insertedUser = await userRepo.insert(USER1);
+    const insertedUser = await userRepo.insertOne(USER1);
 
+    // DONE
     // Verify that the user was added
-    let user = await userRepo.findById(insertedUser.id);
-    expect(user?.name).toEqual(USER1.name);
-    expect(user?.email).toEqual(USER1.email);
-
-    // Verify select-where expression
-    user =
-      (await userRepo
-        .select()
-        .where("id", "=", insertedUser.id)
-        .executeTakeFirst()) || null;
+    let user = await userRepo.selectById(insertedUser.id);
     expect(user?.name).toEqual(USER1.name);
     expect(user?.email).toEqual(USER1.email);
 
     // Verify find expression
-
     user = await userRepo.findOne("id", "=", insertedUser.id);
     expect(user?.name).toEqual(USER1.name);
     expect(user?.email).toEqual(USER1.email);
@@ -93,12 +85,14 @@ describe("user repo", () => {
     expect(users![0].name).toEqual(USER1.name);
     expect(users![0].email).toEqual(USER1.email);
 
+    // DONE
     // Delete the user
     const deleted = await userRepo.deleteById(insertedUser.id);
     expect(deleted).toEqual(true);
 
+    // DONE
     // Verify that the user was deleted
-    user = await userRepo.findById(insertedUser.id);
+    user = await userRepo.selectById(insertedUser.id);
     expect(user).toBeNull();
   });
 });

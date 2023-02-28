@@ -6,6 +6,7 @@ import {
   ComparisonOperatorExpression,
   OperandValueExpressionOrList,
   Selectable,
+  Updateable,
 } from "kysely";
 import { WhereGrouper } from "kysely/dist/cjs/parser/binary-operation-parser";
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
@@ -96,7 +97,7 @@ export class KyselyTable<
     return objs || null;
   }
 
-  async findById(id: number) {
+  async selectById(id: number) {
     const { ref } = this.db.dynamic;
     const obj = await this.db
       .selectFrom(this.tableName)
@@ -106,17 +107,38 @@ export class KyselyTable<
     return obj || null;
   }
 
-  async insert(user: Insertable<DB[TB]>) {
-    const obj = await this.db
-      .insertInto(this.tableName)
-      .values(user)
-      .returningAll()
-      .executeTakeFirstOrThrow();
-    return obj;
+  async updateById(obj: Updateable<DB[TB]>) {
+    const { ref } = this.db.dynamic;
+    await this.db
+      .updateTable(this.tableName)
+      .set(obj as any)
+      .where(ref(this.idFieldName), "=", (obj as any)[this.idFieldName])
+      .executeTakeFirst();
   }
 
-  select() {
+  async insertOne(obj: Insertable<DB[TB]>) {
+    const resultObj = await this.db
+      .insertInto(this.tableName)
+      .values(obj)
+      .returningAll()
+      .executeTakeFirstOrThrow();
+    return resultObj;
+  }
+
+  insertRows() {
+    return this.db.insertInto(this.tableName);
+  }
+
+  updateRows() {
+    return this.db.updateTable(this.tableName);
+  }
+
+  selectRows() {
     return this.db.selectFrom(this.tableName).selectAll();
+  }
+
+  deleteRows() {
+    return this.db.deleteFrom(this.tableName);
   }
 
   async selectOne<
