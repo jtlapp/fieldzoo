@@ -13,12 +13,12 @@ import { SingleResultType } from "kysely/dist/cjs/util/type-utils";
 
 export type BinaryKyselyOp<
   DB,
-  TB extends keyof DB & string,
-  RE extends ReferenceExpression<DB, TB>
+  TableName extends keyof DB & string,
+  RE extends ReferenceExpression<DB, TableName>
 > = [
   lhs: RE,
   op: ComparisonOperatorExpression,
-  rhs: OperandValueExpressionOrList<DB, TB, RE>
+  rhs: OperandValueExpressionOrList<DB, TableName, RE>
 ];
 
 interface TakeFirstBuilder<O> {
@@ -28,15 +28,19 @@ interface TakeManyBuilder<O> {
   execute(): Promise<O[]>;
 }
 
-export class KyselyTable<DB, TB extends keyof DB & string> {
-  constructor(readonly db: Kysely<DB>, readonly tableName: TB) {}
+export class KyselyTable<DB, TableName extends keyof DB & string> {
+  constructor(readonly db: Kysely<DB>, readonly tableName: TableName) {}
 
-  find(): Promise<Selectable<DB[TB]>[] | null>;
-  find<RE extends ReferenceExpression<DB, TB>>(
-    ...args: BinaryKyselyOp<DB, TB, RE>
-  ): Promise<Selectable<DB[TB]>[] | null>;
-  find(grouper: WhereGrouper<DB, TB>): Promise<Selectable<DB[TB]>[] | null>;
-  find(expression: Expression<any>): Promise<Selectable<DB[TB]>[] | null>;
+  find(): Promise<Selectable<DB[TableName]>[] | null>;
+  find<RE extends ReferenceExpression<DB, TableName>>(
+    ...args: BinaryKyselyOp<DB, TableName, RE>
+  ): Promise<Selectable<DB[TableName]>[] | null>;
+  find(
+    grouper: WhereGrouper<DB, TableName>
+  ): Promise<Selectable<DB[TableName]>[] | null>;
+  find(
+    expression: Expression<any>
+  ): Promise<Selectable<DB[TableName]>[] | null>;
   async find(...args: [any?, any?, any?]): Promise<any> {
     let qb = this.db.selectFrom(this.tableName).selectAll();
     if (args.length > 0) {
@@ -45,11 +49,15 @@ export class KyselyTable<DB, TB extends keyof DB & string> {
     return (await qb.execute()) || null;
   }
 
-  findOne<RE extends ReferenceExpression<DB, TB>>(
-    ...args: BinaryKyselyOp<DB, TB, RE>
-  ): Promise<Selectable<DB[TB]> | null>;
-  findOne(grouper: WhereGrouper<DB, TB>): Promise<Selectable<DB[TB]> | null>;
-  findOne(expression: Expression<any>): Promise<Selectable<DB[TB]> | null>;
+  findOne<RE extends ReferenceExpression<DB, TableName>>(
+    ...args: BinaryKyselyOp<DB, TableName, RE>
+  ): Promise<Selectable<DB[TableName]> | null>;
+  findOne(
+    grouper: WhereGrouper<DB, TableName>
+  ): Promise<Selectable<DB[TableName]> | null>;
+  findOne(
+    expression: Expression<any>
+  ): Promise<Selectable<DB[TableName]> | null>;
   async findOne(...args: [any, any?, any?]): Promise<any> {
     const obj = this.db
       .selectFrom(this.tableName)
@@ -59,10 +67,13 @@ export class KyselyTable<DB, TB extends keyof DB & string> {
     return obj || null;
   }
 
-  async findSome<RE extends ReferenceExpression<DB, TB>>(constraints: {
+  async findSome<RE extends ReferenceExpression<DB, TableName>>(constraints: {
     offset: number;
     limit: number;
-    where?: BinaryKyselyOp<DB, TB, RE> | WhereGrouper<DB, TB> | Expression<any>;
+    where?:
+      | BinaryKyselyOp<DB, TableName, RE>
+      | WhereGrouper<DB, TableName>
+      | Expression<any>;
   }): Promise<any> {
     let qb = this.db.selectFrom(this.tableName).selectAll();
     if (constraints.where) {
@@ -79,7 +90,7 @@ export class KyselyTable<DB, TB extends keyof DB & string> {
     return objs || null;
   }
 
-  async insertOne(obj: Insertable<DB[TB]>) {
+  async insertOne(obj: Insertable<DB[TableName]>) {
     const resultObj = await this.db
       .insertInto(this.tableName)
       .values(obj)
@@ -105,11 +116,13 @@ export class KyselyTable<DB, TB extends keyof DB & string> {
   }
 
   async selectOne<
-    QB extends TakeFirstBuilder<Selectable<DB[TB]>>,
+    QB extends TakeFirstBuilder<Selectable<DB[TableName]>>,
     S extends keyof DB
   >(
     query: (
-      qb: ReturnType<SelectAllQueryBuilder<DB, TB, object, S>["selectAll"]>
+      qb: ReturnType<
+        SelectAllQueryBuilder<DB, TableName, object, S>["selectAll"]
+      >
     ) => QB
   ) {
     const qb = this.db.selectFrom(this.tableName).selectAll();
@@ -117,11 +130,13 @@ export class KyselyTable<DB, TB extends keyof DB & string> {
   }
 
   async selectMany<
-    QB extends TakeManyBuilder<Selectable<DB[TB]>>,
+    QB extends TakeManyBuilder<Selectable<DB[TableName]>>,
     S extends keyof DB
   >(
     query: (
-      qb: ReturnType<SelectAllQueryBuilder<DB, TB, object, S>["selectAll"]>
+      qb: ReturnType<
+        SelectAllQueryBuilder<DB, TableName, object, S>["selectAll"]
+      >
     ) => QB
   ) {
     const qb = this.db.selectFrom(this.tableName).selectAll();
