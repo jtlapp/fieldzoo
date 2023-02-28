@@ -6,7 +6,6 @@ import {
   ComparisonOperatorExpression,
   OperandValueExpressionOrList,
   Selectable,
-  Updateable,
 } from "kysely";
 import { WhereGrouper } from "kysely/dist/cjs/parser/binary-operation-parser";
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
@@ -29,25 +28,8 @@ interface TakeManyBuilder<O> {
   execute(): Promise<O[]>;
 }
 
-export class KyselyTable<
-  DB,
-  TB extends keyof DB & string,
-  ID extends keyof DB[TB] & string
-> {
-  constructor(
-    readonly db: Kysely<DB>,
-    readonly tableName: TB,
-    readonly idFieldName: ID
-  ) {}
-
-  async deleteById(id: number): Promise<boolean> {
-    const { ref } = this.db.dynamic;
-    const result = await this.db
-      .deleteFrom(this.tableName)
-      .where(ref(this.idFieldName), "=", id)
-      .executeTakeFirst();
-    return Number(result.numDeletedRows) == 1;
-  }
+export class KyselyTable<DB, TB extends keyof DB & string> {
+  constructor(readonly db: Kysely<DB>, readonly tableName: TB) {}
 
   find(): Promise<Selectable<DB[TB]>[] | null>;
   find<RE extends ReferenceExpression<DB, TB>>(
@@ -97,30 +79,11 @@ export class KyselyTable<
     return objs || null;
   }
 
-  async selectById(id: number) {
-    const { ref } = this.db.dynamic;
-    const obj = await this.db
-      .selectFrom(this.tableName)
-      .selectAll()
-      .where(ref(this.idFieldName), "=", id)
-      .executeTakeFirst();
-    return obj || null;
-  }
-
-  async updateById(obj: Updateable<DB[TB]>) {
-    const { ref } = this.db.dynamic;
-    await this.db
-      .updateTable(this.tableName)
-      .set(obj as any)
-      .where(ref(this.idFieldName), "=", (obj as any)[this.idFieldName])
-      .executeTakeFirst();
-  }
-
   async insertOne(obj: Insertable<DB[TB]>) {
     const resultObj = await this.db
       .insertInto(this.tableName)
       .values(obj)
-      .returningAll()
+      .returningAll() // TODO: could be an unnecessary big hit
       .executeTakeFirstOrThrow();
     return resultObj;
   }

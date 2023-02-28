@@ -1,6 +1,7 @@
 import { Kysely, Generated } from "kysely";
 
 import { KyselyTable } from "../lib/kysely-table";
+import { KyselyTableWithID } from "../lib/kysely-table-with-id";
 
 // list tables after those they depend on
 const TABLE_NAMES = ["comments", "posts", "users"];
@@ -60,9 +61,21 @@ export async function dropTables(db: Kysely<Database>): Promise<void> {
   }
 }
 
-export class UserTable extends KyselyTable<Database, "users", "id"> {
+export class UserTable extends KyselyTableWithID<Database, "users", "id"> {
   constructor(readonly db: Kysely<Database>) {
     super(db, "users", "id");
+  }
+}
+
+export class PostTable extends KyselyTableWithID<Database, "posts", "id"> {
+  constructor(readonly db: Kysely<Database>) {
+    super(db, "posts", "id");
+  }
+}
+
+export class CommentTable extends KyselyTable<Database, "comments"> {
+  constructor(readonly db: Kysely<Database>) {
+    super(db, "comments");
   }
 }
 

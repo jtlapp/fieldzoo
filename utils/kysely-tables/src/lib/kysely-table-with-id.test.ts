@@ -22,39 +22,25 @@ const USER2 = {
   email: "foo2@bar.com",
 };
 
-describe("row queries", () => {
-  it("inserts, selects, updates, and deletes objects by row query", async () => {
-    // Add users by row query
-    const user1 = (await userTable
-      .insertRows()
-      .values(USER1)
-      .returningAll()
-      .executeTakeFirst())!;
-    const user2 = (await userTable
-      .insertRows()
-      .values(USER2)
-      .returningAll()
-      .executeTakeFirst())!;
+describe("tables with unique keys", () => {
+  it("inserts, selects, updates, and deletes objects by ID", async () => {
+    // Add users
+    const user1 = await userTable.insertOne(USER1);
+    const user2 = await userTable.insertOne(USER2);
 
-    // Update a user by row query
+    // Update a user
     const NEW_EMAIL = "new@baz.com";
     user2.email = NEW_EMAIL;
-    await userTable
-      .updateRows()
-      .set(user2)
-      .where("id", "=", user2.id)
-      .execute();
+    await userTable.updateById(user2);
 
-    // Retrieves user by row query
-    const readUser2 = await userTable
-      .selectRows()
-      .where("id", "=", user2.id)
-      .executeTakeFirst();
+    // Retrieves a user by ID
+    const readUser2 = await userTable.selectById(user2.id);
     expect(readUser2?.handle).toEqual(USER2.handle);
     expect(readUser2?.email).toEqual(NEW_EMAIL);
 
-    // Delete user by row query
-    await userTable.deleteRows().where("id", "=", user2.id).execute();
+    // Delete a user
+    const deleted = await userTable.deleteById(user2.id);
+    expect(deleted).toEqual(true);
 
     // Verify correct user was deleted
     const readUser1 = await userTable.selectById(user1.id);
