@@ -2,6 +2,7 @@ import { Kysely, SelectType, Updateable } from "kysely";
 
 import { KyselyTable } from "./kysely-table";
 
+// TODO: generalize to compound keys and rename to KyselyTableWithKey
 export class KyselyTableWithID<
   DB,
   TableName extends keyof DB & string,

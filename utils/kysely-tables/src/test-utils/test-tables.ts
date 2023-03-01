@@ -9,6 +9,7 @@ const TABLE_NAMES = ["comments", "posts", "users"];
 export interface Users {
   id: Generated<number>;
   handle: string;
+  name: string;
   email: string;
 }
 
@@ -33,6 +34,7 @@ export interface Database {
 export async function createTables(db: Kysely<Database>) {
   await _createTableWithId(db, "users")
     .addColumn("handle", "varchar(255)", (col) => col.notNull())
+    .addColumn("name", "varchar(255)", (col) => col.notNull())
     .addColumn("email", "varchar(255)")
     .execute();
 
