@@ -20,15 +20,6 @@ interface TakeManyBuilder<O> {
 export class KyselyTable<DB, TableName extends keyof DB & string> {
   constructor(readonly db: Kysely<DB>, readonly tableName: TableName) {}
 
-  async insertOne(obj: Insertable<DB[TableName]>) {
-    const resultObj = await this.db
-      .insertInto(this.tableName)
-      .values(obj)
-      .returningAll() // TODO: could be an unnecessary big hit
-      .executeTakeFirstOrThrow();
-    return resultObj;
-  }
-
   insertRows() {
     return this.db.insertInto(this.tableName);
   }
@@ -43,6 +34,26 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
 
   deleteRows() {
     return this.db.deleteFrom(this.tableName);
+  }
+
+  insertOne(obj: Insertable<DB[TableName]>): Promise<void>;
+  insertOne<O extends Selectable<DB[TableName]>, F extends keyof O & string>(
+    obj: Insertable<DB[TableName]>,
+    returning: F[]
+  ): Promise<Pick<O, F>>;
+  async insertOne<
+    O extends Selectable<DB[TableName]>,
+    F extends keyof O & keyof DB[TableName] & string
+  >(
+    obj: Insertable<DB[TableName]>,
+    returning?: F[]
+  ): Promise<Pick<O, F> | void> {
+    const qb = this.db.insertInto(this.tableName).values(obj);
+    if (returning) {
+      const result = await qb.returning(returning).executeTakeFirstOrThrow();
+      return result as Pick<O, F>;
+    }
+    await qb.execute();
   }
 
   selectMany(): Promise<Selectable<DB[TableName]>[]>;

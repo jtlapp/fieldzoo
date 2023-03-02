@@ -42,21 +42,21 @@ describe("user repo", () => {
 
     // DONE
     // Add a user
-    const insertedUser = await userRepo.insertOne(USER1);
+    const updatedUser = await userRepo.insertOne(USER1, ["id"]);
 
     // DONE
     // Verify that the user was added
-    let user = await userRepo.selectById(insertedUser.id);
+    let user = await userRepo.selectById(updatedUser.id);
     expect(user?.name).toEqual(USER1.name);
     expect(user?.email).toEqual(USER1.email);
 
     // Verify find expression
-    user = await userRepo.selectOne("id", "=", insertedUser.id);
+    user = await userRepo.selectOne("id", "=", updatedUser.id);
     expect(user?.name).toEqual(USER1.name);
     expect(user?.email).toEqual(USER1.email);
 
     user = await userRepo.selectOne((qb) =>
-      qb.where("id", "=", insertedUser.id)
+      qb.where("id", "=", updatedUser.id)
     );
 
     let users = await userRepo.selectMany();
@@ -65,21 +65,21 @@ describe("user repo", () => {
     expect(user?.email).toEqual(USER1.email);
 
     users = await userRepo.selectMany((qb) =>
-      qb.where("id", "=", insertedUser.id)
+      qb.where("id", "=", updatedUser.id)
     );
     expect(users?.length).toEqual(1);
     expect(users![0].name).toEqual(USER1.name);
     expect(users![0].email).toEqual(USER1.email);
 
     users = await userRepo.selectMany((qb) =>
-      qb.offset(0).limit(1).where("id", "=", insertedUser.id)
+      qb.offset(0).limit(1).where("id", "=", updatedUser.id)
     );
     expect(users?.length).toEqual(1);
     expect(users![0].name).toEqual(USER1.name);
     expect(users![0].email).toEqual(USER1.email);
 
     users = await userRepo.selectMany((qb) =>
-      qb.where("id", "=", insertedUser.id)
+      qb.where("id", "=", updatedUser.id)
     );
     expect(users?.length).toEqual(1);
     expect(users![0].name).toEqual(USER1.name);
@@ -87,12 +87,12 @@ describe("user repo", () => {
 
     // DONE
     // Delete the user
-    const deleted = await userRepo.deleteById(insertedUser.id);
+    const deleted = await userRepo.deleteById(updatedUser.id);
     expect(deleted).toEqual(true);
 
     // DONE
     // Verify that the user was deleted
-    user = await userRepo.selectById(insertedUser.id);
+    user = await userRepo.selectById(updatedUser.id);
     expect(user).toBeNull();
   });
 });
