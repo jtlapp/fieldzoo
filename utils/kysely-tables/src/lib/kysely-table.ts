@@ -53,7 +53,7 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
   >(
     obj: Insertable<DB[TableName]>,
     returning?: F[] | ["*"]
-  ): Promise<Selectable<DB[TableName]> | Pick<O, NonAsterisk<F>> | void> {
+  ): Promise<Selectable<DB[TableName]> | Pick<O, F> | void> {
     const qb = this.db.insertInto(this.tableName).values(obj);
     if (returning) {
       // Cast here because TS wasn't allowing the check.
