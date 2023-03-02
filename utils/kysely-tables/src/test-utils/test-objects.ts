@@ -31,4 +31,9 @@ export const POSTS: Insertable<Posts>[] = [
     title: "And Another Thing",
     likeCount: 10,
   },
+  {
+    userId: 0,
+    title: "Still One More Thing",
+    likeCount: 1000,
+  },
 ];

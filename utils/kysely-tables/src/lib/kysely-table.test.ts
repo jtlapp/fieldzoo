@@ -103,6 +103,72 @@ describe("insertion", () => {
     expect(updatedUser.email).toEqual(USERS[0].email);
     expect(Object.keys(updatedUser).length).toEqual(4);
   });
+
+  it("insertMany() inserts rows", async () => {
+    const result = await userTable.insertMany(USERS);
+    expect(result).toBeUndefined();
+
+    const readUsers = await userTable.selectMany();
+    expect(readUsers.length).toEqual(3);
+    expect(readUsers[0].handle).toEqual(USERS[0].handle);
+    expect(readUsers[1].handle).toEqual(USERS[1].handle);
+    expect(readUsers[2].handle).toEqual(USERS[2].handle);
+  });
+
+  it("insertMany() returning indicated columns", async () => {
+    const updatedUsers = await userTable.insertMany(USERS, ["id"]);
+    expect(updatedUsers.length).toEqual(3);
+    expect(updatedUsers[0].id).toBeGreaterThan(0);
+    expect(updatedUsers[1].id).toBeGreaterThan(0);
+    expect(updatedUsers[2].id).toBeGreaterThan(0);
+    expect(Object.keys(updatedUsers[0]).length).toEqual(1);
+    expect(Object.keys(updatedUsers[1]).length).toEqual(1);
+    expect(Object.keys(updatedUsers[2]).length).toEqual(1);
+
+    const readUsers = await userTable.selectMany();
+    expect(readUsers.length).toEqual(3);
+    expect(readUsers[0].id).toEqual(updatedUsers[0].id);
+    expect(readUsers[1].id).toEqual(updatedUsers[1].id);
+    expect(readUsers[2].id).toEqual(updatedUsers[2].id);
+
+    const post0 = Object.assign({}, POSTS[0], { userId: updatedUsers[0].id });
+    const post1 = Object.assign({}, POSTS[1], { userId: updatedUsers[1].id });
+    const post2 = Object.assign({}, POSTS[2], { userId: updatedUsers[2].id });
+    const updatedPosts = await postTable.insertMany(
+      [post0, post1, post2],
+      ["id", "createdAt"]
+    );
+    expect(updatedPosts.length).toEqual(3);
+    expect(updatedPosts[0].id).toBeGreaterThan(0);
+    expect(updatedPosts[1].id).toBeGreaterThan(0);
+    expect(updatedPosts[2].id).toBeGreaterThan(0);
+    expect(new Date(updatedPosts[0].createdAt)).not.toBeNaN();
+    expect(new Date(updatedPosts[1].createdAt)).not.toBeNaN();
+    expect(new Date(updatedPosts[2].createdAt)).not.toBeNaN();
+    expect(Object.keys(updatedPosts[0]).length).toEqual(2);
+    expect(Object.keys(updatedPosts[1]).length).toEqual(2);
+    expect(Object.keys(updatedPosts[2]).length).toEqual(2);
+  });
+
+  it("insertMany() returning all columns", async () => {
+    const updatedUsers = await userTable.insertMany(USERS, ["*"]);
+    expect(updatedUsers.length).toEqual(3);
+    expect(updatedUsers[0].id).toBeGreaterThan(0);
+    expect(updatedUsers[1].id).toBeGreaterThan(0);
+    expect(updatedUsers[2].id).toBeGreaterThan(0);
+    expect(updatedUsers[0].handle).toEqual(USERS[0].handle);
+    expect(updatedUsers[1].handle).toEqual(USERS[1].handle);
+    expect(updatedUsers[2].handle).toEqual(USERS[2].handle);
+    expect(updatedUsers[0].name).toEqual(USERS[0].name);
+    expect(updatedUsers[1].name).toEqual(USERS[1].name);
+    expect(updatedUsers[2].name).toEqual(USERS[2].name);
+    expect(updatedUsers[0].email).toEqual(USERS[0].email);
+    expect(updatedUsers[1].email).toEqual(USERS[1].email);
+    expect(updatedUsers[2].email).toEqual(USERS[2].email);
+    expect(Object.keys(updatedUsers[0]).length).toEqual(4);
+    expect(Object.keys(updatedUsers[1]).length).toEqual(4);
+    expect(Object.keys(updatedUsers[2]).length).toEqual(4);
+  });
 });
 
 describe("selection", () => {

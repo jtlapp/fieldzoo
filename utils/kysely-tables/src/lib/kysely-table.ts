@@ -67,6 +67,35 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
     await qb.execute();
   }
 
+  insertMany(objs: Insertable<DB[TableName]>[]): Promise<void>;
+  insertMany<O extends Selectable<DB[TableName]>, F extends keyof O>(
+    objs: Insertable<DB[TableName]>[],
+    returning: F[]
+  ): Promise<Pick<O, F>[]>;
+  insertMany<O extends Selectable<DB[TableName]>>(
+    objs: Insertable<DB[TableName]>[],
+    returning: ["*"]
+  ): Promise<Selectable<DB[TableName]>[]>;
+  async insertMany<
+    O extends Selectable<DB[TableName]>,
+    F extends keyof O & keyof DB[TableName] & string
+  >(
+    objs: Insertable<DB[TableName]>[],
+    returning?: F[] | ["*"]
+  ): Promise<Selectable<DB[TableName]>[] | Pick<O, F>[] | void> {
+    const qb = this.db.insertInto(this.tableName).values(objs);
+    if (returning) {
+      // Cast here because TS wasn't allowing the check.
+      if ((returning as string[]).includes("*")) {
+        const result = await qb.returningAll().execute();
+        return result as Selectable<DB[TableName]>[];
+      }
+      const result = await qb.returning(returning as any).execute();
+      return result as Pick<O, F>[];
+    }
+    await qb.execute();
+  }
+
   selectMany(): Promise<Selectable<DB[TableName]>[]>;
   selectMany<RE extends ReferenceExpression<DB, TableName>>(
     lhs: RE,
