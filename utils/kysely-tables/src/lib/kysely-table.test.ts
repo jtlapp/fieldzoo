@@ -70,7 +70,7 @@ describe("insertion", () => {
     expect(readUser0?.email).toEqual(USERS[0].email);
   });
 
-  it("insertOne() returns indicated generated columns", async () => {
+  it("insertOne() returning indicated columns", async () => {
     const updatedUser = await userTable.insertOne(USERS[0], ["id"]);
     expect(updatedUser.id).toBeGreaterThan(0);
     expect(Object.keys(updatedUser).length).toEqual(1);
@@ -93,6 +93,15 @@ describe("insertion", () => {
       .where("createdAt", "=", updatedPost.createdAt)
       .executeTakeFirst();
     expect(readPost0?.title).toEqual(post0.title);
+  });
+
+  it("insertOne() returning all columns", async () => {
+    const updatedUser = await userTable.insertOne(USERS[0], ["*"]);
+    expect(updatedUser.id).toBeGreaterThan(0);
+    expect(updatedUser.handle).toEqual(USERS[0].handle);
+    expect(updatedUser.name).toEqual(USERS[0].name);
+    expect(updatedUser.email).toEqual(USERS[0].email);
+    expect(Object.keys(updatedUser).length).toEqual(4);
   });
 });
 

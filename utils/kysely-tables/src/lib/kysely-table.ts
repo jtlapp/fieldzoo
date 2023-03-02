@@ -10,6 +10,8 @@ import {
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 import { SingleResultType } from "kysely/dist/cjs/util/type-utils";
 
+type NonAsterisk<S> = S extends "*" ? never : S;
+
 interface TakeFirstBuilder<O> {
   executeTakeFirst(): Promise<SingleResultType<O>>;
 }
@@ -37,20 +39,31 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
   }
 
   insertOne(obj: Insertable<DB[TableName]>): Promise<void>;
-  insertOne<O extends Selectable<DB[TableName]>, F extends keyof O & string>(
+  insertOne<
+    O extends Selectable<DB[TableName]>,
+    F extends NonAsterisk<keyof O>
+  >(obj: Insertable<DB[TableName]>, returning: F[]): Promise<Pick<O, F>>;
+  insertOne<O extends Selectable<DB[TableName]>>(
     obj: Insertable<DB[TableName]>,
-    returning: F[]
-  ): Promise<Pick<O, F>>;
+    returning: ["*"]
+  ): Promise<Selectable<DB[TableName]>>;
   async insertOne<
     O extends Selectable<DB[TableName]>,
-    F extends keyof O & keyof DB[TableName] & string
+    F extends NonAsterisk<keyof O> & keyof DB[TableName] & string
   >(
     obj: Insertable<DB[TableName]>,
-    returning?: F[]
-  ): Promise<Pick<O, F> | void> {
+    returning?: F[] | ["*"]
+  ): Promise<Selectable<DB[TableName]> | Pick<O, NonAsterisk<F>> | void> {
     const qb = this.db.insertInto(this.tableName).values(obj);
     if (returning) {
-      const result = await qb.returning(returning).executeTakeFirstOrThrow();
+      // Cast here because TS wasn't allowing the check.
+      if ((returning as string[]).includes("*")) {
+        const result = await qb.returningAll().executeTakeFirstOrThrow();
+        return result as Selectable<DB[TableName]>;
+      }
+      const result = await qb
+        .returning(returning as any)
+        .executeTakeFirstOrThrow();
       return result as Pick<O, F>;
     }
     await qb.execute();
