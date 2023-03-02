@@ -115,6 +115,29 @@ describe("insertion", () => {
     expect(Object.keys(updatedUser).length).toEqual(4);
   });
 
+  // NOTE: The following test isn't functioning because SQLite is throwing the
+  // error `SqliteError { code: 'SQLITE_ERROR' }` and Jest isn't catching it.
+  //
+  // it("insertOne() failing to returning requested columns", async () => {
+  //   expect(() => userTable.insertOne(USERS[0], ["notThere"] as any)).toThrow(
+  //     NoResultError
+  //   );
+  //   const readUser0 = await userTable
+  //     .selectRows()
+  //     .where("email", "=", USERS[0].email)
+  //     .executeTakeFirst();
+  //   expect(readUser0?.email).toEqual(USERS[0].email);
+
+  //   expect(() => userTable.insertOne(USERS[1], ["x", "y"] as any)).toThrow(
+  //     NoResultError
+  //   );
+  //   const readUser1 = await userTable
+  //     .selectRows()
+  //     .where("email", "=", USERS[1].email)
+  //     .executeTakeFirst();
+  //   expect(readUser1?.email).toEqual(USERS[1].email);
+  // });
+
   it("insertMany() inserts rows without returning columns", async () => {
     const result = await userTable.insertMany(USERS);
     expect(result).toBeUndefined();
