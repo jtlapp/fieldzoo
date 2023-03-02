@@ -55,13 +55,15 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
   /**
    * Inserts a single row into this table, optionally returning columns
    * from the inserted row.
-   * @param obj The row to insert.
+   * @param obj The object to insert as a row.
    * @param returning The columns to return from the inserted row. If
    *    `["*"]` is given, all columns are returned. If a list of field names
    *    is given, returns only those field names. If omitted, no columns
    *    are returned. Useful for getting auto-generated columns.
    * @returns An object containing the requested return columns, if any.
-   *    Returns `void` when `return` is omitted.
+   *    Returns `void` when `returning` is omitted.
+   * @throws `NoResultError` if returning columns were requested but none
+   *    were returned.
    */
   insertOne(obj: Insertable<DB[TableName]>): Promise<void>;
   insertOne<O extends Selectable<DB[TableName]>, F extends keyof O>(
@@ -98,6 +100,17 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
     await qb.execute();
   }
 
+  /**
+   * Inserts multiple rows into this table, optionally returning columns
+   * from the inserted rows.
+   * @param objs The objects to insert as rows.
+   * @param returning The columns to return from the inserted rows. If
+   *   `["*"]` is given, all columns are returned. If a list of field names
+   *    is given, returns only those field names. If omitted, no columns
+   *    are returned. Useful for getting auto-generated columns.
+   * @returns An array of objects containing the requested return columns,
+   *   if any. Returns `void` when `returning` is omitted.
+   */
   insertMany(objs: Insertable<DB[TableName]>[]): Promise<void>;
   insertMany<O extends Selectable<DB[TableName]>, F extends keyof O>(
     objs: Insertable<DB[TableName]>[],
@@ -131,6 +144,21 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
     await qb.execute();
   }
 
+  /**
+   * Selects zero or more rows from this table. If no arguments are given,
+   * selects all rows. If three arguments are given, selects rows that
+   * match the binary operation. If one argument is given and it's a callback,
+   * the callback takes a query builder and returns a query builder that
+   * constrains the selection. If one argument is given and it's not a callback,
+   * selects rows that match the expression.
+   * @param lhs The left-hand side of the binary operation.
+   * @param op The operator of the binary operation.
+   * @param rhs The right-hand side of the binary operation.
+   * @param callback A callback that takes a query builder and returns a
+   *    query builder that constrains the selection.
+   * @param expression An expression that constrains the selection.
+   * @returns An array of objects containing the selected rows, possibly empty.
+   */
   selectMany(): Promise<Selectable<DB[TableName]>[]>;
   selectMany<RE extends ReferenceExpression<DB, TableName>>(
     lhs: RE,
@@ -141,7 +169,7 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
     QB extends TakeManyBuilder<Selectable<DB[TableName]>>,
     S extends keyof DB
   >(
-    query: (
+    callback: (
       qb: ReturnType<
         SelectAllQueryBuilder<DB, TableName, object, S>["selectAll"]
       >
@@ -160,6 +188,22 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
     return qb.execute();
   }
 
+  /**
+   * Selects at most one row from this table. If no arguments are given,
+   * selects the first row. If three arguments are given, selects the first
+   * row that matches the binary operation. If one argument is given and it's
+   * a callback, the callback takes a query builder and returns a query builder
+   * that constrains the selection. If one argument is given and it's not a
+   * callback, selects the first row that matches the expression.
+   * @param lhs The left-hand side of the binary operation.
+   * @param op The operator of the binary operation.
+   * @param rhs The right-hand side of the binary operation.
+   * @param callback A callback that takes a query builder and returns a
+   *    query builder that constrains the selection.
+   * @param expression An expression that constrains the selection.
+   * @returns An object containing the selected row, or `null` if no row
+   *    was selected.
+   */
   selectOne(): Promise<Selectable<DB[TableName]> | null>;
   selectOne<RE extends ReferenceExpression<DB, TableName>>(
     lhs: RE,
@@ -170,7 +214,7 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
     QB extends TakeFirstBuilder<Selectable<DB[TableName]>>,
     S extends keyof DB
   >(
-    query: (
+    callback: (
       qb: ReturnType<
         SelectAllQueryBuilder<DB, TableName, object, S>["selectAll"]
       >
