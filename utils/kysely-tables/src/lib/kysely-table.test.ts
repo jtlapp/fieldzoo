@@ -1,15 +1,17 @@
 import { Kysely, sql } from "kysely";
 
 import { createDB, resetDB, destroyDB } from "../test-utils/test-setup";
-import { Database, UserTable } from "../test-utils/test-tables";
-import { USERS } from "../test-utils/test-objects";
+import { Database, UserTable, PostTable } from "../test-utils/test-tables";
+import { USERS, POSTS } from "../test-utils/test-objects";
 
 let db: Kysely<Database>;
 let userTable: UserTable;
+let postTable: PostTable;
 
 beforeAll(async () => {
   db = await createDB();
   userTable = new UserTable(db);
+  postTable = new PostTable(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
@@ -53,6 +55,44 @@ describe("row queries", () => {
     expect(readUser0?.handle).toEqual(USERS[0].handle);
     const noUser = await userTable.selectById(user1.id);
     expect(noUser).toBeNull();
+  });
+});
+
+describe("insertion", () => {
+  it("insertOne() inserts a row", async () => {
+    const result = await userTable.insertOne(USERS[0]);
+    expect(result).toBeUndefined();
+
+    const readUser0 = await userTable
+      .selectRows()
+      .where("email", "=", USERS[0].email)
+      .executeTakeFirst();
+    expect(readUser0?.email).toEqual(USERS[0].email);
+  });
+
+  it("insertOne() returns indicated generated columns", async () => {
+    const updatedUser = await userTable.insertOne(USERS[0], ["id"]);
+    expect(updatedUser.id).toBeGreaterThan(0);
+    expect(Object.keys(updatedUser).length).toEqual(1);
+
+    const readUser0 = await userTable
+      .selectRows()
+      .where("id", "=", updatedUser.id)
+      .executeTakeFirst();
+    expect(readUser0?.email).toEqual(USERS[0].email);
+
+    const post0 = Object.assign({}, POSTS[0], { userId: updatedUser.id });
+    const updatedPost = await postTable.insertOne(post0, ["id", "createdAt"]);
+    expect(updatedPost.id).toBeGreaterThan(0);
+    expect(new Date(updatedPost.createdAt)).not.toBeNaN();
+    expect(Object.keys(updatedPost).length).toEqual(2);
+
+    const readPost0 = await postTable
+      .selectRows()
+      .where("id", "=", updatedPost.id)
+      .where("createdAt", "=", updatedPost.createdAt)
+      .executeTakeFirst();
+    expect(readPost0?.title).toEqual(post0.title);
   });
 });
 

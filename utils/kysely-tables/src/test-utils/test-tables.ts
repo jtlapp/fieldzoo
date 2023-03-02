@@ -1,4 +1,4 @@
-import { Kysely, Generated } from "kysely";
+import { Kysely, Generated, sql } from "kysely";
 
 import { KyselyTable } from "../lib/kysely-table";
 import { KyselyTableWithID } from "../lib/kysely-table-with-id";
@@ -18,6 +18,7 @@ export interface Posts {
   userId: number;
   title: string;
   likeCount: number;
+  createdAt: Generated<Date>;
 }
 
 export interface Comments {
@@ -40,10 +41,13 @@ export async function createTables(db: Kysely<Database>) {
 
   await _createTableWithId(db, "posts")
     .addColumn("userId", "integer", (col) =>
-      col.references("user.id").onDelete("cascade").notNull()
+      col.references("users.id").onDelete("cascade").notNull()
     )
     .addColumn("title", "varchar(255)", (col) => col.unique().notNull())
     .addColumn("likeCount", "integer", (col) => col.notNull())
+    .addColumn("createdAt", "timestamp", (col) =>
+      col.defaultTo(sql`current_timestamp`).notNull()
+    )
     .execute();
 
   await db.schema
