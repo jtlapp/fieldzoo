@@ -20,22 +20,49 @@ interface TakeManyBuilder<O> {
 export class KyselyTable<DB, TableName extends keyof DB & string> {
   constructor(readonly db: Kysely<DB>, readonly tableName: TableName) {}
 
+  /**
+   * Creates a query builder for inserting rows into this table.
+   * @returns A query builder for inserting rows into this table.
+   */
   insertRows() {
     return this.db.insertInto(this.tableName);
   }
 
+  /**
+   * Creates a query builder for updating rows in this table.
+   * @returns A query builder for updating rows in this table.
+   */
   updateRows() {
     return this.db.updateTable(this.tableName);
   }
 
+  /**
+   * Creates a query builder for selecting rows from this table.
+   * @returns A query builder for selecting rows from this table.
+   */
   selectRows() {
     return this.db.selectFrom(this.tableName).selectAll();
   }
 
+  /**
+   * Creates a query builder for deleting rows from this table.
+   * @returns A query builder for deleting rows from this table.
+   */
   deleteRows() {
     return this.db.deleteFrom(this.tableName);
   }
 
+  /**
+   * Inserts a single row into this table, optionally returning columns
+   * from the inserted row.
+   * @param obj The row to insert.
+   * @param returning The columns to return from the inserted row. If
+   *    `["*"]` is given, all columns are returned. If a list of field names
+   *    is given, returns only those field names. If omitted, no columns
+   *    are returned. Useful for getting auto-generated columns.
+   * @returns An object containing the requested return columns, if any.
+   *    Returns `void` when `return` is omitted.
+   */
   insertOne(obj: Insertable<DB[TableName]>): Promise<void>;
   insertOne<O extends Selectable<DB[TableName]>, F extends keyof O>(
     obj: Insertable<DB[TableName]>,
@@ -59,10 +86,14 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
         const result = await qb.returningAll().executeTakeFirstOrThrow();
         return result as Selectable<DB[TableName]>;
       }
-      const result = await qb
-        .returning(returning as any)
-        .executeTakeFirstOrThrow();
-      return result as Pick<O, F>;
+      if (returning.length > 0) {
+        const result = await qb
+          .returning(returning as any)
+          .executeTakeFirstOrThrow();
+        return result as Pick<O, F>;
+      }
+      await qb.execute();
+      return {} as Pick<O, F>;
     }
     await qb.execute();
   }
@@ -90,8 +121,12 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
         const result = await qb.returningAll().execute();
         return result as Selectable<DB[TableName]>[];
       }
-      const result = await qb.returning(returning as any).execute();
-      return result as Pick<O, F>[];
+      if (returning.length > 0) {
+        const result = await qb.returning(returning as any).execute();
+        return result as Pick<O, F>[];
+      }
+      await qb.execute();
+      return objs.map((_) => ({})) as Pick<O, F>[];
     }
     await qb.execute();
   }

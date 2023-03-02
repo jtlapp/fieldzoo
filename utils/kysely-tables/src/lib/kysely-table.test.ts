@@ -59,9 +59,20 @@ describe("row queries", () => {
 });
 
 describe("insertion", () => {
-  it("insertOne() inserts a row", async () => {
+  it("insertOne() inserts a row without returning columns", async () => {
     const result = await userTable.insertOne(USERS[0]);
     expect(result).toBeUndefined();
+
+    const readUser0 = await userTable
+      .selectRows()
+      .where("email", "=", USERS[0].email)
+      .executeTakeFirst();
+    expect(readUser0?.email).toEqual(USERS[0].email);
+  });
+
+  it("insertOne() returning an empty object", async () => {
+    const updatedUser = await userTable.insertOne(USERS[0], []);
+    expect(updatedUser).toEqual({});
 
     const readUser0 = await userTable
       .selectRows()
@@ -104,9 +115,20 @@ describe("insertion", () => {
     expect(Object.keys(updatedUser).length).toEqual(4);
   });
 
-  it("insertMany() inserts rows", async () => {
+  it("insertMany() inserts rows without returning columns", async () => {
     const result = await userTable.insertMany(USERS);
     expect(result).toBeUndefined();
+
+    const readUsers = await userTable.selectMany();
+    expect(readUsers.length).toEqual(3);
+    expect(readUsers[0].handle).toEqual(USERS[0].handle);
+    expect(readUsers[1].handle).toEqual(USERS[1].handle);
+    expect(readUsers[2].handle).toEqual(USERS[2].handle);
+  });
+
+  it("insertMany() returning empty objects", async () => {
+    const updatedUsers = await userTable.insertMany(USERS, []);
+    expect(updatedUsers).toEqual([{}, {}, {}]);
 
     const readUsers = await userTable.selectMany();
     expect(readUsers.length).toEqual(3);
