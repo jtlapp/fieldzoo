@@ -110,10 +110,8 @@ describe("insertion", () => {
   it("insertOne() returning all columns", async () => {
     const updatedUser = await userTable.insertOne(USERS[0], ["*"]);
     expect(updatedUser.id).toBeGreaterThan(0);
-    expect(updatedUser.handle).toEqual(USERS[0].handle);
-    expect(updatedUser.name).toEqual(USERS[0].name);
-    expect(updatedUser.email).toEqual(USERS[0].email);
-    expect(Object.keys(updatedUser).length).toEqual(4);
+    const expectedUser = Object.assign({}, USERS[0], { id: updatedUser.id });
+    expect(updatedUser).toEqual(expectedUser);
   });
 
   // NOTE: The following test isn't functioning because SQLite is throwing the
@@ -215,22 +213,14 @@ describe("insertion", () => {
 
   it("insertMany() returning all columns", async () => {
     const updatedUsers = await userTable.insertMany(USERS, ["*"]);
-    expect(updatedUsers.length).toEqual(3);
+    expect(updatedUsers).toEqual([
+      Object.assign({}, USERS[0], { id: updatedUsers[0].id }),
+      Object.assign({}, USERS[1], { id: updatedUsers[1].id }),
+      Object.assign({}, USERS[2], { id: updatedUsers[2].id }),
+    ]);
     expect(updatedUsers[0].id).toBeGreaterThan(0);
     expect(updatedUsers[1].id).toBeGreaterThan(0);
     expect(updatedUsers[2].id).toBeGreaterThan(0);
-    expect(updatedUsers[0].handle).toEqual(USERS[0].handle);
-    expect(updatedUsers[1].handle).toEqual(USERS[1].handle);
-    expect(updatedUsers[2].handle).toEqual(USERS[2].handle);
-    expect(updatedUsers[0].name).toEqual(USERS[0].name);
-    expect(updatedUsers[1].name).toEqual(USERS[1].name);
-    expect(updatedUsers[2].name).toEqual(USERS[2].name);
-    expect(updatedUsers[0].email).toEqual(USERS[0].email);
-    expect(updatedUsers[1].email).toEqual(USERS[1].email);
-    expect(updatedUsers[2].email).toEqual(USERS[2].email);
-    expect(Object.keys(updatedUsers[0]).length).toEqual(4);
-    expect(Object.keys(updatedUsers[1]).length).toEqual(4);
-    expect(Object.keys(updatedUsers[2]).length).toEqual(4);
   });
 
   ignore("insertMany() type errors", () => {
@@ -328,5 +318,98 @@ describe("selection", () => {
     userTable.selectOne("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments
     userTable.selectOne("name", "=");
+  });
+});
+
+describe("update", () => {
+  it("updateByKey() updates without returning columns", async () => {
+    const insertedUser = await userTable.insertOne(USERS[0], ["id"]);
+    const updateValues = { email: "new.email@xyz.pdq" };
+
+    const updatedUser = await userTable.updateByKey(
+      { id: insertedUser.id },
+      updateValues
+    );
+    expect(updatedUser).toBeUndefined();
+
+    const readUser = await userTable.selectOne("id", "=", insertedUser.id);
+    expect(readUser?.email).toEqual(updateValues.email);
+  });
+
+  it("updateByKey() updates returning an empty object", async () => {
+    const insertedUser = await userTable.insertOne(USERS[0], ["id"]);
+    const updateValues = { email: "new.email@xyz.pdq" };
+
+    const updatedUser = await userTable.updateByKey(
+      { id: insertedUser.id },
+      updateValues,
+      []
+    );
+    expect(updatedUser).toEqual({});
+    const readUser = await userTable.selectOne("id", "=", insertedUser.id);
+    expect(readUser?.email).toEqual(updateValues.email);
+  });
+
+  it("updateByKey() updates returning indicated columns", async () => {
+    const insertedUser = await userTable.insertOne(USERS[0], ["id"]);
+    const updateValues1 = { email: "new.email@xyz.pdq" };
+
+    const updatedUser1 = await userTable.updateByKey(
+      { id: insertedUser.id },
+      updateValues1,
+      ["name"]
+    );
+    expect(updatedUser1).toEqual({ name: USERS[0].name });
+    let readUser = await userTable.selectOne("id", "=", insertedUser.id);
+    expect(readUser?.email).toEqual(updateValues1.email);
+
+    const updateValues2 = { name: "New Name" };
+    const updatedUser2 = await userTable.updateByKey(
+      { email: updateValues1.email },
+      updateValues2,
+      ["id", "handle"]
+    );
+    expect(updatedUser2).toEqual({
+      id: insertedUser.id,
+      handle: USERS[0].handle,
+    });
+    readUser = await userTable.selectOne("id", "=", insertedUser.id);
+    expect(readUser?.name).toEqual(updateValues2.name);
+  });
+
+  it("updateByKey() updates returning all columns", async () => {
+    const insertedUser = await userTable.insertOne(USERS[0], ["id"]);
+    const updateValues = { email: "new.email@xyz.pdq" };
+
+    const updatedUser = await userTable.updateByKey(
+      { id: insertedUser.id },
+      updateValues,
+      ["*"]
+    );
+
+    const expectedUser = Object.assign({}, USERS[0], {
+      id: insertedUser.id,
+      email: updateValues.email,
+    });
+    expect(updatedUser).toEqual(expectedUser);
+    const readUser = await userTable.selectOne("id", "=", insertedUser.id);
+    expect(readUser).toEqual(expectedUser);
+  });
+
+  ignore("updateByKey() type errors", () => {
+    // @ts-expect-error - table must have all keys
+    userTable.updateByKey({ notThere: "xyz" }, { email: "abc@def.ghi" });
+    // @ts-expect-error - update must only have table columns
+    userTable.updateByKey({ id: 32 }, { notThere: "xyz@pdq.xyz" });
+    // @ts-expect-error - returning argument can't be a string
+    userTable.updateByKey({ id: 32 }, USERS[0], "id");
+    // @ts-expect-error - returning argument can't be a string
+    userTable.updateByKey({ id: 32 }, USERS[0], "*");
+    // @ts-expect-error - returning arguments must be valid column names
+    userTable.updateByKey({ id: 32 }, USERS[0], [""]);
+    // @ts-expect-error - returning arguments must be valid column names
+    userTable.updateByKey({ id: 32 }, USERS[0], ["notThere"]);
+    // @ts-expect-error - returning arguments must be valid column names
+    userTable.updateByKey({ id: 32 }, USERS[0], ["notThere", "*"]);
   });
 });
