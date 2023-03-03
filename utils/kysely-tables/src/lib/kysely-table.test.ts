@@ -3,6 +3,7 @@ import { Kysely, sql } from "kysely";
 import { createDB, resetDB, destroyDB } from "../test-utils/test-setup";
 import { Database, UserTable, PostTable } from "../test-utils/test-tables";
 import { USERS, POSTS } from "../test-utils/test-objects";
+import { ignore } from "@fieldzoo/testing-utils";
 
 let db: Kysely<Database>;
 let userTable: UserTable;
@@ -138,6 +139,23 @@ describe("insertion", () => {
   //   expect(readUser1?.email).toEqual(USERS[1].email);
   // });
 
+  ignore("insertOne() type errors", () => {
+    // @ts-expect-error - inserted object must have all required columns
+    userTable.insertOne({});
+    // @ts-expect-error - inserted object must have all required columns
+    userTable.insertOne({ email: "xyz@pdq.xyz" });
+    // @ts-expect-error - returning argument can't be a string
+    userTable.insertOne(USERS[0], "id");
+    // @ts-expect-error - returning argument can't be a string
+    userTable.insertOne(USERS[0], "*");
+    // @ts-expect-error - returning arguments must be valid column names
+    userTable.insertOne(USERS[0], [""]);
+    // @ts-expect-error - returning arguments must be valid column names
+    userTable.insertOne(USERS[0], ["notThere"]);
+    // @ts-expect-error - returning arguments must be valid column names
+    userTable.insertOne(USERS[0], ["notThere", "*"]);
+  });
+
   it("insertMany() inserts rows without returning columns", async () => {
     const result = await userTable.insertMany(USERS);
     expect(result).toBeUndefined();
@@ -214,6 +232,23 @@ describe("insertion", () => {
     expect(Object.keys(updatedUsers[1]).length).toEqual(4);
     expect(Object.keys(updatedUsers[2]).length).toEqual(4);
   });
+
+  ignore("insertMany() type errors", () => {
+    // @ts-expect-error - inserted object must have all required columns
+    userTable.insertMany([{}]);
+    // @ts-expect-error - inserted object must have all required columns
+    userTable.insertMany([{ email: "xyz@pdq.xyz" }]);
+    // @ts-expect-error - returning argument can't be a string
+    userTable.insertMany([USERS[0]], "id");
+    // @ts-expect-error - returning argument can't be a string
+    userTable.insertMany([USERS[0]], "*");
+    // @ts-expect-error - returning arguments must be valid column names
+    userTable.insertMany([USERS[0]], [""]);
+    // @ts-expect-error - returning arguments must be valid column names
+    userTable.insertMany([USERS[0]], ["notThere"]);
+    // @ts-expect-error - returning arguments must be valid column names
+    userTable.insertMany([USERS[0]], ["notThere", "*"]);
+  });
 });
 
 describe("selection", () => {
@@ -253,6 +288,13 @@ describe("selection", () => {
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
 
+  ignore("selectMany() type errors", () => {
+    // @ts-expect-error - doesn't allow plain string expressions
+    userTable.selectMany("name = 'John Doe'");
+    // @ts-expect-error - doesn't allow only two arguments
+    userTable.selectMany("name", "=");
+  });
+
   it("selectOne() selects the required row", async () => {
     for (const user of USERS) {
       await userTable.insertOne(user);
@@ -279,5 +321,12 @@ describe("selection", () => {
     // Test selecting with an expression
     user = await userTable.selectOne(sql`name != ${USERS[0].name}`);
     expect(user?.handle).toEqual(USERS[1].handle);
+  });
+
+  ignore("selectOne() type errors", () => {
+    // @ts-expect-error - doesn't allow plain string expressions
+    userTable.selectOne("name = 'John Doe'");
+    // @ts-expect-error - doesn't allow only two arguments
+    userTable.selectOne("name", "=");
   });
 });
