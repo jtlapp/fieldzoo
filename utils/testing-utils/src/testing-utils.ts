@@ -18,3 +18,10 @@ export async function getError<E>(call: () => unknown): Promise<E | null> {
     return err as E;
   }
 }
+
+/**
+ * Embeds code that will never run within a callback. Useful for
+ * testing expected type errors.
+ * @param callback Callback that will never run
+ */
+export function ignore(_: () => Promise<void>) {}
