@@ -9,7 +9,7 @@ import {
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
 import { BaseKyselyFacet } from "./BaseKyselyFacet";
-import { QueryFilter, constrainQueryBuilder } from "./query-filter";
+import { QueryFilter, applyQueryFilter } from "./query-filter";
 
 // TODO: delete this if not needed
 //
@@ -194,7 +194,7 @@ export class KyselyTable<
     let qb = this.db.selectFrom(this.tableName).selectAll();
     if (filter !== undefined) {
       // Cast because TS was erroring, "Type X cannot be assigned to type X".
-      qb = constrainQueryBuilder(this, filter)(qb as any) as any;
+      qb = applyQueryFilter(this, filter)(qb as any) as any;
     }
     return qb.execute();
   }
@@ -233,7 +233,7 @@ export class KyselyTable<
     let qb = this.db.selectFrom(this.tableName).selectAll();
     if (filter !== undefined) {
       // Cast because TS was erroring, "Type X cannot be assigned to type X".
-      qb = constrainQueryBuilder(this, filter)(qb as any) as any;
+      qb = applyQueryFilter(this, filter)(qb as any) as any;
     }
     return (await qb.executeTakeFirst()) || null;
   }
@@ -290,7 +290,7 @@ export class KyselyTable<
     Selectable<DB[TableName]>[] | Pick<Selectable<DB[TableName]>, R>[] | number
   > {
     let qb = this.db.updateTable(this.tableName).set(obj as any);
-    qb = constrainQueryBuilder(this, filter)(qb as any) as any;
+    qb = applyQueryFilter(this, filter)(qb as any) as any;
     if (returning) {
       // Cast here because TS wasn't allowing the check.
       if ((returning as string[]).includes("*")) {

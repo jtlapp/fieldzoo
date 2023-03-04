@@ -68,7 +68,7 @@ export type QueryExpressionFilter = Expression<any>;
  * Returns a query builder that constrains the provided query builder
  * with the provided filter.
  */
-export function constrainQueryBuilder<
+export function applyQueryFilter<
   DB,
   TableName extends keyof DB & string,
   QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
@@ -78,7 +78,7 @@ export function constrainQueryBuilder<
   filter: QueryFilter<DB, TableName, QB, RE>
 ): (qb: QB) => QB;
 
-export function constrainQueryBuilder<
+export function applyQueryFilter<
   DB,
   TableName extends keyof DB & string,
   QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
@@ -88,7 +88,7 @@ export function constrainQueryBuilder<
   filter: QueryFilter<DB, TableName, QB, RE>
 ): (qb: QB) => QB;
 
-export function constrainQueryBuilder<
+export function applyQueryFilter<
   DB,
   TableName extends keyof DB & string,
   QB extends
