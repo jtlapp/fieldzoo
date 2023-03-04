@@ -9,7 +9,7 @@ import {
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
 import { BaseKyselyFacet } from "./BaseKyselyFacet";
-import { QueryFilter, applyQueryFilter } from "./QueryFilter";
+import { QueryFilter, applyQueryFilter } from "../lib/QueryFilter";
 
 // TODO: delete this if not needed
 //

@@ -13,7 +13,7 @@ import {
 } from "kysely";
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
-import { BaseKyselyFacet } from "./BaseKyselyFacet";
+import { BaseKyselyFacet } from "../facets/BaseKyselyFacet";
 
 /**
  * Type of the query filter object, which can be passed as an argument
