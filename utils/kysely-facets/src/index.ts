@@ -1,2 +1,3 @@
-export * from "./lib/kysely-table";
-export * from "./lib/kysely-table-with-id";
+export * from "./lib/BaseKyselyFacet";
+export * from "./lib/BasicQueryFacet";
+export * from "./lib/UniqueIdFacet";
