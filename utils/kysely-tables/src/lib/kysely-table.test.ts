@@ -255,13 +255,13 @@ describe("selection", () => {
     expect(users[2].handle).toEqual(USERS[2].handle);
 
     // Test selecting by condition (with results)
-    users = await userTable.selectMany("name", "=", USERS[0].name);
+    users = await userTable.selectMany(["name", "=", USERS[0].name]);
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
 
     // Test selecting by condition (no results)
-    users = await userTable.selectMany("name", "=", "nonexistent");
+    users = await userTable.selectMany(["name", "=", "nonexistent"]);
     expect(users.length).toEqual(0);
 
     // Test selecting by modifying query
@@ -343,7 +343,7 @@ describe("update", () => {
     );
     expect(updateCount2).toEqual(2);
 
-    const readUsers = await userTable.selectMany("name", "=", "Sue");
+    const readUsers = await userTable.selectMany(["name", "=", "Sue"]);
     expect(readUsers.length).toEqual(2);
     expect(readUsers[0].email).toEqual(updateValues.email);
     expect(readUsers[1].email).toEqual(updateValues.email);
@@ -407,11 +407,11 @@ describe("update", () => {
       { handle: USERS[1].handle },
       { handle: USERS[2].handle },
     ]);
-    const readUsers = await userTable.selectMany(
+    const readUsers = await userTable.selectMany([
       "name",
       "=",
-      updateValues3.name
-    );
+      updateValues3.name,
+    ]);
     expect(readUsers.length).toEqual(3);
   });
 
@@ -431,7 +431,7 @@ describe("update", () => {
     ];
     expect(updatedUsers).toEqual(expectedUsers);
 
-    const readUsers = await userTable.selectMany("name", "=", "Sue");
+    const readUsers = await userTable.selectMany(["name", "=", "Sue"]);
     expect(readUsers).toEqual(expectedUsers);
   });
 

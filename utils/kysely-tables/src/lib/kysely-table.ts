@@ -1,25 +1,23 @@
 import {
   Kysely,
   Insertable,
-  Expression,
   ReferenceExpression,
-  ComparisonOperatorExpression,
-  OperandValueExpressionOrList,
   Selectable,
   UpdateObject,
   Updateable,
 } from "kysely";
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
-// import { SingleResultType } from "kysely/dist/cjs/util/type-utils";
 
 import { QueryFilter, constrainQueryBuilder } from "./query-filter";
 
+// TODO: delete this if not needed
+//
 // interface TakeFirstBuilder<O> {
 //   executeTakeFirst(): Promise<SingleResultType<O>>;
 // }
-interface TakeManyBuilder<O> {
-  execute(): Promise<O[]>;
-}
+// interface TakeManyBuilder<O> {
+//   execute(): Promise<O[]>;
+// }
 
 export class KyselyTable<DB, TableName extends keyof DB & string> {
   constructor(readonly db: Kysely<DB>, readonly tableName: TableName) {}
@@ -169,38 +167,28 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
    */
   selectMany(): Promise<Selectable<DB[TableName]>[]>;
 
-  selectMany<RE extends ReferenceExpression<DB, TableName>>(
-    lhs: RE,
-    op: ComparisonOperatorExpression,
-    rhs: OperandValueExpressionOrList<DB, TableName, RE>
-  ): Promise<Selectable<DB[TableName]>[]>;
-
   selectMany<
-    QB extends TakeManyBuilder<Selectable<DB[TableName]>>,
-    S extends keyof DB
+    QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
+    RE extends ReferenceExpression<DB, TableName>
   >(
-    callback: (
-      qb: ReturnType<
-        SelectAllQueryBuilder<DB, TableName, object, S>["selectAll"]
-      >
-    ) => QB
+    filter: QueryFilter<DB, TableName, QB, RE>
   ): Promise<Selectable<DB[TableName]>[]>;
 
-  selectMany(expression: Expression<any>): Promise<Selectable<DB[TableName]>[]>;
-
-  async selectMany(...args: [any?, any?, any?]): Promise<any> {
+  async selectMany<
+    QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
+    RE extends ReferenceExpression<DB, TableName>
+  >(filter?: QueryFilter<DB, TableName, QB, RE>): Promise<any> {
     let qb = this.db.selectFrom(this.tableName).selectAll();
-    if (args.length > 0) {
-      if (typeof args[0] == "function") {
-        qb = args[0](qb);
-      } else {
-        qb = qb.where(...args);
-      }
+    if (filter !== undefined) {
+      // Cast because TS was erroring, "Type X cannot be assigned to type X".
+      qb = constrainQueryBuilder(filter)(qb as any) as any;
     }
     return qb.execute();
   }
 
   /**
+   * TODO: update this comment
+   *
    * Selects at most one row from this table. If no arguments are given,
    * selects the first row. If three arguments are given, selects the first
    * row that matches the binary operation. If one argument is given and it's
