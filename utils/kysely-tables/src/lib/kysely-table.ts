@@ -4,10 +4,11 @@ import {
   ReferenceExpression,
   Selectable,
   UpdateObject,
-  Updateable,
+  UpdateQueryBuilder,
 } from "kysely";
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
+import { BaseKyselyFacet } from "./BaseKyselyFacet";
 import { QueryFilter, constrainQueryBuilder } from "./query-filter";
 
 // TODO: delete this if not needed
@@ -19,8 +20,18 @@ import { QueryFilter, constrainQueryBuilder } from "./query-filter";
 //   execute(): Promise<O[]>;
 // }
 
-export class KyselyTable<DB, TableName extends keyof DB & string> {
-  constructor(readonly db: Kysely<DB>, readonly tableName: TableName) {}
+export class KyselyTable<
+  DB,
+  TableName extends keyof DB & string
+> extends BaseKyselyFacet<DB, TableName> {
+  /**
+   * Constructs a new Kysely table.
+   * @param db The Kysely database.
+   * @param tableName The name of the table.
+   */
+  constructor(db: Kysely<DB>, tableName: TableName) {
+    super(db, tableName);
+  }
 
   /**
    * Creates a query builder for inserting rows into this table.
@@ -151,6 +162,8 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
   }
 
   /**
+   * TODO: update this comment
+   *
    * Selects zero or more rows from this table. If no arguments are given,
    * selects all rows. If three arguments are given, selects rows that
    * match the binary operation. If one argument is given and it's a callback,
@@ -181,7 +194,7 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
     let qb = this.db.selectFrom(this.tableName).selectAll();
     if (filter !== undefined) {
       // Cast because TS was erroring, "Type X cannot be assigned to type X".
-      qb = constrainQueryBuilder(filter)(qb as any) as any;
+      qb = constrainQueryBuilder(this, filter)(qb as any) as any;
     }
     return qb.execute();
   }
@@ -220,7 +233,7 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
     let qb = this.db.selectFrom(this.tableName).selectAll();
     if (filter !== undefined) {
       // Cast because TS was erroring, "Type X cannot be assigned to type X".
-      qb = constrainQueryBuilder(filter)(qb as any) as any;
+      qb = constrainQueryBuilder(this, filter)(qb as any) as any;
     }
     return (await qb.executeTakeFirst()) || null;
   }
@@ -238,37 +251,46 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
    *    having the requested returned column values. Otherwise, returns
    *    the number of rows updated.
    */
-  updateByMatch(
-    match: Updateable<DB[TableName]>,
+  updateByMatch<
+    QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
+    RE extends ReferenceExpression<DB, TableName>
+  >(
+    filter: QueryFilter<DB, TableName, QB, RE>,
     obj: UpdateObject<DB, TableName>
   ): Promise<number>;
 
-  updateByMatch<R extends keyof Selectable<DB[TableName]> & string>(
-    match: Updateable<DB[TableName]>,
+  updateByMatch<
+    QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
+    RE extends ReferenceExpression<DB, TableName>,
+    R extends keyof Selectable<DB[TableName]> & string
+  >(
+    filter: QueryFilter<DB, TableName, QB, RE>,
     obj: UpdateObject<DB, TableName>,
     returning: R[]
   ): Promise<Pick<Selectable<DB[TableName]>, R>[]>;
 
-  updateByMatch(
-    match: Updateable<DB[TableName]>,
+  updateByMatch<
+    QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
+    RE extends ReferenceExpression<DB, TableName>
+  >(
+    filter: QueryFilter<DB, TableName, QB, RE>,
     obj: UpdateObject<DB, TableName>,
     returning: ["*"]
   ): Promise<Selectable<DB[TableName]>[]>;
 
-  async updateByMatch<R extends keyof Selectable<DB[TableName]> & string>(
-    match: Updateable<DB[TableName]>,
+  async updateByMatch<
+    QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
+    RE extends ReferenceExpression<DB, TableName>,
+    R extends keyof Selectable<DB[TableName]> & string
+  >(
+    filter: QueryFilter<DB, TableName, QB, RE>,
     obj: UpdateObject<DB, TableName>,
     returning?: R[] | ["*"]
   ): Promise<
     Selectable<DB[TableName]>[] | Pick<Selectable<DB[TableName]>, R>[] | number
   > {
-    if (Object.keys(match).length == 0) {
-      throw new Error("No match columns provided.");
-    }
     let qb = this.db.updateTable(this.tableName).set(obj as any);
-    for (const [column, value] of Object.entries(match)) {
-      qb = qb.where(this.ref(column as string), "=", value);
-    }
+    qb = constrainQueryBuilder(this, filter)(qb as any) as any;
     if (returning) {
       // Cast here because TS wasn't allowing the check.
       if ((returning as string[]).includes("*")) {
@@ -284,9 +306,5 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
     }
     const result = await qb.executeTakeFirstOrThrow();
     return Number(result.numUpdatedRows);
-  }
-
-  ref(reference: string) {
-    return this.db.dynamic.ref(reference);
   }
 }

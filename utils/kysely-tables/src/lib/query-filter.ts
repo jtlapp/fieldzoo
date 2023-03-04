@@ -8,9 +8,12 @@ import {
   Expression,
   OperandValueExpressionOrList,
   ReferenceExpression,
+  Updateable,
   UpdateQueryBuilder,
 } from "kysely";
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
+
+import { BaseKyselyFacet } from "./BaseKyselyFacet";
 
 /**
  * Type of the query filter object, which can be passed as an argument
@@ -24,8 +27,9 @@ export type QueryFilter<
     | UpdateQueryBuilder<DB, TableName, TableName, object>,
   RE extends ReferenceExpression<DB, TableName>
 > =
-  | QueryBuilderFilter<QB>
   | BinaryOperationFilter<DB, TableName, RE>
+  | FieldMatchingFilter<DB, TableName>
+  | QueryBuilderFilter<QB>
   | QueryExpressionFilter;
 
 /**
@@ -40,6 +44,14 @@ export type BinaryOperationFilter<
   op: ComparisonOperatorExpression,
   rhs: OperandValueExpressionOrList<DB, TableName, RE>
 ];
+
+/**
+ * A filter that matches columns against the fields of an object.
+ */
+export type FieldMatchingFilter<
+  DB,
+  TableName extends keyof DB & string
+> = Updateable<DB[TableName]>;
 
 /**
  * A filter that is a function that takes a query builder and returns
@@ -61,14 +73,20 @@ export function constrainQueryBuilder<
   TableName extends keyof DB & string,
   QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
   RE extends ReferenceExpression<DB, TableName>
->(filter: QueryFilter<DB, TableName, QB, RE>): (qb: QB) => QB;
+>(
+  base: BaseKyselyFacet<DB, TableName>,
+  filter: QueryFilter<DB, TableName, QB, RE>
+): (qb: QB) => QB;
 
 export function constrainQueryBuilder<
   DB,
   TableName extends keyof DB & string,
   QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
   RE extends ReferenceExpression<DB, TableName>
->(filter: QueryFilter<DB, TableName, QB, RE>): (qb: QB) => QB;
+>(
+  base: BaseKyselyFacet<DB, TableName>,
+  filter: QueryFilter<DB, TableName, QB, RE>
+): (qb: QB) => QB;
 
 export function constrainQueryBuilder<
   DB,
@@ -77,10 +95,26 @@ export function constrainQueryBuilder<
     | SelectAllQueryBuilder<DB, TableName, object, TableName>
     | UpdateQueryBuilder<DB, TableName, TableName, object>,
   RE extends ReferenceExpression<DB, TableName>
->(filter: QueryFilter<DB, TableName, QB, RE>): (qb: QB) => QB {
+>(
+  base: BaseKyselyFacet<DB, TableName>,
+  filter: QueryFilter<DB, TableName, QB, RE>
+): (qb: QB) => QB {
   // Process a binary operation filter.
   if (Array.isArray(filter)) {
     return (qb) => (qb.where as any)(...filter);
+  }
+
+  // Process a field matching filter.
+  if (filter?.constructor === Object) {
+    if (Object.keys(filter).length == 0) {
+      throw new Error("Empty field matching filter");
+    }
+    return (qb) => {
+      for (const [column, value] of Object.entries(filter)) {
+        qb = (qb as any).where(base.ref(column as string), "=", value);
+      }
+      return qb;
+    };
   }
 
   // Process a query builder filter.
