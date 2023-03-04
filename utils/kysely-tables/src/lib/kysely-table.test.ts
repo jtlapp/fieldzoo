@@ -322,94 +322,133 @@ describe("selection", () => {
 });
 
 describe("update", () => {
-  it("updateByKey() updates without returning columns", async () => {
-    const insertedUser = await userTable.insertOne(USERS[0], ["id"]);
-    const updateValues = { email: "new.email@xyz.pdq" };
+  it("updateByMatch() updates without returning columns", async () => {
+    const insertedUser0 = await userTable.insertOne(USERS[0], ["id"]);
+    await userTable.insertOne(USERS[1]);
+    await userTable.insertOne(USERS[2]);
 
-    const updatedUser = await userTable.updateByKey(
-      { id: insertedUser.id },
+    const updateValues = { email: "new.email@xyz.pdq" };
+    const updateCount1 = await userTable.updateByMatch(
+      { id: insertedUser0.id },
       updateValues
     );
-    expect(updatedUser).toBeUndefined();
+    expect(updateCount1).toEqual(1);
 
-    const readUser = await userTable.selectOne("id", "=", insertedUser.id);
+    const readUser = await userTable.selectOne("id", "=", insertedUser0.id);
     expect(readUser?.email).toEqual(updateValues.email);
+
+    const updateCount2 = await userTable.updateByMatch(
+      { name: "Sue" },
+      updateValues
+    );
+    expect(updateCount2).toEqual(2);
+
+    const readUsers = await userTable.selectMany("name", "=", "Sue");
+    expect(readUsers.length).toEqual(2);
+    expect(readUsers[0].email).toEqual(updateValues.email);
+    expect(readUsers[1].email).toEqual(updateValues.email);
   });
 
-  it("updateByKey() updates returning an empty object", async () => {
+  it("updateByMatch() updates returning an empty array", async () => {
     const insertedUser = await userTable.insertOne(USERS[0], ["id"]);
     const updateValues = { email: "new.email@xyz.pdq" };
 
-    const updatedUser = await userTable.updateByKey(
+    const updatedUsers = await userTable.updateByMatch(
       { id: insertedUser.id },
       updateValues,
       []
     );
-    expect(updatedUser).toEqual({});
+    expect(updatedUsers).toEqual([]);
     const readUser = await userTable.selectOne("id", "=", insertedUser.id);
     expect(readUser?.email).toEqual(updateValues.email);
   });
 
-  it("updateByKey() updates returning indicated columns", async () => {
-    const insertedUser = await userTable.insertOne(USERS[0], ["id"]);
-    const updateValues1 = { email: "new.email@xyz.pdq" };
+  it("updateByMatch() updates returning indicated columns", async () => {
+    await userTable.insertOne(USERS[0]);
+    const insertedUser = await userTable.insertOne(USERS[1], ["id"]);
+    await userTable.insertOne(USERS[2]);
 
-    const updatedUser1 = await userTable.updateByKey(
+    // Verify that update performs the correct change on the correct row.
+    const updateValues1 = { email: "new.email@xyz.pdq" };
+    const updatedUsers1 = await userTable.updateByMatch(
       { id: insertedUser.id },
       updateValues1,
       ["name"]
     );
-    expect(updatedUser1).toEqual({ name: USERS[0].name });
+    expect(updatedUsers1).toEqual([{ name: USERS[1].name }]);
     let readUser = await userTable.selectOne("id", "=", insertedUser.id);
     expect(readUser?.email).toEqual(updateValues1.email);
 
-    const updateValues2 = { name: "New Name" };
-    const updatedUser2 = await userTable.updateByKey(
+    // Verify a different change on the same row, returning multiple columns.
+    const updateValues2 = { name: "Sue" };
+    const updatedUsers2 = await userTable.updateByMatch(
       { email: updateValues1.email },
       updateValues2,
       ["id", "handle"]
     );
-    expect(updatedUser2).toEqual({
-      id: insertedUser.id,
-      handle: USERS[0].handle,
-    });
+    expect(updatedUsers2).toEqual([
+      {
+        id: insertedUser.id,
+        handle: USERS[1].handle,
+      },
+    ]);
     readUser = await userTable.selectOne("id", "=", insertedUser.id);
     expect(readUser?.name).toEqual(updateValues2.name);
+
+    // Verify that update changes all required rows.
+    const updateValues3 = { name: "Replacement Sue" };
+    const updatedUsers3 = await userTable.updateByMatch(
+      { name: "Sue" },
+      updateValues3,
+      ["handle"]
+    );
+    expect(updatedUsers3).toEqual([
+      { handle: USERS[0].handle },
+      { handle: USERS[1].handle },
+      { handle: USERS[2].handle },
+    ]);
+    const readUsers = await userTable.selectMany(
+      "name",
+      "=",
+      updateValues3.name
+    );
+    expect(readUsers.length).toEqual(3);
   });
 
-  it("updateByKey() updates returning all columns", async () => {
-    const insertedUser = await userTable.insertOne(USERS[0], ["id"]);
-    const updateValues = { email: "new.email@xyz.pdq" };
+  it("updateByMatch() updates returning all columns", async () => {
+    const insertedUsers = await userTable.insertMany(USERS, ["id"]);
 
-    const updatedUser = await userTable.updateByKey(
-      { id: insertedUser.id },
+    const updateValues = { email: "new.email@xyz.pdq" };
+    const updatedUsers = await userTable.updateByMatch(
+      { name: "Sue" },
       updateValues,
       ["*"]
     );
 
-    const expectedUser = Object.assign({}, USERS[0], {
-      id: insertedUser.id,
-      email: updateValues.email,
-    });
-    expect(updatedUser).toEqual(expectedUser);
-    const readUser = await userTable.selectOne("id", "=", insertedUser.id);
-    expect(readUser).toEqual(expectedUser);
+    const expectedUsers = [
+      Object.assign({}, USERS[0], updateValues, { id: insertedUsers[0].id }),
+      Object.assign({}, USERS[2], updateValues, { id: insertedUsers[2].id }),
+    ];
+    expect(updatedUsers).toEqual(expectedUsers);
+
+    const readUsers = await userTable.selectMany("name", "=", "Sue");
+    expect(readUsers).toEqual(expectedUsers);
   });
 
-  ignore("updateByKey() type errors", () => {
+  ignore("updateByMatch() type errors", () => {
     // @ts-expect-error - table must have all keys
-    userTable.updateByKey({ notThere: "xyz" }, { email: "abc@def.ghi" });
+    userTable.updateByMatch({ notThere: "xyz" }, { email: "abc@def.ghi" });
     // @ts-expect-error - update must only have table columns
-    userTable.updateByKey({ id: 32 }, { notThere: "xyz@pdq.xyz" });
+    userTable.updateByMatch({ id: 32 }, { notThere: "xyz@pdq.xyz" });
     // @ts-expect-error - returning argument can't be a string
-    userTable.updateByKey({ id: 32 }, USERS[0], "id");
+    userTable.updateByMatch({ id: 32 }, USERS[0], "id");
     // @ts-expect-error - returning argument can't be a string
-    userTable.updateByKey({ id: 32 }, USERS[0], "*");
+    userTable.updateByMatch({ id: 32 }, USERS[0], "*");
     // @ts-expect-error - returning arguments must be valid column names
-    userTable.updateByKey({ id: 32 }, USERS[0], [""]);
+    userTable.updateByMatch({ id: 32 }, USERS[0], [""]);
     // @ts-expect-error - returning arguments must be valid column names
-    userTable.updateByKey({ id: 32 }, USERS[0], ["notThere"]);
+    userTable.updateByMatch({ id: 32 }, USERS[0], ["notThere"]);
     // @ts-expect-error - returning arguments must be valid column names
-    userTable.updateByKey({ id: 32 }, USERS[0], ["notThere", "*"]);
+    userTable.updateByMatch({ id: 32 }, USERS[0], ["notThere", "*"]);
   });
 });

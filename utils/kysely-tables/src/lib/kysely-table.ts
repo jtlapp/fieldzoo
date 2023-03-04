@@ -250,70 +250,64 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
   }
 
   /**
-   * Updates a single row in this table, selected by a provided key,
-   * optionally returning columns from the updated row.
-   * @param key Key uniquely identifying the row to update, indicating the
-   *    values of the key columns.
+   * Updates rows in this table matching the provided column values,
+   * optionally returning columns from the updated rows.
+   * @param match Object providing the values of columns to match.
    * @param obj The object whose fields are to update the row.
    * @param returning The columns to return from the updated row. If
    *    `["*"]` is given, all columns are returned. If a list of field names
    *    is given, returns only those field names. If omitted, no columns
    *    are returned. Useful for getting auto-generated columns.
-   * @returns An object containing the requested return columns, if any.
-   *    Returns `void` when `returning` is omitted.
+   * @returns If `returning` was provided, returns an array of objects
+   *    having the requested returned column values. Otherwise, returns
+   *    the number of rows updated.
    */
-  updateByKey(
-    key: Updateable<DB[TableName]>,
+  updateByMatch(
+    match: Updateable<DB[TableName]>,
     obj: UpdateObject<DB, TableName>
-  ): Promise<void>;
+  ): Promise<number>;
 
-  updateByKey<R extends keyof Selectable<DB[TableName]> & string>(
-    key: Updateable<DB[TableName]>,
+  updateByMatch<R extends keyof Selectable<DB[TableName]> & string>(
+    match: Updateable<DB[TableName]>,
     obj: UpdateObject<DB, TableName>,
     returning: R[]
-  ): Promise<Pick<Selectable<DB[TableName]>, R>>;
+  ): Promise<Pick<Selectable<DB[TableName]>, R>[]>;
 
-  updateByKey(
-    key: Updateable<DB[TableName]>,
+  updateByMatch(
+    match: Updateable<DB[TableName]>,
     obj: UpdateObject<DB, TableName>,
     returning: ["*"]
-  ): Promise<Selectable<DB[TableName]>>;
+  ): Promise<Selectable<DB[TableName]>[]>;
 
-  async updateByKey<R extends keyof Selectable<DB[TableName]> & string>(
-    key: Updateable<DB[TableName]>,
+  async updateByMatch<R extends keyof Selectable<DB[TableName]> & string>(
+    match: Updateable<DB[TableName]>,
     obj: UpdateObject<DB, TableName>,
     returning?: R[] | ["*"]
   ): Promise<
-    Selectable<DB[TableName]> | Pick<Selectable<DB[TableName]>, R> | void
+    Selectable<DB[TableName]>[] | Pick<Selectable<DB[TableName]>, R>[] | number
   > {
-    const keyColumns = Object.keys(key) as (keyof Updateable<DB[TableName]> &
-      string)[];
-    if (keyColumns.length == 0) {
-      throw new Error("No key columns provided.");
+    if (Object.keys(match).length == 0) {
+      throw new Error("No match columns provided.");
     }
-    let qb = this.db
-      .updateTable(this.tableName)
-      .set(obj as any)
-      .where(this.ref(keyColumns[0]), "=", key[keyColumns[0]]);
-    for (let i = 1; i < keyColumns.length; i++) {
-      qb = qb.where(keyColumns[i] as any, "=", key[keyColumns[i]]);
+    let qb = this.db.updateTable(this.tableName).set(obj as any);
+    for (const [column, value] of Object.entries(match)) {
+      qb = qb.where(this.ref(column as string), "=", value);
     }
     if (returning) {
       // Cast here because TS wasn't allowing the check.
       if ((returning as string[]).includes("*")) {
-        const result = await qb.returningAll().executeTakeFirstOrThrow();
-        return result as Selectable<DB[TableName]>;
+        const result = await qb.returningAll().execute();
+        return result as Selectable<DB[TableName]>[];
       }
       if (returning.length > 0) {
-        const result = await qb
-          .returning(returning as any)
-          .executeTakeFirstOrThrow();
-        return result as Pick<Selectable<DB[TableName]>, R>;
+        const result = await qb.returning(returning as any).execute();
+        return result as Pick<Selectable<DB[TableName]>, R>[];
       }
       await qb.execute();
-      return {} as Pick<Selectable<DB[TableName]>, R>;
+      return [];
     }
-    await qb.execute();
+    const result = await qb.executeTakeFirstOrThrow();
+    return Number(result.numUpdatedRows);
   }
 
   ref(reference: string) {
