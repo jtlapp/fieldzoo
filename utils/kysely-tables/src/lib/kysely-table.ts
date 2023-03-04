@@ -10,11 +10,13 @@ import {
   Updateable,
 } from "kysely";
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
-import { SingleResultType } from "kysely/dist/cjs/util/type-utils";
+// import { SingleResultType } from "kysely/dist/cjs/util/type-utils";
 
-interface TakeFirstBuilder<O> {
-  executeTakeFirst(): Promise<SingleResultType<O>>;
-}
+import { QueryFilter, constrainQueryBuilder } from "./query-filter";
+
+// interface TakeFirstBuilder<O> {
+//   executeTakeFirst(): Promise<SingleResultType<O>>;
+// }
 interface TakeManyBuilder<O> {
   execute(): Promise<O[]>;
 }
@@ -216,35 +218,21 @@ export class KyselyTable<DB, TableName extends keyof DB & string> {
    */
   selectOne(): Promise<Selectable<DB[TableName]> | null>;
 
-  selectOne<RE extends ReferenceExpression<DB, TableName>>(
-    lhs: RE,
-    op: ComparisonOperatorExpression,
-    rhs: OperandValueExpressionOrList<DB, TableName, RE>
-  ): Promise<Selectable<DB[TableName]> | null>;
-
   selectOne<
-    QB extends TakeFirstBuilder<Selectable<DB[TableName]>>,
-    S extends keyof DB
+    QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
+    RE extends ReferenceExpression<DB, TableName>
   >(
-    callback: (
-      qb: ReturnType<
-        SelectAllQueryBuilder<DB, TableName, object, S>["selectAll"]
-      >
-    ) => QB
+    filter: QueryFilter<DB, TableName, QB, RE>
   ): Promise<Selectable<DB[TableName]> | null>;
 
-  selectOne(
-    expression: Expression<any>
-  ): Promise<Selectable<DB[TableName]> | null>;
-
-  async selectOne(...args: [any?, any?, any?]): Promise<any> {
+  async selectOne<
+    QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
+    RE extends ReferenceExpression<DB, TableName>
+  >(filter?: QueryFilter<DB, TableName, QB, RE>): Promise<any> {
     let qb = this.db.selectFrom(this.tableName).selectAll();
-    if (args.length > 0) {
-      if (typeof args[0] == "function") {
-        qb = args[0](qb);
-      } else {
-        qb = qb.where(...args);
-      }
+    if (filter !== undefined) {
+      // Cast because TS was erroring, "Type X cannot be assigned to type X".
+      qb = constrainQueryBuilder(filter)(qb as any) as any;
     }
     return (await qb.executeTakeFirst()) || null;
   }

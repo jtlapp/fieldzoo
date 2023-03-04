@@ -295,11 +295,11 @@ describe("selection", () => {
     expect(user?.handle).toEqual(USERS[0].handle);
 
     // Test selecting by condition (with result)
-    user = await userTable.selectOne("name", "=", USERS[0].name);
+    user = await userTable.selectOne(["name", "=", USERS[0].name]);
     expect(user?.handle).toEqual(USERS[0].handle);
 
     // Test selecting by condition (no result)
-    user = await userTable.selectOne("name", "=", "nonexistent");
+    user = await userTable.selectOne(["name", "=", "nonexistent"]);
     expect(user).toBeNull();
 
     // Test selecting by modifying query
@@ -334,7 +334,7 @@ describe("update", () => {
     );
     expect(updateCount1).toEqual(1);
 
-    const readUser = await userTable.selectOne("id", "=", insertedUser0.id);
+    const readUser = await userTable.selectOne(["id", "=", insertedUser0.id]);
     expect(readUser?.email).toEqual(updateValues.email);
 
     const updateCount2 = await userTable.updateByMatch(
@@ -359,7 +359,7 @@ describe("update", () => {
       []
     );
     expect(updatedUsers).toEqual([]);
-    const readUser = await userTable.selectOne("id", "=", insertedUser.id);
+    const readUser = await userTable.selectOne(["id", "=", insertedUser.id]);
     expect(readUser?.email).toEqual(updateValues.email);
   });
 
@@ -376,7 +376,7 @@ describe("update", () => {
       ["name"]
     );
     expect(updatedUsers1).toEqual([{ name: USERS[1].name }]);
-    let readUser = await userTable.selectOne("id", "=", insertedUser.id);
+    let readUser = await userTable.selectOne(["id", "=", insertedUser.id]);
     expect(readUser?.email).toEqual(updateValues1.email);
 
     // Verify a different change on the same row, returning multiple columns.
@@ -392,7 +392,7 @@ describe("update", () => {
         handle: USERS[1].handle,
       },
     ]);
-    readUser = await userTable.selectOne("id", "=", insertedUser.id);
+    readUser = await userTable.selectOne(["id", "=", insertedUser.id]);
     expect(readUser?.name).toEqual(updateValues2.name);
 
     // Verify that update changes all required rows.
