@@ -87,6 +87,8 @@
   ],
   "settings": {
     "jestrunner.jestCommand": "npx jest",
-    "jest.jestCommandLine": "npx jest"
+    "jestrunner.debugOptions": {
+      "program": "../../node_modules/jest/bin/jest.js"
+    }
   }
 }
