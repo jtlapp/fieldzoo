@@ -51,7 +51,7 @@ describe("user repo", () => {
     expect(user?.email).toEqual(USER1.email);
 
     // Verify find expression
-    user = await userRepo.selectOne("id", "=", updatedUser.id);
+    user = await userRepo.selectOne(["id", "=", updatedUser.id]);
     expect(user?.name).toEqual(USER1.name);
     expect(user?.email).toEqual(USER1.email);
 

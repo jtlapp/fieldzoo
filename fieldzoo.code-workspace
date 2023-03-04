@@ -49,8 +49,8 @@
       "path": "utils/generic-types"
     },
     {
-      "name": "utils/kysely-tables",
-      "path": "utils/kysely-tables"
+      "name": "utils/kysely-facets",
+      "path": "utils/kysely-facets"
     },
     {
       "name": "utils/postgres-utils",

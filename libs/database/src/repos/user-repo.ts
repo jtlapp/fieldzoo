@@ -1,6 +1,6 @@
 import { Kysely } from "kysely";
 
-import { KyselyTableWithID } from "@fieldzoo/kysely-tables";
+import { KyselyTableWithID } from "@fieldzoo/kysely-facets";
 
 import { Database } from "../tables/current-tables";
 
