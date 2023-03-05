@@ -8,12 +8,20 @@ import {
   Expression,
   OperandValueExpressionOrList,
   ReferenceExpression,
+  SelectQueryBuilder,
   Updateable,
   UpdateQueryBuilder,
 } from "kysely";
-import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
+//import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
 import { KyselyFacet } from "../facets/KyselyFacet";
+
+type AnyQueryBuilder<DB, TableName extends keyof DB & string> =
+  | SelectQueryBuilder<DB, TableName, object>
+  | UpdateQueryBuilder<DB, TableName, TableName, object>;
+type WhereQB<QB> = QB extends AnyQueryBuilder<infer DB, infer TableName>
+  ? Pick<SelectQueryBuilder<DB, TableName, object>, "where">
+  : never;
 
 /**
  * Type of the query filter object, which can be passed as an argument
@@ -22,9 +30,7 @@ import { KyselyFacet } from "../facets/KyselyFacet";
 export type QueryFilter<
   DB,
   TableName extends keyof DB & string,
-  QB extends
-    | SelectAllQueryBuilder<DB, TableName, object, TableName>
-    | UpdateQueryBuilder<DB, TableName, TableName, object>,
+  QB extends AnyQueryBuilder<DB, TableName>,
   RE extends ReferenceExpression<DB, TableName>
 > =
   | BinaryOperationFilter<DB, TableName, RE>
@@ -71,7 +77,7 @@ export type QueryExpressionFilter = Expression<any>;
 export function applyQueryFilter<
   DB,
   TableName extends keyof DB & string,
-  QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
+  QB extends SelectQueryBuilder<DB, TableName, object>,
   RE extends ReferenceExpression<DB, TableName>
 >(
   base: KyselyFacet<DB, TableName>,
@@ -91,9 +97,7 @@ export function applyQueryFilter<
 export function applyQueryFilter<
   DB,
   TableName extends keyof DB & string,
-  QB extends
-    | SelectAllQueryBuilder<DB, TableName, object, TableName>
-    | UpdateQueryBuilder<DB, TableName, TableName, object>,
+  QB extends AnyQueryBuilder<DB, TableName>,
   RE extends ReferenceExpression<DB, TableName>
 >(
   base: KyselyFacet<DB, TableName>,
@@ -101,17 +105,13 @@ export function applyQueryFilter<
 ): (qb: QB) => QB {
   // Process a binary operation filter.
   if (Array.isArray(filter)) {
-    return (qb) => (qb.where as any)(...filter);
+    // The binary op `where` exists on both QBs but TS can't see that.
+    return (qb) => (qb as WhereQB<QB>).where(...filter) as QB;
   }
 
-  // Process a field matching filter. `{}` matches all rows.
-  if (filter?.constructor === Object) {
-    return (qb) => {
-      for (const [column, value] of Object.entries(filter)) {
-        qb = (qb as any).where(base.ref(column as string), "=", value);
-      }
-      return qb;
-    };
+  // Process a query expression filter.
+  if ("expressionType" in filter) {
+    return (qb: QB) => (qb as WhereQB<QB>).where(filter) as QB;
   }
 
   // Process a query builder filter.
@@ -119,6 +119,17 @@ export function applyQueryFilter<
     return filter;
   }
 
-  // Process a query expression filter.
-  return (qb: QB) => (qb.where as any)(filter);
+  // Process a field matching filter. `{}` matches all rows.
+  if (typeof filter === "object" && filter !== null) {
+    return (qb) => {
+      for (const [column, value] of Object.entries(filter)) {
+        // prettier-ignore
+        qb = (qb as WhereQB<QB>)
+                .where(base.ref(column as string), "=", value) as QB;
+      }
+      return qb;
+    };
+  }
+
+  throw new Error("Unrecognized query filter");
 }
