@@ -113,7 +113,7 @@ export class MatchAll extends ComboFilter {
 }
 
 /**
- * A filter that matches any of the provided filters.
+ * A filter that matches at least one of the provided filters.
  */
 export class MatchAny extends ComboFilter {
   apply<
