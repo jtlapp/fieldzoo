@@ -59,7 +59,7 @@ describe("user repo", () => {
       qb.where("id", "=", updatedUser.id)
     );
 
-    let users = await userRepo.selectMany();
+    let users = await userRepo.selectMany({});
     expect(users?.length).toEqual(1);
     expect(user?.name).toEqual(USER1.name);
     expect(user?.email).toEqual(USER1.email);

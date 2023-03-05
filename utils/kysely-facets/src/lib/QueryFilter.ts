@@ -104,11 +104,8 @@ export function applyQueryFilter<
     return (qb) => (qb.where as any)(...filter);
   }
 
-  // Process a field matching filter.
+  // Process a field matching filter. `{}` matches all rows.
   if (filter?.constructor === Object) {
-    if (Object.keys(filter).length == 0) {
-      throw new Error("Empty field matching filter");
-    }
     return (qb) => {
       for (const [column, value] of Object.entries(filter)) {
         qb = (qb as any).where(base.ref(column as string), "=", value);

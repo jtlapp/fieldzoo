@@ -158,7 +158,7 @@ describe("insertion", () => {
     const result = await userTable.insertMany(USERS);
     expect(result).toBeUndefined();
 
-    const readUsers = await userTable.selectMany();
+    const readUsers = await userTable.selectMany({});
     expect(readUsers.length).toEqual(3);
     expect(readUsers[0].handle).toEqual(USERS[0].handle);
     expect(readUsers[1].handle).toEqual(USERS[1].handle);
@@ -169,7 +169,7 @@ describe("insertion", () => {
     const updatedUsers = await userTable.insertMany(USERS, []);
     expect(updatedUsers).toEqual([{}, {}, {}]);
 
-    const readUsers = await userTable.selectMany();
+    const readUsers = await userTable.selectMany({});
     expect(readUsers.length).toEqual(3);
     expect(readUsers[0].handle).toEqual(USERS[0].handle);
     expect(readUsers[1].handle).toEqual(USERS[1].handle);
@@ -186,7 +186,7 @@ describe("insertion", () => {
     expect(Object.keys(updatedUsers[1]).length).toEqual(1);
     expect(Object.keys(updatedUsers[2]).length).toEqual(1);
 
-    const readUsers = await userTable.selectMany();
+    const readUsers = await userTable.selectMany({});
     expect(readUsers.length).toEqual(3);
     expect(readUsers[0].id).toEqual(updatedUsers[0].id);
     expect(readUsers[1].id).toEqual(updatedUsers[1].id);
@@ -248,7 +248,7 @@ describe("selection", () => {
     }
 
     // Test selecting all
-    let users = await userTable.selectMany();
+    let users = await userTable.selectMany({});
     expect(users.length).toEqual(3);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[1].handle);
@@ -291,7 +291,7 @@ describe("selection", () => {
     }
 
     // Test selecting all
-    let user = await userTable.selectOne();
+    let user = await userTable.selectOne({});
     expect(user?.handle).toEqual(USERS[0].handle);
 
     // Test selecting by condition (with result)
