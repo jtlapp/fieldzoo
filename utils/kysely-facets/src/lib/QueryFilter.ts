@@ -157,7 +157,7 @@ export function applyQueryFilter<
     if (filter.constructor === Object) {
       return (qb) => {
         for (const [column, value] of Object.entries(filter)) {
-          qb = qb.where(base.ref(column as string), "=", value) as QB;
+          qb = qb.where(base.ref(column), "=", value) as QB;
         }
         return qb;
       };
