@@ -4,6 +4,7 @@ import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database, UserTable } from "./utils/test-tables";
 import { USERS } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
+import { MatchAll, MatchAny } from "../filters/ComboFilter";
 
 let db: Kysely<Database>;
 let userTable: UserTable;
@@ -60,7 +61,6 @@ describe("selectMany()", () => {
   it("selects with a query builder filter", async () => {
     await userTable.insertMany(USERS);
 
-    // Test selecting by modifying query
     const users = await userTable.selectMany((qb) =>
       qb.where("name", "=", USERS[0].name).orderBy("handle", "desc")
     );
@@ -72,10 +72,50 @@ describe("selectMany()", () => {
   it("selects with a query expression filter", async () => {
     await userTable.insertMany(USERS);
 
-    // Test selecting with an expression
     const users = await userTable.selectMany(sql`name != ${USERS[0].name}`);
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[1].handle);
+  });
+
+  it("selects with a MatchAll filter", async () => {
+    const userIDs = await userTable.insertMany(USERS, ["id"]);
+
+    const users = await userTable.selectMany(
+      new MatchAll({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
+    );
+    expect(users.length).toEqual(1);
+    expect(users[0].handle).toEqual(USERS[2].handle);
+  });
+
+  it("selects with a MatchAny filter", async () => {
+    await userTable.insertMany(USERS, ["id"]);
+
+    const users = await userTable.selectMany(
+      new MatchAny({ handle: USERS[0].handle }, [
+        "handle",
+        "=",
+        USERS[2].handle,
+      ])
+    );
+    expect(users.length).toEqual(2);
+    expect(users[0].handle).toEqual(USERS[0].handle);
+    expect(users[1].handle).toEqual(USERS[2].handle);
+  });
+
+  it("selects with a MatchAny with a nested MatchAll filter", async () => {
+    const userIDs = await userTable.insertMany(USERS, ["id"]);
+
+    const users = await userTable.selectMany(
+      new MatchAny(
+        { handle: USERS[0].handle },
+        new MatchAll(["id", ">", userIDs[0].id], (qb) =>
+          qb.where("name", "=", USERS[0].name)
+        )
+      )
+    );
+    expect(users.length).toEqual(2);
+    expect(users[0].handle).toEqual(USERS[0].handle);
+    expect(users[1].handle).toEqual(USERS[2].handle);
   });
 
   ignore("detects selectMany() type errors", async () => {
