@@ -59,102 +59,8 @@ describe("row queries", () => {
   });
 });
 
-describe("insertion", () => {
-  it("insertOne() inserts a row without returning columns", async () => {
-    const result = await userTable.insertOne(USERS[0]);
-    expect(result).toBeUndefined();
-
-    const readUser0 = await userTable
-      .selectRows()
-      .where("email", "=", USERS[0].email)
-      .executeTakeFirst();
-    expect(readUser0?.email).toEqual(USERS[0].email);
-  });
-
-  it("insertOne() returning an empty object", async () => {
-    const updatedUser = await userTable.insertOne(USERS[0], []);
-    expect(updatedUser).toEqual({});
-
-    const readUser0 = await userTable
-      .selectRows()
-      .where("email", "=", USERS[0].email)
-      .executeTakeFirst();
-    expect(readUser0?.email).toEqual(USERS[0].email);
-  });
-
-  it("insertOne() returning indicated columns", async () => {
-    const updatedUser = await userTable.insertOne(USERS[0], ["id"]);
-    expect(updatedUser.id).toBeGreaterThan(0);
-    expect(Object.keys(updatedUser).length).toEqual(1);
-
-    const readUser0 = await userTable
-      .selectRows()
-      .where("id", "=", updatedUser.id)
-      .executeTakeFirst();
-    expect(readUser0?.email).toEqual(USERS[0].email);
-
-    const post0 = Object.assign({}, POSTS[0], { userId: updatedUser.id });
-    const updatedPost = await postTable.insertOne(post0, ["id", "createdAt"]);
-    expect(updatedPost.id).toBeGreaterThan(0);
-    expect(new Date(updatedPost.createdAt)).not.toBeNaN();
-    expect(Object.keys(updatedPost).length).toEqual(2);
-
-    const readPost0 = await postTable
-      .selectRows()
-      .where("id", "=", updatedPost.id)
-      .where("createdAt", "=", updatedPost.createdAt)
-      .executeTakeFirst();
-    expect(readPost0?.title).toEqual(post0.title);
-  });
-
-  it("insertOne() returning all columns", async () => {
-    const updatedUser = await userTable.insertOne(USERS[0], ["*"]);
-    expect(updatedUser.id).toBeGreaterThan(0);
-    const expectedUser = Object.assign({}, USERS[0], { id: updatedUser.id });
-    expect(updatedUser).toEqual(expectedUser);
-  });
-
-  // NOTE: The following test isn't functioning because SQLite is throwing the
-  // error `SqliteError { code: 'SQLITE_ERROR' }` and Jest isn't catching it.
-  //
-  // it("insertOne() failing to returning requested columns", async () => {
-  //   expect(() => userTable.insertOne(USERS[0], ["notThere"] as any)).toThrow(
-  //     NoResultError
-  //   );
-  //   const readUser0 = await userTable
-  //     .selectRows()
-  //     .where("email", "=", USERS[0].email)
-  //     .executeTakeFirst();
-  //   expect(readUser0?.email).toEqual(USERS[0].email);
-
-  //   expect(() => userTable.insertOne(USERS[1], ["x", "y"] as any)).toThrow(
-  //     NoResultError
-  //   );
-  //   const readUser1 = await userTable
-  //     .selectRows()
-  //     .where("email", "=", USERS[1].email)
-  //     .executeTakeFirst();
-  //   expect(readUser1?.email).toEqual(USERS[1].email);
-  // });
-
-  ignore("insertOne() type errors", () => {
-    // @ts-expect-error - inserted object must have all required columns
-    userTable.insertOne({});
-    // @ts-expect-error - inserted object must have all required columns
-    userTable.insertOne({ email: "xyz@pdq.xyz" });
-    // @ts-expect-error - returning argument can't be a string
-    userTable.insertOne(USERS[0], "id");
-    // @ts-expect-error - returning argument can't be a string
-    userTable.insertOne(USERS[0], "*");
-    // @ts-expect-error - returning arguments must be valid column names
-    userTable.insertOne(USERS[0], [""]);
-    // @ts-expect-error - returning arguments must be valid column names
-    userTable.insertOne(USERS[0], ["notThere"]);
-    // @ts-expect-error - returning arguments must be valid column names
-    userTable.insertOne(USERS[0], ["notThere", "*"]);
-  });
-
-  it("insertMany() inserts rows without returning columns", async () => {
+describe("insertMany()", () => {
+  it("inserts rows without returning columns", async () => {
     const result = await userTable.insertMany(USERS);
     expect(result).toBeUndefined();
 
@@ -165,7 +71,7 @@ describe("insertion", () => {
     expect(readUsers[2].handle).toEqual(USERS[2].handle);
   });
 
-  it("insertMany() returning empty objects", async () => {
+  it("inserts rows returning empty objects for an empty return list", async () => {
     const updatedUsers = await userTable.insertMany(USERS, []);
     expect(updatedUsers).toEqual([{}, {}, {}]);
 
@@ -176,7 +82,7 @@ describe("insertion", () => {
     expect(readUsers[2].handle).toEqual(USERS[2].handle);
   });
 
-  it("insertMany() returning indicated columns", async () => {
+  it("inserts rows returning indicated columns", async () => {
     const updatedUsers = await userTable.insertMany(USERS, ["id"]);
     expect(updatedUsers.length).toEqual(3);
     expect(updatedUsers[0].id).toBeGreaterThan(0);
@@ -211,7 +117,7 @@ describe("insertion", () => {
     expect(Object.keys(updatedPosts[2]).length).toEqual(2);
   });
 
-  it("insertMany() returning all columns", async () => {
+  it("inserts rows returning all columns", async () => {
     const updatedUsers = await userTable.insertMany(USERS, ["*"]);
     expect(updatedUsers).toEqual([
       Object.assign({}, USERS[0], { id: updatedUsers[0].id }),
@@ -223,7 +129,7 @@ describe("insertion", () => {
     expect(updatedUsers[2].id).toBeGreaterThan(0);
   });
 
-  ignore("insertMany() type errors", () => {
+  ignore("reports insertMany() type errors", () => {
     // @ts-expect-error - inserted object must have all required columns
     userTable.insertMany([{}]);
     // @ts-expect-error - inserted object must have all required columns
@@ -241,8 +147,81 @@ describe("insertion", () => {
   });
 });
 
-describe("selection", () => {
-  it("selectMany() selects the required rows", async () => {
+describe("insertOne", () => {
+  it("inserts a row without returning columns", async () => {
+    const result = await userTable.insertOne(USERS[0]);
+    expect(result).toBeUndefined();
+
+    const readUser0 = await userTable
+      .selectRows()
+      .where("email", "=", USERS[0].email)
+      .executeTakeFirst();
+    expect(readUser0?.email).toEqual(USERS[0].email);
+  });
+
+  it("inserts one returnomg an empty object for an empty return list", async () => {
+    const updatedUser = await userTable.insertOne(USERS[0], []);
+    expect(updatedUser).toEqual({});
+
+    const readUser0 = await userTable
+      .selectRows()
+      .where("email", "=", USERS[0].email)
+      .executeTakeFirst();
+    expect(readUser0?.email).toEqual(USERS[0].email);
+  });
+
+  it("inserts one returning indicated columns", async () => {
+    const updatedUser = await userTable.insertOne(USERS[0], ["id"]);
+    expect(updatedUser.id).toBeGreaterThan(0);
+    expect(Object.keys(updatedUser).length).toEqual(1);
+
+    const readUser0 = await userTable
+      .selectRows()
+      .where("id", "=", updatedUser.id)
+      .executeTakeFirst();
+    expect(readUser0?.email).toEqual(USERS[0].email);
+
+    const post0 = Object.assign({}, POSTS[0], { userId: updatedUser.id });
+    const updatedPost = await postTable.insertOne(post0, ["id", "createdAt"]);
+    expect(updatedPost.id).toBeGreaterThan(0);
+    expect(new Date(updatedPost.createdAt)).not.toBeNaN();
+    expect(Object.keys(updatedPost).length).toEqual(2);
+
+    const readPost0 = await postTable
+      .selectRows()
+      .where("id", "=", updatedPost.id)
+      .where("createdAt", "=", updatedPost.createdAt)
+      .executeTakeFirst();
+    expect(readPost0?.title).toEqual(post0.title);
+  });
+
+  it("inserts one returning all columns", async () => {
+    const updatedUser = await userTable.insertOne(USERS[0], ["*"]);
+    expect(updatedUser.id).toBeGreaterThan(0);
+    const expectedUser = Object.assign({}, USERS[0], { id: updatedUser.id });
+    expect(updatedUser).toEqual(expectedUser);
+  });
+
+  ignore("reports insertOne() type errors", () => {
+    // @ts-expect-error - inserted object must have all required columns
+    userTable.insertOne({});
+    // @ts-expect-error - inserted object must have all required columns
+    userTable.insertOne({ email: "xyz@pdq.xyz" });
+    // @ts-expect-error - returning argument can't be a string
+    userTable.insertOne(USERS[0], "id");
+    // @ts-expect-error - returning argument can't be a string
+    userTable.insertOne(USERS[0], "*");
+    // @ts-expect-error - returning arguments must be valid column names
+    userTable.insertOne(USERS[0], [""]);
+    // @ts-expect-error - returning arguments must be valid column names
+    userTable.insertOne(USERS[0], ["notThere"]);
+    // @ts-expect-error - returning arguments must be valid column names
+    userTable.insertOne(USERS[0], ["notThere", "*"]);
+  });
+});
+
+describe("selectMany()", () => {
+  it("selects the required rows", async () => {
     for (const user of USERS) {
       await userTable.insertOne(user);
     }
@@ -278,14 +257,16 @@ describe("selection", () => {
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
 
-  ignore("selectMany() type errors", () => {
+  ignore("reports selectMany() type errors", () => {
     // @ts-expect-error - doesn't allow plain string expressions
     userTable.selectMany("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments
     userTable.selectMany("name", "=");
   });
+});
 
-  it("selectOne() selects the required row", async () => {
+describe("selectOne()", () => {
+  it("selects the required row", async () => {
     for (const user of USERS) {
       await userTable.insertOne(user);
     }
@@ -313,16 +294,20 @@ describe("selection", () => {
     expect(user?.handle).toEqual(USERS[1].handle);
   });
 
-  ignore("selectOne() type errors", () => {
-    // @ts-expect-error - doesn't allow plain string expressions
+  ignore("reports selectOne() type errors", () => {
+    // @ts-expect-error - doesn't allow plain string expression filters
     userTable.selectOne("name = 'John Doe'");
-    // @ts-expect-error - doesn't allow only two arguments
-    userTable.selectOne("name", "=");
+    // @ts-expect-error - doesn't allow only two arguments of a binary op
+    userTable.selectOne(["name", "="]);
+    // @ts-expect-error - table must have all filter fields
+    userTable.selectOne({ notThere: "xyz" });
+    // @ts-expect-error - table must have all filter fields
+    userTable.selectOne(["notThere", "=", "foo"]);
   });
 });
 
-describe("update", () => {
-  it("update() updates without returning columns", async () => {
+describe("update()", () => {
+  it("updates without returning columns", async () => {
     const insertedUser0 = await userTable.insertOne(USERS[0], ["id"]);
     await userTable.insertOne(USERS[1]);
     await userTable.insertOne(USERS[2]);
@@ -346,7 +331,7 @@ describe("update", () => {
     expect(readUsers[1].email).toEqual(updateValues.email);
   });
 
-  it("update() updates returning an empty array", async () => {
+  it("updates returning an empty array", async () => {
     const insertedUser = await userTable.insertOne(USERS[0], ["id"]);
     const updateValues = { email: "new.email@xyz.pdq" };
 
@@ -360,7 +345,7 @@ describe("update", () => {
     expect(readUser?.email).toEqual(updateValues.email);
   });
 
-  it("update() updates returning indicated columns", async () => {
+  it("updates returning indicated columns", async () => {
     await userTable.insertOne(USERS[0]);
     const insertedUser = await userTable.insertOne(USERS[1], ["id"]);
     await userTable.insertOne(USERS[2]);
@@ -412,7 +397,7 @@ describe("update", () => {
     expect(readUsers.length).toEqual(3);
   });
 
-  it("update() updates returning all columns", async () => {
+  it("updates returning all columns", async () => {
     const insertedUsers = await userTable.insertMany(USERS, ["id"]);
 
     const updateValues = { email: "new.email@xyz.pdq" };
@@ -430,9 +415,71 @@ describe("update", () => {
     expect(readUsers).toEqual(expectedUsers);
   });
 
-  ignore("update() type errors", () => {
-    // @ts-expect-error - table must have all keys
+  it("updates all rows when no filter is given", async () => {
+    await userTable.insertMany(USERS, ["id"]);
+
+    const updateValues = { email: "new.email@xyz.pdq" };
+    const updatedUsers = await userTable.update({}, updateValues, ["handle"]);
+
+    const expectedUsers = USERS.map((user) => {
+      return { handle: user.handle };
+    });
+    expect(updatedUsers).toEqual(expectedUsers);
+
+    const readUsers = await userTable.selectMany({});
+    expect(readUsers.length).toEqual(3);
+    for (const user of readUsers) {
+      expect(user.email).toEqual(updateValues.email);
+    }
+  });
+
+  it("updates rows indicated by a binary operator", async () => {
+    const insertedUsers = await userTable.insertMany(USERS, ["id"]);
+
+    const updateValues = { email: "new.email@xyz.pdq" };
+    const updateCount = await userTable.update(
+      ["id", ">", insertedUsers[0].id],
+      updateValues
+    );
+    expect(updateCount).toEqual(2);
+
+    const readUsers = await userTable.selectMany([
+      "id",
+      ">",
+      insertedUsers[0].id,
+    ]);
+    expect(readUsers.length).toEqual(2);
+    for (const user of readUsers) {
+      expect(user.email).toEqual(updateValues.email);
+    }
+  });
+
+  it("updates rows indicated by a kysely expression", async () => {
+    const insertedUsers = await userTable.insertMany(USERS, ["id"]);
+
+    const updateValues = { email: "new.email.@xyz.pdq" };
+    const updateCount = await userTable.update(
+      sql`id > ${insertedUsers[0].id}`,
+      updateValues
+    );
+    expect(updateCount).toEqual(2);
+
+    const readUsers = await userTable.selectMany([
+      "id",
+      ">",
+      insertedUsers[0].id,
+    ]);
+    expect(readUsers.length).toEqual(2);
+    for (const user of readUsers) {
+      expect(user.email).toEqual(updateValues.email);
+    }
+  });
+
+  ignore("reports type errors", () => {
+    // @ts-expect-error - table must have all filter fields
     userTable.update({ notThere: "xyz" }, { email: "abc@def.ghi" });
+    // @ts-expect-error - table must have all filter fields
+    userTable.update(["notThere", "=", "foo"], { email: "abc@def.ghi" });
     // @ts-expect-error - update must only have table columns
     userTable.update({ id: 32 }, { notThere: "xyz@pdq.xyz" });
     // @ts-expect-error - returning argument can't be a string
@@ -445,5 +492,7 @@ describe("update", () => {
     userTable.update({ id: 32 }, USERS[0], ["notThere"]);
     // @ts-expect-error - returning arguments must be valid column names
     userTable.update({ id: 32 }, USERS[0], ["notThere", "*"]);
+    // @ts-expect-error - doesn't allow plain string expression filters
+    userTable.update("name = 'John Doe'", USERS[0]);
   });
 });
