@@ -285,6 +285,12 @@ describe("selectOne()", () => {
     expect(user?.handle).toEqual(USERS[1].handle);
   });
 
+  it("throws on unrecognized filter", async () => {
+    expect(userTable.selectOne("" as any)).rejects.toThrow(
+      "Unrecognized query filter"
+    );
+  });
+
   ignore("reports selectOne() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expression filters
     userTable.selectOne("name = 'John Doe'");

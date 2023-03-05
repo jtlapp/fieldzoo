@@ -107,18 +107,18 @@ export function applyQueryFilter<
     return (qb) => (qb as WhereQB<QB>).where(...filter) as QB;
   }
 
-  // Process a query expression filter.
-  if ("expressionType" in filter) {
-    return (qb) => (qb as WhereQB<QB>).where(filter) as QB;
-  }
-
   // Process a query builder filter.
   if (typeof filter === "function") {
     return filter;
   }
 
-  // Process a field matching filter. `{}` matches all rows.
   if (typeof filter === "object" && filter !== null) {
+    // Process a query expression filter.
+    if ("expressionType" in filter) {
+      return (qb) => (qb as WhereQB<QB>).where(filter) as QB;
+    }
+
+    // Process a field matching filter. `{}` matches all rows.
     return (qb) => {
       for (const [column, value] of Object.entries(filter)) {
         // prettier-ignore
