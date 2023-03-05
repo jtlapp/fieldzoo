@@ -81,7 +81,7 @@ describe("insertMany()", () => {
     );
   });
 
-  ignore("reports insertMany() type errors", () => {
+  ignore("reports insertMany() type errors", async () => {
     // @ts-expect-error - inserted object must have all required columns
     userTable.insertMany([{}]);
     // @ts-expect-error - inserted object must have all required columns
@@ -96,6 +96,8 @@ describe("insertMany()", () => {
     userTable.insertMany([USERS[0]], ["notThere"]);
     // @ts-expect-error - returning arguments must be valid column names
     userTable.insertMany([USERS[0]], ["notThere", "*"]);
+    // @ts-expect-error - only requested columns are returned
+    (await userTable.insertMany([USERS[0]], ["id"]))[0].handle;
   });
 });
 
@@ -154,7 +156,7 @@ describe("insertOne", () => {
     expect(updatedUser).toEqual(expectedUser);
   });
 
-  ignore("reports insertOne() type errors", () => {
+  ignore("reports insertOne() type errors", async () => {
     // @ts-expect-error - inserted object must have all required columns
     userTable.insertOne({});
     // @ts-expect-error - inserted object must have all required columns
@@ -169,6 +171,8 @@ describe("insertOne", () => {
     userTable.insertOne(USERS[0], ["notThere"]);
     // @ts-expect-error - returning arguments must be valid column names
     userTable.insertOne(USERS[0], ["notThere", "*"]);
+    // @ts-expect-error - only requested columns are returned
+    (await userTable.insertOne(USERS[0], ["id", "email"])).name;
   });
 });
 
@@ -221,11 +225,25 @@ describe("selectMany()", () => {
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
 
-  ignore("reports selectMany() type errors", () => {
+  ignore("reports selectMany() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expressions
     userTable.selectMany("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments
     userTable.selectMany("name", "=");
+    // @ts-expect-error - object filter fields must be valid
+    userTable.selectMany({ notThere: "xyz" });
+    // @ts-expect-error - binary op filter fields must be valid
+    userTable.selectMany(["notThere", "=", "foo"]);
+    // @ts-expect-error - only table columns are accessible unfiltered
+    (await userTable.selectMany({}))[0].notThere;
+    // @ts-expect-error - only table columns are accessible w/ object filter
+    (await userTable.selectMany({ name: "Sue" }))[0].notThere;
+    // @ts-expect-error - only table columns are accessible w/ op filter
+    (await userTable.selectMany(["name", "=", "Sue"]))[0].notThere;
+    // @ts-expect-error - only table columns are accessible w/ QB filter
+    (await userTable.selectMany((qb) => qb))[0].notThere;
+    // @ts-expect-error - only table columns are accessible w/ expr filter
+    (await userTable.selectMany(sql`name = 'Sue'`))[0].notThere;
   });
 });
 
@@ -267,15 +285,25 @@ describe("selectOne()", () => {
     expect(user?.handle).toEqual(USERS[1].handle);
   });
 
-  ignore("reports selectOne() type errors", () => {
+  ignore("reports selectOne() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expression filters
     userTable.selectOne("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments of a binary op
     userTable.selectOne(["name", "="]);
-    // @ts-expect-error - table must have all filter fields
+    // @ts-expect-error - object filter fields must be valid
     userTable.selectOne({ notThere: "xyz" });
-    // @ts-expect-error - table must have all filter fields
+    // @ts-expect-error - binary op filter fields must be valid
     userTable.selectOne(["notThere", "=", "foo"]);
+    // @ts-expect-error - only table columns are accessible unfiltered
+    (await userTable.selectOne({})).notThere;
+    // @ts-expect-error - only table columns are accessible w/ object filter
+    (await userTable.selectOne({ name: "Sue" })).notThere;
+    // @ts-expect-error - only table columns are accessible w/ op filter
+    (await userTable.selectOne(["name", "=", "Sue"])).notThere;
+    // @ts-expect-error - only table columns are accessible w/ QB filter
+    (await userTable.selectOne((qb) => qb)).notThere;
+    // @ts-expect-error - only table columns are accessible w/ expr filter
+    (await userTable.selectOne(sql`name = 'Sue'`)).notThere;
   });
 });
 
@@ -467,5 +495,7 @@ describe("update()", () => {
     userTable.update({ id: 32 }, USERS[0], ["notThere", "*"]);
     // @ts-expect-error - doesn't allow plain string expression filters
     userTable.update("name = 'John Doe'", USERS[0]);
+    // @ts-expect-error - only requested columns are accessible
+    (await userTable.update({ id: 32 }, USERS[0], ["id"]))[0].name;
   });
 });
