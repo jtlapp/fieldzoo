@@ -81,7 +81,7 @@ describe("insertMany()", () => {
     );
   });
 
-  ignore("reports insertMany() type errors", async () => {
+  ignore("detects insertMany() type errors", async () => {
     // @ts-expect-error - inserted object must have all required columns
     userTable.insertMany([{}]);
     // @ts-expect-error - inserted object must have all required columns
@@ -156,7 +156,7 @@ describe("insertOne", () => {
     expect(updatedUser).toEqual(expectedUser);
   });
 
-  ignore("reports insertOne() type errors", async () => {
+  ignore("detects insertOne() type errors", async () => {
     // @ts-expect-error - inserted object must have all required columns
     userTable.insertOne({});
     // @ts-expect-error - inserted object must have all required columns

@@ -16,32 +16,38 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe("selectMany()", () => {
-  it("selects the required rows", async () => {
-    for (const user of USERS) {
-      await userTable.insertOne(user);
-    }
+  it("selects all rows with no filter", async () => {
+    await userTable.insertMany(USERS);
 
     // Test selecting all
-    let users = await userTable.selectMany({});
-    expect(users.length).toEqual(3);
-    for (let i = 0; i < 3; i++) {
+    const users = await userTable.selectMany({});
+    expect(users.length).toEqual(USERS.length);
+    for (let i = 0; i < USERS.length; i++) {
       expect(users[i].handle).toEqual(USERS[i].handle);
     }
+  });
 
-    // Test selecting by matching object
-    users = await userTable.selectMany({ name: USERS[0].name });
+  it("selects with a matching field filter", async () => {
+    await userTable.insertMany(USERS);
+
+    let users = await userTable.selectMany({ name: USERS[0].name });
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
+
     users = await userTable.selectMany({
       name: USERS[0].name,
       handle: USERS[2].handle,
     });
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[2].handle);
+  });
+
+  it("selects with a binary operation filter", async () => {
+    await userTable.insertMany(USERS);
 
     // Test selecting by condition (with results)
-    users = await userTable.selectMany(["name", "=", USERS[0].name]);
+    let users = await userTable.selectMany(["name", "=", USERS[0].name]);
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
@@ -49,22 +55,30 @@ describe("selectMany()", () => {
     // Test selecting by condition (no results)
     users = await userTable.selectMany(["name", "=", "nonexistent"]);
     expect(users.length).toEqual(0);
+  });
+
+  it("selects with a query builder filter", async () => {
+    await userTable.insertMany(USERS);
 
     // Test selecting by modifying query
-    users = await userTable.selectMany((qb) =>
+    const users = await userTable.selectMany((qb) =>
       qb.where("name", "=", USERS[0].name).orderBy("handle", "desc")
     );
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[2].handle);
     expect(users[1].handle).toEqual(USERS[0].handle);
+  });
+
+  it("selects with a query expression filter", async () => {
+    await userTable.insertMany(USERS);
 
     // Test selecting with an expression
-    users = await userTable.selectMany(sql`name != ${USERS[0].name}`);
+    const users = await userTable.selectMany(sql`name != ${USERS[0].name}`);
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
 
-  ignore("reports selectMany() type errors", async () => {
+  ignore("detects selectMany() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expressions
     userTable.selectMany("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments
@@ -87,40 +101,51 @@ describe("selectMany()", () => {
 });
 
 describe("selectOne()", () => {
-  it("selects the required row", async () => {
-    for (const user of USERS) {
-      await userTable.insertOne(user);
-    }
+  it("selects the first row with no filter", async () => {
+    await userTable.insertMany(USERS);
 
-    // Test selecting all
-    let user = await userTable.selectOne({});
+    const user = await userTable.selectOne({});
+    expect(user?.handle).toEqual(USERS[0].handle);
+  });
+
+  it("selects the first row with a matching field filter", async () => {
+    await userTable.insertMany(USERS);
+
+    let user = await userTable.selectOne({ name: USERS[0].name });
     expect(user?.handle).toEqual(USERS[0].handle);
 
-    // Test selecting by matching object
-    user = await userTable.selectOne({ name: USERS[0].name });
-    expect(user?.handle).toEqual(USERS[0].handle);
     user = await userTable.selectOne({
       name: USERS[0].name,
       handle: USERS[2].handle,
     });
     expect(user?.handle).toEqual(USERS[2].handle);
+  });
+
+  it("selects the first row with a binary operation filter", async () => {
+    await userTable.insertMany(USERS);
 
     // Test selecting by condition (with result)
-    user = await userTable.selectOne(["name", "=", USERS[0].name]);
+    let user = await userTable.selectOne(["name", "=", USERS[0].name]);
     expect(user?.handle).toEqual(USERS[0].handle);
 
     // Test selecting by condition (no result)
     user = await userTable.selectOne(["name", "=", "nonexistent"]);
     expect(user).toBeNull();
+  });
 
-    // Test selecting by modifying query
-    user = await userTable.selectOne((qb) =>
+  it("selects the first row with a query builder filter", async () => {
+    await userTable.insertMany(USERS);
+
+    const user = await userTable.selectOne((qb) =>
       qb.where("name", "=", USERS[0].name).orderBy("handle", "desc")
     );
     expect(user?.handle).toEqual(USERS[2].handle);
+  });
 
-    // Test selecting with an expression
-    user = await userTable.selectOne(sql`name != ${USERS[0].name}`);
+  it("selects the first row with a query expression filter", async () => {
+    await userTable.insertMany(USERS);
+
+    const user = await userTable.selectOne(sql`name != ${USERS[0].name}`);
     expect(user?.handle).toEqual(USERS[1].handle);
   });
 
@@ -130,7 +155,7 @@ describe("selectOne()", () => {
     );
   });
 
-  ignore("reports selectOne() type errors", async () => {
+  ignore("detects selectOne() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expression filters
     userTable.selectOne("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments of a binary op
