@@ -1,4 +1,4 @@
-export * from "./facets/BaseKyselyFacet";
-export * from "./facets/BasicQueryFacet";
-export * from "./facets/UniqueIdFacet";
+export * from "./facets/KyselyFacet";
+export * from "./facets/StandardFacet";
+export * from "./facets/IdFacet";
 export * from "./lib/QueryFilter";

@@ -3,7 +3,7 @@ import { Kysely } from "kysely";
 /**
  * Base class for all Kysely facets.
  */
-export class BaseKyselyFacet<DB, TableName extends keyof DB & string> {
+export class KyselyFacet<DB, TableName extends keyof DB & string> {
   constructor(readonly db: Kysely<DB>, readonly tableName: TableName) {}
 
   /**

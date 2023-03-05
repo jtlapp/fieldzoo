@@ -1,6 +1,6 @@
 import { Kysely, Generated, sql } from "kysely";
 
-import { BasicQueryFacet, UniqueIdFacet } from "../index";
+import { StandardFacet, IdFacet } from "../index";
 
 // list tables after those they depend on
 const TABLE_NAMES = ["comments", "posts", "users"];
@@ -66,19 +66,19 @@ export async function dropTables(db: Kysely<Database>): Promise<void> {
   }
 }
 
-export class UserTable extends UniqueIdFacet<Database, "users", "id"> {
+export class UserTable extends IdFacet<Database, "users", "id"> {
   constructor(readonly db: Kysely<Database>) {
     super(db, "users", "id");
   }
 }
 
-export class PostTable extends UniqueIdFacet<Database, "posts", "id"> {
+export class PostTable extends IdFacet<Database, "posts", "id"> {
   constructor(readonly db: Kysely<Database>) {
     super(db, "posts", "id");
   }
 }
 
-export class CommentTable extends BasicQueryFacet<Database, "comments"> {
+export class CommentTable extends StandardFacet<Database, "comments"> {
   constructor(readonly db: Kysely<Database>) {
     super(db, "comments");
   }

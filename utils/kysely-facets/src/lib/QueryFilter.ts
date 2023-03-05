@@ -13,7 +13,7 @@ import {
 } from "kysely";
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
-import { BaseKyselyFacet } from "../facets/BaseKyselyFacet";
+import { KyselyFacet } from "../facets/KyselyFacet";
 
 /**
  * Type of the query filter object, which can be passed as an argument
@@ -74,7 +74,7 @@ export function applyQueryFilter<
   QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
   RE extends ReferenceExpression<DB, TableName>
 >(
-  base: BaseKyselyFacet<DB, TableName>,
+  base: KyselyFacet<DB, TableName>,
   filter: QueryFilter<DB, TableName, QB, RE>
 ): (qb: QB) => QB;
 
@@ -84,7 +84,7 @@ export function applyQueryFilter<
   QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
   RE extends ReferenceExpression<DB, TableName>
 >(
-  base: BaseKyselyFacet<DB, TableName>,
+  base: KyselyFacet<DB, TableName>,
   filter: QueryFilter<DB, TableName, QB, RE>
 ): (qb: QB) => QB;
 
@@ -96,7 +96,7 @@ export function applyQueryFilter<
     | UpdateQueryBuilder<DB, TableName, TableName, object>,
   RE extends ReferenceExpression<DB, TableName>
 >(
-  base: BaseKyselyFacet<DB, TableName>,
+  base: KyselyFacet<DB, TableName>,
   filter: QueryFilter<DB, TableName, QB, RE>
 ): (qb: QB) => QB {
   // Process a binary operation filter.

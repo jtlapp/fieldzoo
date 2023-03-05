@@ -8,7 +8,7 @@ import {
 } from "kysely";
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
-import { BaseKyselyFacet } from "./BaseKyselyFacet";
+import { KyselyFacet } from "./KyselyFacet";
 import { QueryFilter, applyQueryFilter } from "../lib/QueryFilter";
 
 // TODO: delete this if not needed
@@ -20,10 +20,10 @@ import { QueryFilter, applyQueryFilter } from "../lib/QueryFilter";
 //   execute(): Promise<O[]>;
 // }
 
-export class BasicQueryFacet<
+export class StandardFacet<
   DB,
   TableName extends keyof DB & string
-> extends BaseKyselyFacet<DB, TableName> {
+> extends KyselyFacet<DB, TableName> {
   /**
    * Constructs a new Kysely table.
    * @param db The Kysely database.

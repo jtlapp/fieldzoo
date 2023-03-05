@@ -1,13 +1,13 @@
 import { Kysely, SelectType, Updateable } from "kysely";
 
-import { BasicQueryFacet } from "./BasicQueryFacet";
+import { StandardFacet } from "./StandardFacet";
 
 // TODO: generalize to compound keys and rename to KeyFacet
-export class UniqueIdFacet<
+export class IdFacet<
   DB,
   TableName extends keyof DB & string,
   IdColumnName extends keyof DB[TableName] & string
-> extends BasicQueryFacet<DB, TableName> {
+> extends StandardFacet<DB, TableName> {
   constructor(
     readonly db: Kysely<DB>,
     readonly tableName: TableName,
