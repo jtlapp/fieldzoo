@@ -17,9 +17,9 @@ export abstract class ComboFilter extends AppliedFilter {
 
   /**
    * Constructs a combo filter.
-   * @param filters The filters to combine, listed as separate arguments.
+   * @param filters The filters to combine.
    */
-  constructor(...filters: QueryFilter<any, any, any, any>[]) {
+  constructor(filters: QueryFilter<any, any, any, any>[]) {
     super();
     if (filters.length == 0) {
       throw new Error("No filters provided");
@@ -47,7 +47,17 @@ export class MatchAll extends ComboFilter {
 }
 
 /**
+ * Returns a filter that matches all of the provided filters.
+ */
+export function matchAll(
+  ...filters: QueryFilter<any, any, any, any>[]
+): MatchAll {
+  return new MatchAll(filters);
+}
+
+/**
  * A filter that matches at least one of the provided filters.
+ * @param filters The filters to combine, listed as separate arguments.
  */
 export class MatchAny extends ComboFilter {
   apply<
@@ -62,4 +72,14 @@ export class MatchAny extends ComboFilter {
       return qb;
     };
   }
+}
+
+/**
+ * Returns a filter that matches at least one of the provided filters.
+ * @param filters The filters to combine, listed as separate arguments.
+ */
+export function matchAny(
+  ...filters: QueryFilter<any, any, any, any>[]
+): MatchAny {
+  return new MatchAny(filters);
 }

@@ -4,7 +4,7 @@ import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database, UserTable } from "./utils/test-tables";
 import { USERS } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
-import { MatchAll, MatchAny } from "../filters/ComboFilter";
+import { matchAll, matchAny } from "../filters/ComboFilter";
 
 let db: Kysely<Database>;
 let userTable: UserTable;
@@ -81,7 +81,7 @@ describe("selectMany()", () => {
     const userIDs = await userTable.insertMany(USERS, ["id"]);
 
     const users = await userTable.selectMany(
-      new MatchAll({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
+      matchAll({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
     );
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[2].handle);
@@ -91,11 +91,7 @@ describe("selectMany()", () => {
     await userTable.insertMany(USERS, ["id"]);
 
     const users = await userTable.selectMany(
-      new MatchAny({ handle: USERS[0].handle }, [
-        "handle",
-        "=",
-        USERS[2].handle,
-      ])
+      matchAny({ handle: USERS[0].handle }, ["handle", "=", USERS[2].handle])
     );
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
@@ -106,9 +102,9 @@ describe("selectMany()", () => {
     const userIDs = await userTable.insertMany(USERS, ["id"]);
 
     const users = await userTable.selectMany(
-      new MatchAny(
+      matchAny(
         { handle: USERS[0].handle },
-        new MatchAll(["id", ">", userIDs[0].id], (qb) =>
+        matchAll(["id", ">", userIDs[0].id], (qb) =>
           qb.where("name", "=", USERS[0].name)
         )
       )
