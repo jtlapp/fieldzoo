@@ -10,7 +10,7 @@ import {
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
 import { KyselyFacet } from "./KyselyFacet";
-import { QueryFilter, applyQueryFilter } from "../lib/QueryFilter";
+import { QueryFilter, applyQueryFilter } from "../filters/QueryFilter";
 
 export class StandardFacet<
   DB,
