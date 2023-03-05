@@ -12,7 +12,6 @@ import {
   Updateable,
   UpdateQueryBuilder,
 } from "kysely";
-//import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
 import { KyselyFacet } from "../facets/KyselyFacet";
 
