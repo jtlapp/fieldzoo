@@ -24,9 +24,9 @@ describe("insertMany()", () => {
 
     const readUsers = await userTable.selectMany({});
     expect(readUsers.length).toEqual(3);
-    expect(readUsers[0].handle).toEqual(USERS[0].handle);
-    expect(readUsers[1].handle).toEqual(USERS[1].handle);
-    expect(readUsers[2].handle).toEqual(USERS[2].handle);
+    for (let i = 0; i < 3; i++) {
+      expect(readUsers[i].handle).toEqual(USERS[i].handle);
+    }
   });
 
   it("inserts rows returning empty objects for an empty return list", async () => {
@@ -35,9 +35,9 @@ describe("insertMany()", () => {
 
     const readUsers = await userTable.selectMany({});
     expect(readUsers.length).toEqual(3);
-    expect(readUsers[0].handle).toEqual(USERS[0].handle);
-    expect(readUsers[1].handle).toEqual(USERS[1].handle);
-    expect(readUsers[2].handle).toEqual(USERS[2].handle);
+    for (let i = 0; i < 3; i++) {
+      expect(readUsers[i].handle).toEqual(USERS[i].handle);
+    }
   });
 
   it("inserts rows returning indicated columns", async () => {
@@ -187,9 +187,9 @@ describe("selectMany()", () => {
     // Test selecting all
     let users = await userTable.selectMany({});
     expect(users.length).toEqual(3);
-    expect(users[0].handle).toEqual(USERS[0].handle);
-    expect(users[1].handle).toEqual(USERS[1].handle);
-    expect(users[2].handle).toEqual(USERS[2].handle);
+    for (let i = 0; i < 3; i++) {
+      expect(users[i].handle).toEqual(USERS[i].handle);
+    }
 
     // Test selecting by matching object
     users = await userTable.selectMany({ name: USERS[0].name });
