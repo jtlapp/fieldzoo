@@ -233,6 +233,18 @@ describe("selectMany()", () => {
     expect(users[1].handle).toEqual(USERS[1].handle);
     expect(users[2].handle).toEqual(USERS[2].handle);
 
+    // Test selecting by matching object
+    users = await userTable.selectMany({ name: USERS[0].name });
+    expect(users.length).toEqual(2);
+    expect(users[0].handle).toEqual(USERS[0].handle);
+    expect(users[1].handle).toEqual(USERS[2].handle);
+    users = await userTable.selectMany({
+      name: USERS[0].name,
+      handle: USERS[2].handle,
+    });
+    expect(users.length).toEqual(1);
+    expect(users[0].handle).toEqual(USERS[2].handle);
+
     // Test selecting by condition (with results)
     users = await userTable.selectMany(["name", "=", USERS[0].name]);
     expect(users.length).toEqual(2);
@@ -274,6 +286,15 @@ describe("selectOne()", () => {
     // Test selecting all
     let user = await userTable.selectOne({});
     expect(user?.handle).toEqual(USERS[0].handle);
+
+    // Test selecting by matching object
+    user = await userTable.selectOne({ name: USERS[0].name });
+    expect(user?.handle).toEqual(USERS[0].handle);
+    user = await userTable.selectOne({
+      name: USERS[0].name,
+      handle: USERS[2].handle,
+    });
+    expect(user?.handle).toEqual(USERS[2].handle);
 
     // Test selecting by condition (with result)
     user = await userTable.selectOne(["name", "=", USERS[0].name]);
