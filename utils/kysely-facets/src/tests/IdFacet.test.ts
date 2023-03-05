@@ -1,8 +1,8 @@
 import { Kysely } from "kysely";
 
-import { createDB, resetDB, destroyDB } from "../test-utils/test-setup";
-import { Database, UserTable } from "../test-utils/test-tables";
-import { USERS } from "../test-utils/test-objects";
+import { createDB, resetDB, destroyDB } from "./utils/test-setup";
+import { Database, UserTable } from "./utils/test-tables";
+import { USERS } from "./utils/test-objects";
 
 let db: Kysely<Database>;
 let userTable: UserTable;

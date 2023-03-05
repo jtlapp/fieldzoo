@@ -1,6 +1,6 @@
 import { Kysely, Generated, sql } from "kysely";
 
-import { StandardFacet, IdFacet } from "../index";
+import { StandardFacet, IdFacet } from "../../index";
 
 // list tables after those they depend on
 const TABLE_NAMES = ["comments", "posts", "users"];

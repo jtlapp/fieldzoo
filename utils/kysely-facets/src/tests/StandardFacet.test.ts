@@ -1,8 +1,8 @@
 import { Kysely, sql } from "kysely";
 
-import { createDB, resetDB, destroyDB } from "../test-utils/test-setup";
-import { Database, UserTable, PostTable } from "../test-utils/test-tables";
-import { USERS, POSTS } from "../test-utils/test-objects";
+import { createDB, resetDB, destroyDB } from "./utils/test-setup";
+import { Database, UserTable, PostTable } from "./utils/test-tables";
+import { USERS, POSTS } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
 
 let db: Kysely<Database>;
