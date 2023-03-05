@@ -153,6 +153,12 @@ export function applyQueryFilter<
   }
 
   if (typeof filter === "object" && filter !== null) {
+    // Process a query expression filter. Check for expressions
+    // first because they could potentially be plain objects.
+    if ("expressionType" in filter) {
+      return (qb) => qb.where(filter) as QB;
+    }
+
     // Process a field matching filter. `{}` matches all rows.
     if (filter.constructor === Object) {
       return (qb) => {
@@ -171,11 +177,6 @@ export function applyQueryFilter<
     // Process a combination filter.
     if (filter instanceof ComboFilter) {
       return filter.apply(base);
-    }
-
-    // Process a query expression filter.
-    if ("expressionType" in filter) {
-      return (qb) => qb.where(filter) as QB;
     }
   }
 
