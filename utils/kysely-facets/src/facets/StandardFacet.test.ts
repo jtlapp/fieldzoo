@@ -31,7 +31,7 @@ describe("insertMany()", () => {
 
   it("inserts rows returning empty objects for an empty return list", async () => {
     const updatedUsers = await userTable.insertMany(USERS, []);
-    expect(updatedUsers).toEqual([{}, {}, {}]);
+    expect(updatedUsers).toEqual(USERS.map(() => ({})));
 
     const readUsers = await userTable.selectMany({});
     expect(readUsers.length).toEqual(3);
