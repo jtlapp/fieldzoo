@@ -476,7 +476,7 @@ describe("update()", () => {
     }
   });
 
-  ignore("reports type errors", () => {
+  ignore("reports type errors", async () => {
     // @ts-expect-error - table must have all filter fields
     userTable.update({ notThere: "xyz" }, { email: "abc@def.ghi" });
     // @ts-expect-error - table must have all filter fields
