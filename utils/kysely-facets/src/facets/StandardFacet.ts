@@ -219,7 +219,7 @@ export class StandardFacet<
    *    having the requested returned column values. Otherwise, returns
    *    the number of rows updated.
    */
-  updateByMatch<
+  update<
     QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
     RE extends ReferenceExpression<DB, TableName>
   >(
@@ -227,7 +227,7 @@ export class StandardFacet<
     obj: UpdateObject<DB, TableName>
   ): Promise<number>;
 
-  updateByMatch<
+  update<
     QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
     RE extends ReferenceExpression<DB, TableName>,
     R extends keyof Selectable<DB[TableName]> & string
@@ -237,7 +237,7 @@ export class StandardFacet<
     returning: R[]
   ): Promise<Pick<Selectable<DB[TableName]>, R>[]>;
 
-  updateByMatch<
+  update<
     QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
     RE extends ReferenceExpression<DB, TableName>
   >(
@@ -246,7 +246,7 @@ export class StandardFacet<
     returning: ["*"]
   ): Promise<Selectable<DB[TableName]>[]>;
 
-  async updateByMatch<
+  async update<
     QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
     RE extends ReferenceExpression<DB, TableName>,
     R extends keyof Selectable<DB[TableName]> & string
