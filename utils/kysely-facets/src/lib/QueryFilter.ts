@@ -8,21 +8,11 @@ import {
   Expression,
   OperandValueExpressionOrList,
   ReferenceExpression,
-  SelectQueryBuilder,
   Updateable,
-  UpdateQueryBuilder,
   WhereInterface,
 } from "kysely";
 
 import { KyselyFacet } from "../facets/KyselyFacet";
-
-type AnyQueryBuilder<DB, TableName extends keyof DB & string> =
-  | SelectQueryBuilder<DB, TableName, object>
-  | UpdateQueryBuilder<DB, TableName, TableName, object>
-  | WhereInterface<DB, TableName>;
-type WhereQB<QB> = QB extends AnyQueryBuilder<infer DB, infer TableName>
-  ? Pick<SelectQueryBuilder<DB, TableName, object>, "where">
-  : never;
 
 /**
  * Type of the query filter object, which can be passed as an argument
@@ -31,7 +21,7 @@ type WhereQB<QB> = QB extends AnyQueryBuilder<infer DB, infer TableName>
 export type QueryFilter<
   DB,
   TableName extends keyof DB & string,
-  QB extends AnyQueryBuilder<DB, TableName>,
+  QB extends WhereInterface<DB, TableName>,
   RE extends ReferenceExpression<DB, TableName>
 > =
   | BinaryOperationFilter<DB, TableName, RE>
@@ -75,12 +65,19 @@ export type QueryExpressionFilter = Expression<any>;
  * A filter that is a combination of other filters.
  */
 export abstract class ComboFilter {
-  constructor(readonly filters: QueryFilter<any, any, any, any>[]) {}
+  filters: QueryFilter<any, any, any, any>[];
+
+  constructor(...filters: QueryFilter<any, any, any, any>[]) {
+    if (filters.length == 0) {
+      throw new Error("No filters provided");
+    }
+    this.filters = filters;
+  }
 
   abstract apply<
     DB,
     TableName extends keyof DB & string,
-    QB extends AnyQueryBuilder<DB, TableName>
+    QB extends WhereInterface<DB, TableName>
   >(
     base: KyselyFacet<DB, TableName>,
     qb: QB
@@ -94,7 +91,7 @@ export class MatchAll extends ComboFilter {
   apply<
     DB,
     TableName extends keyof DB & string,
-    QB extends AnyQueryBuilder<DB, TableName>
+    QB extends WhereInterface<DB, TableName>
   >(
     base: KyselyFacet<DB, TableName>
   ): (qb: QB) => WhereInterface<DB, TableName> {
@@ -114,7 +111,7 @@ export class MatchAny extends ComboFilter {
   apply<
     DB,
     TableName extends keyof DB & string,
-    QB extends AnyQueryBuilder<DB, TableName>
+    QB extends WhereInterface<DB, TableName>
   >(
     base: KyselyFacet<DB, TableName>
   ): (qb: QB) => WhereInterface<DB, TableName> {
@@ -130,30 +127,6 @@ export class MatchAny extends ComboFilter {
 
 /**
  * Returns a query builder that constrains the provided query builder
- * with the provided filter.
- */
-export function applyQueryFilter<
-  DB,
-  TableName extends keyof DB & string,
-  QB extends SelectQueryBuilder<DB, TableName, object>,
-  RE extends ReferenceExpression<DB, TableName>
->(
-  base: KyselyFacet<DB, TableName>,
-  filter: QueryFilter<DB, TableName, QB, RE>
-): (qb: QB) => QB;
-
-export function applyQueryFilter<
-  DB,
-  TableName extends keyof DB & string,
-  QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
-  RE extends ReferenceExpression<DB, TableName>
->(
-  base: KyselyFacet<DB, TableName>,
-  filter: QueryFilter<DB, TableName, QB, RE>
-): (qb: QB) => QB;
-
-/**
- * Returns a query builder that constrains the provided query builder
  * according to the provided query filter.
  * @param base The Kysely facet that is used to create references.
  * @param filter The query filter.
@@ -163,7 +136,7 @@ export function applyQueryFilter<
 export function applyQueryFilter<
   DB,
   TableName extends keyof DB & string,
-  QB extends AnyQueryBuilder<DB, TableName>,
+  QB extends WhereInterface<DB, TableName>,
   RE extends ReferenceExpression<DB, TableName>
 >(
   base: KyselyFacet<DB, TableName>,
@@ -171,7 +144,7 @@ export function applyQueryFilter<
 ): (qb: QB) => QB {
   // Process a binary operation filter.
   if (Array.isArray(filter)) {
-    return (qb) => (qb as WhereQB<QB>).where(...filter) as QB;
+    return (qb) => qb.where(...filter) as QB;
   }
 
   // Process a query builder filter.
@@ -182,15 +155,13 @@ export function applyQueryFilter<
   if (typeof filter === "object" && filter !== null) {
     // Process a query expression filter.
     if ("expressionType" in filter) {
-      return (qb) => (qb as WhereQB<QB>).where(filter) as QB;
+      return (qb) => qb.where(filter) as QB;
     }
 
     // Process a field matching filter. `{}` matches all rows.
     return (qb) => {
       for (const [column, value] of Object.entries(filter)) {
-        // prettier-ignore
-        qb = (qb as WhereQB<QB>)
-                .where(base.ref(column as string), "=", value) as QB;
+        qb = qb.where(base.ref(column as string), "=", value) as QB;
       }
       return qb;
     };
