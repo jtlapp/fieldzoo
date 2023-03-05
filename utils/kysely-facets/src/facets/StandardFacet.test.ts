@@ -24,7 +24,7 @@ describe("insertMany()", () => {
 
     const readUsers = await userTable.selectMany({});
     expect(readUsers.length).toEqual(3);
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
     }
   });
@@ -35,7 +35,7 @@ describe("insertMany()", () => {
 
     const readUsers = await userTable.selectMany({});
     expect(readUsers.length).toEqual(3);
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
     }
   });
@@ -43,18 +43,16 @@ describe("insertMany()", () => {
   it("inserts rows returning indicated columns", async () => {
     const updatedUsers = await userTable.insertMany(USERS, ["id"]);
     expect(updatedUsers.length).toEqual(3);
-    expect(updatedUsers[0].id).toBeGreaterThan(0);
-    expect(updatedUsers[1].id).toBeGreaterThan(0);
-    expect(updatedUsers[2].id).toBeGreaterThan(0);
-    expect(Object.keys(updatedUsers[0]).length).toEqual(1);
-    expect(Object.keys(updatedUsers[1]).length).toEqual(1);
-    expect(Object.keys(updatedUsers[2]).length).toEqual(1);
+    for (let i = 0; i < USERS.length; i++) {
+      expect(updatedUsers[i].id).toBeGreaterThan(0);
+      expect(Object.keys(updatedUsers[i]).length).toEqual(1);
+    }
 
     const readUsers = await userTable.selectMany({});
     expect(readUsers.length).toEqual(3);
-    expect(readUsers[0].id).toEqual(updatedUsers[0].id);
-    expect(readUsers[1].id).toEqual(updatedUsers[1].id);
-    expect(readUsers[2].id).toEqual(updatedUsers[2].id);
+    for (let i = 0; i < USERS.length; i++) {
+      expect(readUsers[i].handle).toEqual(USERS[i].handle);
+    }
 
     const post0 = Object.assign({}, POSTS[0], { userId: updatedUsers[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: updatedUsers[1].id });
@@ -64,27 +62,23 @@ describe("insertMany()", () => {
       ["id", "createdAt"]
     );
     expect(updatedPosts.length).toEqual(3);
-    expect(updatedPosts[0].id).toBeGreaterThan(0);
-    expect(updatedPosts[1].id).toBeGreaterThan(0);
-    expect(updatedPosts[2].id).toBeGreaterThan(0);
-    expect(new Date(updatedPosts[0].createdAt)).not.toBeNaN();
-    expect(new Date(updatedPosts[1].createdAt)).not.toBeNaN();
-    expect(new Date(updatedPosts[2].createdAt)).not.toBeNaN();
-    expect(Object.keys(updatedPosts[0]).length).toEqual(2);
-    expect(Object.keys(updatedPosts[1]).length).toEqual(2);
-    expect(Object.keys(updatedPosts[2]).length).toEqual(2);
+    for (let i = 0; i < updatedPosts.length; i++) {
+      expect(updatedPosts[i].id).toBeGreaterThan(0);
+      expect(new Date(updatedPosts[i].createdAt)).not.toBeNaN();
+      expect(Object.keys(updatedPosts[i]).length).toEqual(2);
+    }
   });
 
   it("inserts rows returning all columns", async () => {
     const updatedUsers = await userTable.insertMany(USERS, ["*"]);
-    expect(updatedUsers).toEqual([
-      Object.assign({}, USERS[0], { id: updatedUsers[0].id }),
-      Object.assign({}, USERS[1], { id: updatedUsers[1].id }),
-      Object.assign({}, USERS[2], { id: updatedUsers[2].id }),
-    ]);
-    expect(updatedUsers[0].id).toBeGreaterThan(0);
-    expect(updatedUsers[1].id).toBeGreaterThan(0);
-    expect(updatedUsers[2].id).toBeGreaterThan(0);
+    for (let i = 0; i < USERS.length; i++) {
+      expect(updatedUsers[i].id).toBeGreaterThan(0);
+    }
+    expect(updatedUsers).toEqual(
+      USERS.map((user, i) =>
+        Object.assign({}, user, { id: updatedUsers[i].id })
+      )
+    );
   });
 
   ignore("reports insertMany() type errors", () => {
