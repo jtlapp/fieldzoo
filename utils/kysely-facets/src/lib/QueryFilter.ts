@@ -104,7 +104,6 @@ export function applyQueryFilter<
 ): (qb: QB) => QB {
   // Process a binary operation filter.
   if (Array.isArray(filter)) {
-    // The binary op `where` exists on both QBs but TS can't see that.
     return (qb) => (qb as WhereQB<QB>).where(...filter) as QB;
   }
 
