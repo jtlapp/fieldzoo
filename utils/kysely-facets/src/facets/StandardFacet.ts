@@ -34,38 +34,6 @@ export class StandardFacet<
   }
 
   /**
-   * Creates a query builder for inserting rows into this table.
-   * @returns A query builder for inserting rows into this table.
-   */
-  insertRows() {
-    return this.db.insertInto(this.tableName);
-  }
-
-  /**
-   * Creates a query builder for updating rows in this table.
-   * @returns A query builder for updating rows in this table.
-   */
-  updateRows() {
-    return this.db.updateTable(this.tableName);
-  }
-
-  /**
-   * Creates a query builder for selecting rows from this table.
-   * @returns A query builder for selecting rows from this table.
-   */
-  selectRows() {
-    return this.db.selectFrom(this.tableName).selectAll();
-  }
-
-  /**
-   * Creates a query builder for deleting rows from this table.
-   * @returns A query builder for deleting rows from this table.
-   */
-  deleteRows() {
-    return this.db.deleteFrom(this.tableName);
-  }
-
-  /**
    * Inserts a single row into this table, optionally returning columns
    * from the inserted row.
    * @param obj The object to insert as a row.
@@ -95,7 +63,7 @@ export class StandardFacet<
     obj: Insertable<DB[TableName]>,
     returning?: R[] | ["*"]
   ): Promise<Selectable<DB[TableName]> | Pick<O, R> | void> {
-    const qb = this.db.insertInto(this.tableName).values(obj);
+    const qb = this.insertRows().values(obj);
     if (returning) {
       // Cast here because TS wasn't allowing the check.
       if ((returning as string[]).includes("*")) {
@@ -144,7 +112,7 @@ export class StandardFacet<
     objs: Insertable<DB[TableName]>[],
     returning?: R[] | ["*"]
   ): Promise<Selectable<DB[TableName]>[] | Pick<O, R>[] | void> {
-    const qb = this.db.insertInto(this.tableName).values(objs);
+    const qb = this.insertRows().values(objs);
     if (returning) {
       // Cast here because TS wasn't allowing the check.
       if ((returning as string[]).includes("*")) {
@@ -191,7 +159,7 @@ export class StandardFacet<
     QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
     RE extends ReferenceExpression<DB, TableName>
   >(filter?: QueryFilter<DB, TableName, QB, RE>): Promise<any> {
-    let qb = this.db.selectFrom(this.tableName).selectAll();
+    let qb = this.selectRows().selectAll();
     if (filter !== undefined) {
       // Cast because TS was erroring, "Type X cannot be assigned to type X".
       qb = applyQueryFilter(this, filter)(qb as any) as any;
@@ -230,7 +198,7 @@ export class StandardFacet<
     QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
     RE extends ReferenceExpression<DB, TableName>
   >(filter?: QueryFilter<DB, TableName, QB, RE>): Promise<any> {
-    let qb = this.db.selectFrom(this.tableName).selectAll();
+    let qb = this.selectRows().selectAll();
     if (filter !== undefined) {
       // Cast because TS was erroring, "Type X cannot be assigned to type X".
       qb = applyQueryFilter(this, filter)(qb as any) as any;
@@ -289,7 +257,7 @@ export class StandardFacet<
   ): Promise<
     Selectable<DB[TableName]>[] | Pick<Selectable<DB[TableName]>, R>[] | number
   > {
-    let qb = this.db.updateTable(this.tableName).set(obj as any);
+    let qb = this.updateRows().set(obj as any);
     qb = applyQueryFilter(this, filter)(qb as any) as any;
     if (returning) {
       // Cast here because TS wasn't allowing the check.
