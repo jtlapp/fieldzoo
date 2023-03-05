@@ -13,6 +13,7 @@ import {
 } from "kysely";
 
 import { KyselyFacet } from "../facets/KyselyFacet";
+import { AppliedFilter } from "./AppliedFilter";
 
 /**
  * Type of the query filter object, which can be passed as an argument
@@ -28,8 +29,7 @@ export type QueryFilter<
   | FieldMatchingFilter<DB, TableName>
   | QueryBuilderFilter<QB>
   | QueryExpressionFilter
-  | MatchAll
-  | MatchAny;
+  | AppliedFilter;
 
 /**
  * A filter that is a binary operation, such as `eq` or `gt`.
@@ -62,73 +62,6 @@ export type QueryBuilderFilter<QB> = (qb: QB) => QB;
  * A filter that is a Kysely expression.
  */
 export type QueryExpressionFilter = Expression<any>;
-
-/**
- * A filter that is a combination of other filters.
- */
-export abstract class ComboFilter {
-  filters: QueryFilter<any, any, any, any>[];
-
-  /**
-   * Constructs a combo filter.
-   * @param filters The filters to combine, listed as separate arguments.
-   */
-  constructor(...filters: QueryFilter<any, any, any, any>[]) {
-    if (filters.length == 0) {
-      throw new Error("No filters provided");
-    }
-    this.filters = filters;
-  }
-
-  /**
-   * Applies this filter to a query builder.
-   * @param base The facet that this filter is applied to.
-   * @param qb The query builder to apply the filter to.
-   * @returns A function that takes a query builder and returns a query
-   *    builder that is constrained according to this filter.
-   */
-  abstract apply<
-    DB,
-    TableName extends keyof DB & string,
-    QB extends WhereInterface<DB, TableName>
-  >(base: KyselyFacet<DB, TableName>, qb: QB): (qb: QB) => QB;
-}
-
-/**
- * A filter that matches all of the provided filters.
- */
-export class MatchAll extends ComboFilter {
-  apply<
-    DB,
-    TableName extends keyof DB & string,
-    QB extends WhereInterface<DB, TableName>
-  >(base: KyselyFacet<DB, TableName>): (qb: QB) => QB {
-    return (qb) => {
-      for (const filter of this.filters) {
-        qb = applyQueryFilter(base, filter)(qb);
-      }
-      return qb;
-    };
-  }
-}
-
-/**
- * A filter that matches at least one of the provided filters.
- */
-export class MatchAny extends ComboFilter {
-  apply<
-    DB,
-    TableName extends keyof DB & string,
-    QB extends WhereInterface<DB, TableName>
-  >(base: KyselyFacet<DB, TableName>): (qb: QB) => QB {
-    return (qb) => {
-      for (const filter of this.filters) {
-        qb = qb.orWhere((qb) => applyQueryFilter(base, filter)(qb)) as QB;
-      }
-      return qb;
-    };
-  }
-}
 
 /**
  * Returns a query builder that constrains the provided query builder
@@ -175,7 +108,7 @@ export function applyQueryFilter<
     }
 
     // Process a combination filter.
-    if (filter instanceof ComboFilter) {
+    if (filter instanceof AppliedFilter) {
       return filter.apply(base);
     }
   }
