@@ -109,7 +109,7 @@ export function applyQueryFilter<
 
   // Process a query expression filter.
   if ("expressionType" in filter) {
-    return (qb: QB) => (qb as WhereQB<QB>).where(filter) as QB;
+    return (qb) => (qb as WhereQB<QB>).where(filter) as QB;
   }
 
   // Process a query builder filter.
