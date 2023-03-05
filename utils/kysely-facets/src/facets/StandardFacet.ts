@@ -5,20 +5,12 @@ import {
   Selectable,
   UpdateObject,
   UpdateQueryBuilder,
+  UpdateResult,
 } from "kysely";
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
 import { KyselyFacet } from "./KyselyFacet";
 import { QueryFilter, applyQueryFilter } from "../lib/QueryFilter";
-
-// TODO: delete this if not needed
-//
-// interface TakeFirstBuilder<O> {
-//   executeTakeFirst(): Promise<SingleResultType<O>>;
-// }
-// interface TakeManyBuilder<O> {
-//   execute(): Promise<O[]>;
-// }
 
 export class StandardFacet<
   DB,
@@ -146,10 +138,9 @@ export class StandardFacet<
     QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
     RE extends ReferenceExpression<DB, TableName>
   >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<any> {
-    let qb = this.selectRows().selectAll();
-    // Cast because TS was erroring, "Type X cannot be assigned to type X".
-    qb = applyQueryFilter(this, filter)(qb as any) as any;
-    return qb.execute();
+    const sqb = this.selectRows().selectAll();
+    const fqb = applyQueryFilter(this, filter)(sqb as any);
+    return fqb.execute();
   }
 
   /**
@@ -170,10 +161,9 @@ export class StandardFacet<
     QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
     RE extends ReferenceExpression<DB, TableName>
   >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<any> {
-    let qb = this.selectRows().selectAll();
-    // Cast because TS was erroring, "Type X cannot be assigned to type X".
-    qb = applyQueryFilter(this, filter)(qb as any) as any;
-    return (await qb.executeTakeFirst()) || null;
+    const sqb = this.selectRows().selectAll();
+    const fqb = applyQueryFilter(this, filter)(sqb as any);
+    return (await fqb.executeTakeFirst()) || null;
   }
 
   /**
@@ -190,7 +180,7 @@ export class StandardFacet<
    *    the number of rows updated.
    */
   update<
-    QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
+    QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
     RE extends ReferenceExpression<DB, TableName>
   >(
     filter: QueryFilter<DB, TableName, QB, RE>,
@@ -198,7 +188,7 @@ export class StandardFacet<
   ): Promise<number>;
 
   update<
-    QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
+    QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
     RE extends ReferenceExpression<DB, TableName>,
     R extends keyof Selectable<DB[TableName]> & string
   >(
@@ -208,7 +198,7 @@ export class StandardFacet<
   ): Promise<Pick<Selectable<DB[TableName]>, R>[]>;
 
   update<
-    QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
+    QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
     RE extends ReferenceExpression<DB, TableName>
   >(
     filter: QueryFilter<DB, TableName, QB, RE>,
@@ -217,7 +207,7 @@ export class StandardFacet<
   ): Promise<Selectable<DB[TableName]>[]>;
 
   async update<
-    QB extends UpdateQueryBuilder<DB, TableName, TableName, object>,
+    QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
     RE extends ReferenceExpression<DB, TableName>,
     R extends keyof Selectable<DB[TableName]> & string
   >(
@@ -227,22 +217,22 @@ export class StandardFacet<
   ): Promise<
     Selectable<DB[TableName]>[] | Pick<Selectable<DB[TableName]>, R>[] | number
   > {
-    let qb = this.updateRows().set(obj as any);
-    qb = applyQueryFilter(this, filter)(qb as any) as any;
+    const uqb = this.updateRows().set(obj as any);
+    const fqb = applyQueryFilter(this, filter)(uqb as any);
     if (returning) {
       // Cast here because TS wasn't allowing the check.
       if ((returning as string[]).includes("*")) {
-        const result = await qb.returningAll().execute();
+        const result = await fqb.returningAll().execute();
         return result as Selectable<DB[TableName]>[];
       }
       if (returning.length > 0) {
-        const result = await qb.returning(returning as any).execute();
+        const result = await fqb.returning(returning as any).execute();
         return result as Pick<Selectable<DB[TableName]>, R>[];
       }
-      await qb.execute();
+      await fqb.execute();
       return [];
     }
-    const result = await qb.executeTakeFirstOrThrow();
+    const result = await fqb.executeTakeFirstOrThrow();
     return Number(result.numUpdatedRows);
   }
 }
