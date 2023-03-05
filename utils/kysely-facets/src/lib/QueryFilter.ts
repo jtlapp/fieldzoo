@@ -27,7 +27,9 @@ export type QueryFilter<
   | BinaryOperationFilter<DB, TableName, RE>
   | FieldMatchingFilter<DB, TableName>
   | QueryBuilderFilter<QB>
-  | QueryExpressionFilter;
+  | QueryExpressionFilter
+  | MatchAll
+  | MatchAny;
 
 /**
  * A filter that is a binary operation, such as `eq` or `gt`.
@@ -67,6 +69,10 @@ export type QueryExpressionFilter = Expression<any>;
 export abstract class ComboFilter {
   filters: QueryFilter<any, any, any, any>[];
 
+  /**
+   * Constructs a combo filter.
+   * @param filters The filters to combine, listed as separate arguments.
+   */
   constructor(...filters: QueryFilter<any, any, any, any>[]) {
     if (filters.length == 0) {
       throw new Error("No filters provided");
@@ -74,14 +80,18 @@ export abstract class ComboFilter {
     this.filters = filters;
   }
 
+  /**
+   * Applies this filter to a query builder.
+   * @param base The facet that this filter is applied to.
+   * @param qb The query builder to apply the filter to.
+   * @returns A function that takes a query builder and returns a query
+   *    builder that is constrained according to this filter.
+   */
   abstract apply<
     DB,
     TableName extends keyof DB & string,
     QB extends WhereInterface<DB, TableName>
-  >(
-    base: KyselyFacet<DB, TableName>,
-    qb: QB
-  ): (qb: QB) => WhereInterface<DB, TableName>;
+  >(base: KyselyFacet<DB, TableName>, qb: QB): (qb: QB) => QB;
 }
 
 /**
@@ -92,9 +102,7 @@ export class MatchAll extends ComboFilter {
     DB,
     TableName extends keyof DB & string,
     QB extends WhereInterface<DB, TableName>
-  >(
-    base: KyselyFacet<DB, TableName>
-  ): (qb: QB) => WhereInterface<DB, TableName> {
+  >(base: KyselyFacet<DB, TableName>): (qb: QB) => QB {
     return (qb) => {
       for (const filter of this.filters) {
         qb = applyQueryFilter(base, filter)(qb);
@@ -112,15 +120,13 @@ export class MatchAny extends ComboFilter {
     DB,
     TableName extends keyof DB & string,
     QB extends WhereInterface<DB, TableName>
-  >(
-    base: KyselyFacet<DB, TableName>
-  ): (qb: QB) => WhereInterface<DB, TableName> {
+  >(base: KyselyFacet<DB, TableName>): (qb: QB) => QB {
     return (qb) => {
       let wqb: WhereInterface<DB, TableName> = qb;
       for (const filter of this.filters) {
         wqb = wqb.orWhere((qb) => applyQueryFilter(base, filter)(qb));
       }
-      return wqb;
+      return wqb as QB;
     };
   }
 }
@@ -142,29 +148,36 @@ export function applyQueryFilter<
   base: KyselyFacet<DB, TableName>,
   filter: QueryFilter<DB, TableName, QB, RE>
 ): (qb: QB) => QB {
-  // Process a binary operation filter.
-  if (Array.isArray(filter)) {
-    return (qb) => qb.where(...filter) as QB;
-  }
-
   // Process a query builder filter.
   if (typeof filter === "function") {
     return filter;
   }
 
   if (typeof filter === "object" && filter !== null) {
+    // Process a field matching filter. `{}` matches all rows.
+    if (filter.constructor === Object) {
+      return (qb) => {
+        for (const [column, value] of Object.entries(filter)) {
+          qb = qb.where(base.ref(column as string), "=", value) as QB;
+        }
+        return qb;
+      };
+    }
+
+    // Process a binary operation filter.
+    if (Array.isArray(filter)) {
+      return (qb) => qb.where(...filter) as QB;
+    }
+
+    // Process a combination filter.
+    if (filter instanceof ComboFilter) {
+      return filter.apply(base);
+    }
+
     // Process a query expression filter.
     if ("expressionType" in filter) {
       return (qb) => qb.where(filter) as QB;
     }
-
-    // Process a field matching filter. `{}` matches all rows.
-    return (qb) => {
-      for (const [column, value] of Object.entries(filter)) {
-        qb = qb.where(base.ref(column as string), "=", value) as QB;
-      }
-      return qb;
-    };
   }
 
   throw new Error("Unrecognized query filter");
