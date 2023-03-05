@@ -122,11 +122,10 @@ export class MatchAny extends ComboFilter {
     QB extends WhereInterface<DB, TableName>
   >(base: KyselyFacet<DB, TableName>): (qb: QB) => QB {
     return (qb) => {
-      let wqb: WhereInterface<DB, TableName> = qb;
       for (const filter of this.filters) {
-        wqb = wqb.orWhere((qb) => applyQueryFilter(base, filter)(qb));
+        qb = qb.orWhere((qb) => applyQueryFilter(base, filter)(qb)) as QB;
       }
-      return wqb as QB;
+      return qb;
     };
   }
 }
