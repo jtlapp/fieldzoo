@@ -11,13 +11,15 @@ import {
   SelectQueryBuilder,
   Updateable,
   UpdateQueryBuilder,
+  WhereInterface,
 } from "kysely";
 
 import { KyselyFacet } from "../facets/KyselyFacet";
 
 type AnyQueryBuilder<DB, TableName extends keyof DB & string> =
   | SelectQueryBuilder<DB, TableName, object>
-  | UpdateQueryBuilder<DB, TableName, TableName, object>;
+  | UpdateQueryBuilder<DB, TableName, TableName, object>
+  | WhereInterface<DB, TableName>;
 type WhereQB<QB> = QB extends AnyQueryBuilder<infer DB, infer TableName>
   ? Pick<SelectQueryBuilder<DB, TableName, object>, "where">
   : never;
@@ -70,6 +72,63 @@ export type QueryBuilderFilter<QB> = (qb: QB) => QB;
 export type QueryExpressionFilter = Expression<any>;
 
 /**
+ * A filter that is a combination of other filters.
+ */
+export abstract class ComboFilter {
+  constructor(readonly filters: QueryFilter<any, any, any, any>[]) {}
+
+  abstract apply<
+    DB,
+    TableName extends keyof DB & string,
+    QB extends AnyQueryBuilder<DB, TableName>
+  >(
+    base: KyselyFacet<DB, TableName>,
+    qb: QB
+  ): (qb: QB) => WhereInterface<DB, TableName>;
+}
+
+/**
+ * A filter that matches all of the provided filters.
+ */
+export class MatchAll extends ComboFilter {
+  apply<
+    DB,
+    TableName extends keyof DB & string,
+    QB extends AnyQueryBuilder<DB, TableName>
+  >(
+    base: KyselyFacet<DB, TableName>
+  ): (qb: QB) => WhereInterface<DB, TableName> {
+    return (qb) => {
+      for (const filter of this.filters) {
+        qb = applyQueryFilter(base, filter)(qb);
+      }
+      return qb;
+    };
+  }
+}
+
+/**
+ * A filter that matches any of the provided filters.
+ */
+export class MatchAny extends ComboFilter {
+  apply<
+    DB,
+    TableName extends keyof DB & string,
+    QB extends AnyQueryBuilder<DB, TableName>
+  >(
+    base: KyselyFacet<DB, TableName>
+  ): (qb: QB) => WhereInterface<DB, TableName> {
+    return (qb) => {
+      let wqb: WhereInterface<DB, TableName> = qb;
+      for (const filter of this.filters) {
+        wqb = wqb.orWhere((qb) => applyQueryFilter(base, filter)(qb));
+      }
+      return wqb;
+    };
+  }
+}
+
+/**
  * Returns a query builder that constrains the provided query builder
  * with the provided filter.
  */
@@ -93,6 +152,14 @@ export function applyQueryFilter<
   filter: QueryFilter<DB, TableName, QB, RE>
 ): (qb: QB) => QB;
 
+/**
+ * Returns a query builder that constrains the provided query builder
+ * according to the provided query filter.
+ * @param base The Kysely facet that is used to create references.
+ * @param filter The query filter.
+ * @returns A function that takes a query builder and returns a query
+ * builder that is constrained according to the provided query filter.
+ */
 export function applyQueryFilter<
   DB,
   TableName extends keyof DB & string,
