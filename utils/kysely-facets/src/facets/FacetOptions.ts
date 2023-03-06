@@ -6,23 +6,23 @@ import { Insertable, Selectable, Updateable } from "kysely";
 export interface FacetOptions<
   DB,
   TableName extends keyof DB & string,
-  ST,
-  IT,
-  UT,
-  RT
+  SelectedType,
+  InsertedType,
+  UpdatedType,
+  ReturnedType
 > {
   /** Transformation to apply to selected objects. */
-  selectTransform?: (row: Selectable<DB[TableName]>) => ST;
+  selectTransform?: (row: Selectable<DB[TableName]>) => SelectedType;
 
   /** Transformation to apply to inserted objects. */
-  insertTransform?: (obj: IT) => Insertable<DB[TableName]>;
+  insertTransform?: (obj: InsertedType) => Insertable<DB[TableName]>;
 
   /** Transformation to apply to updated objects. */
-  updateTransform?: (update: UT) => Updateable<DB[TableName]>;
+  updateTransform?: (update: UpdatedType) => Updateable<DB[TableName]>;
 
   /** Transformation to apply to data returned from inserts and updates. */
   returnTransform?: (
-    source: IT | UT,
+    source: InsertedType | UpdatedType,
     returns: Partial<Selectable<DB[TableName]>>
-  ) => RT;
+  ) => ReturnedType;
 }

@@ -16,11 +16,18 @@ import { FacetOptions } from "./FacetOptions";
 export class StandardFacet<
   DB,
   TableName extends keyof DB & string,
-  ST = Selectable<DB[TableName]>,
-  IT = Insertable<DB[TableName]>,
-  UT = Partial<IT>,
-  RT = Partial<ST>
-> extends KyselyFacet<DB, TableName, ST, IT, UT, RT> {
+  SelectedType = Selectable<DB[TableName]>,
+  InsertedType = Insertable<DB[TableName]>,
+  UpdatedType = Partial<InsertedType>,
+  ReturnedType = Partial<SelectedType>
+> extends KyselyFacet<
+  DB,
+  TableName,
+  SelectedType,
+  InsertedType,
+  UpdatedType,
+  ReturnedType
+> {
   /**
    * Constructs a new Kysely table.
    * @param db The Kysely database.
@@ -29,7 +36,14 @@ export class StandardFacet<
   constructor(
     db: Kysely<DB>,
     tableName: TableName,
-    options?: FacetOptions<DB, TableName, ST, IT, UT, RT>
+    options?: FacetOptions<
+      DB,
+      TableName,
+      SelectedType,
+      InsertedType,
+      UpdatedType,
+      ReturnedType
+    >
   ) {
     super(db, tableName, options);
   }

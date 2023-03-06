@@ -8,15 +8,22 @@ import { FacetOptions } from "./FacetOptions";
 export abstract class KyselyFacet<
   DB,
   TableName extends keyof DB & string,
-  ST = Selectable<DB[TableName]>,
-  IT = Insertable<DB[TableName]>,
-  UT = Partial<IT>,
-  RT = Partial<ST>
+  SelectedType = Selectable<DB[TableName]>,
+  InsertedType = Insertable<DB[TableName]>,
+  UpdatedType = Partial<InsertedType>,
+  ReturnedType = Partial<SelectedType>
 > {
   constructor(
     readonly db: Kysely<DB>,
     readonly tableName: TableName,
-    readonly options?: FacetOptions<DB, TableName, ST, IT, UT, RT>
+    readonly options?: FacetOptions<
+      DB,
+      TableName,
+      SelectedType,
+      InsertedType,
+      UpdatedType,
+      ReturnedType
+    >
   ) {}
 
   /**
@@ -64,10 +71,12 @@ export abstract class KyselyFacet<
    * Transforms an object or array of objects received for insertion into
    * an insertable row or array of rows.
    */
-  protected transformInsertion(source: IT): Insertable<DB[TableName]>;
-  protected transformInsertion(source: IT[]): Insertable<DB[TableName]>[];
+  protected transformInsertion(source: InsertedType): Insertable<DB[TableName]>;
   protected transformInsertion(
-    source: IT | IT[]
+    source: InsertedType[]
+  ): Insertable<DB[TableName]>[];
+  protected transformInsertion(
+    source: InsertedType | InsertedType[]
   ): Insertable<DB[TableName]> | Insertable<DB[TableName]>[] {
     if (this.options?.insertTransform) {
       if (Array.isArray(source)) {
@@ -84,19 +93,19 @@ export abstract class KyselyFacet<
    * or update into a returnable object or an array of objects.
    */
   protected transformReturn(
-    source: IT | UT,
+    source: InsertedType | UpdatedType,
     returns: Partial<Selectable<DB[TableName]>>
-  ): RT;
+  ): ReturnedType;
   protected transformReturn(
-    source: IT[] | UT[],
+    source: InsertedType[] | UpdatedType[],
     returns: Partial<Selectable<DB[TableName]>>[]
-  ): RT[];
+  ): ReturnedType[];
   protected transformReturn(
-    source: IT | IT[] | UT | UT[],
+    source: InsertedType | InsertedType[] | UpdatedType | UpdatedType[],
     returns:
       | Partial<Selectable<DB[TableName]>>
       | Partial<Selectable<DB[TableName]>>[]
-  ): RT | RT[] {
+  ): ReturnedType | ReturnedType[] {
     if (this.options && this.options.returnTransform) {
       if (Array.isArray(source)) {
         if (!Array.isArray(returns)) {
@@ -119,11 +128,13 @@ export abstract class KyselyFacet<
    * Transforms a selected row or array of rows into a returnable
    * object or array of objects.
    */
-  protected transformSelection(source: Selectable<DB[TableName]>): ST;
-  protected transformSelection(source: Selectable<DB[TableName]>[]): ST[];
+  protected transformSelection(source: Selectable<DB[TableName]>): SelectedType;
+  protected transformSelection(
+    source: Selectable<DB[TableName]>[]
+  ): SelectedType[];
   protected transformSelection(
     source: Selectable<DB[TableName]> | Selectable<DB[TableName]>[]
-  ): ST | ST[] {
+  ): SelectedType | SelectedType[] {
     if (this.options?.selectTransform) {
       if (Array.isArray(source)) {
         // TS isn't seeing that options and the transform are defined.
@@ -138,10 +149,10 @@ export abstract class KyselyFacet<
    * Transforms an object or array of objects received for update into
    * an updateable row or array of rows.
    */
-  protected transformUpdate(source: UT): Updateable<DB[TableName]>;
-  protected transformUpdate(source: UT[]): Updateable<DB[TableName]>[];
+  protected transformUpdate(source: UpdatedType): Updateable<DB[TableName]>;
+  protected transformUpdate(source: UpdatedType[]): Updateable<DB[TableName]>[];
   protected transformUpdate(
-    source: UT | UT[]
+    source: UpdatedType | UpdatedType[]
   ): Updateable<DB[TableName]> | Updateable<DB[TableName]>[] {
     if (this.options?.updateTransform) {
       if (Array.isArray(source)) {
