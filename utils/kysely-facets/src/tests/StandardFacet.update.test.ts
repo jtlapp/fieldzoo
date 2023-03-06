@@ -184,6 +184,8 @@ describe("update()", () => {
     }
   });
 
+  // TODO: Add update() tests for MatchAll and MatchAny queries.
+
   ignore("detects update() type errors", async () => {
     // @ts-expect-error - table must have all filter fields
     userTable.update({ notThere: "xyz" }, { email: "abc@def.ghi" });

@@ -191,6 +191,8 @@ describe("selectOne()", () => {
     );
   });
 
+  // TODO: Add tests for selectOne() with MatchAll and MatchAny filters
+
   ignore("detects selectOne() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expression filters
     userTable.selectOne("name = 'John Doe'");
