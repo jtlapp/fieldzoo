@@ -11,18 +11,27 @@ import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
 import { KyselyFacet } from "./KyselyFacet";
 import { QueryFilter, applyQueryFilter } from "../filters/QueryFilter";
+import { FacetOptions } from "./FacetOptions";
 
 export class StandardFacet<
   DB,
-  TableName extends keyof DB & string
-> extends KyselyFacet<DB, TableName> {
+  TableName extends keyof DB & string,
+  ST = Selectable<DB[TableName]>,
+  IT = Insertable<DB[TableName]>,
+  UT = Partial<IT>,
+  RT = Partial<ST>
+> extends KyselyFacet<DB, TableName, ST, IT, UT, RT> {
   /**
    * Constructs a new Kysely table.
    * @param db The Kysely database.
    * @param tableName The name of the table.
    */
-  constructor(db: Kysely<DB>, tableName: TableName) {
-    super(db, tableName);
+  constructor(
+    db: Kysely<DB>,
+    tableName: TableName,
+    options?: FacetOptions<DB, TableName, ST, IT, UT, RT>
+  ) {
+    super(db, tableName, options);
   }
 
   /**
