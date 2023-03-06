@@ -77,7 +77,8 @@ export class StandardFacet<
     objs: InsertedType[],
     returning?: R[] | ["*"]
   ): Promise<Selectable<DB[TableName]>[] | Pick<O, R>[] | void> {
-    const qb = this.insertRows().values(this.transformInsertion(objs));
+    const transformedObjs = this.transformInsertion(objs);
+    const qb = this.insertRows().values(transformedObjs);
     if (returning) {
       // Cast here because TS wasn't allowing the check.
       if ((returning as string[]).includes("*")) {
