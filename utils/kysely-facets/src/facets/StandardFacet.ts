@@ -145,26 +145,21 @@ export class StandardFacet<
     await qb.execute();
   }
 
+  // TODO: consider combining selectMany() and selectOne() into select().
   /**
    * Selects zero or more rows from this table, selecting rows according
    * to the provided filter.
    * @param filter Filter that constrains the selected rows.
    * @returns An array of objects containing the selected rows, possibly empty.
    */
-  selectMany<
-    QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
-    RE extends ReferenceExpression<DB, TableName>
-  >(
-    filter: QueryFilter<DB, TableName, QB, RE>
-  ): Promise<Selectable<DB[TableName]>[]>;
-
   async selectMany<
     QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
     RE extends ReferenceExpression<DB, TableName>
-  >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<any> {
+  >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<SelectedType[]> {
     const sqb = this.selectRows().selectAll();
     const fqb = applyQueryFilter(this, filter)(sqb as any);
-    return fqb.execute();
+    const selections = await fqb.execute();
+    return this.transformSelection(selections as Selectable<DB[TableName]>[]);
   }
 
   /**
@@ -174,20 +169,15 @@ export class StandardFacet<
    * @returns An object containing the selected row, or `null` if no row
    *    was selected.
    */
-  selectOne<
-    QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
-    RE extends ReferenceExpression<DB, TableName>
-  >(
-    filter: QueryFilter<DB, TableName, QB, RE>
-  ): Promise<Selectable<DB[TableName]> | null>;
-
   async selectOne<
     QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
     RE extends ReferenceExpression<DB, TableName>
-  >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<any> {
+  >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<SelectedType | null> {
     const sqb = this.selectRows().selectAll();
     const fqb = applyQueryFilter(this, filter)(sqb as any);
-    return (await fqb.executeTakeFirst()) || null;
+    const selection = await fqb.executeTakeFirst();
+    if (!selection) return null;
+    return this.transformSelection(selection as Selectable<DB[TableName]>);
   }
 
   /**
