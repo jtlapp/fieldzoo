@@ -59,15 +59,15 @@ export class StandardFacet<
    * @returns An array of objects containing the requested return columns,
    *   if any. Returns `void` when `returning` is omitted.
    */
-  insertMany(objs: Insertable<DB[TableName]>[]): Promise<void>;
+  insertMany(objs: InsertedType[]): Promise<void>;
 
   insertMany<O extends Selectable<DB[TableName]>, R extends keyof O>(
-    objs: Insertable<DB[TableName]>[],
+    objs: InsertedType[],
     returning: R[]
   ): Promise<Pick<O, R>[]>;
 
   insertMany<O extends Selectable<DB[TableName]>>(
-    objs: Insertable<DB[TableName]>[],
+    objs: InsertedType[],
     returning: ["*"]
   ): Promise<Selectable<DB[TableName]>[]>;
 
@@ -75,10 +75,10 @@ export class StandardFacet<
     O extends Selectable<DB[TableName]>,
     R extends keyof O & keyof DB[TableName] & string
   >(
-    objs: Insertable<DB[TableName]>[],
+    objs: InsertedType[],
     returning?: R[] | ["*"]
   ): Promise<Selectable<DB[TableName]>[] | Pick<O, R>[] | void> {
-    const qb = this.insertRows().values(objs);
+    const qb = this.insertRows().values(this.transformInsertion(objs));
     if (returning) {
       // Cast here because TS wasn't allowing the check.
       if ((returning as string[]).includes("*")) {
@@ -106,15 +106,15 @@ export class StandardFacet<
    * @returns An object containing the requested return columns, if any.
    *    Returns `void` when `returning` is omitted.
    */
-  insertOne(obj: Insertable<DB[TableName]>): Promise<void>;
+  insertOne(obj: InsertedType): Promise<void>;
 
   insertOne<O extends Selectable<DB[TableName]>, R extends keyof O>(
-    obj: Insertable<DB[TableName]>,
+    obj: InsertedType,
     returning: R[]
   ): Promise<Pick<O, R>>;
 
   insertOne<O extends Selectable<DB[TableName]>>(
-    obj: Insertable<DB[TableName]>,
+    obj: InsertedType,
     returning: ["*"]
   ): Promise<Selectable<DB[TableName]>>;
 
@@ -122,10 +122,11 @@ export class StandardFacet<
     O extends Selectable<DB[TableName]>,
     R extends keyof O & keyof DB[TableName] & string
   >(
-    obj: Insertable<DB[TableName]>,
+    obj: InsertedType,
     returning?: R[] | ["*"]
   ): Promise<Selectable<DB[TableName]> | Pick<O, R> | void> {
-    const qb = this.insertRows().values(obj);
+    const transformedObj = this.transformInsertion(obj);
+    const qb = this.insertRows().values(transformedObj);
     if (returning) {
       // Cast here because TS wasn't allowing the check.
       if ((returning as string[]).includes("*")) {
