@@ -149,6 +149,7 @@ export abstract class KyselyFacet<
    * Transforms an object or array of objects received for update into
    * an updateable row or array of rows.
    */
+  // TODO: Might not need to support arrays here.
   protected transformUpdate(source: UpdatedType): Updateable<DB[TableName]>;
   protected transformUpdate(source: UpdatedType[]): Updateable<DB[TableName]>[];
   protected transformUpdate(

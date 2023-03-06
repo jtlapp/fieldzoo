@@ -3,7 +3,6 @@ import {
   Insertable,
   ReferenceExpression,
   Selectable,
-  UpdateObject,
   UpdateQueryBuilder,
   UpdateResult,
 } from "kysely";
@@ -198,7 +197,7 @@ export class StandardFacet<
     RE extends ReferenceExpression<DB, TableName>
   >(
     filter: QueryFilter<DB, TableName, QB, RE>,
-    obj: UpdateObject<DB, TableName>
+    obj: UpdatedType
   ): Promise<number>;
 
   update<
@@ -207,7 +206,7 @@ export class StandardFacet<
     R extends keyof Selectable<DB[TableName]> & string
   >(
     filter: QueryFilter<DB, TableName, QB, RE>,
-    obj: UpdateObject<DB, TableName>,
+    obj: UpdatedType,
     returning: R[]
   ): Promise<Pick<Selectable<DB[TableName]>, R>[]>;
 
@@ -216,7 +215,7 @@ export class StandardFacet<
     RE extends ReferenceExpression<DB, TableName>
   >(
     filter: QueryFilter<DB, TableName, QB, RE>,
-    obj: UpdateObject<DB, TableName>,
+    obj: UpdatedType,
     returning: ["*"]
   ): Promise<Selectable<DB[TableName]>[]>;
 
@@ -226,12 +225,13 @@ export class StandardFacet<
     R extends keyof Selectable<DB[TableName]> & string
   >(
     filter: QueryFilter<DB, TableName, QB, RE>,
-    obj: UpdateObject<DB, TableName>,
+    obj: UpdatedType,
     returning?: R[] | ["*"]
   ): Promise<
     Selectable<DB[TableName]>[] | Pick<Selectable<DB[TableName]>, R>[] | number
   > {
-    const uqb = this.updateRows().set(obj as any);
+    const transformedObj = this.transformUpdate(obj);
+    const uqb = this.updateRows().set(transformedObj as any);
     const fqb = applyQueryFilter(this, filter)(uqb as any);
     if (returning) {
       // Cast here because TS wasn't allowing the check.
