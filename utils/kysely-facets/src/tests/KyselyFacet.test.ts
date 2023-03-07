@@ -2,17 +2,17 @@ import { Kysely } from "kysely";
 
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
-import { UserFacet } from "./utils/test-facets";
+import { PassThruUserFacet } from "./utils/test-facets";
 import { USERS } from "./utils/test-objects";
 import { KyselyFacet } from "../..";
 import { ignore } from "@fieldzoo/testing-utils";
 
 let db: Kysely<Database>;
-let userFacet: UserFacet;
+let passThruUserFacet: PassThruUserFacet;
 
 beforeAll(async () => {
   db = await createDB();
-  userFacet = new UserFacet(db);
+  passThruUserFacet = new PassThruUserFacet(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
@@ -20,12 +20,12 @@ afterAll(() => destroyDB(db));
 describe("basic row queries", () => {
   it("inserts, selects, updates, and deletes objects by row query", async () => {
     // Add users by row query
-    const user0 = (await userFacet
+    const user0 = (await passThruUserFacet
       .insertRows()
       .values(USERS[0])
       .returningAll()
       .executeTakeFirst())!;
-    const user1 = (await userFacet
+    const user1 = (await passThruUserFacet
       .insertRows()
       .values(USERS[1])
       .returningAll()
@@ -34,14 +34,14 @@ describe("basic row queries", () => {
     // Update a user by row query
     const NEW_EMAIL = "new@baz.com";
     user1.email = NEW_EMAIL;
-    await userFacet
+    await passThruUserFacet
       .updateRows()
       .set(user1)
       .where("id", "=", user1.id)
       .execute();
 
     // Retrieves user by row query
-    const readUser1 = await userFacet
+    const readUser1 = await passThruUserFacet
       .selectRows()
       .where("id", "=", user1.id)
       .executeTakeFirst();
@@ -49,12 +49,12 @@ describe("basic row queries", () => {
     expect(readUser1?.email).toEqual(NEW_EMAIL);
 
     // Delete user by row query
-    await userFacet.deleteRows().where("id", "=", user1.id).execute();
+    await passThruUserFacet.deleteRows().where("id", "=", user1.id).execute();
 
     // Verify correct user was deleted
-    const readUser0 = await userFacet.selectById(user0.id);
+    const readUser0 = await passThruUserFacet.selectById(user0.id);
     expect(readUser0?.handle).toEqual(USERS[0].handle);
-    const noUser = await userFacet.selectById(user1.id);
+    const noUser = await passThruUserFacet.selectById(user1.id);
     expect(noUser).toBeNull();
   });
 });
