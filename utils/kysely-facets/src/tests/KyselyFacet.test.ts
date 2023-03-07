@@ -178,7 +178,7 @@ describe("transforms between inputs and outputs", () => {
   }
   const testPassThruFacet = new TestPassThruFacet(db);
 
-  class TransformFacet extends KyselyFacet<
+  class TestTransformFacet extends KyselyFacet<
     Database,
     "users",
     SelectedUser,
@@ -533,30 +533,30 @@ describe("transforms between inputs and outputs", () => {
       });
     }
   }
-  const transformFacet = new TransformFacet(db);
+  const testTransformFacet = new TestTransformFacet(db);
 
   it("transforms insertions", () => {
     testPassThruFacet.testTransformInsertion();
-    transformFacet.testTransformInsertion();
+    testTransformFacet.testTransformInsertion();
   });
 
   it("transforms selections", () => {
     testPassThruFacet.testTransformSelection();
-    transformFacet.testTransformSelection();
+    testTransformFacet.testTransformSelection();
   });
 
   it("transforms updates", () => {
     testPassThruFacet.testTransformUpdate();
-    transformFacet.testTransformUpdate();
+    testTransformFacet.testTransformUpdate();
   });
 
   it("transforms insert returns", () => {
     testPassThruFacet.testTransformInsertReturn();
-    transformFacet.testTransformInsertReturn();
+    testTransformFacet.testTransformInsertReturn();
   });
 
   it("transforms update returns", () => {
     testPassThruFacet.testTransformUpdateReturn();
-    transformFacet.testTransformUpdateReturn();
+    testTransformFacet.testTransformUpdateReturn();
   });
 });
