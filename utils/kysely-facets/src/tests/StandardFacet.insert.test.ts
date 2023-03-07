@@ -1,28 +1,29 @@
 import { Kysely } from "kysely";
 
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
-import { Database, UserTable, PostTable } from "./utils/test-tables";
+import { Database } from "./utils/test-tables";
+import { UserFacet, PostFacet } from "./utils/test-facets";
 import { USERS, POSTS } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
 
 let db: Kysely<Database>;
-let userTable: UserTable;
-let postTable: PostTable;
+let userFacet: UserFacet;
+let postFacet: PostFacet;
 
 beforeAll(async () => {
   db = await createDB();
-  userTable = new UserTable(db);
-  postTable = new PostTable(db);
+  userFacet = new UserFacet(db);
+  postFacet = new PostFacet(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe("insertMany()", () => {
   it("inserts rows without returning columns", async () => {
-    const result = await userTable.insertMany(USERS);
+    const result = await userFacet.insertMany(USERS);
     expect(result).toBeUndefined();
 
-    const readUsers = await userTable.selectMany({});
+    const readUsers = await userFacet.selectMany({});
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -30,14 +31,14 @@ describe("insertMany()", () => {
   });
 
   it("inserts rows returning indicated columns", async () => {
-    const updatedUsers = await userTable.insertMany(USERS, ["id"]);
+    const updatedUsers = await userFacet.insertMany(USERS, ["id"]);
     expect(updatedUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(updatedUsers[i].id).toBeGreaterThan(0);
       expect(Object.keys(updatedUsers[i]).length).toEqual(1);
     }
 
-    const readUsers = await userTable.selectMany({});
+    const readUsers = await userFacet.selectMany({});
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -46,7 +47,7 @@ describe("insertMany()", () => {
     const post0 = Object.assign({}, POSTS[0], { userId: updatedUsers[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: updatedUsers[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: updatedUsers[2].id });
-    const updatedPosts = await postTable.insertMany(
+    const updatedPosts = await postFacet.insertMany(
       [post0, post1, post2],
       ["id", "createdAt"]
     );
@@ -59,7 +60,7 @@ describe("insertMany()", () => {
   });
 
   it("inserts rows returning all columns", async () => {
-    const updatedUsers = await userTable.insertMany(USERS, ["*"]);
+    const updatedUsers = await userFacet.insertMany(USERS, ["*"]);
     for (let i = 0; i < USERS.length; i++) {
       expect(updatedUsers[i].id).toBeGreaterThan(0);
     }
@@ -71,40 +72,40 @@ describe("insertMany()", () => {
   });
 
   it("errors when insert requests an empty list of returns", async () => {
-    expect(userTable.insertMany(USERS, [])).rejects.toThrow(
+    expect(userFacet.insertMany(USERS, [])).rejects.toThrow(
       "'returning' cannot be an empty array"
     );
 
-    const readUsers = await userTable.selectMany({});
+    const readUsers = await userFacet.selectMany({});
     expect(readUsers.length).toEqual(0);
   });
 
   ignore("detects insertMany() type errors", async () => {
     // @ts-expect-error - inserted object must have all required columns
-    userTable.insertMany([{}]);
+    userFacet.insertMany([{}]);
     // @ts-expect-error - inserted object must have all required columns
-    userTable.insertMany([{ email: "xyz@pdq.xyz" }]);
+    userFacet.insertMany([{ email: "xyz@pdq.xyz" }]);
     // @ts-expect-error - returning argument can't be a string
-    userTable.insertMany([USERS[0]], "id");
+    userFacet.insertMany([USERS[0]], "id");
     // @ts-expect-error - returning argument can't be a string
-    userTable.insertMany([USERS[0]], "*");
+    userFacet.insertMany([USERS[0]], "*");
     // @ts-expect-error - returning arguments must be valid column names
-    userTable.insertMany([USERS[0]], [""]);
+    userFacet.insertMany([USERS[0]], [""]);
     // @ts-expect-error - returning arguments must be valid column names
-    userTable.insertMany([USERS[0]], ["notThere"]);
+    userFacet.insertMany([USERS[0]], ["notThere"]);
     // @ts-expect-error - returning arguments must be valid column names
-    userTable.insertMany([USERS[0]], ["notThere", "*"]);
+    userFacet.insertMany([USERS[0]], ["notThere", "*"]);
     // @ts-expect-error - only requested columns are returned
-    (await userTable.insertMany([USERS[0]], ["id"]))[0].handle;
+    (await userFacet.insertMany([USERS[0]], ["id"]))[0].handle;
   });
 });
 
 describe("insertOne", () => {
   it("inserts a row without returning columns", async () => {
-    const result = await userTable.insertOne(USERS[0]);
+    const result = await userFacet.insertOne(USERS[0]);
     expect(result).toBeUndefined();
 
-    const readUser0 = await userTable
+    const readUser0 = await userFacet
       .selectRows()
       .where("email", "=", USERS[0].email)
       .executeTakeFirst();
@@ -112,23 +113,23 @@ describe("insertOne", () => {
   });
 
   it("inserts one returning indicated columns", async () => {
-    const updatedUser = await userTable.insertOne(USERS[0], ["id"]);
+    const updatedUser = await userFacet.insertOne(USERS[0], ["id"]);
     expect(updatedUser.id).toBeGreaterThan(0);
     expect(Object.keys(updatedUser).length).toEqual(1);
 
-    const readUser0 = await userTable
+    const readUser0 = await userFacet
       .selectRows()
       .where("id", "=", updatedUser.id)
       .executeTakeFirst();
     expect(readUser0?.email).toEqual(USERS[0].email);
 
     const post0 = Object.assign({}, POSTS[0], { userId: updatedUser.id });
-    const updatedPost = await postTable.insertOne(post0, ["id", "createdAt"]);
+    const updatedPost = await postFacet.insertOne(post0, ["id", "createdAt"]);
     expect(updatedPost.id).toBeGreaterThan(0);
     expect(new Date(updatedPost.createdAt)).not.toBeNaN();
     expect(Object.keys(updatedPost).length).toEqual(2);
 
-    const readPost0 = await postTable
+    const readPost0 = await postFacet
       .selectRows()
       .where("id", "=", updatedPost.id)
       .where("createdAt", "=", updatedPost.createdAt)
@@ -137,37 +138,37 @@ describe("insertOne", () => {
   });
 
   it("inserts one returning all columns", async () => {
-    const updatedUser = await userTable.insertOne(USERS[0], ["*"]);
+    const updatedUser = await userFacet.insertOne(USERS[0], ["*"]);
     expect(updatedUser.id).toBeGreaterThan(0);
     const expectedUser = Object.assign({}, USERS[0], { id: updatedUser.id });
     expect(updatedUser).toEqual(expectedUser);
   });
 
   it("errors when insert requests an empty list of returns", async () => {
-    expect(userTable.insertOne(USERS[0], [])).rejects.toThrow(
+    expect(userFacet.insertOne(USERS[0], [])).rejects.toThrow(
       "'returning' cannot be an empty array"
     );
 
-    const readUsers = await userTable.selectMany({});
+    const readUsers = await userFacet.selectMany({});
     expect(readUsers.length).toEqual(0);
   });
 
   ignore("detects insertOne() type errors", async () => {
     // @ts-expect-error - inserted object must have all required columns
-    userTable.insertOne({});
+    userFacet.insertOne({});
     // @ts-expect-error - inserted object must have all required columns
-    userTable.insertOne({ email: "xyz@pdq.xyz" });
+    userFacet.insertOne({ email: "xyz@pdq.xyz" });
     // @ts-expect-error - returning argument can't be a string
-    userTable.insertOne(USERS[0], "id");
+    userFacet.insertOne(USERS[0], "id");
     // @ts-expect-error - returning argument can't be a string
-    userTable.insertOne(USERS[0], "*");
+    userFacet.insertOne(USERS[0], "*");
     // @ts-expect-error - returning arguments must be valid column names
-    userTable.insertOne(USERS[0], [""]);
+    userFacet.insertOne(USERS[0], [""]);
     // @ts-expect-error - returning arguments must be valid column names
-    userTable.insertOne(USERS[0], ["notThere"]);
+    userFacet.insertOne(USERS[0], ["notThere"]);
     // @ts-expect-error - returning arguments must be valid column names
-    userTable.insertOne(USERS[0], ["notThere", "*"]);
+    userFacet.insertOne(USERS[0], ["notThere", "*"]);
     // @ts-expect-error - only requested columns are returned
-    (await userTable.insertOne(USERS[0], ["id", "email"])).name;
+    (await userFacet.insertOne(USERS[0], ["id", "email"])).name;
   });
 });
