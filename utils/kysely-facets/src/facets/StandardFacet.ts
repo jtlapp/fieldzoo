@@ -189,11 +189,13 @@ export class StandardFacet<
    * @param obj The object whose field values are to be assigned to the row.
    * @param returning The columns to return from the updated row. If
    *    `["*"]` is given, all columns are returned. If a list of field names
-   *    is given, returns only those field names. If omitted, no columns
-   *    are returned. Useful for getting auto-generated columns.
-   * @returns If `returning` was provided, returns an array of objects
-   *    having the requested returned column values. Otherwise, returns
-   *    the number of rows updated.
+   *    is given, returns only those field names. If `[]` is given, returns
+   *    the number of rows updated. If omitted, nothing is returned. Useful
+   *    for getting auto-generated columns.
+   * @returns If a non-empty `returning` was provided, returns an array of
+   *    objects having the requested return column values. If an empty
+   *    `returning` was provided, returns the number of rows updated.
+   *    Returns nothing if `returning` was omitted.
    */
   update<
     QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
