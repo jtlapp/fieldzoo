@@ -4,7 +4,7 @@ import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database, UserTable } from "./utils/test-tables";
 import { USERS } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
-import { matchAll, matchAny } from "../filters/ComboFilter";
+import { allOf, anyOf } from "../filters/ComboFilter";
 
 let db: Kysely<Database>;
 let userTable: UserTable;
@@ -77,34 +77,34 @@ describe("selectMany()", () => {
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
 
-  it("selects with a MatchAll filter", async () => {
+  it("selects with an MatchAllFilter filter", async () => {
     const userIDs = await userTable.insertMany(USERS, ["id"]);
 
     const users = await userTable.selectMany(
-      matchAll({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
+      allOf({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
     );
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[2].handle);
   });
 
-  it("selects with a MatchAny filter", async () => {
+  it("selects with an MatchAnyFilter filter", async () => {
     await userTable.insertMany(USERS, ["id"]);
 
     const users = await userTable.selectMany(
-      matchAny({ handle: USERS[0].handle }, ["handle", "=", USERS[2].handle])
+      anyOf({ handle: USERS[0].handle }, ["handle", "=", USERS[2].handle])
     );
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
   });
 
-  it("selects with a MatchAny with a nested MatchAll filter", async () => {
+  it("selects with an MatchAnyFilter with a nested MatchAllFilter filter", async () => {
     const userIDs = await userTable.insertMany(USERS, ["id"]);
 
     const users = await userTable.selectMany(
-      matchAny(
+      anyOf(
         { handle: USERS[0].handle },
-        matchAll(["id", ">", userIDs[0].id], (qb) =>
+        allOf(["id", ">", userIDs[0].id], (qb) =>
           qb.where("name", "=", USERS[0].name)
         )
       )
@@ -191,7 +191,7 @@ describe("selectOne()", () => {
     );
   });
 
-  // TODO: Add tests for selectOne() with MatchAll and MatchAny filters
+  // TODO: Add tests for selectOne() with MatchAllFilter and MatchAllFilter filters
 
   ignore("detects selectOne() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expression filters

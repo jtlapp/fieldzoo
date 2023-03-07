@@ -191,7 +191,7 @@ describe("update()", () => {
     }
   });
 
-  // TODO: Add update() tests for MatchAll and MatchAny queries.
+  // TODO: Add update() tests for MatchAllFilter and MatchAllFilter queries.
 
   ignore("detects update() type errors", async () => {
     // @ts-expect-error - table must have all filter fields

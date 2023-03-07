@@ -31,7 +31,7 @@ export abstract class ComboFilter extends AppliedFilter {
 /**
  * A filter that matches all of the provided filters.
  */
-export class MatchAll extends ComboFilter {
+export class MatchAllFilter extends ComboFilter {
   apply<
     DB,
     TableName extends keyof DB & string,
@@ -49,17 +49,17 @@ export class MatchAll extends ComboFilter {
 /**
  * Returns a filter that matches all of the provided filters.
  */
-export function matchAll(
+export function allOf(
   ...filters: QueryFilter<any, any, any, any>[]
-): MatchAll {
-  return new MatchAll(filters);
+): MatchAllFilter {
+  return new MatchAllFilter(filters);
 }
 
 /**
  * A filter that matches at least one of the provided filters.
  * @param filters The filters to combine, listed as separate arguments.
  */
-export class MatchAny extends ComboFilter {
+export class MatchAnyFilter extends ComboFilter {
   apply<
     DB,
     TableName extends keyof DB & string,
@@ -78,8 +78,8 @@ export class MatchAny extends ComboFilter {
  * Returns a filter that matches at least one of the provided filters.
  * @param filters The filters to combine, listed as separate arguments.
  */
-export function matchAny(
+export function anyOf(
   ...filters: QueryFilter<any, any, any, any>[]
-): MatchAny {
-  return new MatchAny(filters);
+): MatchAnyFilter {
+  return new MatchAnyFilter(filters);
 }
