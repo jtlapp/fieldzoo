@@ -1,5 +1,6 @@
 import { Kysely, sql } from "kysely";
 
+import { StandardFacet } from "..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
 import { PassThruUserFacet } from "./utils/test-facets";
@@ -205,6 +206,15 @@ describe("update()", () => {
   });
 
   // TODO: Add update() tests for MatchAllFilter and MatchAllFilter queries.
+
+  it("errors when providing an empty defaultUpdateReturns array", async () => {
+    expect(
+      () =>
+        new StandardFacet(db, "users", {
+          defaultUpdateReturns: [],
+        })
+    ).toThrow("'defaultUpdateReturns' cannot be an empty array");
+  });
 
   ignore("detects update() type errors", async () => {
     // @ts-expect-error - returns undefined without returning argument

@@ -50,6 +50,12 @@ export class StandardFacet<
     >
   ) {
     super(db, tableName, options);
+    if (options?.defaultInsertReturns?.length === 0) {
+      throw new Error("'defaultInsertReturns' cannot be an empty array");
+    }
+    if (options?.defaultUpdateReturns?.length === 0) {
+      throw new Error("'defaultUpdateReturns' cannot be an empty array");
+    }
   }
 
   /**
@@ -108,9 +114,6 @@ export class StandardFacet<
 
     const defaultInsertReturns = this.options?.defaultInsertReturns;
     if (defaultInsertReturns) {
-      if (defaultInsertReturns.length === 0) {
-        throw new Error("'defaultInsertReturns' cannot be an empty array");
-      }
       const returns = await qb.returning(defaultInsertReturns as any).execute();
       return this.transformInsertReturn(objs, returns as any);
     }
@@ -179,9 +182,6 @@ export class StandardFacet<
 
     const defaultInsertReturns = this.options?.defaultInsertReturns;
     if (defaultInsertReturns) {
-      if (defaultInsertReturns.length === 0) {
-        throw new Error("'defaultInsertReturns' cannot be an empty array");
-      }
       const returns = await qb.returning(defaultInsertReturns as any).execute();
       return this.transformInsertReturn(obj, returns as any);
     }
@@ -316,9 +316,6 @@ export class StandardFacet<
 
     const defaultUpdateReturns = this.options?.defaultUpdateReturns;
     if (defaultUpdateReturns) {
-      if (defaultUpdateReturns.length === 0) {
-        throw new Error("'defaultUpdateReturns' cannot be an empty array");
-      }
       const returns = await fqb
         .returning(defaultUpdateReturns as any)
         .execute();

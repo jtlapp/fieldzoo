@@ -1,5 +1,6 @@
 import { Kysely } from "kysely";
 
+import { StandardFacet } from "..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
 import { PassThruUserFacet, PassThruPostFacet } from "./utils/test-facets";
@@ -177,5 +178,16 @@ describe("insertOne", () => {
     plainUserFacet.insertOne(USERS[0], ["notThere", "*"]);
     // @ts-expect-error - only requested columns are returned
     (await plainUserFacet.insertOne(USERS[0], ["id", "email"])).name;
+  });
+});
+
+describe("custom insertion returns", () => {
+  it("errors when providing an empty defaultInsertReturns array", async () => {
+    expect(
+      () =>
+        new StandardFacet(db, "users", {
+          defaultInsertReturns: [],
+        })
+    ).toThrow("'defaultInsertReturns' cannot be an empty array");
   });
 });
