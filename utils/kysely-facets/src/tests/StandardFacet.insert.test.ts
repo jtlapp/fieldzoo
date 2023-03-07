@@ -81,6 +81,8 @@ describe("insertMany()", () => {
   });
 
   ignore("detects insertMany() type errors", async () => {
+    // @ts-expect-error - returns undefined without returning argument
+    passThruUserFacet.insertMany([USERS[0]]).email;
     // @ts-expect-error - inserted object must have all required columns
     passThruUserFacet.insertMany([{}]);
     // @ts-expect-error - inserted object must have all required columns
@@ -157,6 +159,8 @@ describe("insertOne", () => {
   });
 
   ignore("detects insertOne() type errors", async () => {
+    // @ts-expect-error - returns undefined without returning argument
+    passThruUserFacet.insertOne([USERS[0]]).email;
     // @ts-expect-error - inserted object must have all required columns
     passThruUserFacet.insertOne({});
     // @ts-expect-error - inserted object must have all required columns

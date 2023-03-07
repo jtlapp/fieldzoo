@@ -211,6 +211,8 @@ describe("update()", () => {
   // TODO: Add update() tests for MatchAllFilter and MatchAllFilter queries.
 
   ignore("detects update() type errors", async () => {
+    // @ts-expect-error - returns undefined without returning argument
+    passThruUserFacet.update({}, USERS[0]).email;
     // @ts-expect-error - table must have all filter fields
     passThruUserFacet.update({ notThere: "xyz" }, { email: "abc@def.ghi" });
     // @ts-expect-error - table must have all filter fields
