@@ -234,12 +234,12 @@ export class StandardFacet<
    * @param returning The columns to return from the updated row. If
    *    `["*"]` is given, all columns are returned. If a list of field names
    *    is given, returns only those field names. If `[]` is given, returns
-   *    the number of rows updated. If omitted, nothing is returned. Useful
-   *    for getting auto-generated columns.
+   *    the number of rows updated. If omitted, an `UpdateReturnedType` is
+   *    returned. Useful for getting auto-generated columns.
    * @returns If a non-empty `returning` was provided, returns an array of
    *    objects having the requested return column values. If an empty
    *    `returning` was provided, returns the number of rows updated.
-   *    Returns nothing if `returning` was omitted.
+   *    Returns an `UpdateReturnedType` if `returning` was omitted.
    */
   update<
     QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
@@ -247,7 +247,7 @@ export class StandardFacet<
   >(
     filter: QueryFilter<DB, TableName, QB, RE>,
     obj: UpdatedType
-  ): Promise<void>;
+  ): Promise<UpdateReturnedType extends void ? void : UpdateReturnedType[]>;
 
   update<
     QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
@@ -286,6 +286,7 @@ export class StandardFacet<
     obj: UpdatedType,
     returning?: [] | R[] | ["*"]
   ): Promise<
+    | UpdateReturnedType[]
     | Selectable<DB[TableName]>[]
     | Pick<Selectable<DB[TableName]>, R>[]
     | number
@@ -294,6 +295,9 @@ export class StandardFacet<
     const transformedObj = this.transformUpdate(obj);
     const uqb = this.updateRows().set(transformedObj as any);
     const fqb = applyQueryFilter(this, filter)(uqb as any);
+
+    // Return columns requested via `returning` parameter.
+
     if (returning) {
       if (returning.length === 0) {
         const result = await fqb.executeTakeFirstOrThrow();
@@ -307,6 +311,22 @@ export class StandardFacet<
       const result = await fqb.returning(returning as any).execute();
       return result as Pick<Selectable<DB[TableName]>, R>[];
     }
+
+    // Return columns requested via `defaultUpdateReturns` option.
+
+    const defaultUpdateReturns = this.options?.defaultUpdateReturns;
+    if (defaultUpdateReturns) {
+      if (defaultUpdateReturns.length === 0) {
+        throw new Error("'defaultUpdateReturns' cannot be an empty array");
+      }
+      const returns = await fqb
+        .returning(defaultUpdateReturns as any)
+        .execute();
+      return this.transformUpdateReturn(obj, returns as any);
+    }
+
+    // No return columns requested when no `defaultUpdateReturns` option.
+
     await fqb.execute();
   }
 }
