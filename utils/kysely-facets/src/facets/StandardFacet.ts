@@ -82,17 +82,16 @@ export class StandardFacet<
     const transformedObjs = this.transformInsertion(objs);
     const qb = this.insertRows().values(transformedObjs);
     if (returning) {
+      if (returning.length === 0) {
+        throw new Error("'returning' cannot be an empty array");
+      }
       // Cast here because TS wasn't allowing the check.
       if ((returning as string[]).includes("*")) {
         const result = await qb.returningAll().execute();
         return result as Selectable<DB[TableName]>[];
       }
-      if (returning.length > 0) {
-        const result = await qb.returning(returning as any).execute();
-        return result as Pick<O, R>[];
-      }
-      await qb.execute();
-      return objs.map((_) => ({})) as Pick<O, R>[];
+      const result = await qb.returning(returning as any).execute();
+      return result as Pick<O, R>[];
     }
     await qb.execute();
   }
@@ -130,19 +129,18 @@ export class StandardFacet<
     const transformedObj = this.transformInsertion(obj);
     const qb = this.insertRows().values(transformedObj);
     if (returning) {
+      if (returning.length === 0) {
+        throw new Error("'returning' cannot be an empty array");
+      }
       // Cast here because TS wasn't allowing the check.
       if ((returning as string[]).includes("*")) {
         const result = await qb.returningAll().executeTakeFirstOrThrow();
         return result as Selectable<DB[TableName]>;
       }
-      if (returning.length > 0) {
-        const result = await qb
-          .returning(returning as any)
-          .executeTakeFirstOrThrow();
-        return result as Pick<O, R>;
-      }
-      await qb.execute();
-      return {} as Pick<O, R>;
+      const result = await qb
+        .returning(returning as any)
+        .executeTakeFirstOrThrow();
+      return result as Pick<O, R>;
     }
     await qb.execute();
   }

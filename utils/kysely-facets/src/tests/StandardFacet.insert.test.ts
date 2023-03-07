@@ -29,17 +29,6 @@ describe("insertMany()", () => {
     }
   });
 
-  it("inserts rows returning empty objects for an empty return list", async () => {
-    const updatedUsers = await userTable.insertMany(USERS, []);
-    expect(updatedUsers).toEqual(USERS.map(() => ({})));
-
-    const readUsers = await userTable.selectMany({});
-    expect(readUsers.length).toEqual(3);
-    for (let i = 0; i < USERS.length; i++) {
-      expect(readUsers[i].handle).toEqual(USERS[i].handle);
-    }
-  });
-
   it("inserts rows returning indicated columns", async () => {
     const updatedUsers = await userTable.insertMany(USERS, ["id"]);
     expect(updatedUsers.length).toEqual(3);
@@ -81,6 +70,15 @@ describe("insertMany()", () => {
     );
   });
 
+  it("errors when insert requests an empty list of returns", async () => {
+    expect(userTable.insertMany(USERS, [])).rejects.toThrow(
+      "'returning' cannot be an empty array"
+    );
+
+    const readUsers = await userTable.selectMany({});
+    expect(readUsers.length).toEqual(0);
+  });
+
   ignore("detects insertMany() type errors", async () => {
     // @ts-expect-error - inserted object must have all required columns
     userTable.insertMany([{}]);
@@ -105,17 +103,6 @@ describe("insertOne", () => {
   it("inserts a row without returning columns", async () => {
     const result = await userTable.insertOne(USERS[0]);
     expect(result).toBeUndefined();
-
-    const readUser0 = await userTable
-      .selectRows()
-      .where("email", "=", USERS[0].email)
-      .executeTakeFirst();
-    expect(readUser0?.email).toEqual(USERS[0].email);
-  });
-
-  it("inserts one returnomg an empty object for an empty return list", async () => {
-    const updatedUser = await userTable.insertOne(USERS[0], []);
-    expect(updatedUser).toEqual({});
 
     const readUser0 = await userTable
       .selectRows()
@@ -154,6 +141,15 @@ describe("insertOne", () => {
     expect(updatedUser.id).toBeGreaterThan(0);
     const expectedUser = Object.assign({}, USERS[0], { id: updatedUser.id });
     expect(updatedUser).toEqual(expectedUser);
+  });
+
+  it("errors when insert requests an empty list of returns", async () => {
+    expect(userTable.insertOne(USERS[0], [])).rejects.toThrow(
+      "'returning' cannot be an empty array"
+    );
+
+    const readUsers = await userTable.selectMany({});
+    expect(readUsers.length).toEqual(0);
   });
 
   ignore("detects insertOne() type errors", async () => {
