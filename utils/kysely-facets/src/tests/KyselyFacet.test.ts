@@ -85,7 +85,7 @@ describe("transforms between inputs and outputs", () => {
     readonly __type = "UpdateReturnedUser";
   }
 
-  class PassThroughFacet extends KyselyFacet<Database, "users"> {
+  class TestPassThruFacet extends KyselyFacet<Database, "users"> {
     constructor(db: Kysely<Database>) {
       super(db, "users");
     }
@@ -176,7 +176,7 @@ describe("transforms between inputs and outputs", () => {
       ]);
     }
   }
-  const passThroughFacet = new PassThroughFacet(db);
+  const testPassThruFacet = new TestPassThruFacet(db);
 
   class TransformFacet extends KyselyFacet<
     Database,
@@ -536,27 +536,27 @@ describe("transforms between inputs and outputs", () => {
   const transformFacet = new TransformFacet(db);
 
   it("transforms insertions", () => {
-    passThroughFacet.testTransformInsertion();
+    testPassThruFacet.testTransformInsertion();
     transformFacet.testTransformInsertion();
   });
 
   it("transforms selections", () => {
-    passThroughFacet.testTransformSelection();
+    testPassThruFacet.testTransformSelection();
     transformFacet.testTransformSelection();
   });
 
   it("transforms updates", () => {
-    passThroughFacet.testTransformUpdate();
+    testPassThruFacet.testTransformUpdate();
     transformFacet.testTransformUpdate();
   });
 
   it("transforms insert returns", () => {
-    passThroughFacet.testTransformInsertReturn();
+    testPassThruFacet.testTransformInsertReturn();
     transformFacet.testTransformInsertReturn();
   });
 
   it("transforms update returns", () => {
-    passThroughFacet.testTransformUpdateReturn();
+    testPassThruFacet.testTransformUpdateReturn();
     transformFacet.testTransformUpdateReturn();
   });
 });
