@@ -11,7 +11,8 @@ export abstract class KyselyFacet<
   SelectedType = Selectable<DB[TableName]>,
   InsertedType = Insertable<DB[TableName]>,
   UpdatedType = Partial<InsertedType>,
-  ReturnedType = Partial<SelectedType>
+  InsertReturnedType = void,
+  UpdateReturnedType = void
 > {
   constructor(
     readonly db: Kysely<DB>,
@@ -22,7 +23,8 @@ export abstract class KyselyFacet<
       SelectedType,
       InsertedType,
       UpdatedType,
-      ReturnedType
+      InsertReturnedType,
+      UpdateReturnedType
     >
   ) {}
 
@@ -90,36 +92,53 @@ export abstract class KyselyFacet<
 
   /**
    * Transforms an object or an array of objects returned from an insert
-   * or update into a returnable object or an array of objects.
+   * into a returnable object or an array of objects.
    */
-  protected transformReturn(
-    source: InsertedType | UpdatedType,
+  protected transformInsertReturn(
+    source: InsertedType,
     returns: Partial<Selectable<DB[TableName]>>
-  ): ReturnedType;
-  protected transformReturn(
-    source: InsertedType[] | UpdatedType[],
+  ): InsertReturnedType;
+  protected transformInsertReturn(
+    source: InsertedType[],
     returns: Partial<Selectable<DB[TableName]>>[]
-  ): ReturnedType[];
-  protected transformReturn(
-    source: InsertedType | InsertedType[] | UpdatedType | UpdatedType[],
+  ): InsertReturnedType[];
+  protected transformInsertReturn(
+    source: InsertedType | InsertedType[],
     returns:
       | Partial<Selectable<DB[TableName]>>
       | Partial<Selectable<DB[TableName]>>[]
-  ): ReturnedType | ReturnedType[] {
-    if (this.options && this.options.returnTransform) {
+  ): InsertReturnedType | InsertReturnedType[] {
+    if (this.options?.insertReturnTransform) {
       if (Array.isArray(source)) {
         if (!Array.isArray(returns)) {
           throw new Error("Expected returns to be an array");
         }
         // TS isn't seeing that options and the transform are defined.
         return source.map((obj, i) =>
-          this.options!.returnTransform!(obj, returns[i])
+          this.options!.insertReturnTransform!(obj, returns[i])
         );
       }
       if (Array.isArray(returns)) {
         throw new Error("Expected returns to be a single object");
       }
-      return this.options.returnTransform(source, returns);
+      return this.options.insertReturnTransform(source, returns);
+    }
+    return returns as any;
+  }
+
+  /**
+   * Transforms an object or an array of objects returned from an update
+   * into a returnable object or an array of objects.
+   */
+  protected transformUpdateReturn(
+    source: UpdatedType,
+    returns: Partial<Selectable<DB[TableName]>>[]
+  ): UpdateReturnedType[] {
+    if (this.options?.updateReturnTransform) {
+      // TS isn't seeing that options and the transform are defined.
+      return returns.map((returnValues) =>
+        this.options!.updateReturnTransform!(source, returnValues)
+      );
     }
     return returns as any;
   }

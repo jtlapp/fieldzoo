@@ -9,7 +9,8 @@ export interface FacetOptions<
   SelectedType,
   InsertedType,
   UpdatedType,
-  ReturnedType
+  InsertReturnedType,
+  UpdateReturnedType
 > {
   /** Transformation to apply to selected objects. */
   selectTransform?: (row: Selectable<DB[TableName]>) => SelectedType;
@@ -17,12 +18,24 @@ export interface FacetOptions<
   /** Transformation to apply to inserted objects. */
   insertTransform?: (obj: InsertedType) => Insertable<DB[TableName]>;
 
+  /** Columns to return when inserting but not requesting returns. */
+  defaultInsertReturns?: (keyof Selectable<DB[TableName] & string>)[];
+
+  /** Transformation to apply to data returned from inserts. */
+  insertReturnTransform?: (
+    source: InsertedType,
+    returns: Partial<Selectable<DB[TableName]>>
+  ) => InsertReturnedType extends void ? never : InsertReturnedType;
+
   /** Transformation to apply to updated objects. */
   updateTransform?: (update: UpdatedType) => Updateable<DB[TableName]>;
 
-  /** Transformation to apply to data returned from inserts and updates. */
-  returnTransform?: (
-    source: InsertedType | UpdatedType,
+  /** Columns to return when updating but not requesting returns. */
+  defaultUpdateReturns?: (keyof Selectable<DB[TableName] & string>)[];
+
+  /** Transformation to apply to data returned from updates. */
+  updateReturnTransform?: (
+    source: UpdatedType,
     returns: Partial<Selectable<DB[TableName]>>
-  ) => ReturnedType;
+  ) => UpdateReturnedType extends void ? never : UpdateReturnedType;
 }

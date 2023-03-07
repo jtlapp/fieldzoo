@@ -77,8 +77,11 @@ describe("transforms between inputs and outputs", () => {
   class UpdatedUser extends User {
     readonly __type = "UpdatedUser";
   }
-  class ReturnedUser extends User {
-    readonly __type = "ReturnedUser";
+  class InsertReturnedUser extends User {
+    readonly __type = "InsertReturnedUser";
+  }
+  class UpdateReturnedUser extends User {
+    readonly __type = "UpdateReturnedUser";
   }
 
   class PassThroughFacet extends KyselyFacet<Database, "users"> {
@@ -138,7 +141,7 @@ describe("transforms between inputs and outputs", () => {
       expect(this.transformUpdate([john, jane])).toEqual([john, jane]);
     }
 
-    testTransformReturn() {
+    testTransformInsertReturn() {
       const john = {
         name: "John Smith",
         handle: "jsmith",
@@ -150,10 +153,26 @@ describe("transforms between inputs and outputs", () => {
         email: "jdoe@bar.baz",
       };
 
-      expect(this.transformReturn(john, { id: 1 })).toEqual({ id: 1 });
+      expect(this.transformInsertReturn(john, { id: 1 })).toEqual({ id: 1 });
       expect(
-        this.transformReturn([john, jane], [{ id: 1 }, { id: 2 }])
+        this.transformInsertReturn([john, jane], [{ id: 1 }, { id: 2 }])
       ).toEqual([{ id: 1 }, { id: 2 }]);
+    }
+
+    testTransformUpdateReturn() {
+      const john = {
+        name: "John Smith",
+        handle: "jsmith",
+        email: "jsmith@bar.baz",
+      };
+
+      expect(this.transformUpdateReturn(john, [{ id: 1 }])).toEqual([
+        { id: 1 },
+      ]);
+      expect(this.transformUpdateReturn(john, [{ id: 1 }, { id: 2 }])).toEqual([
+        { id: 1 },
+        { id: 2 },
+      ]);
     }
   }
   const passThroughFacet = new PassThroughFacet(db);
@@ -164,7 +183,8 @@ describe("transforms between inputs and outputs", () => {
     SelectedUser,
     InsertedUser,
     UpdatedUser,
-    ReturnedUser
+    InsertReturnedUser,
+    UpdateReturnedUser
   > {
     constructor(db: Kysely<Database>) {
       super(db, "users", {
@@ -186,8 +206,25 @@ describe("transforms between inputs and outputs", () => {
           handle: source.handle,
           email: source.email,
         }),
-        returnTransform: (source, returns) => {
-          const returnedUser = new ReturnedUser(
+        insertReturnTransform: (source, returns) => {
+          const returnedUser = new InsertReturnedUser(
+            source.id,
+            source.firstName,
+            source.lastName,
+            source.handle,
+            source.email
+          );
+          if (returns.id) returnedUser.id = returns.id;
+          if (returns.handle) returnedUser.handle = returns.handle;
+          if (returns.email) returnedUser.email = returns.email;
+          if (returns.name) {
+            returnedUser.firstName = returns.name.split(" ")[0];
+            returnedUser.lastName = returns.name.split(" ")[1];
+          }
+          return returnedUser;
+        },
+        updateReturnTransform: (source, returns) => {
+          const returnedUser = new UpdateReturnedUser(
             source.id,
             source.firstName,
             source.lastName,
@@ -375,18 +412,18 @@ describe("transforms between inputs and outputs", () => {
       });
     }
 
-    testTransformReturn() {
+    testTransformInsertReturn() {
       expect(
-        this.transformReturn(
+        this.transformInsertReturn(
           new InsertedUser(0, "John", "Smith", "jsmith", "jsmith@bar.baz"),
           { id: 1 }
         )
       ).toEqual(
-        new ReturnedUser(1, "John", "Smith", "jsmith", "jsmith@bar.baz")
+        new InsertReturnedUser(1, "John", "Smith", "jsmith", "jsmith@bar.baz")
       );
 
       expect(
-        this.transformReturn(
+        this.transformInsertReturn(
           [
             new InsertedUser(0, "John", "Smith", "jsmith", "jsmith@bar.baz"),
             new InsertedUser(0, "Jane", "Doe", "jdoe", "jdoe@bar.baz"),
@@ -394,11 +431,11 @@ describe("transforms between inputs and outputs", () => {
           [{ id: 1 }, { id: 2 }]
         )
       ).toEqual([
-        new ReturnedUser(1, "John", "Smith", "jsmith", "jsmith@bar.baz"),
-        new ReturnedUser(2, "Jane", "Doe", "jdoe", "jdoe@bar.baz"),
+        new InsertReturnedUser(1, "John", "Smith", "jsmith", "jsmith@bar.baz"),
+        new InsertReturnedUser(2, "Jane", "Doe", "jdoe", "jdoe@bar.baz"),
       ]);
 
-      ignore("detects transformReturn type errors", () => {
+      ignore("detects transformInsertReturn type errors", () => {
         const userObj = {
           id: 1,
           firstName: "John",
@@ -423,21 +460,75 @@ describe("transforms between inputs and outputs", () => {
         );
 
         // @ts-expect-error - incorrect input type
-        this.transformReturn(user, { id: 1 });
+        this.transformInsertReturn(user, { id: 1 });
         // @ts-expect-error - incorrect input type
-        this.transformReturn([user], [{ id: 1 }]);
+        this.transformInsertReturn([user], [{ id: 1 }]);
         // @ts-expect-error - incorrect input type
-        this.transformReturn(userObj, { id: 1 });
+        this.transformInsertReturn(userObj, { id: 1 });
         // @ts-expect-error - incorrect input type
-        this.transformReturn([userObj], [{ id: 1 }]);
+        this.transformInsertReturn([userObj], [{ id: 1 }]);
         // @ts-expect-error - incorrect input type
-        this.transformReturn(selectedUser, { id: 1 });
+        this.transformInsertReturn(selectedUser, { id: 1 });
         // @ts-expect-error - incorrect input type
-        this.transformReturn([selectedUser], [{ id: 1 }]);
+        this.transformInsertReturn([selectedUser], [{ id: 1 }]);
         // @ts-expect-error - incorrect output type
-        this.transformReturn(insertedUser, { id: 1 }).name;
+        this.transformInsertReturn(insertedUser, { id: 1 }).name;
         // @ts-expect-error - incorrect output type
-        this.transformReturn([insertedUser], [{ id: 1 }])[0].name;
+        this.transformInsertReturn([insertedUser], [{ id: 1 }])[0].name;
+      });
+    }
+
+    testTransformUpdateReturn() {
+      expect(
+        this.transformUpdateReturn(
+          new UpdatedUser(0, "John", "Smith", "jsmith", "jsmith@bar.baz"),
+          [{ id: 1 }]
+        )
+      ).toEqual([
+        new UpdateReturnedUser(1, "John", "Smith", "jsmith", "jsmith@bar.baz"),
+      ]);
+      expect(
+        this.transformUpdateReturn(
+          new UpdatedUser(0, "John", "Smith", "jsmith", "jsmith@bar.baz"),
+          [{ id: 1 }, { id: 2 }]
+        )
+      ).toEqual([
+        new UpdateReturnedUser(1, "John", "Smith", "jsmith", "jsmith@bar.baz"),
+        new UpdateReturnedUser(2, "John", "Smith", "jsmith", "jsmith@bar.baz"),
+      ]);
+
+      ignore("detects transformUpdateReturn type errors", () => {
+        const userObj = {
+          id: 1,
+          firstName: "John",
+          lastName: "Smith",
+          handle: "jsmith",
+          email: "jsmith@bar.baz",
+        };
+        const user = new User(0, "John", "Smith", "jsmith", "jsmith@bar.baz");
+        const updatedUser = new UpdatedUser(
+          0,
+          "John",
+          "Smith",
+          "jsmith",
+          "jsmith@bar.baz"
+        );
+        const selectedUser = new SelectedUser(
+          0,
+          "John",
+          "Smith",
+          "jsmith",
+          "jsmith@bar.baz"
+        );
+
+        // @ts-expect-error - incorrect input type
+        this.transformUpdateReturn(user, [{ id: 1 }]);
+        // @ts-expect-error - incorrect input type
+        this.transformUpdateReturn(userObj, [{ id: 1 }]);
+        // @ts-expect-error - incorrect input type
+        this.transformUpdateReturn(selectedUser, [{ id: 1 }]);
+        // @ts-expect-error - incorrect output type
+        this.transformUpdateReturn(updatedUser, [{ id: 1 }])[0].name;
       });
     }
   }
@@ -458,8 +549,13 @@ describe("transforms between inputs and outputs", () => {
     transformFacet.testTransformUpdate();
   });
 
-  it("transforms returns", () => {
-    passThroughFacet.testTransformReturn();
-    transformFacet.testTransformReturn();
+  it("transforms insert returns", () => {
+    passThroughFacet.testTransformInsertReturn();
+    transformFacet.testTransformInsertReturn();
+  });
+
+  it("transforms update returns", () => {
+    passThroughFacet.testTransformUpdateReturn();
+    transformFacet.testTransformUpdateReturn();
   });
 });

@@ -77,7 +77,7 @@ export function applyQueryFilter<
   QB extends WhereInterface<DB, TableName>,
   RE extends ReferenceExpression<DB, TableName>
 >(
-  base: KyselyFacet<DB, TableName, any, any, any, any>,
+  base: KyselyFacet<DB, TableName, any, any, any, any, any>,
   filter: QueryFilter<DB, TableName, QB, RE>
 ): (qb: QB) => QB {
   // Process a query builder filter.
