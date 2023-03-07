@@ -25,7 +25,7 @@ export interface FacetOptions<
   insertReturnTransform?: (
     source: InsertedType,
     returns: Partial<Selectable<DB[TableName]>>
-  ) => InsertReturnedType extends void ? never : InsertReturnedType;
+  ) => InsertReturnedType;
 
   /** Transformation to apply to updated objects. */
   updateTransform?: (update: UpdatedType) => Updateable<DB[TableName]>;
@@ -37,5 +37,5 @@ export interface FacetOptions<
   updateReturnTransform?: (
     source: UpdatedType,
     returns: Partial<Selectable<DB[TableName]>>
-  ) => UpdateReturnedType extends void ? never : UpdateReturnedType;
+  ) => UpdateReturnedType;
 }

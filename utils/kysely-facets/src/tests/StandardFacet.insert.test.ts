@@ -182,12 +182,34 @@ describe("insertOne", () => {
 });
 
 describe("custom insertion returns", () => {
-  it("errors when providing an empty defaultInsertReturns array", async () => {
+  it("errors when providing an empty defaultInsertReturns array", () => {
     expect(
       () =>
         new StandardFacet(db, "users", {
+          insertReturnTransform: (source, _returns) => source,
           defaultInsertReturns: [],
         })
     ).toThrow("'defaultInsertReturns' cannot be an empty array");
   });
+
+  it("errors when providing only one of insertReturnTransform and defaultInsertReturns", () => {
+    expect(
+      () =>
+        new StandardFacet(db, "users", {
+          insertReturnTransform: (source, _returns) => source,
+        })
+    ).toThrow("'insertReturnTransform' requires 'defaultInsertReturns'");
+    expect(
+      () =>
+        new StandardFacet(db, "users", {
+          defaultInsertReturns: ["id"],
+        })
+    ).toThrow("'defaultInsertReturns' requires 'insertReturnTransform'");
+  });
+
+  // ignore("detects custom insertion returns type errors", async () => {
+  //   new StandardFacet(db, "users", {
+  //     insertReturnTransform: (source, _returns) => source,
+  //   });
+  // });
 });

@@ -207,15 +207,6 @@ describe("update()", () => {
 
   // TODO: Add update() tests for MatchAllFilter and MatchAllFilter queries.
 
-  it("errors when providing an empty defaultUpdateReturns array", async () => {
-    expect(
-      () =>
-        new StandardFacet(db, "users", {
-          defaultUpdateReturns: [],
-        })
-    ).toThrow("'defaultUpdateReturns' cannot be an empty array");
-  });
-
   ignore("detects update() type errors", async () => {
     // @ts-expect-error - returns undefined without returning argument
     plainUserFacet.update({}, USERS[0]).email;
@@ -241,5 +232,32 @@ describe("update()", () => {
     plainUserFacet.update("name = 'John Doe'", USERS[0]);
     // @ts-expect-error - only requested columns are accessible
     (await plainUserFacet.update({ id: 32 }, USERS[0], ["id"]))[0].name;
+  });
+});
+
+describe("custom update returns", () => {
+  it("errors when providing an empty defaultUpdateReturns array", () => {
+    expect(
+      () =>
+        new StandardFacet(db, "users", {
+          updateReturnTransform: (source, _returns) => source,
+          defaultUpdateReturns: [],
+        })
+    ).toThrow("'defaultUpdateReturns' cannot be an empty array");
+  });
+
+  it("errors when providing only one of updateReturnTransform and defaultUpdateReturns", () => {
+    expect(
+      () =>
+        new StandardFacet(db, "users", {
+          updateReturnTransform: (source, _returns) => source,
+        })
+    ).toThrow("'updateReturnTransform' requires 'defaultUpdateReturns'");
+    expect(
+      () =>
+        new StandardFacet(db, "users", {
+          defaultUpdateReturns: ["id"],
+        })
+    ).toThrow("'defaultUpdateReturns' requires 'updateReturnTransform'");
   });
 });

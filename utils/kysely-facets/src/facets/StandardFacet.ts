@@ -50,11 +50,25 @@ export class StandardFacet<
     >
   ) {
     super(db, tableName, options);
-    if (options?.defaultInsertReturns?.length === 0) {
-      throw new Error("'defaultInsertReturns' cannot be an empty array");
+    if (options?.insertReturnTransform) {
+      if (!options.defaultInsertReturns) {
+        throw Error("'insertReturnTransform' requires 'defaultInsertReturns'");
+      }
+      if (options?.defaultInsertReturns?.length === 0) {
+        throw Error("'defaultInsertReturns' cannot be an empty array");
+      }
+    } else if (options?.defaultInsertReturns) {
+      throw Error("'defaultInsertReturns' requires 'insertReturnTransform'");
     }
-    if (options?.defaultUpdateReturns?.length === 0) {
-      throw new Error("'defaultUpdateReturns' cannot be an empty array");
+    if (options?.updateReturnTransform) {
+      if (!options.defaultUpdateReturns) {
+        throw Error("'updateReturnTransform' requires 'defaultUpdateReturns'");
+      }
+      if (options?.defaultUpdateReturns?.length === 0) {
+        throw Error("'defaultUpdateReturns' cannot be an empty array");
+      }
+    } else if (options?.defaultUpdateReturns) {
+      throw Error("'defaultUpdateReturns' requires 'updateReturnTransform'");
     }
   }
 
