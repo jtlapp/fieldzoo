@@ -16,7 +16,21 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe("update()", () => {
-  it("updates without returning columns", async () => {
+  it("updates without returning", async () => {
+    const insertedUser = await userTable.insertOne(USERS[0], ["id"]);
+    const updateValues = { email: "new.email@xyz.pdq" };
+
+    const result = await userTable.update(
+      { id: insertedUser.id },
+      updateValues
+    );
+    expect(result).toBeUndefined();
+
+    const readUser = await userTable.selectOne(["id", "=", insertedUser.id]);
+    expect(readUser?.email).toEqual(updateValues.email);
+  });
+
+  it("updates returning update count", async () => {
     const insertedUser0 = await userTable.insertOne(USERS[0], ["id"]);
     await userTable.insertOne(USERS[1]);
     await userTable.insertOne(USERS[2]);
@@ -24,34 +38,25 @@ describe("update()", () => {
     const updateValues = { email: "new.email@xyz.pdq" };
     const updateCount1 = await userTable.update(
       { id: insertedUser0.id },
-      updateValues
+      updateValues,
+      []
     );
     expect(updateCount1).toEqual(1);
 
     const readUser = await userTable.selectOne(["id", "=", insertedUser0.id]);
     expect(readUser?.email).toEqual(updateValues.email);
 
-    const updateCount2 = await userTable.update({ name: "Sue" }, updateValues);
+    const updateCount2 = await userTable.update(
+      { name: "Sue" },
+      updateValues,
+      []
+    );
     expect(updateCount2).toEqual(2);
 
     const readUsers = await userTable.selectMany(["name", "=", "Sue"]);
     expect(readUsers.length).toEqual(2);
     expect(readUsers[0].email).toEqual(updateValues.email);
     expect(readUsers[1].email).toEqual(updateValues.email);
-  });
-
-  it("updates returning an empty array", async () => {
-    const insertedUser = await userTable.insertOne(USERS[0], ["id"]);
-    const updateValues = { email: "new.email@xyz.pdq" };
-
-    const updatedUsers = await userTable.update(
-      { id: insertedUser.id },
-      updateValues,
-      []
-    );
-    expect(updatedUsers).toEqual([]);
-    const readUser = await userTable.selectOne(["id", "=", insertedUser.id]);
-    expect(readUser?.email).toEqual(updateValues.email);
   });
 
   it("updates returning indicated columns", async () => {
@@ -148,7 +153,8 @@ describe("update()", () => {
     const updateValues = { email: "new.email@xyz.pdq" };
     const updateCount = await userTable.update(
       ["id", ">", insertedUsers[0].id],
-      updateValues
+      updateValues,
+      []
     );
     expect(updateCount).toEqual(2);
 
@@ -169,7 +175,8 @@ describe("update()", () => {
     const updateValues = { email: "new.email.@xyz.pdq" };
     const updateCount = await userTable.update(
       sql`id > ${insertedUsers[0].id}`,
-      updateValues
+      updateValues,
+      []
     );
     expect(updateCount).toEqual(2);
 

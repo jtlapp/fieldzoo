@@ -12,6 +12,8 @@ import { KyselyFacet } from "./KyselyFacet";
 import { QueryFilter, applyQueryFilter } from "../filters/QueryFilter";
 import { FacetOptions } from "./FacetOptions";
 
+// TODO: Configure type of returned counts (e.g. number vs bigint)
+
 export class StandardFacet<
   DB,
   TableName extends keyof DB & string,
@@ -199,6 +201,15 @@ export class StandardFacet<
   >(
     filter: QueryFilter<DB, TableName, QB, RE>,
     obj: UpdatedType
+  ): Promise<void>;
+
+  update<
+    QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
+    RE extends ReferenceExpression<DB, TableName>
+  >(
+    filter: QueryFilter<DB, TableName, QB, RE>,
+    obj: UpdatedType,
+    returning: []
   ): Promise<number>;
 
   update<
@@ -227,27 +238,29 @@ export class StandardFacet<
   >(
     filter: QueryFilter<DB, TableName, QB, RE>,
     obj: UpdatedType,
-    returning?: R[] | ["*"]
+    returning?: [] | R[] | ["*"]
   ): Promise<
-    Selectable<DB[TableName]>[] | Pick<Selectable<DB[TableName]>, R>[] | number
+    | Selectable<DB[TableName]>[]
+    | Pick<Selectable<DB[TableName]>, R>[]
+    | number
+    | void
   > {
     const transformedObj = this.transformUpdate(obj);
     const uqb = this.updateRows().set(transformedObj as any);
     const fqb = applyQueryFilter(this, filter)(uqb as any);
     if (returning) {
+      if (returning.length === 0) {
+        const result = await fqb.executeTakeFirstOrThrow();
+        return Number(result.numUpdatedRows);
+      }
       // Cast here because TS wasn't allowing the check.
       if ((returning as string[]).includes("*")) {
         const result = await fqb.returningAll().execute();
         return result as Selectable<DB[TableName]>[];
       }
-      if (returning.length > 0) {
-        const result = await fqb.returning(returning as any).execute();
-        return result as Pick<Selectable<DB[TableName]>, R>[];
-      }
-      await fqb.execute();
-      return [];
+      const result = await fqb.returning(returning as any).execute();
+      return result as Pick<Selectable<DB[TableName]>, R>[];
     }
-    const result = await fqb.executeTakeFirstOrThrow();
-    return Number(result.numUpdatedRows);
+    await fqb.execute();
   }
 }
