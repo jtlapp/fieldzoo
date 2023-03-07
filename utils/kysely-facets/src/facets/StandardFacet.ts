@@ -197,7 +197,7 @@ export class StandardFacet<
     const defaultInsertReturns = this.options?.defaultInsertReturns;
     if (defaultInsertReturns) {
       const returns = await qb.returning(defaultInsertReturns as any).execute();
-      return this.transformInsertReturn(obj, returns as any);
+      return this.transformInsertReturn(obj, returns[0] as any);
     }
 
     // No return columns requested when no `defaultInsertReturns` option.
