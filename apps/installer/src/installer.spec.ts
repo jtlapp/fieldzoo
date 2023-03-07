@@ -24,7 +24,7 @@ describe("installer", () => {
       expect(stdout.toString()).toMatch(/Installed/);
     } catch (err: any) {
       if (!err.stdout) throw err;
-      throw new Error("Command failed with stdout: " + err.stdout.toString());
+      throw Error("Command failed with stdout: " + err.stdout.toString());
     }
   });
 

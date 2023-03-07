@@ -111,7 +111,7 @@ export abstract class KyselyFacet<
     if (this.options?.insertReturnTransform) {
       if (Array.isArray(source)) {
         if (!Array.isArray(returns)) {
-          throw new Error("Expected returns to be an array");
+          throw Error("Expected returns to be an array");
         }
         // TS isn't seeing that options and the transform are defined.
         return source.map((obj, i) =>
@@ -119,7 +119,7 @@ export abstract class KyselyFacet<
         );
       }
       if (Array.isArray(returns)) {
-        throw new Error("Expected returns to be a single object");
+        throw Error("Expected returns to be a single object");
       }
       return this.options.insertReturnTransform(source, returns);
     }

@@ -113,7 +113,7 @@ export class StandardFacet<
 
     if (returning) {
       if (returning.length === 0) {
-        throw new Error("'returning' cannot be an empty array");
+        throw Error("'returning' cannot be an empty array");
       }
       // Cast here because TS wasn't allowing the check.
       if ((returning as string[]).includes("*")) {
@@ -179,7 +179,7 @@ export class StandardFacet<
 
     if (returning) {
       if (returning.length === 0) {
-        throw new Error("'returning' cannot be an empty array");
+        throw Error("'returning' cannot be an empty array");
       }
       // Cast here because TS wasn't allowing the check.
       if ((returning as string[]).includes("*")) {

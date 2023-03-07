@@ -22,7 +22,7 @@ export abstract class ComboFilter extends AppliedFilter {
   constructor(filters: QueryFilter<any, any, any, any>[]) {
     super();
     if (filters.length == 0) {
-      throw new Error("No filters provided");
+      throw Error("No filters provided");
     }
     this.filters = filters;
   }

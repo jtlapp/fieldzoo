@@ -113,5 +113,5 @@ export function applyQueryFilter<
     }
   }
 
-  throw new Error("Unrecognized query filter");
+  throw Error("Unrecognized query filter");
 }
