@@ -77,7 +77,7 @@ describe("selectMany()", () => {
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
 
-  it("selects with an MatchAllFilter", async () => {
+  it("selects with a MatchAllFilter", async () => {
     const userIDs = await userTable.insertMany(USERS, ["id"]);
 
     const users = await userTable.selectMany(
@@ -87,7 +87,7 @@ describe("selectMany()", () => {
     expect(users[0].handle).toEqual(USERS[2].handle);
   });
 
-  it("selects with an MatchAnyFilter", async () => {
+  it("selects with a MatchAnyFilter", async () => {
     await userTable.insertMany(USERS, ["id"]);
 
     const users = await userTable.selectMany(
@@ -98,7 +98,7 @@ describe("selectMany()", () => {
     expect(users[1].handle).toEqual(USERS[2].handle);
   });
 
-  it("selects with an MatchAnyFilter with a nested MatchAllFilter", async () => {
+  it("selects with a MatchAnyFilter with a nested MatchAllFilter", async () => {
     const userIDs = await userTable.insertMany(USERS, ["id"]);
 
     const users = await userTable.selectMany(
