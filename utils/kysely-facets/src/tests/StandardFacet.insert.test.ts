@@ -1,4 +1,4 @@
-import { Kysely } from "kysely";
+import { Insertable, Kysely, Selectable } from "kysely";
 
 import { StandardFacet } from "..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
@@ -6,6 +6,11 @@ import { Database } from "./utils/test-tables";
 import { PassThruUserFacet, PassThruPostFacet } from "./utils/test-facets";
 import { USERS, POSTS } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
+import {
+  SelectedUser,
+  InsertedUser,
+  InsertReturnedUser,
+} from "./utils/test-types";
 
 let db: Kysely<Database>;
 let plainUserFacet: PassThruUserFacet;
@@ -19,7 +24,7 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe("insertMany()", () => {
+describe("insertMany() without transformation", () => {
   it("inserts rows without returning columns", async () => {
     const result = await plainUserFacet.insertMany(USERS);
     expect(result).toBeUndefined();
@@ -103,7 +108,7 @@ describe("insertMany()", () => {
   });
 });
 
-describe("insertOne", () => {
+describe("insertOne() without transformation", () => {
   it("inserts a row without returning columns", async () => {
     const result = await plainUserFacet.insertOne(USERS[0]);
     expect(result).toBeUndefined();
@@ -181,7 +186,108 @@ describe("insertOne", () => {
   });
 });
 
-describe("custom insertion returns", () => {
+describe("insertion transformation", () => {
+  class InsertTransformFacet extends StandardFacet<
+    Database,
+    "users",
+    Selectable<Database["users"]>,
+    InsertedUser
+  > {
+    constructor(db: Kysely<Database>) {
+      super(db, "users", {
+        insertTransform: (source) => ({
+          name: `${source.firstName} ${source.lastName}`,
+          handle: source.handle,
+          email: source.email,
+        }),
+      });
+    }
+  }
+
+  it("transforms users for insertion without transforming return", async () => {
+    const insertTransformFacet = new InsertTransformFacet(db);
+    const user = new InsertedUser(0, "John", "Doe", "jdoe", "jdoe@xyz.pdq");
+
+    const insertedUser = await insertTransformFacet.insertOne(user, ["id"]);
+    const readUser0 = await insertTransformFacet.selectOne({
+      id: insertedUser.id,
+    });
+    expect(readUser0?.name).toEqual(`${user.firstName} ${user.lastName}`);
+  });
+
+  it("transforms insertion return without transforming insertion", async () => {
+    class InsertReturnTransformFacet extends StandardFacet<
+      Database,
+      "users",
+      Selectable<Database["users"]>,
+      Insertable<Database["users"]>,
+      Partial<Insertable<Database["users"]>>,
+      InsertReturnedUser
+    > {
+      constructor(db: Kysely<Database>) {
+        super(db, "users", {
+          defaultInsertReturns: ["id"],
+          insertReturnTransform: (source, returns) =>
+            new InsertReturnedUser(
+              returns.id!,
+              source.name.split(" ")[0],
+              source.name.split(" ")[1],
+              source.handle,
+              source.email
+            ),
+        });
+      }
+    }
+    const user = {
+      name: "John Doe",
+      handle: "jdoe",
+      email: "jdoe@xyz.pdq",
+    };
+
+    const insertReturnTransformFacet = new InsertReturnTransformFacet(db);
+    const insertedUser = await insertReturnTransformFacet.insertOne(user);
+    expect(insertedUser).toEqual(
+      new InsertReturnedUser(1, "John", "Doe", "jdoe", "jdoe@xyz.pdq")
+    );
+  });
+
+  it("transforms insertion and insertion return", async () => {
+    class InsertAndReturnTransformFacet extends StandardFacet<
+      Database,
+      "users",
+      Selectable<Database["users"]>,
+      InsertedUser,
+      Partial<Insertable<Database["users"]>>,
+      InsertReturnedUser
+    > {
+      constructor(db: Kysely<Database>) {
+        super(db, "users", {
+          insertTransform: (source) => ({
+            name: `${source.firstName} ${source.lastName}`,
+            handle: source.handle,
+            email: source.email,
+          }),
+          defaultInsertReturns: ["id"],
+          insertReturnTransform: (source, returns) =>
+            new InsertReturnedUser(
+              returns.id!,
+              source.firstName,
+              source.lastName,
+              source.handle,
+              source.email
+            ),
+        });
+      }
+    }
+    const user = new InsertedUser(0, "John", "Doe", "jdoe", "jdoe@xyz.pdq");
+
+    const insertAndReturnTransformFacet = new InsertAndReturnTransformFacet(db);
+    const insertedUser = await insertAndReturnTransformFacet.insertOne(user);
+    expect(insertedUser).toEqual(
+      new InsertReturnedUser(1, "John", "Doe", "jdoe", "jdoe@xyz.pdq")
+    );
+  });
+
   it("errors when providing an empty defaultInsertReturns array", () => {
     expect(
       () =>
@@ -207,9 +313,19 @@ describe("custom insertion returns", () => {
     ).toThrow("'defaultInsertReturns' requires 'insertReturnTransform'");
   });
 
-  // ignore("detects custom insertion returns type errors", async () => {
-  //   new StandardFacet(db, "users", {
-  //     insertReturnTransform: (source, _returns) => source,
-  //   });
-  // });
+  ignore("detects insertion transformation type errors", async () => {
+    const insertTransformFacet = new InsertTransformFacet(db);
+    const selectedUser = new SelectedUser(
+      0,
+      "John",
+      "Doe",
+      "jdoe",
+      "jdoe@xyz.pdq"
+    );
+
+    // @ts-expect-error - requires InsertedType as input
+    await insertTransformFacet.insertOne(USERS[0]);
+    // @ts-expect-error - requires InsertedType as input
+    await insertTransformFacet.insertOne(selectedUser);
+  });
 });

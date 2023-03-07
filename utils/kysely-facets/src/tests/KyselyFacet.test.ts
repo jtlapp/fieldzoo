@@ -1,10 +1,18 @@
 import { Kysely } from "kysely";
 
+import { KyselyFacet } from "../..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
 import { PassThruUserFacet } from "./utils/test-facets";
 import { USERS } from "./utils/test-objects";
-import { KyselyFacet } from "../..";
+import {
+  User,
+  SelectedUser,
+  InsertedUser,
+  UpdatedUser,
+  InsertReturnedUser,
+  UpdateReturnedUser,
+} from "./utils/test-types";
 import { ignore } from "@fieldzoo/testing-utils";
 
 let db: Kysely<Database>;
@@ -60,31 +68,6 @@ describe("basic row queries", () => {
 });
 
 describe("transforms between inputs and outputs", () => {
-  class User {
-    constructor(
-      public id: number,
-      public firstName: string,
-      public lastName: string,
-      public handle: string,
-      public email: string
-    ) {}
-  }
-  class InsertedUser extends User {
-    readonly __type = "InsertedUser";
-  }
-  class SelectedUser extends User {
-    readonly __type = "SelectedUser";
-  }
-  class UpdatedUser extends User {
-    readonly __type = "UpdatedUser";
-  }
-  class InsertReturnedUser extends User {
-    readonly __type = "InsertReturnedUser";
-  }
-  class UpdateReturnedUser extends User {
-    readonly __type = "UpdateReturnedUser";
-  }
-
   class TestPassThruFacet extends KyselyFacet<Database, "users"> {
     constructor(db: Kysely<Database>) {
       super(db, "users");
