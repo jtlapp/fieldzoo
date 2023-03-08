@@ -4,7 +4,13 @@ import { KyselyFacet } from "../..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
 import { PassThruUserFacet } from "./utils/test-facets";
-import { USERS } from "./utils/test-objects";
+import {
+  USERS,
+  insertedUser1,
+  insertedUser2,
+  insertReturnedUser1,
+  insertReturnedUser2,
+} from "./utils/test-objects";
 import {
   User,
   SelectedUser,
@@ -77,12 +83,12 @@ describe("transforms between inputs and outputs", () => {
       const john = {
         name: "John Smith",
         handle: "jsmith",
-        email: "jsmith@bar.baz",
+        email: "jsmith@xyz.pdq",
       };
       const jane = {
         name: "Jane Doe",
         handle: "jdoe",
-        email: "jdoe@bar.baz",
+        email: "jdoe@xyz.pdq",
       };
 
       expect(this.transformInsertion(john)).toEqual(john);
@@ -94,13 +100,13 @@ describe("transforms between inputs and outputs", () => {
         id: 1,
         name: "John Smith",
         handle: "jsmith",
-        email: "jsmith@bar.baz",
+        email: "jsmith@xyz.pdq",
       };
       const jane = {
         id: 2,
         name: "Jane Doe",
         handle: "jdoe",
-        email: "jdoe@bar.baz",
+        email: "jdoe@xyz.pdq",
       };
 
       expect(this.transformSelection(john)).toEqual(john);
@@ -112,13 +118,13 @@ describe("transforms between inputs and outputs", () => {
         id: 1,
         name: "John Smith",
         handle: "jsmith",
-        email: "jsmith@bar.baz",
+        email: "jsmith@xyz.pdq",
       };
       const jane = {
         id: 2,
         name: "Jane Doe",
         handle: "jdoe",
-        email: "jdoe@bar.baz",
+        email: "jdoe@xyz.pdq",
       };
 
       expect(this.transformUpdate(john)).toEqual(john);
@@ -129,12 +135,12 @@ describe("transforms between inputs and outputs", () => {
       const john = {
         name: "John Smith",
         handle: "jsmith",
-        email: "jsmith@bar.baz",
+        email: "jsmith@xyz.pdq",
       };
       const jane = {
         name: "Jane Doe",
         handle: "jdoe",
-        email: "jdoe@bar.baz",
+        email: "jdoe@xyz.pdq",
       };
 
       expect(this.transformInsertReturn(john, { id: 1 })).toEqual({ id: 1 });
@@ -147,7 +153,7 @@ describe("transforms between inputs and outputs", () => {
       const john = {
         name: "John Smith",
         handle: "jsmith",
-        email: "jsmith@bar.baz",
+        email: "jsmith@xyz.pdq",
       };
 
       expect(this.transformUpdateReturn(john, [{ id: 1 }])).toEqual([
@@ -228,31 +234,22 @@ describe("transforms between inputs and outputs", () => {
     }
 
     testTransformInsertion() {
-      expect(
-        this.transformInsertion(
-          new InsertedUser(0, "John", "Smith", "jsmith", "jsmith@bar.baz")
-        )
-      ).toEqual({
+      expect(this.transformInsertion(insertedUser1)).toEqual({
         name: "John Smith",
         handle: "jsmith",
-        email: "jsmith@bar.baz",
+        email: "jsmith@xyz.pdq",
       });
 
-      expect(
-        this.transformInsertion([
-          new InsertedUser(0, "John", "Smith", "jsmith", "jsmith@bar.baz"),
-          new InsertedUser(0, "Jane", "Doe", "jdoe", "jdoe@bar.baz"),
-        ])
-      ).toEqual([
+      expect(this.transformInsertion([insertedUser1, insertedUser2])).toEqual([
         {
           name: "John Smith",
           handle: "jsmith",
-          email: "jsmith@bar.baz",
+          email: "jsmith@xyz.pdq",
         },
         {
           name: "Jane Doe",
           handle: "jdoe",
-          email: "jdoe@bar.baz",
+          email: "jdoe@xyz.pdq",
         },
       ]);
 
@@ -262,16 +259,9 @@ describe("transforms between inputs and outputs", () => {
           firstName: "John",
           lastName: "Smith",
           handle: "jsmith",
-          email: "jsmith@bar.baz",
+          email: "jsmith@xyz.pdq",
         };
-        const user = new User(0, "John", "Smith", "jsmith", "jsmith@bar.baz");
-        const insertReturn = new InsertedUser(
-          0,
-          "John",
-          "Smith",
-          "jsmith",
-          "jsmith@bar.baz"
-        );
+        const user = new User(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq");
 
         // @ts-expect-error - incorrect input type
         this.transformInsertion(user);
@@ -282,9 +272,9 @@ describe("transforms between inputs and outputs", () => {
         // @ts-expect-error - incorrect input type
         this.transformInsertion([userObj]);
         // @ts-expect-error - incorrect output type
-        this.transformInsertion(insertReturn).firstName;
+        this.transformInsertion(insertedUser1).firstName;
         // @ts-expect-error - incorrect output type
-        this.transformInsertion([insertReturn])[0].firstName;
+        this.transformInsertion([insertedUser1])[0].firstName;
       });
     }
 
@@ -294,10 +284,10 @@ describe("transforms between inputs and outputs", () => {
           id: 1,
           name: "John Smith",
           handle: "jsmith",
-          email: "jsmith@bar.baz",
+          email: "jsmith@xyz.pdq",
         })
       ).toEqual(
-        new SelectedUser(1, "John", "Smith", "jsmith", "jsmith@bar.baz")
+        new SelectedUser(1, "John", "Smith", "jsmith", "jsmith@xyz.pdq")
       );
 
       expect(
@@ -306,18 +296,18 @@ describe("transforms between inputs and outputs", () => {
             id: 1,
             name: "John Smith",
             handle: "jsmith",
-            email: "jsmith@bar.baz",
+            email: "jsmith@xyz.pdq",
           },
           {
             id: 2,
             name: "Jane Doe",
             handle: "jdoe",
-            email: "jdoe@bar.baz",
+            email: "jdoe@xyz.pdq",
           },
         ])
       ).toEqual([
-        new SelectedUser(1, "John", "Smith", "jsmith", "jsmith@bar.baz"),
-        new SelectedUser(2, "Jane", "Doe", "jdoe", "jdoe@bar.baz"),
+        new SelectedUser(1, "John", "Smith", "jsmith", "jsmith@xyz.pdq"),
+        new SelectedUser(2, "Jane", "Doe", "jdoe", "jdoe@xyz.pdq"),
       ]);
 
       ignore("detects transformSelection type errors", () => {
@@ -325,7 +315,7 @@ describe("transforms between inputs and outputs", () => {
           id: 1,
           name: "John Smih",
           handle: "jsmith",
-          email: "jsmith@bar.baz",
+          email: "jsmith@xyz.pdq",
         };
 
         // @ts-expect-error - incorrect output type
@@ -338,29 +328,29 @@ describe("transforms between inputs and outputs", () => {
     testTransformUpdate() {
       expect(
         this.transformUpdate(
-          new UpdatedUser(0, "John", "Smith", "jsmith", "jsmith@bar.baz")
+          new UpdatedUser(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq")
         )
       ).toEqual({
         name: "John Smith",
         handle: "jsmith",
-        email: "jsmith@bar.baz",
+        email: "jsmith@xyz.pdq",
       });
 
       expect(
         this.transformUpdate([
-          new UpdatedUser(0, "John", "Smith", "jsmith", "jsmith@bar.baz"),
-          new UpdatedUser(0, "Jane", "Doe", "jdoe", "jdoe@bar.baz"),
+          new UpdatedUser(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq"),
+          new UpdatedUser(0, "Jane", "Doe", "jdoe", "jdoe@xyz.pdq"),
         ])
       ).toEqual([
         {
           name: "John Smith",
           handle: "jsmith",
-          email: "jsmith@bar.baz",
+          email: "jsmith@xyz.pdq",
         },
         {
           name: "Jane Doe",
           handle: "jdoe",
-          email: "jdoe@bar.baz",
+          email: "jdoe@xyz.pdq",
         },
       ]);
 
@@ -370,15 +360,15 @@ describe("transforms between inputs and outputs", () => {
           firstName: "John",
           lastName: "Smith",
           handle: "jsmith",
-          email: "jsmith@bar.baz",
+          email: "jsmith@xyz.pdq",
         };
-        const user = new User(0, "John", "Smith", "jsmith", "jsmith@bar.baz");
+        const user = new User(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq");
         const updateReturn = new UpdatedUser(
           0,
           "John",
           "Smith",
           "jsmith",
-          "jsmith@bar.baz"
+          "jsmith@xyz.pdq"
         );
 
         // @ts-expect-error - incorrect input type
@@ -397,27 +387,16 @@ describe("transforms between inputs and outputs", () => {
     }
 
     testTransformInsertReturn() {
-      expect(
-        this.transformInsertReturn(
-          new InsertedUser(0, "John", "Smith", "jsmith", "jsmith@bar.baz"),
-          { id: 1 }
-        )
-      ).toEqual(
-        new InsertReturnedUser(1, "John", "Smith", "jsmith", "jsmith@bar.baz")
+      expect(this.transformInsertReturn(insertedUser1, { id: 1 })).toEqual(
+        insertReturnedUser1
       );
 
       expect(
         this.transformInsertReturn(
-          [
-            new InsertedUser(0, "John", "Smith", "jsmith", "jsmith@bar.baz"),
-            new InsertedUser(0, "Jane", "Doe", "jdoe", "jdoe@bar.baz"),
-          ],
+          [insertedUser1, insertedUser2],
           [{ id: 1 }, { id: 2 }]
         )
-      ).toEqual([
-        new InsertReturnedUser(1, "John", "Smith", "jsmith", "jsmith@bar.baz"),
-        new InsertReturnedUser(2, "Jane", "Doe", "jdoe", "jdoe@bar.baz"),
-      ]);
+      ).toEqual([insertReturnedUser1, insertReturnedUser2]);
 
       ignore("detects transformInsertReturn type errors", () => {
         const userObj = {
@@ -425,22 +404,15 @@ describe("transforms between inputs and outputs", () => {
           firstName: "John",
           lastName: "Smith",
           handle: "jsmith",
-          email: "jsmith@bar.baz",
+          email: "jsmith@xyz.pdq",
         };
-        const user = new User(0, "John", "Smith", "jsmith", "jsmith@bar.baz");
-        const insertReturn = new InsertedUser(
-          0,
-          "John",
-          "Smith",
-          "jsmith",
-          "jsmith@bar.baz"
-        );
+        const user = new User(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq");
         const selectedUser = new SelectedUser(
           0,
           "John",
           "Smith",
           "jsmith",
-          "jsmith@bar.baz"
+          "jsmith@xyz.pdq"
         );
 
         // @ts-expect-error - incorrect input type
@@ -456,29 +428,29 @@ describe("transforms between inputs and outputs", () => {
         // @ts-expect-error - incorrect input type
         this.transformInsertReturn([selectedUser], [{ id: 1 }]);
         // @ts-expect-error - incorrect output type
-        this.transformInsertReturn(insertReturn, { id: 1 }).name;
+        this.transformInsertReturn(insertedUser1, { id: 1 }).name;
         // @ts-expect-error - incorrect output type
-        this.transformInsertReturn([insertReturn], [{ id: 1 }])[0].name;
+        this.transformInsertReturn([insertedUser1], [{ id: 1 }])[0].name;
       });
     }
 
     testTransformUpdateReturn() {
       expect(
         this.transformUpdateReturn(
-          new UpdatedUser(0, "John", "Smith", "jsmith", "jsmith@bar.baz"),
+          new UpdatedUser(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq"),
           [{ id: 1 }]
         )
       ).toEqual([
-        new UpdateReturnedUser(1, "John", "Smith", "jsmith", "jsmith@bar.baz"),
+        new UpdateReturnedUser(1, "John", "Smith", "jsmith", "jsmith@xyz.pdq"),
       ]);
       expect(
         this.transformUpdateReturn(
-          new UpdatedUser(0, "John", "Smith", "jsmith", "jsmith@bar.baz"),
+          new UpdatedUser(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq"),
           [{ id: 1 }, { id: 2 }]
         )
       ).toEqual([
-        new UpdateReturnedUser(1, "John", "Smith", "jsmith", "jsmith@bar.baz"),
-        new UpdateReturnedUser(2, "John", "Smith", "jsmith", "jsmith@bar.baz"),
+        new UpdateReturnedUser(1, "John", "Smith", "jsmith", "jsmith@xyz.pdq"),
+        new UpdateReturnedUser(2, "John", "Smith", "jsmith", "jsmith@xyz.pdq"),
       ]);
 
       ignore("detects transformUpdateReturn type errors", () => {
@@ -487,22 +459,22 @@ describe("transforms between inputs and outputs", () => {
           firstName: "John",
           lastName: "Smith",
           handle: "jsmith",
-          email: "jsmith@bar.baz",
+          email: "jsmith@xyz.pdq",
         };
-        const user = new User(0, "John", "Smith", "jsmith", "jsmith@bar.baz");
+        const user = new User(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq");
         const updatedUser = new UpdatedUser(
           0,
           "John",
           "Smith",
           "jsmith",
-          "jsmith@bar.baz"
+          "jsmith@xyz.pdq"
         );
         const selectedUser = new SelectedUser(
           0,
           "John",
           "Smith",
           "jsmith",
-          "jsmith@bar.baz"
+          "jsmith@xyz.pdq"
         );
 
         // @ts-expect-error - incorrect input type
