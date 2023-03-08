@@ -235,7 +235,32 @@ describe("update()", () => {
   });
 });
 
-describe("custom update returns", () => {
+describe("update transformation", () => {
+  // class UpdateTransformFacet extends StandardFacet<
+  //   Database,
+  //   "users",
+  //   Selectable<Database["users"]>,
+  //   Insertable<Database["users"]>,
+  //   UpdatedUser
+  // > {
+  //   constructor(db: Kysely<Database>) {
+  //     super(db, "users", {
+  //       updateTransform: (source) => ({
+  //         name: `${source.firstName} ${source.lastName}`,
+  //         handle: source.handle,
+  //         email: source.email,
+  //       }),
+  //     });
+  //   }
+  // }
+
+  // it("transforms users for update without transforming return", async () => {
+  //   const facet = new UpdateTransformFacet(db);
+
+  //   const insertReturns = await facet.insertMany([userRow1, userRow2], ["id"]);
+  //   // TODO
+  // });
+
   it("errors when providing an empty defaultUpdateReturns array", () => {
     expect(
       () =>
