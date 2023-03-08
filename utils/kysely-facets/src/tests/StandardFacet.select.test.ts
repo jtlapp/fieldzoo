@@ -1,9 +1,8 @@
-import { Kysely, sql } from "kysely";
+import { Insertable, Kysely, Selectable, sql } from "kysely";
 
 import { StandardFacet } from "..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
-import { Database } from "./utils/test-tables";
-import { PassThruUserFacet } from "./utils/test-facets";
+import { Database, Users } from "./utils/test-tables";
 import {
   selectedUser1,
   selectedUser2,
@@ -17,12 +16,25 @@ import { ignore } from "@fieldzoo/testing-utils";
 import { allOf, anyOf } from "../filters/ComboFilter";
 import { SelectedUser } from "./utils/test-types";
 
+class PlainUserFacet extends StandardFacet<
+  Database,
+  "users",
+  Selectable<Users>,
+  Insertable<Users>,
+  Partial<Insertable<Users>>,
+  ["id"]
+> {
+  constructor(readonly db: Kysely<Database>) {
+    super(db, "users", { insertReturnColumns: ["id"] });
+  }
+}
+
 let db: Kysely<Database>;
-let plainUserFacet: PassThruUserFacet;
+let plainUserFacet: PlainUserFacet;
 
 beforeAll(async () => {
   db = await createDB();
-  plainUserFacet = new PassThruUserFacet(db);
+  plainUserFacet = new PlainUserFacet(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
@@ -91,7 +103,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a MatchAllFilter", async () => {
-    const userIDs = await plainUserFacet.insertMany(USERS, ["id"]);
+    const userIDs = await plainUserFacet.insertMany(USERS);
 
     const users = await plainUserFacet.selectMany(
       allOf({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
@@ -101,7 +113,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a MatchAnyFilter", async () => {
-    await plainUserFacet.insertMany(USERS, ["id"]);
+    await plainUserFacet.insertMany(USERS);
 
     const users = await plainUserFacet.selectMany(
       anyOf({ handle: USERS[0].handle }, ["handle", "=", USERS[2].handle])
@@ -112,7 +124,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a MatchAnyFilter with a nested MatchAllFilter", async () => {
-    const userIDs = await plainUserFacet.insertMany(USERS, ["id"]);
+    const userIDs = await plainUserFacet.insertMany(USERS);
 
     const users = await plainUserFacet.selectMany(
       anyOf(

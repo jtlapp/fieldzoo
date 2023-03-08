@@ -2,8 +2,14 @@ import { Kysely } from "kysely";
 
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
-import { PassThruUserFacet } from "./utils/test-facets";
 import { USERS } from "./utils/test-objects";
+import { IdFacet } from "../facets/IdFacet";
+
+class PassThruUserFacet extends IdFacet<Database, "users", "id"> {
+  constructor(readonly db: Kysely<Database>) {
+    super(db, "users", "id");
+  }
+}
 
 let db: Kysely<Database>;
 let plainUserFacet: PassThruUserFacet;

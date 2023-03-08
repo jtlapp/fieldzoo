@@ -1,18 +1,30 @@
-import { Kysely, sql } from "kysely";
+import { Insertable, Kysely, Selectable, sql } from "kysely";
 
 import { StandardFacet } from "..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
-import { Database } from "./utils/test-tables";
-import { PassThruUserFacet } from "./utils/test-facets";
+import { Database, Users } from "./utils/test-tables";
 import { USERS } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
 
+class PlainUserFacet extends StandardFacet<
+  Database,
+  "users",
+  Selectable<Users>,
+  Insertable<Users>,
+  Partial<Insertable<Users>>,
+  ["id"]
+> {
+  constructor(readonly db: Kysely<Database>) {
+    super(db, "users", { insertReturnColumns: ["id"] });
+  }
+}
+
 let db: Kysely<Database>;
-let plainUserFacet: PassThruUserFacet;
+let plainUserFacet: PlainUserFacet;
 
 beforeAll(async () => {
   db = await createDB();
-  plainUserFacet = new PassThruUserFacet(db);
+  plainUserFacet = new PlainUserFacet(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
@@ -122,7 +134,7 @@ describe("update()", () => {
   });
 
   it("updates returning all columns", async () => {
-    const insertReturns = await plainUserFacet.insertMany(USERS, ["id"]);
+    const insertReturns = await plainUserFacet.insertMany(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
     const updateReturns = await plainUserFacet.update(
@@ -142,7 +154,7 @@ describe("update()", () => {
   });
 
   it("updates all rows when no filter is given", async () => {
-    await plainUserFacet.insertMany(USERS, ["id"]);
+    await plainUserFacet.insertMany(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
     const updateReturns = await plainUserFacet.update({}, updateValues, [
@@ -162,7 +174,7 @@ describe("update()", () => {
   });
 
   it("updates rows indicated by a binary operator", async () => {
-    const insertReturns = await plainUserFacet.insertMany(USERS, ["id"]);
+    const insertReturns = await plainUserFacet.insertMany(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
     const updateCount = await plainUserFacet.update(
@@ -184,7 +196,7 @@ describe("update()", () => {
   });
 
   it("updates rows indicated by a kysely expression", async () => {
-    const insertReturns = await plainUserFacet.insertMany(USERS, ["id"]);
+    const insertReturns = await plainUserFacet.insertMany(USERS);
 
     const updateValues = { email: "new.email.@xyz.pdq" };
     const updateCount = await plainUserFacet.update(

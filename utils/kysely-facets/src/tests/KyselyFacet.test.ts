@@ -1,9 +1,8 @@
-import { Kysely } from "kysely";
+import { Insertable, Kysely, Selectable } from "kysely";
 
 import { KyselyFacet } from "../..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
-import { Database } from "./utils/test-tables";
-import { PassThruUserFacet } from "./utils/test-facets";
+import { Database, Users } from "./utils/test-tables";
 import {
   USERS,
   userRow1,
@@ -28,12 +27,25 @@ import {
 } from "./utils/test-types";
 import { ignore } from "@fieldzoo/testing-utils";
 
+export class PlainUserFacet extends KyselyFacet<
+  Database,
+  "users",
+  Selectable<Users>,
+  Insertable<Users>,
+  Partial<Insertable<Users>>,
+  ["id"]
+> {
+  constructor(readonly db: Kysely<Database>) {
+    super(db, "users", { insertReturnColumns: ["id"] });
+  }
+}
+
 let db: Kysely<Database>;
-let plainUserFacet: PassThruUserFacet;
+let plainUserFacet: PlainUserFacet;
 
 beforeAll(async () => {
   db = await createDB();
-  plainUserFacet = new PassThruUserFacet(db);
+  plainUserFacet = new PlainUserFacet(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
@@ -75,10 +87,17 @@ describe("basic row queries", () => {
     await plainUserFacet.deleteRows().where("id", "=", user1.id).execute();
 
     // Verify correct user was deleted
-    const readUser0 = await plainUserFacet.selectById(user0.id);
+    const readUser0 = await plainUserFacet
+      .selectRows()
+      .where("id", "=", user0.id)
+      .executeTakeFirst();
     expect(readUser0?.handle).toEqual(USERS[0].handle);
-    const noUser = await plainUserFacet.selectById(user1.id);
-    expect(noUser).toBeNull();
+
+    const noUser = await plainUserFacet
+      .selectRows()
+      .where("id", "=", user1.id)
+      .executeTakeFirst();
+    expect(noUser).toBeUndefined();
   });
 });
 
@@ -138,6 +157,7 @@ describe("transforms between inputs and outputs", () => {
     SelectedUser,
     InsertedUser,
     UpdatedUser,
+    ["id"],
     InsertReturnedUser,
     UpdateReturnedUser
   > {
@@ -360,4 +380,72 @@ describe("transforms between inputs and outputs", () => {
     testPassThruFacet.testTransformUpdateReturn();
     testTransformFacet.testTransformUpdateReturn();
   });
+});
+
+ignore("detects invalid return column configurations", () => {
+  new KyselyFacet<
+    Database,
+    "users",
+    Selectable<Users>,
+    Insertable<Users>,
+    Partial<Insertable<Users>>,
+    ["id"]
+    // @ts-expect-error - invalid return column configuration
+  >(db, "users", { insertReturnColumns: ["notThere"] });
+
+  new KyselyFacet<
+    Database,
+    "users",
+    Selectable<Users>,
+    Insertable<Users>,
+    Partial<Insertable<Users>>,
+    // @ts-expect-error - invalid return column configuration
+    ["notThere"]
+  >(db, "users", {});
+
+  new KyselyFacet<
+    Database,
+    "users",
+    Selectable<Users>,
+    Insertable<Users>,
+    Partial<Insertable<Users>>,
+    // @ts-expect-error - invalid return column configuration
+    ["notThere", "*"]
+  >(db, "users", {});
+
+  new KyselyFacet<
+    Database,
+    "users",
+    Selectable<Users>,
+    Insertable<Users>,
+    Partial<Insertable<Users>>,
+    ["id"]
+    // @ts-expect-error - invalid return column configuration
+  >(db, "users", { insertReturnColumns: [""] });
+
+  new KyselyFacet<
+    Database,
+    "users",
+    Selectable<Users>,
+    Insertable<Users>,
+    Partial<Insertable<Users>>,
+    ["id"]
+    // @ts-expect-error - invalid return column configuration
+  >(db, "users", { insertReturnColumns: ["notThere"] });
+
+  class TestFacet6<
+    // Be sure the following is the same as in KyselyFacet
+    InsertReturnColumns extends
+      | (keyof Selectable<Users> & string)[]
+      | ["*"] = []
+  > extends KyselyFacet<
+    Database,
+    "users",
+    Selectable<Users>,
+    Insertable<Users>,
+    Partial<Insertable<Users>>,
+    InsertReturnColumns
+  > {}
+  // @ts-expect-error - invalid return column configuration
+  new TestFacet6(db, "users", { insertReturnColumns: ["notThere"] });
 });

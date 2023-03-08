@@ -1,17 +1,28 @@
 import { Insertable, Kysely, Selectable, Updateable } from "kysely";
 
 import { FacetOptions } from "./FacetOptions";
+import { ObjectWithKeys } from "../lib/type-utils";
+
+// TODO: never call takeFirstOrThrow() -- poor error, no source given
+// TODO: move options to appropriate subclasses
 
 /**
  * Base class for all Kysely facets.
  */
-export abstract class KyselyFacet<
+export class KyselyFacet<
   DB,
   TableName extends keyof DB & string,
   SelectedType = Selectable<DB[TableName]>,
   InsertedType = Insertable<DB[TableName]>,
   UpdatedType = Partial<InsertedType>,
-  InsertReturnedType = void,
+  InsertReturnColumns extends
+    | (keyof Selectable<DB[TableName]> & string)[]
+    | ["*"] = [],
+  InsertReturnedType = InsertReturnColumns extends []
+    ? void
+    : InsertReturnColumns extends ["*"]
+    ? Selectable<DB[TableName]>
+    : ObjectWithKeys<Selectable<DB[TableName]>, InsertReturnColumns>,
   UpdateReturnedType = void
 > {
   constructor(
@@ -23,6 +34,7 @@ export abstract class KyselyFacet<
       SelectedType,
       InsertedType,
       UpdatedType,
+      InsertReturnColumns,
       InsertReturnedType,
       UpdateReturnedType
     >
