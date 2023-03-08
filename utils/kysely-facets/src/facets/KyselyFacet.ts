@@ -15,14 +15,14 @@ export class KyselyFacet<
   SelectedType = Selectable<DB[TableName]>,
   InsertedType = Insertable<DB[TableName]>,
   UpdatedType = Partial<InsertedType>,
-  InsertReturnColumns extends
+  ReturnColumns extends
     | (keyof Selectable<DB[TableName]> & string)[]
     | ["*"] = [],
-  InsertReturnedType = InsertReturnColumns extends []
+  InsertReturnedType = ReturnColumns extends []
     ? void
-    : InsertReturnColumns extends ["*"]
+    : ReturnColumns extends ["*"]
     ? Selectable<DB[TableName]>
-    : ObjectWithKeys<Selectable<DB[TableName]>, InsertReturnColumns>,
+    : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>,
   UpdateReturnedType = void
 > {
   constructor(
@@ -34,7 +34,7 @@ export class KyselyFacet<
       SelectedType,
       InsertedType,
       UpdatedType,
-      InsertReturnColumns,
+      ReturnColumns,
       InsertReturnedType,
       UpdateReturnedType
     >

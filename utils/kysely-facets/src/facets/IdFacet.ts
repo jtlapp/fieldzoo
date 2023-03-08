@@ -20,7 +20,7 @@ export class IdFacet<
     readonly tableName: TableName,
     readonly idColumnName: IdColumnName
   ) {
-    super(db, tableName, { insertReturnColumns: [idColumnName] });
+    super(db, tableName, { returnColumns: [idColumnName] });
   }
 
   async deleteById(

@@ -54,7 +54,7 @@ beforeAll(async () => {
   stdUserFacetReturningAll = new StdUserFacetReturningAll(db);
   stdPostFacet = new StandardFacet(db, "posts");
   stdPostFacetReturningIDAndTitle = new StandardFacet(db, "posts", {
-    insertReturnColumns: ["id", "title"],
+    returnColumns: ["id", "title"],
   });
 });
 beforeEach(() => resetDB(db));
@@ -194,7 +194,7 @@ describe("insertion transformation", () => {
           handle: source.handle,
           email: source.email,
         }),
-        insertReturnColumns: ["id"],
+        returnColumns: ["id"],
       });
     }
   }
@@ -237,7 +237,7 @@ describe("insertion transformation", () => {
     > {
       constructor(db: Kysely<Database>) {
         super(db, "users", {
-          insertReturnColumns: ["id"],
+          returnColumns: ["id"],
           insertReturnTransform: (source, returns) =>
             new InsertReturnedUser(
               returns.id!,
@@ -278,7 +278,7 @@ describe("insertion transformation", () => {
             handle: source.handle,
             email: source.email,
           }),
-          insertReturnColumns: ["id"],
+          returnColumns: ["id"],
           insertReturnTransform: (source, returns) =>
             new InsertReturnedUser(
               returns.id!,
@@ -304,23 +304,23 @@ describe("insertion transformation", () => {
     expect(insertReturns).toEqual([insertReturnedUser2, insertReturnedUser3]);
   });
 
-  it("errors when providing an empty insertReturnColumns array", () => {
+  it("errors when providing an empty returnColumns array", () => {
     expect(
       () =>
         new StandardFacet(db, "users", {
           insertReturnTransform: (source, _returns) => source,
-          insertReturnColumns: [],
+          returnColumns: [],
         })
-    ).toThrow("No 'insertReturnColumns' returned for 'insertReturnTransform'");
+    ).toThrow("No 'returnColumns' returned for 'insertReturnTransform'");
   });
 
-  it("errors when providing insertReturnTransform but not insertReturnColumns", () => {
+  it("errors when providing insertReturnTransform but not returnColumns", () => {
     expect(
       () =>
         new StandardFacet(db, "users", {
           insertReturnTransform: (source, _returns) => source,
         })
-    ).toThrow("'insertReturnTransform' requires 'insertReturnColumns'");
+    ).toThrow("'insertReturnTransform' requires 'returnColumns'");
   });
 
   ignore("detects insertion transformation type errors", async () => {

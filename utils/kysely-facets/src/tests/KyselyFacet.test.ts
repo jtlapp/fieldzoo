@@ -36,7 +36,7 @@ export class PlainUserFacet extends KyselyFacet<
   ["id"]
 > {
   constructor(readonly db: Kysely<Database>) {
-    super(db, "users", { insertReturnColumns: ["id"] });
+    super(db, "users", { returnColumns: ["id"] });
   }
 }
 
@@ -391,7 +391,7 @@ ignore("detects invalid return column configurations", () => {
     Partial<Insertable<Users>>,
     ["id"]
     // @ts-expect-error - invalid return column configuration
-  >(db, "users", { insertReturnColumns: ["notThere"] });
+  >(db, "users", { returnColumns: ["notThere"] });
 
   new KyselyFacet<
     Database,
@@ -421,7 +421,7 @@ ignore("detects invalid return column configurations", () => {
     Partial<Insertable<Users>>,
     ["id"]
     // @ts-expect-error - invalid return column configuration
-  >(db, "users", { insertReturnColumns: [""] });
+  >(db, "users", { returnColumns: [""] });
 
   new KyselyFacet<
     Database,
@@ -431,21 +431,19 @@ ignore("detects invalid return column configurations", () => {
     Partial<Insertable<Users>>,
     ["id"]
     // @ts-expect-error - invalid return column configuration
-  >(db, "users", { insertReturnColumns: ["notThere"] });
+  >(db, "users", { returnColumns: ["notThere"] });
 
   class TestFacet6<
     // Be sure the following is the same as in KyselyFacet
-    InsertReturnColumns extends
-      | (keyof Selectable<Users> & string)[]
-      | ["*"] = []
+    ReturnColumns extends (keyof Selectable<Users> & string)[] | ["*"] = []
   > extends KyselyFacet<
     Database,
     "users",
     Selectable<Users>,
     Insertable<Users>,
     Partial<Insertable<Users>>,
-    InsertReturnColumns
+    ReturnColumns
   > {}
   // @ts-expect-error - invalid return column configuration
-  new TestFacet6(db, "users", { insertReturnColumns: ["notThere"] });
+  new TestFacet6(db, "users", { returnColumns: ["notThere"] });
 });

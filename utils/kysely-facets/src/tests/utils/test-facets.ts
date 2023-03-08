@@ -24,7 +24,7 @@ export class StdUserFacetReturningID extends StandardFacet<
   ["id"]
 > {
   constructor(readonly db: Kysely<Database>) {
-    super(db, "users", { insertReturnColumns: ["id"] });
+    super(db, "users", { returnColumns: ["id"] });
   }
 }
 
@@ -37,6 +37,6 @@ export class StdUserFacetReturningAll extends StandardFacet<
   ["*"]
 > {
   constructor(readonly db: Kysely<Database>) {
-    super(db, "users", { insertReturnColumns: ["*"] });
+    super(db, "users", { returnColumns: ["*"] });
   }
 }

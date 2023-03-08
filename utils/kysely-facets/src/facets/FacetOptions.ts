@@ -9,9 +9,7 @@ export interface FacetOptions<
   SelectedType,
   InsertedType,
   UpdatedType,
-  InsertReturnColumns extends
-    | (keyof Selectable<DB[TableName]> & string)[]
-    | ["*"],
+  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"],
   InsertReturnedType,
   UpdateReturnedType
 > {
@@ -22,7 +20,7 @@ export interface FacetOptions<
   insertTransform?: (obj: InsertedType) => Insertable<DB[TableName]>;
 
   /** Columns to return from table upon insertion. */
-  insertReturnColumns?: InsertReturnColumns;
+  returnColumns?: ReturnColumns;
 
   /** Transformation to apply to data returned from inserts. */
   insertReturnTransform?: (

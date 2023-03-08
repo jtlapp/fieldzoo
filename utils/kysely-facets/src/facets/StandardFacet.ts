@@ -21,14 +21,14 @@ export class StandardFacet<
   SelectedType = Selectable<DB[TableName]>,
   InsertedType = Insertable<DB[TableName]>,
   UpdatedType = Partial<InsertedType>,
-  InsertReturnColumns extends
+  ReturnColumns extends
     | (keyof Selectable<DB[TableName]> & string)[]
     | ["*"] = [],
-  InsertReturnedType = InsertReturnColumns extends []
+  InsertReturnedType = ReturnColumns extends []
     ? void
-    : InsertReturnColumns extends ["*"]
+    : ReturnColumns extends ["*"]
     ? Selectable<DB[TableName]>
-    : ObjectWithKeys<Selectable<DB[TableName]>, InsertReturnColumns>,
+    : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>,
   UpdateReturnedType = void
 > extends KyselyFacet<
   DB,
@@ -36,19 +36,17 @@ export class StandardFacet<
   SelectedType,
   InsertedType,
   UpdatedType,
-  InsertReturnColumns,
+  ReturnColumns,
   InsertReturnedType,
   UpdateReturnedType
 > {
   /**
    * Columns to return from table upon insertion. Contrary to the meaning of
-   * `InsertReturnColumns`, an empty array here returns all columns, while null
-   * returns none. `InsertReturnColumns` is more intuitive using `["*"]` and
+   * `ReturnColumns`, an empty array here returns all columns, while null
+   * returns none. `ReturnColumns` is more intuitive using `["*"]` and
    * `[]`, respectively, while the approach here requires fewer clock cycles.
    */
-  protected insertReturnColumns:
-    | (keyof Selectable<DB[TableName]> & string)[]
-    | null;
+  protected returnColumns: (keyof Selectable<DB[TableName]> & string)[] | null;
 
   /**
    * Constructs a new Kysely table.
@@ -64,7 +62,7 @@ export class StandardFacet<
       SelectedType,
       InsertedType,
       UpdatedType,
-      InsertReturnColumns,
+      ReturnColumns,
       InsertReturnedType,
       UpdateReturnedType
     >
@@ -72,24 +70,21 @@ export class StandardFacet<
     super(db, tableName, options);
 
     if (options?.insertReturnTransform) {
-      if (!options.insertReturnColumns) {
-        throw Error("'insertReturnTransform' requires 'insertReturnColumns'");
+      if (!options.returnColumns) {
+        throw Error("'insertReturnTransform' requires 'returnColumns'");
       }
-      if (options?.insertReturnColumns?.length === 0) {
-        throw Error(
-          "No 'insertReturnColumns' returned for 'insertReturnTransform'"
-        );
+      if (options?.returnColumns?.length === 0) {
+        throw Error("No 'returnColumns' returned for 'insertReturnTransform'");
       }
     }
-    this.insertReturnColumns = null;
-    if (options?.insertReturnColumns) {
+    this.returnColumns = null;
+    if (options?.returnColumns) {
       // Cast here because TS wasn't allowing the includes() check.
-      const insertReturnColumns = options.insertReturnColumns as string[];
-      if (insertReturnColumns.length > 0) {
-        this.insertReturnColumns = insertReturnColumns.includes("*")
+      const returnColumns = options.returnColumns as string[];
+      if (returnColumns.length > 0) {
+        this.returnColumns = returnColumns.includes("*")
           ? []
-          : (insertReturnColumns as (keyof Selectable<DB[TableName]> &
-              string)[]);
+          : (returnColumns as (keyof Selectable<DB[TableName]> & string)[]);
       }
     }
 
@@ -108,26 +103,26 @@ export class StandardFacet<
   // TODO: consider combining insertOne() and insertMany()
   /**
    * Inserts multiple rows into this table, returning columns from the
-   * inserted rows when configured with `insertReturnColumns`.
+   * inserted rows when configured with `returnColumns`.
    * @param objs The objects to insert as rows.
    * @returns An array of `InsertReturnedType` objects, one for each
-   *  inserted row, if `insertReturnColumns` was configured in the
+   *  inserted row, if `returnColumns` was configured in the
    *  options. Otherwise, returns nothing.
    */
   async insertMany(
     objs: InsertedType[]
-  ): Promise<InsertReturnColumns extends [] ? void : InsertReturnedType[]> {
+  ): Promise<ReturnColumns extends [] ? void : InsertReturnedType[]> {
     const transformedObjs = this.transformInsertion(objs);
     const qb = this.insertRows().values(transformedObjs);
     let output: InsertReturnedType[] | undefined;
 
-    if (this.insertReturnColumns === null) {
+    if (this.returnColumns === null) {
       await qb.execute();
-    } else if (this.insertReturnColumns.length == 0) {
+    } else if (this.returnColumns.length == 0) {
       const returns = await qb.returningAll().execute();
       output = this.transformInsertReturn(objs, returns);
     } else {
-      const returns = await qb.returning(this.insertReturnColumns).execute();
+      const returns = await qb.returning(this.returnColumns).execute();
       output = this.transformInsertReturn(
         objs,
         returns as Partial<Selectable<DB[TableName]>>[]
@@ -149,23 +144,21 @@ export class StandardFacet<
    */
   async insertOne(
     obj: InsertedType
-  ): Promise<InsertReturnColumns extends [] ? void : InsertReturnedType> {
+  ): Promise<ReturnColumns extends [] ? void : InsertReturnedType> {
     const transformedObj = this.transformInsertion(obj);
     const qb = this.insertRows().values(transformedObj);
     let output: InsertReturnedType | undefined;
 
-    if (this.insertReturnColumns === null) {
+    if (this.returnColumns === null) {
       await qb.execute();
-    } else if (this.insertReturnColumns.length == 0) {
+    } else if (this.returnColumns.length == 0) {
       const returns = await qb.returningAll().executeTakeFirst();
       if (returns === undefined) {
         throw Error("No row returned from insert returning all columns");
       }
       output = this.transformInsertReturn(obj, returns);
     } else {
-      const returns = await qb
-        .returning(this.insertReturnColumns)
-        .executeTakeFirst();
+      const returns = await qb.returning(this.returnColumns).executeTakeFirst();
       if (returns === undefined) {
         throw Error("No row returned from insert returning some columns");
       }
