@@ -137,7 +137,7 @@ describe("insertOne() without transformation", () => {
   });
 
   it("inserts one returning indicated columns", async () => {
-    const insertReturn = await stdUserFacet.insertOne(USERS[0], ["id"]);
+    const insertReturn = await stdUserFacetReturningID.insertOne(USERS[0]);
     expect(insertReturn.id).toBeGreaterThan(0);
     expect(Object.keys(insertReturn).length).toEqual(1);
 
@@ -148,48 +148,33 @@ describe("insertOne() without transformation", () => {
     expect(readUser0?.email).toEqual(USERS[0].email);
 
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturn.id });
-    const updatedPost = await stdPostFacet.insertOne(post0, [
-      "id",
-      "createdAt",
-    ]);
+    const updatedPost = await stdPostFacetReturningIDAndTitle.insertOne(post0);
     expect(updatedPost.id).toBeGreaterThan(0);
-    expect(new Date(updatedPost.createdAt)).not.toBeNaN();
+    expect(updatedPost.title).toEqual(POSTS[0].title);
     expect(Object.keys(updatedPost).length).toEqual(2);
 
     const readPost0 = await stdPostFacet
       .selectRows()
       .where("id", "=", updatedPost.id)
-      .where("createdAt", "=", updatedPost.createdAt)
+      .where("title", "=", updatedPost.title)
       .executeTakeFirst();
-    expect(readPost0?.title).toEqual(post0.title);
+    expect(readPost0?.likeCount).toEqual(post0.likeCount);
   });
 
   it("inserts one returning all columns", async () => {
-    const insertReturn = await stdUserFacet.insertOne(USERS[0], ["*"]);
+    const insertReturn = await stdUserFacetReturningAll.insertOne(USERS[0]);
     expect(insertReturn.id).toBeGreaterThan(0);
     const expectedUser = Object.assign({}, USERS[0], { id: insertReturn.id });
     expect(insertReturn).toEqual(expectedUser);
   });
 
   ignore("detects insertOne() type errors", async () => {
-    // @ts-expect-error - returns undefined without returning argument
-    stdUserFacet.insertOne([USERS[0]]).email;
     // @ts-expect-error - inserted object must have all required columns
     stdUserFacet.insertOne({});
     // @ts-expect-error - inserted object must have all required columns
     stdUserFacet.insertOne({ email: "xyz@pdq.xyz" });
-    // @ts-expect-error - returning argument can't be a string
-    stdUserFacet.insertOne(USERS[0], "id");
-    // @ts-expect-error - returning argument can't be a string
-    stdUserFacet.insertOne(USERS[0], "*");
-    // @ts-expect-error - returning arguments must be valid column names
-    stdUserFacet.insertOne(USERS[0], [""]);
-    // @ts-expect-error - returning arguments must be valid column names
-    stdUserFacet.insertOne(USERS[0], ["notThere"]);
-    // @ts-expect-error - returning arguments must be valid column names
-    stdUserFacet.insertOne(USERS[0], ["notThere", "*"]);
     // @ts-expect-error - only requested columns are returned
-    (await stdUserFacet.insertOne(USERS[0], ["id", "email"])).name;
+    (await stdUserFacet.insertOne(USERS[0])).name;
   });
 });
 
@@ -198,7 +183,9 @@ describe("insertion transformation", () => {
     Database,
     "users",
     Selectable<Database["users"]>,
-    InsertedUser
+    InsertedUser,
+    Partial<InsertedUser>,
+    ["id"]
   > {
     constructor(db: Kysely<Database>) {
       super(db, "users", {
@@ -207,6 +194,7 @@ describe("insertion transformation", () => {
           handle: source.handle,
           email: source.email,
         }),
+        insertReturnColumns: ["id"],
       });
     }
   }
@@ -214,9 +202,7 @@ describe("insertion transformation", () => {
   it("transforms users for insertion without transforming return", async () => {
     const insertTransformFacet = new InsertTransformFacet(db);
 
-    const insertReturn = await insertTransformFacet.insertOne(insertedUser1, [
-      "id",
-    ]);
+    const insertReturn = await insertTransformFacet.insertOne(insertedUser1);
     const readUser1 = await insertTransformFacet.selectOne({
       id: insertReturn.id,
     });

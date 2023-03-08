@@ -1,4 +1,4 @@
-import { Kysely, SelectType, Updateable } from "kysely";
+import { Insertable, Kysely, Selectable, SelectType, Updateable } from "kysely";
 
 import { StandardFacet } from "./StandardFacet";
 
@@ -6,14 +6,21 @@ import { StandardFacet } from "./StandardFacet";
 export class IdFacet<
   DB,
   TableName extends keyof DB & string,
-  IdColumnName extends keyof DB[TableName] & string
-> extends StandardFacet<DB, TableName> {
+  IdColumnName extends keyof Selectable<DB[TableName]> & string
+> extends StandardFacet<
+  DB,
+  TableName,
+  Selectable<DB[TableName]>,
+  Insertable<DB[TableName]>,
+  Partial<Insertable<DB[TableName]>>,
+  [IdColumnName]
+> {
   constructor(
     readonly db: Kysely<DB>,
     readonly tableName: TableName,
     readonly idColumnName: IdColumnName
   ) {
-    super(db, tableName);
+    super(db, tableName, { insertReturnColumns: [idColumnName] });
   }
 
   async deleteById(

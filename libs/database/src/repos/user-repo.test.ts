@@ -42,7 +42,7 @@ describe("user repo", () => {
 
     // DONE
     // Add a user
-    const insertReturn = await userRepo.insertOne(USER1, ["id"]);
+    const insertReturn = await userRepo.insertOne(USER1);
 
     // DONE
     // Verify that the user was added

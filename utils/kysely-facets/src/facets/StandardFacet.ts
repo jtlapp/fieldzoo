@@ -147,60 +147,34 @@ export class StandardFacet<
    * @returns An object containing the requested return columns, if any.
    *  Returns an `UpdateReturnedType` when `returning` is omitted.
    */
-  insertOne(
+  async insertOne(
     obj: InsertedType
-  ): Promise<InsertReturnedType extends void ? void : InsertReturnedType>;
-
-  insertOne<O extends Selectable<DB[TableName]>, R extends keyof O>(
-    obj: InsertedType,
-    returning: R[]
-  ): Promise<Pick<O, R>>;
-
-  insertOne<O extends Selectable<DB[TableName]>>(
-    obj: InsertedType,
-    returning: ["*"]
-  ): Promise<Selectable<DB[TableName]>>;
-
-  async insertOne<
-    O extends Selectable<DB[TableName]>,
-    R extends keyof O & keyof DB[TableName] & string
-  >(
-    obj: InsertedType,
-    returning?: R[] | ["*"]
-  ): Promise<
-    InsertReturnedType | Selectable<DB[TableName]> | Pick<O, R> | void
-  > {
+  ): Promise<InsertReturnColumns extends [] ? void : InsertReturnedType> {
     const transformedObj = this.transformInsertion(obj);
     const qb = this.insertRows().values(transformedObj);
+    let output: InsertReturnedType | undefined;
 
-    // Return columns requested via `returning` parameter.
-
-    if (returning) {
-      if (returning.length === 0) {
-        throw Error("'returning' cannot be an empty array");
+    if (this.insertReturnColumns === null) {
+      await qb.execute();
+    } else if (this.insertReturnColumns.length == 0) {
+      const returns = await qb.returningAll().executeTakeFirst();
+      if (returns === undefined) {
+        throw Error("No row returned from insert returning all columns");
       }
-      // Cast here because TS wasn't allowing the check.
-      if ((returning as string[]).includes("*")) {
-        const result = await qb.returningAll().executeTakeFirstOrThrow();
-        return result as Selectable<DB[TableName]>;
+      output = this.transformInsertReturn(obj, returns);
+    } else {
+      const returns = await qb
+        .returning(this.insertReturnColumns)
+        .executeTakeFirst();
+      if (returns === undefined) {
+        throw Error("No row returned from insert returning some columns");
       }
-      const result = await qb
-        .returning(returning as any)
-        .executeTakeFirstOrThrow();
-      return result as Pick<O, R>;
+      output = this.transformInsertReturn(
+        obj,
+        returns as Partial<Selectable<DB[TableName]>>
+      );
     }
-
-    // Return columns requested via `insertReturnColumns` option.
-
-    const insertReturnColumns = this.options?.insertReturnColumns;
-    if (insertReturnColumns) {
-      const returns = await qb.returning(insertReturnColumns as any).execute();
-      return this.transformInsertReturn(obj, returns[0] as any);
-    }
-
-    // No return columns requested when no `insertReturnColumns` option.
-
-    await qb.execute();
+    return output as any;
   }
 
   // TODO: consider combining selectMany() and selectOne() into select().

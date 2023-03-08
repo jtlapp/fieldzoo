@@ -19,7 +19,7 @@ afterAll(() => destroyDB(db));
 
 describe("update()", () => {
   it("updates without returning", async () => {
-    const insertReturn = await stdUserFacet.insertOne(USERS[0], ["id"]);
+    const insertReturn = await stdUserFacet.insertOne(USERS[0]);
     const updateValues = { email: "new.email@xyz.pdq" };
 
     const result = await stdUserFacet.update(
@@ -33,7 +33,7 @@ describe("update()", () => {
   });
 
   it("updates returning update count", async () => {
-    const insertReturn0 = await stdUserFacet.insertOne(USERS[0], ["id"]);
+    const insertReturn0 = await stdUserFacet.insertOne(USERS[0]);
     await stdUserFacet.insertOne(USERS[1]);
     await stdUserFacet.insertOne(USERS[2]);
 
@@ -67,7 +67,7 @@ describe("update()", () => {
 
   it("updates returning indicated columns", async () => {
     await stdUserFacet.insertOne(USERS[0]);
-    const insertReturn = await stdUserFacet.insertOne(USERS[1], ["id"]);
+    const insertReturn = await stdUserFacet.insertOne(USERS[1]);
     await stdUserFacet.insertOne(USERS[2]);
 
     // Verify that update performs the correct change on the correct row.
