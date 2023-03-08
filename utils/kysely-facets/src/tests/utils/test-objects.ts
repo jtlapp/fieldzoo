@@ -44,76 +44,51 @@ export const POSTS: Insertable<Posts>[] = [
   },
 ];
 
-export const selectedUser1 = new SelectedUser(
-  1,
-  "John",
-  "Smith",
-  "jsmith",
-  "jsmith@xyz.pdq"
-);
-export const selectedUser2 = new SelectedUser(
-  2,
-  "Jane",
-  "Doe",
-  "jdoe",
-  "jdoe@xyz.pdq"
-);
+export const userRow1 = {
+  name: "John Smith",
+  handle: "jsmith",
+  email: "jsmith@xyz.pdq",
+};
+export const userRow2 = {
+  name: "Jane Doe",
+  handle: "jdoe",
+  email: "jdoe@xyz.pdq",
+};
+export const userRow3 = {
+  name: "Mary Sue",
+  handle: "msue",
+  email: "msue@xyz.pdq",
+};
 
-export const insertedUser1 = new InsertedUser(
-  0,
-  "John",
-  "Smith",
-  "jsmith",
-  "jsmith@xyz.pdq"
-);
-export const insertedUser2 = new InsertedUser(
-  0,
-  "Jane",
-  "Doe",
-  "jdoe",
-  "jdoe@xyz.pdq"
-);
-export const insertedUser3 = new InsertedUser(
-  0,
-  "Mary",
-  "Sue",
-  "msue",
-  "msue@xyz.pdq"
-);
+export const userObject1 = {
+  firstName: "John",
+  lastName: "Smith",
+  handle: userRow1.handle,
+  email: userRow1.email,
+};
+export const userObject2 = {
+  firstName: "Jane",
+  lastName: "Doe",
+  handle: userRow2.handle,
+  email: userRow2.email,
+};
+export const userObject3 = {
+  firstName: "Mary",
+  lastName: "Sue",
+  handle: userRow3.handle,
+  email: userRow3.email,
+};
 
-export const insertReturnedUser1 = new InsertReturnedUser(
-  1,
-  "John",
-  "Smith",
-  "jsmith",
-  "jsmith@xyz.pdq"
-);
-export const insertReturnedUser2 = new InsertReturnedUser(
-  2,
-  "Jane",
-  "Doe",
-  "jdoe",
-  "jdoe@xyz.pdq"
-);
-export const insertReturnedUser3 = new InsertReturnedUser(
-  3,
-  "Mary",
-  "Sue",
-  "msue",
-  "msue@xyz.pdq"
-);
+export const selectedUser1 = SelectedUser.create(1, userObject1);
+export const selectedUser2 = SelectedUser.create(2, userObject2);
 
-export const updatedUser1 = new UpdatedUser(
-  0,
-  "John",
-  "Smith",
-  "jsmith",
-  "jsmith@xyz.pdq"
-);
-export const updatedUser2 = new UpdatedUser(
-  2,
-  "Jane",
-  "Doe",
-  "jdoe",
-  "jdoe@xyz.pdq"
-);
+export const insertedUser1 = InsertedUser.create(0, userObject1);
+export const insertedUser2 = InsertedUser.create(0, userObject2);
+export const insertedUser3 = InsertedUser.create(0, userObject3);
+
+export const insertReturnedUser1 = InsertReturnedUser.create(1, userObject1);
+export const insertReturnedUser2 = InsertReturnedUser.create(2, userObject2);
+export const insertReturnedUser3 = InsertReturnedUser.create(3, userObject3);
+
+export const updatedUser1 = UpdatedUser.create(0, userObject1);
+export const updatedUser2 = UpdatedUser.create(0, userObject2);

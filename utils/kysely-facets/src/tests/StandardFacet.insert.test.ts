@@ -7,6 +7,9 @@ import { PassThruUserFacet, PassThruPostFacet } from "./utils/test-facets";
 import {
   USERS,
   POSTS,
+  userRow1,
+  userRow2,
+  userRow3,
   insertedUser1,
   insertedUser2,
   insertedUser3,
@@ -264,29 +267,14 @@ describe("insertion transformation", () => {
         });
       }
     }
-    const user1 = {
-      name: "John Smith",
-      handle: "jsmith",
-      email: "jsmith@xyz.pdq",
-    };
-    const user2 = {
-      name: "Jane Doe",
-      handle: "jdoe",
-      email: "jdoe@xyz.pdq",
-    };
-    const user3 = {
-      name: "Mary Sue",
-      handle: "msue",
-      email: "msue@xyz.pdq",
-    };
     const insertReturnTransformFacet = new InsertReturnTransformFacet(db);
 
-    const insertReturn = await insertReturnTransformFacet.insertOne(user1);
+    const insertReturn = await insertReturnTransformFacet.insertOne(userRow1);
     expect(insertReturn).toEqual(insertReturnedUser1);
 
     const insertReturns = await insertReturnTransformFacet.insertMany([
-      user2,
-      user3,
+      userRow2,
+      userRow3,
     ]);
     expect(insertReturns).toEqual([insertReturnedUser2, insertReturnedUser3]);
   });
