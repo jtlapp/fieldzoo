@@ -265,7 +265,7 @@ describe("transforms between inputs and outputs", () => {
           email: "jsmith@bar.baz",
         };
         const user = new User(0, "John", "Smith", "jsmith", "jsmith@bar.baz");
-        const insertedUser = new InsertedUser(
+        const insertReturn = new InsertedUser(
           0,
           "John",
           "Smith",
@@ -282,9 +282,9 @@ describe("transforms between inputs and outputs", () => {
         // @ts-expect-error - incorrect input type
         this.transformInsertion([userObj]);
         // @ts-expect-error - incorrect output type
-        this.transformInsertion(insertedUser).firstName;
+        this.transformInsertion(insertReturn).firstName;
         // @ts-expect-error - incorrect output type
-        this.transformInsertion([insertedUser])[0].firstName;
+        this.transformInsertion([insertReturn])[0].firstName;
       });
     }
 
@@ -428,7 +428,7 @@ describe("transforms between inputs and outputs", () => {
           email: "jsmith@bar.baz",
         };
         const user = new User(0, "John", "Smith", "jsmith", "jsmith@bar.baz");
-        const insertedUser = new InsertedUser(
+        const insertReturn = new InsertedUser(
           0,
           "John",
           "Smith",
@@ -456,9 +456,9 @@ describe("transforms between inputs and outputs", () => {
         // @ts-expect-error - incorrect input type
         this.transformInsertReturn([selectedUser], [{ id: 1 }]);
         // @ts-expect-error - incorrect output type
-        this.transformInsertReturn(insertedUser, { id: 1 }).name;
+        this.transformInsertReturn(insertReturn, { id: 1 }).name;
         // @ts-expect-error - incorrect output type
-        this.transformInsertReturn([insertedUser], [{ id: 1 }])[0].name;
+        this.transformInsertReturn([insertReturn], [{ id: 1 }])[0].name;
       });
     }
 

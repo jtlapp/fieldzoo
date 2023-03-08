@@ -187,6 +187,16 @@ describe("insertOne() without transformation", () => {
 });
 
 describe("insertion transformation", () => {
+  const user1 = new InsertedUser(
+    0,
+    "John",
+    "Smith",
+    "jsmith",
+    "jsmith@xyz.pdq"
+  );
+  const user2 = new InsertedUser(0, "Jane", "Doe", "jdoe", "jdoe@xyz.pdq");
+  const user3 = new InsertedUser(0, "Mary", "Sue", "msue", "msue@xyz.pdq");
+
   class InsertTransformFacet extends StandardFacet<
     Database,
     "users",
@@ -206,19 +216,10 @@ describe("insertion transformation", () => {
 
   it("transforms users for insertion without transforming return", async () => {
     const insertTransformFacet = new InsertTransformFacet(db);
-    const user1 = new InsertedUser(
-      0,
-      "John",
-      "Smith",
-      "jsmith",
-      "jsmith@xyz.pdq"
-    );
-    const user2 = new InsertedUser(0, "Jane", "Doe", "jdoe", "jdoe@xyz.pdq");
-    const user3 = new InsertedUser(0, "Mary", "Sue", "msue", "msue@xyz.pdq");
 
-    const insertedUser = await insertTransformFacet.insertOne(user1, ["id"]);
+    const insertReturn = await insertTransformFacet.insertOne(user1, ["id"]);
     const readUser1 = await insertTransformFacet.selectOne({
-      id: insertedUser.id,
+      id: insertReturn.id,
     });
     expect(readUser1?.name).toEqual(`${user1.firstName} ${user1.lastName}`);
 
@@ -226,7 +227,7 @@ describe("insertion transformation", () => {
     const readUsers = await insertTransformFacet.selectMany([
       "id",
       ">",
-      insertedUser.id,
+      insertReturn.id,
     ]);
     expect(readUsers.length).toEqual(2);
     expect(readUsers[0].name).toEqual(`${user2.firstName} ${user2.lastName}`);
@@ -273,16 +274,16 @@ describe("insertion transformation", () => {
     };
     const insertReturnTransformFacet = new InsertReturnTransformFacet(db);
 
-    const insertedUser = await insertReturnTransformFacet.insertOne(user1);
-    expect(insertedUser).toEqual(
+    const insertReturn = await insertReturnTransformFacet.insertOne(user1);
+    expect(insertReturn).toEqual(
       new InsertReturnedUser(1, "John", "Smith", "jsmith", "jsmith@xyz.pdq")
     );
 
-    const insertedUsers = await insertReturnTransformFacet.insertMany([
+    const insertReturns = await insertReturnTransformFacet.insertMany([
       user2,
       user3,
     ]);
-    expect(insertedUsers).toEqual([
+    expect(insertReturns).toEqual([
       new InsertReturnedUser(2, "Jane", "Doe", "jdoe", "jdoe@xyz.pdq"),
       new InsertReturnedUser(3, "Mary", "Sue", "msue", "msue@xyz.pdq"),
     ]);
@@ -325,8 +326,8 @@ describe("insertion transformation", () => {
     );
 
     const insertAndReturnTransformFacet = new InsertAndReturnTransformFacet(db);
-    const insertedUser = await insertAndReturnTransformFacet.insertOne(user);
-    expect(insertedUser).toEqual(
+    const insertReturn = await insertAndReturnTransformFacet.insertOne(user);
+    expect(insertReturn).toEqual(
       new InsertReturnedUser(1, "John", "Smith", "jsmith", "jsmith@xyz.pdq")
     );
 

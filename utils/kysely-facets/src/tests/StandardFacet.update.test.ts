@@ -19,11 +19,11 @@ afterAll(() => destroyDB(db));
 
 describe("update()", () => {
   it("updates without returning", async () => {
-    const insertedUser = await plainUserFacet.insertOne(USERS[0], ["id"]);
+    const insertReturn = await plainUserFacet.insertOne(USERS[0], ["id"]);
     const updateValues = { email: "new.email@xyz.pdq" };
 
     const result = await plainUserFacet.update(
-      { id: insertedUser.id },
+      { id: insertReturn.id },
       updateValues
     );
     expect(result).toBeUndefined();
@@ -31,19 +31,19 @@ describe("update()", () => {
     const readUser = await plainUserFacet.selectOne([
       "id",
       "=",
-      insertedUser.id,
+      insertReturn.id,
     ]);
     expect(readUser?.email).toEqual(updateValues.email);
   });
 
   it("updates returning update count", async () => {
-    const insertedUser0 = await plainUserFacet.insertOne(USERS[0], ["id"]);
+    const insertReturn0 = await plainUserFacet.insertOne(USERS[0], ["id"]);
     await plainUserFacet.insertOne(USERS[1]);
     await plainUserFacet.insertOne(USERS[2]);
 
     const updateValues = { email: "new.email@xyz.pdq" };
     const updateCount1 = await plainUserFacet.update(
-      { id: insertedUser0.id },
+      { id: insertReturn0.id },
       updateValues,
       []
     );
@@ -52,7 +52,7 @@ describe("update()", () => {
     const readUser = await plainUserFacet.selectOne([
       "id",
       "=",
-      insertedUser0.id,
+      insertReturn0.id,
     ]);
     expect(readUser?.email).toEqual(updateValues.email);
 
@@ -71,18 +71,18 @@ describe("update()", () => {
 
   it("updates returning indicated columns", async () => {
     await plainUserFacet.insertOne(USERS[0]);
-    const insertedUser = await plainUserFacet.insertOne(USERS[1], ["id"]);
+    const insertReturn = await plainUserFacet.insertOne(USERS[1], ["id"]);
     await plainUserFacet.insertOne(USERS[2]);
 
     // Verify that update performs the correct change on the correct row.
     const updateValues1 = { email: "new.email@xyz.pdq" };
     const updatedUsers1 = await plainUserFacet.update(
-      { id: insertedUser.id },
+      { id: insertReturn.id },
       updateValues1,
       ["name"]
     );
     expect(updatedUsers1).toEqual([{ name: USERS[1].name }]);
-    let readUser = await plainUserFacet.selectOne(["id", "=", insertedUser.id]);
+    let readUser = await plainUserFacet.selectOne(["id", "=", insertReturn.id]);
     expect(readUser?.email).toEqual(updateValues1.email);
 
     // Verify a different change on the same row, returning multiple columns.
@@ -94,11 +94,11 @@ describe("update()", () => {
     );
     expect(updatedUsers2).toEqual([
       {
-        id: insertedUser.id,
+        id: insertReturn.id,
         handle: USERS[1].handle,
       },
     ]);
-    readUser = await plainUserFacet.selectOne(["id", "=", insertedUser.id]);
+    readUser = await plainUserFacet.selectOne(["id", "=", insertReturn.id]);
     expect(readUser?.name).toEqual(updateValues2.name);
 
     // Verify that update changes all required rows.
@@ -122,7 +122,7 @@ describe("update()", () => {
   });
 
   it("updates returning all columns", async () => {
-    const insertedUsers = await plainUserFacet.insertMany(USERS, ["id"]);
+    const insertReturns = await plainUserFacet.insertMany(USERS, ["id"]);
 
     const updateValues = { email: "new.email@xyz.pdq" };
     const updatedUsers = await plainUserFacet.update(
@@ -132,8 +132,8 @@ describe("update()", () => {
     );
 
     const expectedUsers = [
-      Object.assign({}, USERS[0], updateValues, { id: insertedUsers[0].id }),
-      Object.assign({}, USERS[2], updateValues, { id: insertedUsers[2].id }),
+      Object.assign({}, USERS[0], updateValues, { id: insertReturns[0].id }),
+      Object.assign({}, USERS[2], updateValues, { id: insertReturns[2].id }),
     ];
     expect(updatedUsers).toEqual(expectedUsers);
 
@@ -162,11 +162,11 @@ describe("update()", () => {
   });
 
   it("updates rows indicated by a binary operator", async () => {
-    const insertedUsers = await plainUserFacet.insertMany(USERS, ["id"]);
+    const insertReturns = await plainUserFacet.insertMany(USERS, ["id"]);
 
     const updateValues = { email: "new.email@xyz.pdq" };
     const updateCount = await plainUserFacet.update(
-      ["id", ">", insertedUsers[0].id],
+      ["id", ">", insertReturns[0].id],
       updateValues,
       []
     );
@@ -175,7 +175,7 @@ describe("update()", () => {
     const readUsers = await plainUserFacet.selectMany([
       "id",
       ">",
-      insertedUsers[0].id,
+      insertReturns[0].id,
     ]);
     expect(readUsers.length).toEqual(2);
     for (const user of readUsers) {
@@ -184,11 +184,11 @@ describe("update()", () => {
   });
 
   it("updates rows indicated by a kysely expression", async () => {
-    const insertedUsers = await plainUserFacet.insertMany(USERS, ["id"]);
+    const insertReturns = await plainUserFacet.insertMany(USERS, ["id"]);
 
     const updateValues = { email: "new.email.@xyz.pdq" };
     const updateCount = await plainUserFacet.update(
-      sql`id > ${insertedUsers[0].id}`,
+      sql`id > ${insertReturns[0].id}`,
       updateValues,
       []
     );
@@ -197,7 +197,7 @@ describe("update()", () => {
     const readUsers = await plainUserFacet.selectMany([
       "id",
       ">",
-      insertedUsers[0].id,
+      insertReturns[0].id,
     ]);
     expect(readUsers.length).toEqual(2);
     for (const user of readUsers) {
