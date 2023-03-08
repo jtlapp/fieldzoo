@@ -307,14 +307,18 @@ describe("insertion transformation", () => {
         });
       }
     }
-
     const insertAndReturnTransformFacet = new InsertAndReturnTransformFacet(db);
+
     const insertReturn = await insertAndReturnTransformFacet.insertOne(
       insertedUser1
     );
     expect(insertReturn).toEqual(insertReturnedUser1);
 
-    // TODO: add test for insertMany
+    const insertReturns = await insertAndReturnTransformFacet.insertMany([
+      insertedUser2,
+      insertedUser3,
+    ]);
+    expect(insertReturns).toEqual([insertReturnedUser2, insertReturnedUser3]);
   });
 
   it("errors when providing an empty defaultInsertReturns array", () => {
