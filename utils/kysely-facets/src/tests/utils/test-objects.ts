@@ -81,6 +81,7 @@ export const userObject3 = {
 
 export const selectedUser1 = SelectedUser.create(1, userObject1);
 export const selectedUser2 = SelectedUser.create(2, userObject2);
+export const selectedUser3 = SelectedUser.create(3, userObject3);
 
 export const insertedUser1 = InsertedUser.create(0, userObject1);
 export const insertedUser2 = InsertedUser.create(0, userObject2);
@@ -92,3 +93,4 @@ export const insertReturnedUser3 = InsertReturnedUser.create(3, userObject3);
 
 export const updatedUser1 = UpdatedUser.create(0, userObject1);
 export const updatedUser2 = UpdatedUser.create(0, userObject2);
+export const updatedUser3 = UpdatedUser.create(0, userObject3);
