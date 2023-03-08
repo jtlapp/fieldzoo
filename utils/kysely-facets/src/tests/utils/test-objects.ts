@@ -1,7 +1,12 @@
 import { Insertable } from "kysely";
 
 import { Users, Posts } from "./test-tables";
-import { InsertedUser, InsertReturnedUser } from "./test-types";
+import {
+  InsertedUser,
+  InsertReturnedUser,
+  SelectedUser,
+  UpdatedUser,
+} from "./test-types";
 
 export const USERS: Insertable<Users>[] = [
   {
@@ -38,6 +43,21 @@ export const POSTS: Insertable<Posts>[] = [
     likeCount: 1000,
   },
 ];
+
+export const selectedUser1 = new SelectedUser(
+  1,
+  "John",
+  "Smith",
+  "jsmith",
+  "jsmith@xyz.pdq"
+);
+export const selectedUser2 = new SelectedUser(
+  2,
+  "Jane",
+  "Doe",
+  "jdoe",
+  "jdoe@xyz.pdq"
+);
 
 export const insertedUser1 = new InsertedUser(
   0,
@@ -81,4 +101,19 @@ export const insertReturnedUser3 = new InsertReturnedUser(
   "Sue",
   "msue",
   "msue@xyz.pdq"
+);
+
+export const updatedUser1 = new UpdatedUser(
+  0,
+  "John",
+  "Smith",
+  "jsmith",
+  "jsmith@xyz.pdq"
+);
+export const updatedUser2 = new UpdatedUser(
+  2,
+  "Jane",
+  "Doe",
+  "jdoe",
+  "jdoe@xyz.pdq"
 );

@@ -6,10 +6,14 @@ import { Database } from "./utils/test-tables";
 import { PassThruUserFacet } from "./utils/test-facets";
 import {
   USERS,
+  selectedUser1,
+  selectedUser2,
   insertedUser1,
   insertedUser2,
   insertReturnedUser1,
   insertReturnedUser2,
+  updatedUser1,
+  updatedUser2,
 } from "./utils/test-objects";
 import {
   User,
@@ -286,9 +290,7 @@ describe("transforms between inputs and outputs", () => {
           handle: "jsmith",
           email: "jsmith@xyz.pdq",
         })
-      ).toEqual(
-        new SelectedUser(1, "John", "Smith", "jsmith", "jsmith@xyz.pdq")
-      );
+      ).toEqual(selectedUser1);
 
       expect(
         this.transformSelection([
@@ -305,10 +307,7 @@ describe("transforms between inputs and outputs", () => {
             email: "jdoe@xyz.pdq",
           },
         ])
-      ).toEqual([
-        new SelectedUser(1, "John", "Smith", "jsmith", "jsmith@xyz.pdq"),
-        new SelectedUser(2, "Jane", "Doe", "jdoe", "jdoe@xyz.pdq"),
-      ]);
+      ).toEqual([selectedUser1, selectedUser2]);
 
       ignore("detects transformSelection type errors", () => {
         const userObj = {
@@ -326,22 +325,13 @@ describe("transforms between inputs and outputs", () => {
     }
 
     testTransformUpdate() {
-      expect(
-        this.transformUpdate(
-          new UpdatedUser(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq")
-        )
-      ).toEqual({
+      expect(this.transformUpdate(updatedUser1)).toEqual({
         name: "John Smith",
         handle: "jsmith",
         email: "jsmith@xyz.pdq",
       });
 
-      expect(
-        this.transformUpdate([
-          new UpdatedUser(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq"),
-          new UpdatedUser(0, "Jane", "Doe", "jdoe", "jdoe@xyz.pdq"),
-        ])
-      ).toEqual([
+      expect(this.transformUpdate([updatedUser1, updatedUser2])).toEqual([
         {
           name: "John Smith",
           handle: "jsmith",
@@ -363,13 +353,6 @@ describe("transforms between inputs and outputs", () => {
           email: "jsmith@xyz.pdq",
         };
         const user = new User(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq");
-        const updateReturn = new UpdatedUser(
-          0,
-          "John",
-          "Smith",
-          "jsmith",
-          "jsmith@xyz.pdq"
-        );
 
         // @ts-expect-error - incorrect input type
         this.transformUpdate(user);
@@ -380,9 +363,9 @@ describe("transforms between inputs and outputs", () => {
         // @ts-expect-error - incorrect input type
         this.transformUpdate([userObj]);
         // @ts-expect-error - incorrect output type
-        this.transformUpdate(updateReturn).firstName;
+        this.transformUpdate(updatedUser1).firstName;
         // @ts-expect-error - incorrect output type
-        this.transformUpdate([updateReturn])[0].firstName;
+        this.transformUpdate([updatedUser1])[0].firstName;
       });
     }
 
@@ -407,13 +390,6 @@ describe("transforms between inputs and outputs", () => {
           email: "jsmith@xyz.pdq",
         };
         const user = new User(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq");
-        const selectedUser = new SelectedUser(
-          0,
-          "John",
-          "Smith",
-          "jsmith",
-          "jsmith@xyz.pdq"
-        );
 
         // @ts-expect-error - incorrect input type
         this.transformInsertReturn(user, { id: 1 });
@@ -424,9 +400,9 @@ describe("transforms between inputs and outputs", () => {
         // @ts-expect-error - incorrect input type
         this.transformInsertReturn([userObj], [{ id: 1 }]);
         // @ts-expect-error - incorrect input type
-        this.transformInsertReturn(selectedUser, { id: 1 });
+        this.transformInsertReturn(selectedUser1, { id: 1 });
         // @ts-expect-error - incorrect input type
-        this.transformInsertReturn([selectedUser], [{ id: 1 }]);
+        this.transformInsertReturn([selectedUser1], [{ id: 1 }]);
         // @ts-expect-error - incorrect output type
         this.transformInsertReturn(insertedUser1, { id: 1 }).name;
         // @ts-expect-error - incorrect output type
@@ -435,19 +411,11 @@ describe("transforms between inputs and outputs", () => {
     }
 
     testTransformUpdateReturn() {
-      expect(
-        this.transformUpdateReturn(
-          new UpdatedUser(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq"),
-          [{ id: 1 }]
-        )
-      ).toEqual([
+      expect(this.transformUpdateReturn(updatedUser1, [{ id: 1 }])).toEqual([
         new UpdateReturnedUser(1, "John", "Smith", "jsmith", "jsmith@xyz.pdq"),
       ]);
       expect(
-        this.transformUpdateReturn(
-          new UpdatedUser(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq"),
-          [{ id: 1 }, { id: 2 }]
-        )
+        this.transformUpdateReturn(updatedUser1, [{ id: 1 }, { id: 2 }])
       ).toEqual([
         new UpdateReturnedUser(1, "John", "Smith", "jsmith", "jsmith@xyz.pdq"),
         new UpdateReturnedUser(2, "John", "Smith", "jsmith", "jsmith@xyz.pdq"),
@@ -462,29 +430,15 @@ describe("transforms between inputs and outputs", () => {
           email: "jsmith@xyz.pdq",
         };
         const user = new User(0, "John", "Smith", "jsmith", "jsmith@xyz.pdq");
-        const updatedUser = new UpdatedUser(
-          0,
-          "John",
-          "Smith",
-          "jsmith",
-          "jsmith@xyz.pdq"
-        );
-        const selectedUser = new SelectedUser(
-          0,
-          "John",
-          "Smith",
-          "jsmith",
-          "jsmith@xyz.pdq"
-        );
 
         // @ts-expect-error - incorrect input type
         this.transformUpdateReturn(user, [{ id: 1 }]);
         // @ts-expect-error - incorrect input type
         this.transformUpdateReturn(userObj, [{ id: 1 }]);
         // @ts-expect-error - incorrect input type
-        this.transformUpdateReturn(selectedUser, [{ id: 1 }]);
+        this.transformUpdateReturn(selectedUser1, [{ id: 1 }]);
         // @ts-expect-error - incorrect output type
-        this.transformUpdateReturn(updatedUser, [{ id: 1 }])[0].name;
+        this.transformUpdateReturn(updatedUser1, [{ id: 1 }])[0].name;
       });
     }
   }

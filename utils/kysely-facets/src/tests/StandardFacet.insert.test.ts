@@ -13,13 +13,10 @@ import {
   insertReturnedUser1,
   insertReturnedUser2,
   insertReturnedUser3,
+  selectedUser1,
 } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
-import {
-  SelectedUser,
-  InsertedUser,
-  InsertReturnedUser,
-} from "./utils/test-types";
+import { InsertedUser, InsertReturnedUser } from "./utils/test-types";
 
 let db: Kysely<Database>;
 let plainUserFacet: PassThruUserFacet;
@@ -359,17 +356,10 @@ describe("insertion transformation", () => {
 
   ignore("detects insertion transformation type errors", async () => {
     const insertTransformFacet = new InsertTransformFacet(db);
-    const selectedUser = new SelectedUser(
-      0,
-      "John",
-      "Doe",
-      "jdoe",
-      "jdoe@xyz.pdq"
-    );
 
     // @ts-expect-error - requires InsertedType as input
     await insertTransformFacet.insertOne(USERS[0]);
     // @ts-expect-error - requires InsertedType as input
-    await insertTransformFacet.insertOne(selectedUser);
+    await insertTransformFacet.insertOne(selectedUser1);
   });
 });
