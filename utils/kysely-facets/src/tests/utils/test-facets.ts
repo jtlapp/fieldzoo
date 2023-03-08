@@ -1,22 +1,42 @@
-import { Kysely } from "kysely";
+import { Insertable, Kysely, Selectable } from "kysely";
 
-import { StandardFacet, IdFacet } from "../../index";
-import { Database } from "./test-tables";
+import { StandardFacet } from "../../index";
+import { Database, Users } from "./test-tables";
 
-export class PassThruUserFacet extends IdFacet<Database, "users", "id"> {
+export class StdUserFacet extends StandardFacet<
+  Database,
+  "users",
+  Selectable<Users>,
+  Insertable<Users>,
+  Partial<Insertable<Users>>
+> {
   constructor(readonly db: Kysely<Database>) {
-    super(db, "users", "id");
+    super(db, "users");
   }
 }
 
-export class PassThruPostFacet extends IdFacet<Database, "posts", "id"> {
+export class StdUserFacetReturningID extends StandardFacet<
+  Database,
+  "users",
+  Selectable<Users>,
+  Insertable<Users>,
+  Partial<Insertable<Users>>,
+  ["id"]
+> {
   constructor(readonly db: Kysely<Database>) {
-    super(db, "posts", "id");
+    super(db, "users", { insertReturnColumns: ["id"] });
   }
 }
 
-export class CommentFacet extends StandardFacet<Database, "comments"> {
+export class StdUserFacetReturningAll extends StandardFacet<
+  Database,
+  "users",
+  Selectable<Users>,
+  Insertable<Users>,
+  Partial<Insertable<Users>>,
+  ["*"]
+> {
   constructor(readonly db: Kysely<Database>) {
-    super(db, "comments");
+    super(db, "users", { insertReturnColumns: ["*"] });
   }
 }
