@@ -206,13 +206,31 @@ describe("insertion transformation", () => {
 
   it("transforms users for insertion without transforming return", async () => {
     const insertTransformFacet = new InsertTransformFacet(db);
-    const user = new InsertedUser(0, "John", "Doe", "jdoe", "jdoe@xyz.pdq");
+    const user1 = new InsertedUser(
+      0,
+      "John",
+      "Smith",
+      "jsmith",
+      "jsmith@xyz.pdq"
+    );
+    const user2 = new InsertedUser(0, "Jane", "Doe", "jdoe", "jdoe@xyz.pdq");
+    const user3 = new InsertedUser(0, "Mary", "Sue", "msue", "msue@xyz.pdq");
 
-    const insertedUser = await insertTransformFacet.insertOne(user, ["id"]);
-    const readUser0 = await insertTransformFacet.selectOne({
+    const insertedUser = await insertTransformFacet.insertOne(user1, ["id"]);
+    const readUser1 = await insertTransformFacet.selectOne({
       id: insertedUser.id,
     });
-    expect(readUser0?.name).toEqual(`${user.firstName} ${user.lastName}`);
+    expect(readUser1?.name).toEqual(`${user1.firstName} ${user1.lastName}`);
+
+    await insertTransformFacet.insertMany([user2, user3], ["id"]);
+    const readUsers = await insertTransformFacet.selectMany([
+      "id",
+      ">",
+      insertedUser.id,
+    ]);
+    expect(readUsers.length).toEqual(2);
+    expect(readUsers[0].name).toEqual(`${user2.firstName} ${user2.lastName}`);
+    expect(readUsers[1].name).toEqual(`${user3.firstName} ${user3.lastName}`);
   });
 
   it("transforms insertion return without transforming insertion", async () => {
@@ -238,17 +256,36 @@ describe("insertion transformation", () => {
         });
       }
     }
-    const user = {
-      name: "John Doe",
+    const user1 = {
+      name: "John Smith",
+      handle: "jsmith",
+      email: "jsmith@xyz.pdq",
+    };
+    const user2 = {
+      name: "Jane Doe",
       handle: "jdoe",
       email: "jdoe@xyz.pdq",
     };
-
+    const user3 = {
+      name: "Mary Sue",
+      handle: "msue",
+      email: "msue@xyz.pdq",
+    };
     const insertReturnTransformFacet = new InsertReturnTransformFacet(db);
-    const insertedUser = await insertReturnTransformFacet.insertOne(user);
+
+    const insertedUser = await insertReturnTransformFacet.insertOne(user1);
     expect(insertedUser).toEqual(
-      new InsertReturnedUser(1, "John", "Doe", "jdoe", "jdoe@xyz.pdq")
+      new InsertReturnedUser(1, "John", "Smith", "jsmith", "jsmith@xyz.pdq")
     );
+
+    const insertedUsers = await insertReturnTransformFacet.insertMany([
+      user2,
+      user3,
+    ]);
+    expect(insertedUsers).toEqual([
+      new InsertReturnedUser(2, "Jane", "Doe", "jdoe", "jdoe@xyz.pdq"),
+      new InsertReturnedUser(3, "Mary", "Sue", "msue", "msue@xyz.pdq"),
+    ]);
   });
 
   it("transforms insertion and insertion return", async () => {
@@ -279,13 +316,21 @@ describe("insertion transformation", () => {
         });
       }
     }
-    const user = new InsertedUser(0, "John", "Doe", "jdoe", "jdoe@xyz.pdq");
+    const user = new InsertedUser(
+      0,
+      "John",
+      "Smith",
+      "jsmith",
+      "jsmith@xyz.pdq"
+    );
 
     const insertAndReturnTransformFacet = new InsertAndReturnTransformFacet(db);
     const insertedUser = await insertAndReturnTransformFacet.insertOne(user);
     expect(insertedUser).toEqual(
-      new InsertReturnedUser(1, "John", "Doe", "jdoe", "jdoe@xyz.pdq")
+      new InsertReturnedUser(1, "John", "Smith", "jsmith", "jsmith@xyz.pdq")
     );
+
+    // TODO: add test for insertMany
   });
 
   it("errors when providing an empty defaultInsertReturns array", () => {
