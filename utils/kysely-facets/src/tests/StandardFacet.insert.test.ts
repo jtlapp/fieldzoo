@@ -37,11 +37,11 @@ describe("insertMany() without transformation", () => {
   });
 
   it("inserts rows returning indicated columns", async () => {
-    const updatedUsers = await plainUserFacet.insertMany(USERS, ["id"]);
-    expect(updatedUsers.length).toEqual(3);
+    const insertReturns = await plainUserFacet.insertMany(USERS, ["id"]);
+    expect(insertReturns.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
-      expect(updatedUsers[i].id).toBeGreaterThan(0);
-      expect(Object.keys(updatedUsers[i]).length).toEqual(1);
+      expect(insertReturns[i].id).toBeGreaterThan(0);
+      expect(Object.keys(insertReturns[i]).length).toEqual(1);
     }
 
     const readUsers = await plainUserFacet.selectMany({});
@@ -50,9 +50,9 @@ describe("insertMany() without transformation", () => {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
     }
 
-    const post0 = Object.assign({}, POSTS[0], { userId: updatedUsers[0].id });
-    const post1 = Object.assign({}, POSTS[1], { userId: updatedUsers[1].id });
-    const post2 = Object.assign({}, POSTS[2], { userId: updatedUsers[2].id });
+    const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
+    const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
+    const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[2].id });
     const updatedPosts = await plainPostFacet.insertMany(
       [post0, post1, post2],
       ["id", "createdAt"]
@@ -66,13 +66,13 @@ describe("insertMany() without transformation", () => {
   });
 
   it("inserts rows returning all columns", async () => {
-    const updatedUsers = await plainUserFacet.insertMany(USERS, ["*"]);
+    const insertReturns = await plainUserFacet.insertMany(USERS, ["*"]);
     for (let i = 0; i < USERS.length; i++) {
-      expect(updatedUsers[i].id).toBeGreaterThan(0);
+      expect(insertReturns[i].id).toBeGreaterThan(0);
     }
-    expect(updatedUsers).toEqual(
+    expect(insertReturns).toEqual(
       USERS.map((user, i) =>
-        Object.assign({}, user, { id: updatedUsers[i].id })
+        Object.assign({}, user, { id: insertReturns[i].id })
       )
     );
   });
@@ -121,17 +121,17 @@ describe("insertOne() without transformation", () => {
   });
 
   it("inserts one returning indicated columns", async () => {
-    const updatedUser = await plainUserFacet.insertOne(USERS[0], ["id"]);
-    expect(updatedUser.id).toBeGreaterThan(0);
-    expect(Object.keys(updatedUser).length).toEqual(1);
+    const insertReturn = await plainUserFacet.insertOne(USERS[0], ["id"]);
+    expect(insertReturn.id).toBeGreaterThan(0);
+    expect(Object.keys(insertReturn).length).toEqual(1);
 
     const readUser0 = await plainUserFacet
       .selectRows()
-      .where("id", "=", updatedUser.id)
+      .where("id", "=", insertReturn.id)
       .executeTakeFirst();
     expect(readUser0?.email).toEqual(USERS[0].email);
 
-    const post0 = Object.assign({}, POSTS[0], { userId: updatedUser.id });
+    const post0 = Object.assign({}, POSTS[0], { userId: insertReturn.id });
     const updatedPost = await plainPostFacet.insertOne(post0, [
       "id",
       "createdAt",
@@ -149,10 +149,10 @@ describe("insertOne() without transformation", () => {
   });
 
   it("inserts one returning all columns", async () => {
-    const updatedUser = await plainUserFacet.insertOne(USERS[0], ["*"]);
-    expect(updatedUser.id).toBeGreaterThan(0);
-    const expectedUser = Object.assign({}, USERS[0], { id: updatedUser.id });
-    expect(updatedUser).toEqual(expectedUser);
+    const insertReturn = await plainUserFacet.insertOne(USERS[0], ["*"]);
+    expect(insertReturn.id).toBeGreaterThan(0);
+    const expectedUser = Object.assign({}, USERS[0], { id: insertReturn.id });
+    expect(insertReturn).toEqual(expectedUser);
   });
 
   it("errors when insert requests an empty list of returns", async () => {

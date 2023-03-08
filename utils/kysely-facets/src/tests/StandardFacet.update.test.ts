@@ -76,23 +76,23 @@ describe("update()", () => {
 
     // Verify that update performs the correct change on the correct row.
     const updateValues1 = { email: "new.email@xyz.pdq" };
-    const updatedUsers1 = await plainUserFacet.update(
+    const updateReturns1 = await plainUserFacet.update(
       { id: insertReturn.id },
       updateValues1,
       ["name"]
     );
-    expect(updatedUsers1).toEqual([{ name: USERS[1].name }]);
+    expect(updateReturns1).toEqual([{ name: USERS[1].name }]);
     let readUser = await plainUserFacet.selectOne(["id", "=", insertReturn.id]);
     expect(readUser?.email).toEqual(updateValues1.email);
 
     // Verify a different change on the same row, returning multiple columns.
     const updateValues2 = { name: "Sue" };
-    const updatedUsers2 = await plainUserFacet.update(
+    const updateReturns2 = await plainUserFacet.update(
       { email: updateValues1.email },
       updateValues2,
       ["id", "handle"]
     );
-    expect(updatedUsers2).toEqual([
+    expect(updateReturns2).toEqual([
       {
         id: insertReturn.id,
         handle: USERS[1].handle,
@@ -103,12 +103,12 @@ describe("update()", () => {
 
     // Verify that update changes all required rows.
     const updateValues3 = { name: "Replacement Sue" };
-    const updatedUsers3 = await plainUserFacet.update(
+    const updateReturns3 = await plainUserFacet.update(
       { name: "Sue" },
       updateValues3,
       ["handle"]
     );
-    expect(updatedUsers3).toEqual([
+    expect(updateReturns3).toEqual([
       { handle: USERS[0].handle },
       { handle: USERS[1].handle },
       { handle: USERS[2].handle },
@@ -125,7 +125,7 @@ describe("update()", () => {
     const insertReturns = await plainUserFacet.insertMany(USERS, ["id"]);
 
     const updateValues = { email: "new.email@xyz.pdq" };
-    const updatedUsers = await plainUserFacet.update(
+    const updateReturns = await plainUserFacet.update(
       { name: "Sue" },
       updateValues,
       ["*"]
@@ -135,7 +135,7 @@ describe("update()", () => {
       Object.assign({}, USERS[0], updateValues, { id: insertReturns[0].id }),
       Object.assign({}, USERS[2], updateValues, { id: insertReturns[2].id }),
     ];
-    expect(updatedUsers).toEqual(expectedUsers);
+    expect(updateReturns).toEqual(expectedUsers);
 
     const readUsers = await plainUserFacet.selectMany(["name", "=", "Sue"]);
     expect(readUsers).toEqual(expectedUsers);
@@ -145,14 +145,14 @@ describe("update()", () => {
     await plainUserFacet.insertMany(USERS, ["id"]);
 
     const updateValues = { email: "new.email@xyz.pdq" };
-    const updatedUsers = await plainUserFacet.update({}, updateValues, [
+    const updateReturns = await plainUserFacet.update({}, updateValues, [
       "handle",
     ]);
 
     const expectedUsers = USERS.map((user) => {
       return { handle: user.handle };
     });
-    expect(updatedUsers).toEqual(expectedUsers);
+    expect(updateReturns).toEqual(expectedUsers);
 
     const readUsers = await plainUserFacet.selectMany({});
     expect(readUsers.length).toEqual(3);

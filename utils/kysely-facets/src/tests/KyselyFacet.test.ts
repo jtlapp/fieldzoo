@@ -373,7 +373,7 @@ describe("transforms between inputs and outputs", () => {
           email: "jsmith@bar.baz",
         };
         const user = new User(0, "John", "Smith", "jsmith", "jsmith@bar.baz");
-        const updatedUser = new UpdatedUser(
+        const updateReturn = new UpdatedUser(
           0,
           "John",
           "Smith",
@@ -390,9 +390,9 @@ describe("transforms between inputs and outputs", () => {
         // @ts-expect-error - incorrect input type
         this.transformUpdate([userObj]);
         // @ts-expect-error - incorrect output type
-        this.transformUpdate(updatedUser).firstName;
+        this.transformUpdate(updateReturn).firstName;
         // @ts-expect-error - incorrect output type
-        this.transformUpdate([updatedUser])[0].firstName;
+        this.transformUpdate([updateReturn])[0].firstName;
       });
     }
 
