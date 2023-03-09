@@ -14,7 +14,7 @@ export class KyselyFacet<
   TableName extends keyof DB & string,
   SelectedType = Selectable<DB[TableName]>,
   InsertedType = Insertable<DB[TableName]>,
-  UpdaterObject = Partial<InsertedType>,
+  UpdaterObject = Partial<Insertable<DB[TableName]>>,
   ReturnColumns extends
     | (keyof Selectable<DB[TableName]> & string)[]
     | ["*"] = [],
