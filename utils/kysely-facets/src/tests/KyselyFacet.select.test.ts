@@ -31,7 +31,7 @@ afterAll(() => destroyDB(db));
 
 describe("selectMany()", () => {
   it("selects all rows with no filter", async () => {
-    await stdUserFacet.insertMany(USERS);
+    await stdUserFacet.insert(USERS);
 
     // Test selecting all
     const users = await plainUserFacet.selectMany({});
@@ -42,7 +42,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a matching field filter", async () => {
-    await stdUserFacet.insertMany(USERS);
+    await stdUserFacet.insert(USERS);
 
     let users = await plainUserFacet.selectMany({
       name: USERS[0].name,
@@ -60,7 +60,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a binary operation filter", async () => {
-    await stdUserFacet.insertMany(USERS);
+    await stdUserFacet.insert(USERS);
 
     // Test selecting by condition (with results)
     let users = await plainUserFacet.selectMany(["name", "=", USERS[0].name]);
@@ -74,7 +74,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a query builder filter", async () => {
-    await stdUserFacet.insertMany(USERS);
+    await stdUserFacet.insert(USERS);
 
     const users = await plainUserFacet.selectMany((qb) =>
       qb.where("name", "=", USERS[0].name).orderBy("handle", "desc")
@@ -85,7 +85,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a query expression filter", async () => {
-    await stdUserFacet.insertMany(USERS);
+    await stdUserFacet.insert(USERS);
 
     const users = await plainUserFacet.selectMany(
       sql`name != ${USERS[0].name}`
@@ -95,7 +95,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a MatchAllFilter", async () => {
-    const userIDs = await stdUserFacet.insertMany(USERS);
+    const userIDs = await stdUserFacet.insert(USERS);
 
     const users = await plainUserFacet.selectMany(
       allOf({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
@@ -105,7 +105,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a MatchAnyFilter", async () => {
-    await stdUserFacet.insertMany(USERS);
+    await stdUserFacet.insert(USERS);
 
     const users = await plainUserFacet.selectMany(
       anyOf({ handle: USERS[0].handle }, ["handle", "=", USERS[2].handle])
@@ -116,7 +116,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a MatchAnyFilter with a nested MatchAllFilter", async () => {
-    const userIDs = await stdUserFacet.insertMany(USERS);
+    const userIDs = await stdUserFacet.insert(USERS);
 
     const users = await plainUserFacet.selectMany(
       anyOf(
@@ -155,14 +155,14 @@ describe("selectMany()", () => {
 
 describe("selectOne()", () => {
   it("selects the first row with no filter", async () => {
-    await stdUserFacet.insertMany(USERS);
+    await stdUserFacet.insert(USERS);
 
     const user = await plainUserFacet.selectOne({});
     expect(user?.handle).toEqual(USERS[0].handle);
   });
 
   it("selects the first row with a matching field filter", async () => {
-    await stdUserFacet.insertMany(USERS);
+    await stdUserFacet.insert(USERS);
 
     let user = await plainUserFacet.selectOne({ name: USERS[0].name });
     expect(user?.handle).toEqual(USERS[0].handle);
@@ -175,7 +175,7 @@ describe("selectOne()", () => {
   });
 
   it("selects the first row with a binary operation filter", async () => {
-    await stdUserFacet.insertMany(USERS);
+    await stdUserFacet.insert(USERS);
 
     // Test selecting by condition (with result)
     let user = await plainUserFacet.selectOne(["name", "=", USERS[0].name]);
@@ -187,7 +187,7 @@ describe("selectOne()", () => {
   });
 
   it("selects the first row with a query builder filter", async () => {
-    await stdUserFacet.insertMany(USERS);
+    await stdUserFacet.insert(USERS);
 
     const user = await plainUserFacet.selectOne((qb) =>
       qb.where("name", "=", USERS[0].name).orderBy("handle", "desc")
@@ -196,7 +196,7 @@ describe("selectOne()", () => {
   });
 
   it("selects the first row with a query expression filter", async () => {
-    await stdUserFacet.insertMany(USERS);
+    await stdUserFacet.insert(USERS);
 
     const user = await plainUserFacet.selectOne(sql`name != ${USERS[0].name}`);
     expect(user?.handle).toEqual(USERS[1].handle);
@@ -253,11 +253,11 @@ describe("selection transformation", () => {
   it("transforms the selection", async () => {
     const selectTransformFacet = new SelectTransformFacet(db);
 
-    await stdUserFacet.insertOne(userRow1);
+    await stdUserFacet.insert(userRow1);
     const user = await selectTransformFacet.selectOne({});
     expect(user).toEqual(selectedUser1);
 
-    await stdUserFacet.insertMany([userRow2, userRow3]);
+    await stdUserFacet.insert([userRow2, userRow3]);
     const users = await selectTransformFacet.selectMany((qb) =>
       qb.orderBy("id")
     );

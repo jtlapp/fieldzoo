@@ -60,9 +60,9 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe("insertMany() without transformation", () => {
+describe("insert an array of objects without transformation", () => {
   it("inserts rows without returning columns", async () => {
-    const result = await stdUserFacet.insertMany(USERS);
+    const result = await stdUserFacet.insert(USERS);
     expect(result).toBeUndefined();
 
     const readUsers = await stdUserFacet.selectMany({});
@@ -73,7 +73,7 @@ describe("insertMany() without transformation", () => {
   });
 
   it("inserts rows returning configured return columns", async () => {
-    const insertReturns = await stdUserFacetReturningID.insertMany(USERS);
+    const insertReturns = await stdUserFacetReturningID.insert(USERS);
     expect(insertReturns.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(insertReturns[i].id).toBeGreaterThan(0);
@@ -89,7 +89,7 @@ describe("insertMany() without transformation", () => {
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[2].id });
-    const updaterPosts = await stdPostFacetReturningIDAndTitle.insertMany([
+    const updaterPosts = await stdPostFacetReturningIDAndTitle.insert([
       post0,
       post1,
       post2,
@@ -103,7 +103,7 @@ describe("insertMany() without transformation", () => {
   });
 
   it("inserts rows configured to return all columns", async () => {
-    const insertReturns = await stdUserFacetReturningAll.insertMany(USERS);
+    const insertReturns = await stdUserFacetReturningAll.insert(USERS);
     for (let i = 0; i < USERS.length; i++) {
       expect(insertReturns[i].id).toBeGreaterThan(0);
     }
@@ -114,19 +114,19 @@ describe("insertMany() without transformation", () => {
     );
   });
 
-  ignore("detects insertMany() type errors", async () => {
+  ignore("detects inserting an array of objects type errors", async () => {
     // @ts-expect-error - inserted object must have all required columns
-    stdUserFacet.insertMany([{}]);
+    stdUserFacet.insert([{}]);
     // @ts-expect-error - inserted object must have all required columns
-    stdUserFacet.insertMany([{ email: "xyz@pdq.xyz" }]);
+    stdUserFacet.insert([{ email: "xyz@pdq.xyz" }]);
     // @ts-expect-error - only configured columns are returned
-    (await stdUserFacetReturningID.insertMany([USERS[0]]))[0].handle;
+    (await stdUserFacetReturningID.insert([USERS[0]]))[0].handle;
   });
 });
 
-describe("insertOne() without transformation", () => {
+describe("inserting a single object without transformation", () => {
   it("inserts a row without returning columns", async () => {
-    const result = await stdUserFacet.insertOne(USERS[0]);
+    const result = await stdUserFacet.insert(USERS[0]);
     expect(result).toBeUndefined();
 
     const readUser0 = await stdUserFacet
@@ -137,7 +137,7 @@ describe("insertOne() without transformation", () => {
   });
 
   it("inserts one returning configured return columns", async () => {
-    const insertReturn = await stdUserFacetReturningID.insertOne(USERS[0]);
+    const insertReturn = await stdUserFacetReturningID.insert(USERS[0]);
     expect(insertReturn.id).toBeGreaterThan(0);
     expect(Object.keys(insertReturn).length).toEqual(1);
 
@@ -148,7 +148,7 @@ describe("insertOne() without transformation", () => {
     expect(readUser0?.email).toEqual(USERS[0].email);
 
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturn.id });
-    const updaterPost = await stdPostFacetReturningIDAndTitle.insertOne(post0);
+    const updaterPost = await stdPostFacetReturningIDAndTitle.insert(post0);
     expect(updaterPost.id).toBeGreaterThan(0);
     expect(updaterPost.title).toEqual(POSTS[0].title);
     expect(Object.keys(updaterPost).length).toEqual(2);
@@ -162,19 +162,19 @@ describe("insertOne() without transformation", () => {
   });
 
   it("inserts one configured to return all columns", async () => {
-    const insertReturn = await stdUserFacetReturningAll.insertOne(USERS[0]);
+    const insertReturn = await stdUserFacetReturningAll.insert(USERS[0]);
     expect(insertReturn.id).toBeGreaterThan(0);
     const expectedUser = Object.assign({}, USERS[0], { id: insertReturn.id });
     expect(insertReturn).toEqual(expectedUser);
   });
 
-  ignore("detects insertOne() type errors", async () => {
+  ignore("detects type errors inserting a single object", async () => {
     // @ts-expect-error - inserted object must have all required columns
-    stdUserFacet.insertOne({});
+    stdUserFacet.insert({});
     // @ts-expect-error - inserted object must have all required columns
-    stdUserFacet.insertOne({ email: "xyz@pdq.xyz" });
+    stdUserFacet.insert({ email: "xyz@pdq.xyz" });
     // @ts-expect-error - only requested columns are returned
-    (await stdUserFacet.insertOne(USERS[0])).name;
+    (await stdUserFacet.insert(USERS[0])).name;
   });
 });
 
@@ -202,7 +202,7 @@ describe("insertion transformation", () => {
   it("transforms users for insertion without transforming return", async () => {
     const insertTransformFacet = new InsertTransformFacet(db);
 
-    const insertReturn = await insertTransformFacet.insertOne(insertedUser1);
+    const insertReturn = await insertTransformFacet.insert(insertedUser1);
     const readUser1 = await insertTransformFacet.selectOne({
       id: insertReturn.id,
     });
@@ -210,7 +210,7 @@ describe("insertion transformation", () => {
       `${insertedUser1.firstName} ${insertedUser1.lastName}`
     );
 
-    await insertTransformFacet.insertMany([insertedUser2, insertedUser3]);
+    await insertTransformFacet.insert([insertedUser2, insertedUser3]);
     const readUsers = await insertTransformFacet.selectMany([
       "id",
       ">",
@@ -251,10 +251,10 @@ describe("insertion transformation", () => {
     }
     const insertReturnTransformFacet = new InsertReturnTransformFacet(db);
 
-    const insertReturn = await insertReturnTransformFacet.insertOne(userRow1);
+    const insertReturn = await insertReturnTransformFacet.insert(userRow1);
     expect(insertReturn).toEqual(insertReturnedUser1);
 
-    const insertReturns = await insertReturnTransformFacet.insertMany([
+    const insertReturns = await insertReturnTransformFacet.insert([
       userRow2,
       userRow3,
     ]);
@@ -292,12 +292,12 @@ describe("insertion transformation", () => {
     }
     const insertAndReturnTransformFacet = new InsertAndReturnTransformFacet(db);
 
-    const insertReturn = await insertAndReturnTransformFacet.insertOne(
+    const insertReturn = await insertAndReturnTransformFacet.insert(
       insertedUser1
     );
     expect(insertReturn).toEqual(insertReturnedUser1);
 
-    const insertReturns = await insertAndReturnTransformFacet.insertMany([
+    const insertReturns = await insertAndReturnTransformFacet.insert([
       insertedUser2,
       insertedUser3,
     ]);
@@ -327,8 +327,8 @@ describe("insertion transformation", () => {
     const insertTransformFacet = new InsertTransformFacet(db);
 
     // @ts-expect-error - requires InsertedObject as input
-    await insertTransformFacet.insertOne(USERS[0]);
+    await insertTransformFacet.insert(USERS[0]);
     // @ts-expect-error - requires InsertedObject as input
-    await insertTransformFacet.insertOne(selectedUser1);
+    await insertTransformFacet.insert(selectedUser1);
   });
 });

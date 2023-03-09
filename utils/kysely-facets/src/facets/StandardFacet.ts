@@ -99,72 +99,47 @@ export class StandardFacet<
     }
   }
 
-  // TODO: consider combining insertOne() and insertMany()
   /**
-   * Inserts multiple rows into this table, returning columns from the
-   * inserted rows when configured with `returnColumns`.
-   * @param objs The objects to insert as rows.
+   * Inserts one or more rows into this table, optionally returning a
+   * pre-configured set of columns from the inserted row or rows.
+   * @param objOrObjs The object or objects to insert as a row.
    * @returns If `returnColumns` was configured in the options, returns
-   *  an array of `ReturnedObject` objects, one for each inserted row,
-   *  defaulting to the returned columns. Otherwise, returns nothing.
+   *  a single `ReturnedObject` when `objOrObjs` is not an array, and
+   *  returns an array of them otherwise, one for each inserted row.
+   *  Returns nothing if `returnColumns` was not provided.
    */
-  async insertMany(
-    objs: InsertedObject[]
-  ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]> {
-    const transformedObjs = this.transformInsertion(objs);
-    const qb = this.insertRows().values(transformedObjs);
-    let output: ReturnedObject[] | undefined;
-
-    if (this.returnColumns === null) {
-      await qb.execute();
-    } else if (this.returnColumns.length == 0) {
-      const returns = await qb.returningAll().execute();
-      // @ts-ignore - TODO: resolve this
-      output = this.transformInsertReturn(objs, returns);
-    } else {
-      const returns = await qb.returning(this.returnColumns).execute();
-      // @ts-ignore - TODO: resolve this
-      output = this.transformInsertReturn(objs, returns);
-    }
-    return output as any;
-  }
-
-  /**
-   * Inserts a single row into this table, optionally returning columns
-   * from the inserted row.
-   * @param obj The object to insert as a row.
-   * @param returning The columns to return from the inserted row. If
-   *  `["*"]` is given, all columns are returned. If a list of field names
-   *  is given, returns only those field names. If omitted, returns type
-   *  `ReturnedObject`. Useful for getting auto-generated columns.
-   * @returns An object containing the requested return columns, if any.
-   *  Returns an `ReturnedObject` when `returning` is omitted.
-   */
-  async insertOne(
+  insert(
     obj: InsertedObject
-  ): Promise<ReturnColumns extends [] ? void : ReturnedObject> {
-    const transformedObj = this.transformInsertion(obj);
-    const qb = this.insertRows().values(transformedObj);
-    let output: ReturnedObject | undefined;
+  ): Promise<ReturnColumns extends [] ? void : ReturnedObject>;
+
+  insert(
+    objs: InsertedObject[]
+  ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]>;
+
+  async insert(
+    objOrObjs: InsertedObject | InsertedObject[]
+  ): Promise<
+    ReturnColumns extends [] ? void : ReturnedObject | ReturnedObject[]
+  > {
+    const transformedObjOrObjs = this.transformInsertion(objOrObjs as any);
+    const qb = this.insertRows().values(transformedObjOrObjs);
 
     if (this.returnColumns === null) {
       await qb.execute();
-    } else if (this.returnColumns.length == 0) {
-      const returns = await qb.returningAll().executeTakeFirst();
-      if (returns === undefined) {
-        throw Error("No row returned from insert returning all columns");
-      }
-      // @ts-ignore - TODO: resolve this
-      output = this.transformInsertReturn(obj, returns);
-    } else {
-      const returns = await qb.returning(this.returnColumns).executeTakeFirst();
-      if (returns === undefined) {
-        throw Error("No row returned from insert returning some columns");
-      }
-      // @ts-ignore - TODO: resolve this
-      output = this.transformInsertReturn(obj, returns);
+      return undefined as any;
     }
-    return output as any;
+    const returns =
+      this.returnColumns.length == 0
+        ? await qb.returningAll().execute()
+        : await qb.returning(this.returnColumns).execute();
+    if (returns === undefined) {
+      throw Error("No row returned from insert expecting returned columns");
+    }
+    // TODO: revisit these casts
+    return this.transformInsertReturn(
+      objOrObjs as any,
+      (Array.isArray(objOrObjs) ? returns : returns[0]) as any
+    ) as any;
   }
 
   /**
@@ -173,9 +148,8 @@ export class StandardFacet<
    * @param filter Filter specifying the rows to update.
    * @param obj The object whose field values are to be assigned to the row.
    * @returns If `returnColumns` was configured in the options, returns an
-   *  array of `ReturnedObject` objects, one for each updated row,
-   *  defaulting to the returned columns. Otherwise, returns a count of the
-   *  number of rows updated.
+   *  array of `ReturnedObject` objects, one for each updated row.
+   *  Otherwise, returns a count of the number of rows updated.
    */
   async update<
     QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,

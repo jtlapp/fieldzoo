@@ -37,9 +37,9 @@ afterAll(() => destroyDB(db));
 
 describe("update()", () => {
   it("updates returning update count", async () => {
-    const insertReturn0 = await stdUserFacetReturningID.insertOne(USERS[0]);
-    await stdUserFacetReturningID.insertOne(USERS[1]);
-    await stdUserFacetReturningID.insertOne(USERS[2]);
+    const insertReturn0 = await stdUserFacetReturningID.insert(USERS[0]);
+    await stdUserFacetReturningID.insert(USERS[1]);
+    await stdUserFacetReturningID.insert(USERS[2]);
 
     const updateValues = { email: "new.email@xyz.pdq" };
     const updateCount1 = await stdUserFacet.update(
@@ -72,9 +72,9 @@ describe("update()", () => {
   });
 
   it("updates returning configured return columns", async () => {
-    await stdUserFacetReturningID.insertOne(USERS[0]);
-    const insertReturn = await stdUserFacetReturningID.insertOne(USERS[1]);
-    await stdUserFacetReturningID.insertOne(USERS[2]);
+    await stdUserFacetReturningID.insert(USERS[0]);
+    const insertReturn = await stdUserFacetReturningID.insert(USERS[1]);
+    await stdUserFacetReturningID.insert(USERS[2]);
 
     // Verify that update performs the correct change on the correct row.
     const updateValues1 = { email: "new.email@xyz.pdq" };
@@ -128,7 +128,7 @@ describe("update()", () => {
   });
 
   it("updates configured to return all columns", async () => {
-    const insertReturns = await stdUserFacetReturningID.insertMany(USERS);
+    const insertReturns = await stdUserFacetReturningID.insert(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
     const updateReturns = await stdUserFacetReturningAll.update(
@@ -151,7 +151,7 @@ describe("update()", () => {
   });
 
   it("updates all rows when no filter is given", async () => {
-    const insertReturns = await stdUserFacetReturningID.insertMany(USERS);
+    const insertReturns = await stdUserFacetReturningID.insert(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
     const updateReturns = await stdUserFacetReturningIDAndHandle.update(
@@ -172,7 +172,7 @@ describe("update()", () => {
   });
 
   it("updates rows indicated by a binary operator", async () => {
-    const insertReturns = await stdUserFacetReturningID.insertMany(USERS);
+    const insertReturns = await stdUserFacetReturningID.insert(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
     const updateCount = await stdUserFacet.update(
@@ -193,7 +193,7 @@ describe("update()", () => {
   });
 
   it("updates rows indicated by a kysely expression", async () => {
-    const insertReturns = await stdUserFacetReturningID.insertMany(USERS);
+    const insertReturns = await stdUserFacetReturningID.insert(USERS);
 
     const updateValues = { email: "new.email.@xyz.pdq" };
     const updateCount = await stdUserFacet.update(
@@ -258,11 +258,7 @@ describe("update transformation", () => {
   it("transforms users for update without transforming return", async () => {
     const facet = new UpdateTransformFacet(db);
 
-    const insertReturns = await facet.insertMany([
-      userRow1,
-      userRow2,
-      userRow3,
-    ]);
+    const insertReturns = await facet.insert([userRow1, userRow2, userRow3]);
     const updaterUser1 = UpdatedUser.create(
       0,
       Object.assign({}, userObject1, { firstName: "Suzanne" })
@@ -317,7 +313,7 @@ describe("update transformation", () => {
     }
     const updateReturnTransformFacet = new UpdateReturnTransformFacet(db);
 
-    const insertReturn = await updateReturnTransformFacet.insertOne(userRow1);
+    const insertReturn = await updateReturnTransformFacet.insert(userRow1);
     const updateReturn = await updateReturnTransformFacet.update(
       { id: insertReturn.id },
       { name: "Suzanne Smith" }
@@ -364,9 +360,7 @@ describe("update transformation", () => {
     }
     const updateAndReturnTransformFacet = new UpdateAndReturnTransformFacet(db);
 
-    const insertReturn = await updateAndReturnTransformFacet.insertOne(
-      userRow1
-    );
+    const insertReturn = await updateAndReturnTransformFacet.insert(userRow1);
     const updateReturn = await updateAndReturnTransformFacet.update(
       { id: insertReturn.id },
       UpdatedUser.create(0, userObject1)
