@@ -8,14 +8,13 @@ import {
   userRow1,
   userRow2,
   userObject1,
+  userObject2,
   selectedUser1,
   selectedUser2,
   insertedUser1,
   insertedUser2,
   insertReturnedUser1,
   insertReturnedUser2,
-  updatedUser1,
-  updatedUser2,
 } from "./utils/test-objects";
 import {
   User,
@@ -39,6 +38,10 @@ export class PlainUserFacet extends KyselyFacet<
   }
 }
 
+const userObjectWithID = { id: 1, ...userObject1 };
+const updatedUser1 = UpdatedUser.create(0, userObject1);
+const updatedUser2 = UpdatedUser.create(0, userObject2);
+
 let db: Kysely<Database>;
 let plainUserFacet: PlainUserFacet;
 
@@ -48,8 +51,6 @@ beforeAll(async () => {
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
-
-const userObjectWithID = { id: 1, ...userObject1 };
 
 describe("basic row queries", () => {
   it("inserts, selects, updates, and deletes objects by row query", async () => {
@@ -187,13 +188,7 @@ describe("transforms between inputs and outputs", () => {
             source.handle,
             source.email
           );
-          if (returns.id) returnedUser.id = returns.id;
-          if (returns.handle) returnedUser.handle = returns.handle;
-          if (returns.email) returnedUser.email = returns.email;
-          if (returns.name) {
-            returnedUser.firstName = returns.name.split(" ")[0];
-            returnedUser.lastName = returns.name.split(" ")[1];
-          }
+          returnedUser.id = returns.id;
           return returnedUser;
         },
         updateReturnTransform: (source, returns) => {
@@ -204,13 +199,7 @@ describe("transforms between inputs and outputs", () => {
             source.handle,
             source.email
           );
-          if (returns.id) returnedUser.id = returns.id;
-          if (returns.handle) returnedUser.handle = returns.handle;
-          if (returns.email) returnedUser.email = returns.email;
-          if (returns.name) {
-            returnedUser.firstName = returns.name.split(" ")[0];
-            returnedUser.lastName = returns.name.split(" ")[1];
-          }
+          returnedUser.id = returns.id;
           return returnedUser;
         },
       });

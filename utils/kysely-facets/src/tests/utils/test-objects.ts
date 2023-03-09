@@ -1,12 +1,7 @@
 import { Insertable } from "kysely";
 
 import { Users, Posts } from "./test-tables";
-import {
-  InsertedUser,
-  ReturnedUser,
-  SelectedUser,
-  UpdatedUser,
-} from "./test-types";
+import { InsertedUser, ReturnedUser, SelectedUser } from "./test-types";
 
 export const USERS: Insertable<Users>[] = [
   {
@@ -90,7 +85,3 @@ export const insertedUser3 = InsertedUser.create(0, userObject3);
 export const insertReturnedUser1 = ReturnedUser.create(1, userObject1);
 export const insertReturnedUser2 = ReturnedUser.create(2, userObject2);
 export const insertReturnedUser3 = ReturnedUser.create(3, userObject3);
-
-export const updatedUser1 = UpdatedUser.create(0, userObject1);
-export const updatedUser2 = UpdatedUser.create(0, userObject2);
-export const updatedUser3 = UpdatedUser.create(0, userObject3);

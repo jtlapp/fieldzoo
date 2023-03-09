@@ -26,8 +26,6 @@ export class StandardFacet<
     | ["*"] = [],
   ReturnedType = ReturnColumns extends []
     ? void
-    : ReturnColumns extends ["*"]
-    ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
 > extends KyselyFacet<
   DB,
@@ -65,6 +63,7 @@ export class StandardFacet<
     >
   ) {
     super(db, tableName, options);
+    // TODO: move options out of base or move checks there
 
     if (options?.insertReturnTransform) {
       if (!options.returnColumns) {
@@ -74,6 +73,15 @@ export class StandardFacet<
         throw Error("No 'returnColumns' returned for 'insertReturnTransform'");
       }
     }
+    if (options?.updateReturnTransform) {
+      if (!options.returnColumns) {
+        throw Error("'updateReturnTransform' requires 'returnColumns'");
+      }
+      if (options?.returnColumns?.length === 0) {
+        throw Error("No 'returnColumns' returned for 'updateReturnTransform'");
+      }
+    }
+
     this.returnColumns = null;
     if (options?.returnColumns) {
       // Cast here because TS wasn't allowing the includes() check.
@@ -83,17 +91,6 @@ export class StandardFacet<
           ? []
           : (returnColumns as (keyof Selectable<DB[TableName]> & string)[]);
       }
-    }
-
-    if (options?.updateReturnTransform) {
-      if (!options.defaultUpdateReturns) {
-        throw Error("'updateReturnTransform' requires 'defaultUpdateReturns'");
-      }
-      if (options?.defaultUpdateReturns?.length === 0) {
-        throw Error("'defaultUpdateReturns' cannot be an empty array");
-      }
-    } else if (options?.defaultUpdateReturns) {
-      throw Error("'defaultUpdateReturns' requires 'updateReturnTransform'");
     }
   }
 
@@ -117,13 +114,12 @@ export class StandardFacet<
       await qb.execute();
     } else if (this.returnColumns.length == 0) {
       const returns = await qb.returningAll().execute();
+      // @ts-ignore - TODO: resolve this
       output = this.transformInsertReturn(objs, returns);
     } else {
       const returns = await qb.returning(this.returnColumns).execute();
-      output = this.transformInsertReturn(
-        objs,
-        returns as Partial<Selectable<DB[TableName]>>[]
-      );
+      // @ts-ignore - TODO: resolve this
+      output = this.transformInsertReturn(objs, returns);
     }
     return output as any;
   }
@@ -153,16 +149,15 @@ export class StandardFacet<
       if (returns === undefined) {
         throw Error("No row returned from insert returning all columns");
       }
+      // @ts-ignore - TODO: resolve this
       output = this.transformInsertReturn(obj, returns);
     } else {
       const returns = await qb.returning(this.returnColumns).executeTakeFirst();
       if (returns === undefined) {
         throw Error("No row returned from insert returning some columns");
       }
-      output = this.transformInsertReturn(
-        obj,
-        returns as Partial<Selectable<DB[TableName]>>
-      );
+      // @ts-ignore - TODO: resolve this
+      output = this.transformInsertReturn(obj, returns);
     }
     return output as any;
   }
@@ -229,13 +224,12 @@ export class StandardFacet<
       output = Number(result.numUpdatedRows);
     } else if (this.returnColumns.length == 0) {
       const result = await fqb.returningAll().execute();
+      // @ts-ignore - TODO: resolve this
       output = this.transformUpdateReturn(obj, result);
     } else {
       const result = await fqb.returning(this.returnColumns).execute();
-      output = this.transformUpdateReturn(
-        obj,
-        result as Partial<Selectable<DB[TableName]>>[]
-      );
+      // @ts-ignore - TODO: resolve this
+      output = this.transformUpdateReturn(obj, result);
     }
     return output as any;
   }

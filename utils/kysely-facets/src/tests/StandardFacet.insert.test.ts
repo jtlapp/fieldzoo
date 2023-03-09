@@ -240,7 +240,7 @@ describe("insertion transformation", () => {
           returnColumns: ["id"],
           insertReturnTransform: (source, returns) =>
             new ReturnedUser(
-              returns.id!,
+              returns.id,
               source.name.split(" ")[0],
               source.name.split(" ")[1],
               source.handle,
@@ -281,7 +281,7 @@ describe("insertion transformation", () => {
           returnColumns: ["id"],
           insertReturnTransform: (source, returns) =>
             new ReturnedUser(
-              returns.id!,
+              returns.id,
               source.firstName,
               source.lastName,
               source.handle,

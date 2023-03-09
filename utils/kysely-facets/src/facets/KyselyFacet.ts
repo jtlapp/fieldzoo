@@ -20,8 +20,6 @@ export class KyselyFacet<
     | ["*"] = [],
   ReturnedType = ReturnColumns extends []
     ? void
-    : ReturnColumns extends ["*"]
-    ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
 > {
   constructor(
@@ -106,17 +104,17 @@ export class KyselyFacet<
    */
   protected transformInsertReturn(
     source: InsertedType,
-    returns: Partial<Selectable<DB[TableName]>>
+    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
   ): ReturnedType;
   protected transformInsertReturn(
     source: InsertedType[],
-    returns: Partial<Selectable<DB[TableName]>>[]
+    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
   ): ReturnedType[];
   protected transformInsertReturn(
     source: InsertedType | InsertedType[],
     returns:
-      | Partial<Selectable<DB[TableName]>>
-      | Partial<Selectable<DB[TableName]>>[]
+      | ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
+      | ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
   ): ReturnedType | ReturnedType[] {
     if (this.options?.insertReturnTransform) {
       if (Array.isArray(source)) {
@@ -142,7 +140,7 @@ export class KyselyFacet<
    */
   protected transformUpdateReturn(
     source: UpdatedType,
-    returns: Partial<Selectable<DB[TableName]>>[]
+    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
   ): ReturnedType[] {
     if (this.options?.updateReturnTransform) {
       // TS isn't seeing that options and the transform are defined.

@@ -1,4 +1,5 @@
 import { Insertable, Selectable, Updateable } from "kysely";
+import { ObjectWithKeys } from "../lib/type-utils";
 
 /**
  * Options governing facet behavior.
@@ -18,24 +19,21 @@ export interface FacetOptions<
   /** Transformation to apply to inserted objects. */
   insertTransform?: (obj: InsertedType) => Insertable<DB[TableName]>;
 
-  /** Columns to return from table upon insertion. */
+  /** Transformation to apply to updated objects. */
+  updateTransform?: (update: UpdatedType) => Updateable<DB[TableName]>;
+
+  /** Columns to return from table upon insertion or update. */
   returnColumns?: ReturnColumns;
 
   /** Transformation to apply to data returned from inserts. */
   insertReturnTransform?: (
     source: InsertedType,
-    returns: Partial<Selectable<DB[TableName]>>
+    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
   ) => ReturnedType;
-
-  /** Transformation to apply to updated objects. */
-  updateTransform?: (update: UpdatedType) => Updateable<DB[TableName]>;
-
-  /** Columns to return when updating but not requesting returns. */
-  defaultUpdateReturns?: (keyof Selectable<DB[TableName] & string>)[];
 
   /** Transformation to apply to data returned from updates. */
   updateReturnTransform?: (
     source: UpdatedType,
-    returns: Partial<Selectable<DB[TableName]>>
+    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
   ) => ReturnedType;
 }

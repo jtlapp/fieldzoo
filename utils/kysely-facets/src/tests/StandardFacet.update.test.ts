@@ -1,6 +1,6 @@
-import { Kysely, sql } from "kysely";
+import { Insertable, Kysely, Selectable, sql } from "kysely";
 
-import { StandardFacet } from "..";
+import { anyOf, StandardFacet } from "..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
 import {
@@ -9,8 +9,15 @@ import {
   StdUserFacetReturningIDAndHandle,
   StdUserFacetReturningAll,
 } from "./utils/test-facets";
-import { USERS } from "./utils/test-objects";
+import {
+  userObject1,
+  userRow1,
+  userRow2,
+  userRow3,
+  USERS,
+} from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
+import { ReturnedUser, UpdatedUser } from "./utils/test-types";
 
 let db: Kysely<Database>;
 let stdUserFacet: StdUserFacet;
@@ -228,39 +235,161 @@ describe("update()", () => {
 });
 
 describe("update transformation", () => {
-  // class UpdateTransformFacet extends StandardFacet<
-  //   Database,
-  //   "users",
-  //   Selectable<Database["users"]>,
-  //   Insertable<Database["users"]>,
-  //   UpdatedUser
-  // > {
-  //   constructor(db: Kysely<Database>) {
-  //     super(db, "users", {
-  //       updateTransform: (source) => ({
-  //         name: `${source.firstName} ${source.lastName}`,
-  //         handle: source.handle,
-  //         email: source.email,
-  //       }),
-  //     });
-  //   }
-  // }
+  class UpdateTransformFacet extends StandardFacet<
+    Database,
+    "users",
+    Selectable<Database["users"]>,
+    Insertable<Database["users"]>,
+    UpdatedUser,
+    ["id"]
+  > {
+    constructor(db: Kysely<Database>) {
+      super(db, "users", {
+        updateTransform: (source) => ({
+          name: `${source.firstName} ${source.lastName}`,
+          handle: source.handle,
+          email: source.email,
+        }),
+        returnColumns: ["id"],
+      });
+    }
+  }
 
-  // it("transforms users for update without transforming return", async () => {
-  //   const facet = new UpdateTransformFacet(db);
+  it("transforms users for update without transforming return", async () => {
+    const facet = new UpdateTransformFacet(db);
 
-  //   const insertReturns = await facet.insertMany([userRow1, userRow2], ["id"]);
-  //   // TODO
-  // });
+    const insertReturns = await facet.insertMany([
+      userRow1,
+      userRow2,
+      userRow3,
+    ]);
+    const updatedUser1 = UpdatedUser.create(
+      0,
+      Object.assign({}, userObject1, { firstName: "Suzanne" })
+    );
+
+    const updateReturns = await facet.update(
+      anyOf({ id: insertReturns[0].id }, { id: insertReturns[2].id }),
+      updatedUser1
+    );
+    expect(updateReturns).toEqual([
+      { id: insertReturns[0].id },
+      { id: insertReturns[2].id },
+    ]);
+
+    const readUsers = await facet.selectMany((qb) => qb.orderBy("id"));
+    expect(readUsers).toEqual([
+      Object.assign({}, userRow1, {
+        id: insertReturns[0].id,
+        name: "Suzanne Smith",
+      }),
+      Object.assign({}, userRow2, { id: insertReturns[1].id }),
+      Object.assign({}, userRow1, {
+        id: insertReturns[2].id,
+        name: "Suzanne Smith",
+      }),
+    ]);
+  });
+
+  it("transforms update return without transforming update", async () => {
+    class UpdateReturnTransformFacet extends StandardFacet<
+      Database,
+      "users",
+      Selectable<Database["users"]>,
+      Insertable<Database["users"]>,
+      Partial<Insertable<Database["users"]>>,
+      ["id"],
+      ReturnedUser
+    > {
+      constructor(db: Kysely<Database>) {
+        super(db, "users", {
+          returnColumns: ["id"],
+          updateReturnTransform: (source, returns) =>
+            new ReturnedUser(
+              returns.id,
+              source.name ? source.name.split(" ")[0] : "(first)",
+              source.name ? source.name.split(" ")[1] : "(last)",
+              source.handle ? source.handle : "(handle)",
+              source.email ? source.email : "(email)"
+            ),
+        });
+      }
+    }
+    const updateReturnTransformFacet = new UpdateReturnTransformFacet(db);
+
+    const insertReturn = await updateReturnTransformFacet.insertOne(userRow1);
+    const updateReturn = await updateReturnTransformFacet.update(
+      { id: insertReturn.id },
+      { name: "Suzanne Smith" }
+    );
+    expect(updateReturn).toEqual([
+      new ReturnedUser(
+        insertReturn.id,
+        "Suzanne",
+        "Smith",
+        "(handle)",
+        "(email)"
+      ),
+    ]);
+  });
+
+  it("transforms update and update return", async () => {
+    class UpdateAndReturnTransformFacet extends StandardFacet<
+      Database,
+      "users",
+      Selectable<Database["users"]>,
+      Insertable<Database["users"]>,
+      UpdatedUser,
+      ["id"],
+      ReturnedUser
+    > {
+      constructor(db: Kysely<Database>) {
+        super(db, "users", {
+          updateTransform: (source) => ({
+            name: `${source.firstName} ${source.lastName}`,
+            handle: source.handle,
+            email: source.email,
+          }),
+          returnColumns: ["id"],
+          updateReturnTransform: (source, returns) =>
+            new ReturnedUser(
+              returns.id,
+              source.firstName,
+              source.lastName,
+              source.handle,
+              source.email
+            ),
+        });
+      }
+    }
+    const updateAndReturnTransformFacet = new UpdateAndReturnTransformFacet(db);
+
+    const insertReturn = await updateAndReturnTransformFacet.insertOne(
+      userRow1
+    );
+    const updateReturn = await updateAndReturnTransformFacet.update(
+      { id: insertReturn.id },
+      UpdatedUser.create(0, userObject1)
+    );
+    expect(updateReturn).toEqual([
+      new ReturnedUser(
+        insertReturn.id,
+        userObject1.firstName,
+        userObject1.lastName,
+        userObject1.handle,
+        userObject1.email
+      ),
+    ]);
+  });
 
   it("errors when providing an empty defaultUpdateReturns array", () => {
     expect(
       () =>
         new StandardFacet(db, "users", {
           updateReturnTransform: (source, _returns) => source,
-          defaultUpdateReturns: [],
+          returnColumns: [],
         })
-    ).toThrow("'defaultUpdateReturns' cannot be an empty array");
+    ).toThrow("No 'returnColumns' returned for 'updateReturnTransform'");
   });
 
   it("errors when providing only one of updateReturnTransform and defaultUpdateReturns", () => {
@@ -269,12 +398,6 @@ describe("update transformation", () => {
         new StandardFacet(db, "users", {
           updateReturnTransform: (source, _returns) => source,
         })
-    ).toThrow("'updateReturnTransform' requires 'defaultUpdateReturns'");
-    expect(
-      () =>
-        new StandardFacet(db, "users", {
-          defaultUpdateReturns: ["id"],
-        })
-    ).toThrow("'defaultUpdateReturns' requires 'updateReturnTransform'");
+    ).toThrow("'updateReturnTransform' requires 'returnColumns'");
   });
 });
