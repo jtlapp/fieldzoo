@@ -95,7 +95,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a MatchAllFilter", async () => {
-    const userIDs = await stdUserFacet.insert(USERS);
+    const userIDs = await stdUserFacet.insertReturning(USERS);
 
     const users = await plainUserFacet.selectMany(
       allOf({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
@@ -116,7 +116,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a MatchAnyFilter with a nested MatchAllFilter", async () => {
-    const userIDs = await stdUserFacet.insert(USERS);
+    const userIDs = await stdUserFacet.insertReturning(USERS);
 
     const users = await plainUserFacet.selectMany(
       anyOf(

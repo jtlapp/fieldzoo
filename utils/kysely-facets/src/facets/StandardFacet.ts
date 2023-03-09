@@ -100,34 +100,48 @@ export class StandardFacet<
   }
 
   /**
-   * Inserts one or more rows into this table, optionally returning a
-   * pre-configured set of columns from the inserted row or rows.
+   * Inserts one or more rows into this table, without returning any
+   * columns, regardless of whether `returnColumns` was configured.
    * @param objOrObjs The object or objects to insert as a row.
-   * @returns If `returnColumns` was configured in the options, returns
-   *  a single `ReturnedObject` when `objOrObjs` is not an array, and
-   *  returns an array of them otherwise, one for each inserted row.
-   *  Returns nothing if `returnColumns` was not provided.
    */
-  insert(
+  insert(obj: InsertedObject): Promise<void>;
+
+  insert(objs: InsertedObject[]): Promise<void>;
+
+  async insert(objOrObjs: InsertedObject | InsertedObject[]): Promise<void> {
+    const transformedObjOrObjs = this.transformInsertion(objOrObjs as any);
+    const qb = this.insertRows().values(transformedObjOrObjs);
+    await qb.execute();
+  }
+
+  /**
+   * Inserts one or more rows into this table, returning the row or rows
+   * the columns specified in the `returnColumns` option.
+   * @param objOrObjs The object or objects to insert as a row.
+   * @returns Returns a `ReturnedObject` for each inserted object. An
+   *  array when `objOrObjs` is an array, and a single object otherwise.
+   * @throws Error if `ReturnedObject` was not assigned.
+   */
+  insertReturning(
     obj: InsertedObject
-  ): Promise<ReturnColumns extends [] ? void : ReturnedObject>;
+  ): Promise<ReturnColumns extends [] ? never : ReturnedObject>;
 
-  insert(
+  insertReturning(
     objs: InsertedObject[]
-  ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]>;
+  ): Promise<ReturnColumns extends [] ? never : ReturnedObject[]>;
 
-  async insert(
+  async insertReturning(
     objOrObjs: InsertedObject | InsertedObject[]
   ): Promise<
-    ReturnColumns extends [] ? void : ReturnedObject | ReturnedObject[]
+    ReturnColumns extends [] ? never : ReturnedObject | ReturnedObject[]
   > {
+    if (this.returnColumns === null) {
+      throw Error("No 'returnColumns' configured for 'insertReturning'");
+    }
+
     const transformedObjOrObjs = this.transformInsertion(objOrObjs as any);
     const qb = this.insertRows().values(transformedObjOrObjs);
 
-    if (this.returnColumns === null) {
-      await qb.execute();
-      return undefined as any;
-    }
     const returns =
       this.returnColumns.length == 0
         ? await qb.returningAll().execute()

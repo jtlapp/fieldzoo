@@ -24,8 +24,8 @@ afterAll(() => destroyDB(db));
 describe("facet for table with unique ID", () => {
   it("inserts, selects, updates, and deletes objects by ID", async () => {
     // Add users
-    const id0 = (await explicitIdFacet.insert(USERS[0])).id;
-    const id1 = (await explicitIdFacet.insert(USERS[1])).id;
+    const id0 = (await explicitIdFacet.insertReturning(USERS[0])).id;
+    const id1 = (await explicitIdFacet.insertReturning(USERS[1])).id;
 
     // Update a user
     const NEW_EMAIL = "new@baz.com";
@@ -55,7 +55,7 @@ describe("facet for table with unique ID", () => {
     const defaultIdFacet = new StandardIdFacet(db, "users");
 
     await defaultIdFacet.insert(USERS[0]);
-    const id1 = (await defaultIdFacet.insert(USERS[1])).id;
+    const id1 = (await defaultIdFacet.insertReturning(USERS[1])).id;
 
     const readUser1 = await explicitIdFacet.selectById(id1);
     expect(readUser1?.handle).toEqual(USERS[1].handle);
@@ -66,13 +66,13 @@ describe("facet for table with unique ID", () => {
       returnColumns: ["id", "handle"],
     });
 
-    const insertReturn1 = await idAndHandleFacet.insert(USERS[0]);
+    const insertReturn1 = await idAndHandleFacet.insertReturning(USERS[0]);
     expect(insertReturn1).toEqual({
       id: 1,
       handle: USERS[0].handle,
     });
 
-    const insertReturn2 = await idAndHandleFacet.insert(USERS[1]);
+    const insertReturn2 = await idAndHandleFacet.insertReturning(USERS[1]);
     expect(insertReturn2).toEqual({
       id: 2,
       handle: USERS[1].handle,
@@ -84,7 +84,7 @@ describe("facet for table with unique ID", () => {
       returnColumns: ["*"],
     });
 
-    const insertReturn1 = await allColumnsFacet.insert(USERS[0]);
+    const insertReturn1 = await allColumnsFacet.insertReturning(USERS[0]);
     expect(insertReturn1).toEqual({
       id: 1,
       handle: USERS[0].handle,
@@ -92,7 +92,7 @@ describe("facet for table with unique ID", () => {
       email: USERS[0].email,
     });
 
-    const insertReturn2 = await allColumnsFacet.insert(USERS[1]);
+    const insertReturn2 = await allColumnsFacet.insertReturning(USERS[1]);
     expect(insertReturn2).toEqual({
       id: 2,
       handle: USERS[1].handle,
