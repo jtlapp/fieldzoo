@@ -35,7 +35,7 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe("update()", () => {
+describe("updating rows via StandardFacet", () => {
   it("updates returning update count", async () => {
     const insertReturn0 = await stdUserFacetReturningID.insertReturning(
       USERS[0]
@@ -71,6 +71,12 @@ describe("update()", () => {
     expect(readUsers.length).toEqual(2);
     expect(readUsers[0].email).toEqual(updateValues.email);
     expect(readUsers[1].email).toEqual(updateValues.email);
+
+    // prettier-ignore
+    const updateCount = await stdUserFacetReturningID.update({}, {
+      name: "Every User",
+    });
+    expect(updateCount).toEqual(3);
   });
 
   it("updates returning configured return columns", async () => {
@@ -82,7 +88,7 @@ describe("update()", () => {
 
     // Verify that update performs the correct change on the correct row.
     const updateValues1 = { email: "new.email@xyz.pdq" };
-    const updateReturns1 = await stdUserFacetReturningID.update(
+    const updateReturns1 = await stdUserFacetReturningID.updateReturning(
       { id: insertReturn.id },
       updateValues1
     );
@@ -96,10 +102,11 @@ describe("update()", () => {
 
     // Verify a different change on the same row, returning multiple columns.
     const updateValues2 = { name: "Sue" };
-    const updateReturns2 = await stdUserFacetReturningIDAndHandle.update(
-      { email: updateValues1.email },
-      updateValues2
-    );
+    const updateReturns2 =
+      await stdUserFacetReturningIDAndHandle.updateReturning(
+        { email: updateValues1.email },
+        updateValues2
+      );
     expect(updateReturns2).toEqual([
       {
         id: insertReturn.id,
@@ -115,10 +122,11 @@ describe("update()", () => {
 
     // Verify that update changes all required rows.
     const updateValues3 = { name: "Replacement Sue" };
-    const updateReturns3 = await stdUserFacetReturningIDAndHandle.update(
-      { name: "Sue" },
-      updateValues3
-    );
+    const updateReturns3 =
+      await stdUserFacetReturningIDAndHandle.updateReturning(
+        { name: "Sue" },
+        updateValues3
+      );
     expect(updateReturns3.length).toEqual(3);
     expect(updateReturns3[0].handle).toEqual(USERS[0].handle);
     expect(updateReturns3[1].handle).toEqual(USERS[1].handle);
@@ -135,7 +143,7 @@ describe("update()", () => {
     const insertReturns = await stdUserFacetReturningID.insertReturning(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
-    const updateReturns = await stdUserFacetReturningAll.update(
+    const updateReturns = await stdUserFacetReturningAll.updateReturning(
       { name: "Sue" },
       updateValues
     );
@@ -158,10 +166,8 @@ describe("update()", () => {
     const insertReturns = await stdUserFacetReturningID.insertReturning(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
-    const updateReturns = await stdUserFacetReturningIDAndHandle.update(
-      {},
-      updateValues
-    );
+    const updateReturns =
+      await stdUserFacetReturningIDAndHandle.updateReturning({}, updateValues);
 
     const expectedUsers = USERS.map((user, i) => {
       return { id: insertReturns[i].id, handle: user.handle };
@@ -219,8 +225,13 @@ describe("update()", () => {
 
   // TODO: Add update() tests for MatchAllFilter and MatchAllFilter queries.
 
-  ignore("detects update() type errors", async () => {
+  ignore("detects update() and updateReturning() type errors", async () => {
     stdUserFacetReturningID.update(
+      // @ts-expect-error - table must have all filter fields
+      { notThere: "xyz" },
+      { email: "abc@def.ghi" }
+    );
+    stdUserFacetReturningID.updateReturning(
       // @ts-expect-error - table must have all filter fields
       { notThere: "xyz" },
       { email: "abc@def.ghi" }
@@ -229,12 +240,26 @@ describe("update()", () => {
     stdUserFacetReturningID.update(["notThere", "=", "foo"], {
       email: "abc@def.ghi",
     });
+    // @ts-expect-error - table must have all filter fields
+    stdUserFacetReturningID.updateReturning(["notThere", "=", "foo"], {
+      email: "abc@def.ghi",
+    });
     // @ts-expect-error - update must only have table columns
     stdUserFacetReturningID.update({ id: 32 }, { notThere: "xyz@pdq.xyz" });
+    stdUserFacetReturningID.updateReturning(
+      { id: 32 },
+      // @ts-expect-error - update must only have table columns
+      { notThere: "xyz@pdq.xyz" }
+    );
     // @ts-expect-error - doesn't allow plain string expression filters
     stdUserFacetReturningID.update("name = 'John Doe'", USERS[0]);
+    // @ts-expect-error - doesn't allow plain string expression filters
+    stdUserFacetReturningID.updateReturning("name = 'John Doe'", USERS[0]);
     // @ts-expect-error - only requested columns are accessible
     (await stdUserFacetReturningID.update({ id: 32 }, USERS[0]))[0].name;
+    // @ts-expect-error - only requested columns are accessible
+    // prettier-ignore
+    (await stdUserFacetReturningID.updateReturning({ id: 32 }, USERS[0]))[0].name;
   });
 });
 
@@ -272,7 +297,7 @@ describe("update transformation", () => {
       Object.assign({}, userObject1, { firstName: "Suzanne" })
     );
 
-    const updateReturns = await facet.update(
+    const updateReturns = await facet.updateReturning(
       anyOf({ id: insertReturns[0].id }, { id: insertReturns[2].id }),
       updaterUser1
     );
@@ -324,7 +349,7 @@ describe("update transformation", () => {
     const insertReturn = await updateReturnTransformFacet.insertReturning(
       userRow1
     );
-    const updateReturn = await updateReturnTransformFacet.update(
+    const updateReturn = await updateReturnTransformFacet.updateReturning(
       { id: insertReturn.id },
       { name: "Suzanne Smith" }
     );
@@ -373,7 +398,7 @@ describe("update transformation", () => {
     const insertReturn = await updateAndReturnTransformFacet.insertReturning(
       userRow1
     );
-    const updateReturn = await updateAndReturnTransformFacet.update(
+    const updateReturn = await updateAndReturnTransformFacet.updateReturning(
       { id: insertReturn.id },
       UpdatedUser.create(0, userObject1)
     );

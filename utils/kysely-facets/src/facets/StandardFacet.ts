@@ -115,8 +115,8 @@ export class StandardFacet<
   }
 
   /**
-   * Inserts one or more rows into this table, returning the row or rows
-   * the columns specified in the `returnColumns` option.
+   * Inserts one or more rows into this table, returning the columns
+   * specified in the `returnColumns` option from the row or rows.
    * @param objOrObjs The object or objects to insert as a row.
    * @returns Returns a `ReturnedObject` for each inserted object. An
    *  array when `objOrObjs` is an array, and a single object otherwise.
@@ -157,13 +157,11 @@ export class StandardFacet<
   }
 
   /**
-   * Updates rows in this table matching the provided filter, returning
-   * columns from the updated rows when configured with `returnColumns`.
+   * Updates rows in this table matching the provided filter, without returning
+   * any columns, regardless of whether `returnColumns` was configured.
    * @param filter Filter specifying the rows to update.
    * @param obj The object whose field values are to be assigned to the row.
-   * @returns If `returnColumns` was configured in the options, returns an
-   *  array of `ReturnedObject` objects, one for each updated row.
-   *  Otherwise, returns a count of the number of rows updated.
+   * @returns Returns the number of updated rows.
    */
   async update<
     QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
@@ -171,25 +169,43 @@ export class StandardFacet<
   >(
     filter: QueryFilter<DB, TableName, QB, RE>,
     obj: UpdaterObject
-  ): Promise<ReturnedObject extends void ? number : ReturnedObject[]> {
+  ): Promise<number> {
     const transformedObj = this.transformUpdater(obj);
     const uqb = this.updateRows().set(transformedObj as any);
     const fqb = applyQueryFilter(this, filter)(uqb as any);
-    let output: ReturnedObject[] | number | undefined;
+    const result = await fqb.executeTakeFirst();
+    return Number(result.numUpdatedRows);
+  }
 
+  /**
+   * Updates rows in this table matching the provided filter, returning the
+   * columns specified in the `returnColumns` option from the row or rows.
+   * @param filter Filter specifying the rows to update.
+   * @param obj The object whose field values are to be assigned to the row.
+   * @returns Returns an array of `ReturnedObject` objects, one for each
+   *  updated row.
+   * @throws Error if `ReturnedObject` was not assigned.
+   */
+  async updateReturning<
+    QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
+    RE extends ReferenceExpression<DB, TableName>
+  >(
+    filter: QueryFilter<DB, TableName, QB, RE>,
+    obj: UpdaterObject
+  ): Promise<ReturnedObject extends void ? never : ReturnedObject[]> {
     if (this.returnColumns === null) {
-      const result = await fqb.executeTakeFirst();
-      output = Number(result.numUpdatedRows);
-    } else if (this.returnColumns.length == 0) {
-      const result = await fqb.returningAll().execute();
-      // @ts-ignore - TODO: resolve this
-      output = this.transformUpdateReturn(obj, result);
-    } else {
-      const result = await fqb.returning(this.returnColumns).execute();
-      // @ts-ignore - TODO: resolve this
-      output = this.transformUpdateReturn(obj, result);
+      throw Error("No 'returnColumns' configured for 'updateReturning'");
     }
-    return output as any;
+
+    const transformedObj = this.transformUpdater(obj);
+    const uqb = this.updateRows().set(transformedObj as any);
+    const fqb = applyQueryFilter(this, filter)(uqb as any);
+
+    const result =
+      this.returnColumns.length == 0
+        ? await fqb.returningAll().execute()
+        : await fqb.returning(this.returnColumns).execute();
+    return this.transformUpdateReturn(obj, result as any) as any;
   }
 
   /**

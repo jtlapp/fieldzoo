@@ -60,12 +60,11 @@ export class StandardIdFacet<
   }
 
   async updateById(obj: Updateable<DB[TableName]>) {
-    const updates = await this.update(
+    const updateCount = await this.update(
       [this.ref(this.idColumnName), "=", (obj as any)[this.idColumnName]],
       obj as any
     );
-    // TODO: fix this once I separate returning and non-returning updates
-    return (updates as any).length == 1;
+    return updateCount == 1;
   }
 }
 
