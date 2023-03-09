@@ -5,6 +5,7 @@ import {
   Selectable,
   UpdateQueryBuilder,
   UpdateResult,
+  Updateable,
 } from "kysely";
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
@@ -27,15 +28,20 @@ export class StandardFacet<
   ReturnedObject = ReturnColumns extends []
     ? void
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-> extends KyselyFacet<
-  DB,
-  TableName,
-  SelectedObject,
-  InsertedObject,
-  UpdaterObject,
-  ReturnColumns,
-  ReturnedObject
-> {
+> extends KyselyFacet<DB, TableName, SelectedObject> {
+  /**
+   * Options governing facet behavior.
+   */
+  protected options?: FacetOptions<
+    DB,
+    TableName,
+    SelectedObject,
+    InsertedObject,
+    UpdaterObject,
+    ReturnColumns,
+    ReturnedObject
+  >;
+
   /**
    * Columns to return from table upon insertion. Contrary to the meaning of
    * `ReturnColumns`, an empty array here returns all columns, while null
@@ -62,8 +68,8 @@ export class StandardFacet<
       ReturnedObject
     >
   ) {
-    super(db, tableName, options);
-    // TODO: move options out of base or move checks there
+    super(db, tableName, options?.selectTransform);
+    this.options = options;
 
     if (options?.insertReturnTransform) {
       if (!options.returnColumns) {
@@ -216,7 +222,7 @@ export class StandardFacet<
     filter: QueryFilter<DB, TableName, QB, RE>,
     obj: UpdaterObject
   ): Promise<ReturnedObject extends void ? number : ReturnedObject[]> {
-    const transformedObj = this.transformUpdate(obj);
+    const transformedObj = this.transformUpdater(obj);
     const uqb = this.updateRows().set(transformedObj as any);
     const fqb = applyQueryFilter(this, filter)(uqb as any);
     let output: ReturnedObject[] | number | undefined;
@@ -234,5 +240,103 @@ export class StandardFacet<
       output = this.transformUpdateReturn(obj, result);
     }
     return output as any;
+  }
+
+  /**
+   * Transforms an object or array of objects received for insertion into
+   * an insertable row or array of rows.
+   */
+  protected transformInsertion(
+    source: InsertedObject
+  ): Insertable<DB[TableName]>;
+  protected transformInsertion(
+    source: InsertedObject[]
+  ): Insertable<DB[TableName]>[];
+  protected transformInsertion(
+    source: InsertedObject | InsertedObject[]
+  ): Insertable<DB[TableName]> | Insertable<DB[TableName]>[] {
+    if (this.options?.insertTransform) {
+      if (Array.isArray(source)) {
+        // TS isn't seeing that options and the transform are defined.
+        return source.map((obj) => this.options!.insertTransform!(obj));
+      }
+      return this.options.insertTransform(source);
+    }
+    return source as any;
+  }
+
+  /**
+   * Transforms an object or an array of objects returned from an insert
+   * into a returnable object or an array of objects.
+   */
+  protected transformInsertReturn(
+    source: InsertedObject,
+    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
+  ): ReturnedObject;
+  protected transformInsertReturn(
+    source: InsertedObject[],
+    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
+  ): ReturnedObject[];
+  protected transformInsertReturn(
+    source: InsertedObject | InsertedObject[],
+    returns:
+      | ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
+      | ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
+  ): ReturnedObject | ReturnedObject[] {
+    if (this.options?.insertReturnTransform) {
+      if (Array.isArray(source)) {
+        if (!Array.isArray(returns)) {
+          throw Error("Expected returns to be an array");
+        }
+        // TS isn't seeing that options and the transform are defined.
+        return source.map((obj, i) =>
+          this.options!.insertReturnTransform!(obj, returns[i])
+        );
+      }
+      if (Array.isArray(returns)) {
+        throw Error("Expected returns to be a single object");
+      }
+      return this.options.insertReturnTransform(source, returns);
+    }
+    return returns as any;
+  }
+
+  /**
+   * Transforms an object or array of objects received for update into
+   * an updateable row or array of rows.
+   */
+  // TODO: Might not need to support arrays here.
+  protected transformUpdater(source: UpdaterObject): Updateable<DB[TableName]>;
+  protected transformUpdater(
+    source: UpdaterObject[]
+  ): Updateable<DB[TableName]>[];
+  protected transformUpdater(
+    source: UpdaterObject | UpdaterObject[]
+  ): Updateable<DB[TableName]> | Updateable<DB[TableName]>[] {
+    if (this.options?.updateTransform) {
+      if (Array.isArray(source)) {
+        // TS isn't seeing that options and the transform are defined.
+        return source.map((obj) => this.options!.updateTransform!(obj));
+      }
+      return this.options.updateTransform(source);
+    }
+    return source as any;
+  }
+
+  /**
+   * Transforms an object or an array of objects returned from an update
+   * into a returnable object or an array of objects.
+   */
+  protected transformUpdateReturn(
+    source: UpdaterObject,
+    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
+  ): ReturnedObject[] {
+    if (this.options?.updateReturnTransform) {
+      // TS isn't seeing that options and the transform are defined.
+      return returns.map((returnValues) =>
+        this.options!.updateReturnTransform!(source, returnValues)
+      );
+    }
+    return returns as any;
   }
 }

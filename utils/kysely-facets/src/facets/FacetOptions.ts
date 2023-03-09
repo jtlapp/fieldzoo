@@ -1,5 +1,5 @@
 import { Insertable, Selectable, Updateable } from "kysely";
-import { ObjectWithKeys } from "../lib/type-utils";
+import { ObjectWithKeys, SelectTransform } from "../lib/type-utils";
 
 /**
  * Options governing facet behavior.
@@ -14,7 +14,7 @@ export interface FacetOptions<
   ReturnedObject
 > {
   /** Transformation to apply to selected objects. */
-  selectTransform?: (row: Selectable<DB[TableName]>) => SelectedObject;
+  selectTransform?: SelectTransform<DB, TableName, SelectedObject>;
 
   /** Transformation to apply to inserted objects. */
   insertTransform?: (obj: InsertedObject) => Insertable<DB[TableName]>;

@@ -1,9 +1,7 @@
-import { Insertable, Kysely, Selectable, Updateable } from "kysely";
+import { Kysely, Selectable } from "kysely";
 
-import { FacetOptions } from "./FacetOptions";
-import { ObjectWithKeys } from "../lib/type-utils";
+import { SelectTransform } from "../lib/type-utils";
 
-// TODO: never call takeFirstOrThrow() -- poor error, no source given
 // TODO: move options to appropriate subclasses
 
 /**
@@ -12,29 +10,18 @@ import { ObjectWithKeys } from "../lib/type-utils";
 export class KyselyFacet<
   DB,
   TableName extends keyof DB & string,
-  SelectedObject = Selectable<DB[TableName]>,
-  InsertedObject = Insertable<DB[TableName]>,
-  UpdaterObject = Partial<Insertable<DB[TableName]>>,
-  ReturnColumns extends
-    | (keyof Selectable<DB[TableName]> & string)[]
-    | ["*"] = [],
-  ReturnedObject = ReturnColumns extends []
-    ? void
-    : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
+  SelectedObject = Selectable<DB[TableName]>
 > {
+  /** Transformation to apply to selected objects. */
+  readonly selectTransform?: SelectTransform<DB, TableName, SelectedObject>;
+
   constructor(
     readonly db: Kysely<DB>,
     readonly tableName: TableName,
-    readonly options?: FacetOptions<
-      DB,
-      TableName,
-      SelectedObject,
-      InsertedObject,
-      UpdaterObject,
-      ReturnColumns,
-      ReturnedObject
-    >
-  ) {}
+    selectTransform?: SelectTransform<DB, TableName, SelectedObject>
+  ) {
+    this.selectTransform = selectTransform;
+  }
 
   /**
    * Creates a query builder for inserting rows into this table.
@@ -78,82 +65,6 @@ export class KyselyFacet<
   }
 
   /**
-   * Transforms an object or array of objects received for insertion into
-   * an insertable row or array of rows.
-   */
-  protected transformInsertion(
-    source: InsertedObject
-  ): Insertable<DB[TableName]>;
-  protected transformInsertion(
-    source: InsertedObject[]
-  ): Insertable<DB[TableName]>[];
-  protected transformInsertion(
-    source: InsertedObject | InsertedObject[]
-  ): Insertable<DB[TableName]> | Insertable<DB[TableName]>[] {
-    if (this.options?.insertTransform) {
-      if (Array.isArray(source)) {
-        // TS isn't seeing that options and the transform are defined.
-        return source.map((obj) => this.options!.insertTransform!(obj));
-      }
-      return this.options.insertTransform(source);
-    }
-    return source as any;
-  }
-
-  /**
-   * Transforms an object or an array of objects returned from an insert
-   * into a returnable object or an array of objects.
-   */
-  protected transformInsertReturn(
-    source: InsertedObject,
-    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-  ): ReturnedObject;
-  protected transformInsertReturn(
-    source: InsertedObject[],
-    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
-  ): ReturnedObject[];
-  protected transformInsertReturn(
-    source: InsertedObject | InsertedObject[],
-    returns:
-      | ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-      | ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
-  ): ReturnedObject | ReturnedObject[] {
-    if (this.options?.insertReturnTransform) {
-      if (Array.isArray(source)) {
-        if (!Array.isArray(returns)) {
-          throw Error("Expected returns to be an array");
-        }
-        // TS isn't seeing that options and the transform are defined.
-        return source.map((obj, i) =>
-          this.options!.insertReturnTransform!(obj, returns[i])
-        );
-      }
-      if (Array.isArray(returns)) {
-        throw Error("Expected returns to be a single object");
-      }
-      return this.options.insertReturnTransform(source, returns);
-    }
-    return returns as any;
-  }
-
-  /**
-   * Transforms an object or an array of objects returned from an update
-   * into a returnable object or an array of objects.
-   */
-  protected transformUpdateReturn(
-    source: UpdaterObject,
-    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
-  ): ReturnedObject[] {
-    if (this.options?.updateReturnTransform) {
-      // TS isn't seeing that options and the transform are defined.
-      return returns.map((returnValues) =>
-        this.options!.updateReturnTransform!(source, returnValues)
-      );
-    }
-    return returns as any;
-  }
-
-  /**
    * Transforms a selected row or array of rows into a returnable
    * object or array of objects.
    */
@@ -166,34 +77,12 @@ export class KyselyFacet<
   protected transformSelection(
     source: Selectable<DB[TableName]> | Selectable<DB[TableName]>[]
   ): SelectedObject | SelectedObject[] {
-    if (this.options?.selectTransform) {
+    if (this.selectTransform) {
       if (Array.isArray(source)) {
         // TS isn't seeing that options and the transform are defined.
-        return source.map((obj) => this.options!.selectTransform!(obj));
+        return source.map((obj) => this.selectTransform!(obj));
       }
-      return this.options.selectTransform(source);
-    }
-    return source as any;
-  }
-
-  /**
-   * Transforms an object or array of objects received for update into
-   * an updateable row or array of rows.
-   */
-  // TODO: Might not need to support arrays here.
-  protected transformUpdate(source: UpdaterObject): Updateable<DB[TableName]>;
-  protected transformUpdate(
-    source: UpdaterObject[]
-  ): Updateable<DB[TableName]>[];
-  protected transformUpdate(
-    source: UpdaterObject | UpdaterObject[]
-  ): Updateable<DB[TableName]> | Updateable<DB[TableName]>[] {
-    if (this.options?.updateTransform) {
-      if (Array.isArray(source)) {
-        // TS isn't seeing that options and the transform are defined.
-        return source.map((obj) => this.options!.updateTransform!(obj));
-      }
-      return this.options.updateTransform(source);
+      return this.selectTransform(source);
     }
     return source as any;
   }

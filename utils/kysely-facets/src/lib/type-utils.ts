@@ -2,11 +2,7 @@
  * Type utilities.
  */
 
-/**
- * Evaluates to a column name unless the column name is "*".
- */
-// TODO: am I still using this?
-export type NonAsterisk<Column> = Column extends "*" ? never : Column;
+import { Selectable } from "kysely";
 
 /**
  * Evaluates to the subset of a the given object having the keys in
@@ -18,16 +14,21 @@ export type ObjectWithKeys<O, KeyArray extends string[]> =
     [K in KeyArray[number]]: K extends keyof O ? O[K] : never;
   };
 
-// prettier-ignore
 // export type ObjectWithKeys<O, KeyArray extends string[]> =
 //   KeyArray extends ["*"] ? O : {
 //     [K in KeyArray[number] & keyof O]: O[K];
 //   };
 
 // This always returns all columns
-// prettier-ignore
 // export type ObjectWithKeys<O, KeyArray extends string[]> = {
 //   [K in keyof O & string]: KeyArray extends ["*"]
 //     ? O[K]
 //     : (K extends KeyArray[number] ? O[K] : never);
 // };
+
+/**
+ * Type of a function that transforms a row into a SelectedObject.
+ */
+export type SelectTransform<DB, TableName extends keyof DB & string, O> = (
+  row: Selectable<DB[TableName]>
+) => O;
