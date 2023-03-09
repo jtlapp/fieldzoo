@@ -9,7 +9,7 @@ export interface FacetOptions<
   TableName extends keyof DB & string,
   SelectedType,
   InsertedType,
-  UpdatedType,
+  UpdateObject,
   ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"],
   ReturnedObject
 > {
@@ -20,7 +20,7 @@ export interface FacetOptions<
   insertTransform?: (obj: InsertedType) => Insertable<DB[TableName]>;
 
   /** Transformation to apply to updated objects. */
-  updateTransform?: (update: UpdatedType) => Updateable<DB[TableName]>;
+  updateTransform?: (update: UpdateObject) => Updateable<DB[TableName]>;
 
   /** Columns to return from table upon insertion or update. */
   returnColumns?: ReturnColumns;
@@ -33,7 +33,7 @@ export interface FacetOptions<
 
   /** Transformation to apply to data returned from updates. */
   updateReturnTransform?: (
-    source: UpdatedType,
+    source: UpdateObject,
     returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
   ) => ReturnedObject;
 }
