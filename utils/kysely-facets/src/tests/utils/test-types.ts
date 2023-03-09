@@ -60,31 +60,11 @@ export class UpdatedUser extends User {
   }
 }
 
-export class InsertReturnedUser extends User {
-  readonly __type = "InsertReturnedUser";
+export class ReturnedUser extends User {
+  readonly __type = "ReturnedUser";
 
-  static create(
-    id: number,
-    obj: VariableFieldsOf<InsertReturnedUser>
-  ): InsertReturnedUser {
-    return new InsertReturnedUser(
-      id,
-      obj.firstName,
-      obj.lastName,
-      obj.handle,
-      obj.email
-    );
-  }
-}
-
-export class UpdateReturnedUser extends User {
-  readonly __type = "UpdateReturnedUser";
-
-  static create(
-    id: number,
-    obj: VariableFieldsOf<UpdateReturnedUser>
-  ): UpdateReturnedUser {
-    return new UpdateReturnedUser(
+  static create(id: number, obj: VariableFieldsOf<ReturnedUser>): ReturnedUser {
+    return new ReturnedUser(
       id,
       obj.firstName,
       obj.lastName,

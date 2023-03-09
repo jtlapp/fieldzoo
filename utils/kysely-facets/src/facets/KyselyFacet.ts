@@ -18,12 +18,7 @@ export class KyselyFacet<
   ReturnColumns extends
     | (keyof Selectable<DB[TableName]> & string)[]
     | ["*"] = [],
-  InsertReturnedType = ReturnColumns extends []
-    ? void
-    : ReturnColumns extends ["*"]
-    ? Selectable<DB[TableName]>
-    : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>,
-  UpdateReturnedType = ReturnColumns extends []
+  ReturnedType = ReturnColumns extends []
     ? void
     : ReturnColumns extends ["*"]
     ? Selectable<DB[TableName]>
@@ -39,8 +34,7 @@ export class KyselyFacet<
       InsertedType,
       UpdatedType,
       ReturnColumns,
-      InsertReturnedType,
-      UpdateReturnedType
+      ReturnedType
     >
   ) {}
 
@@ -113,17 +107,17 @@ export class KyselyFacet<
   protected transformInsertReturn(
     source: InsertedType,
     returns: Partial<Selectable<DB[TableName]>>
-  ): InsertReturnedType;
+  ): ReturnedType;
   protected transformInsertReturn(
     source: InsertedType[],
     returns: Partial<Selectable<DB[TableName]>>[]
-  ): InsertReturnedType[];
+  ): ReturnedType[];
   protected transformInsertReturn(
     source: InsertedType | InsertedType[],
     returns:
       | Partial<Selectable<DB[TableName]>>
       | Partial<Selectable<DB[TableName]>>[]
-  ): InsertReturnedType | InsertReturnedType[] {
+  ): ReturnedType | ReturnedType[] {
     if (this.options?.insertReturnTransform) {
       if (Array.isArray(source)) {
         if (!Array.isArray(returns)) {
@@ -149,7 +143,7 @@ export class KyselyFacet<
   protected transformUpdateReturn(
     source: UpdatedType,
     returns: Partial<Selectable<DB[TableName]>>[]
-  ): UpdateReturnedType[] {
+  ): ReturnedType[] {
     if (this.options?.updateReturnTransform) {
       // TS isn't seeing that options and the transform are defined.
       return returns.map((returnValues) =>

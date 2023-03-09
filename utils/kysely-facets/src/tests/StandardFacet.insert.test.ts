@@ -23,7 +23,7 @@ import {
   selectedUser1,
 } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
-import { InsertedUser, InsertReturnedUser } from "./utils/test-types";
+import { InsertedUser, ReturnedUser } from "./utils/test-types";
 
 let db: Kysely<Database>;
 
@@ -233,13 +233,13 @@ describe("insertion transformation", () => {
       Insertable<Database["users"]>,
       Partial<Insertable<Database["users"]>>,
       ["id"],
-      InsertReturnedUser
+      ReturnedUser
     > {
       constructor(db: Kysely<Database>) {
         super(db, "users", {
           returnColumns: ["id"],
           insertReturnTransform: (source, returns) =>
-            new InsertReturnedUser(
+            new ReturnedUser(
               returns.id!,
               source.name.split(" ")[0],
               source.name.split(" ")[1],
@@ -269,7 +269,7 @@ describe("insertion transformation", () => {
       InsertedUser,
       Partial<Insertable<Database["users"]>>,
       ["id"],
-      InsertReturnedUser
+      ReturnedUser
     > {
       constructor(db: Kysely<Database>) {
         super(db, "users", {
@@ -280,7 +280,7 @@ describe("insertion transformation", () => {
           }),
           returnColumns: ["id"],
           insertReturnTransform: (source, returns) =>
-            new InsertReturnedUser(
+            new ReturnedUser(
               returns.id!,
               source.firstName,
               source.lastName,

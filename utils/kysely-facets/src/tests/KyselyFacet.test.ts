@@ -22,8 +22,7 @@ import {
   SelectedUser,
   InsertedUser,
   UpdatedUser,
-  InsertReturnedUser,
-  UpdateReturnedUser,
+  ReturnedUser,
 } from "./utils/test-types";
 import { ignore } from "@fieldzoo/testing-utils";
 
@@ -158,8 +157,7 @@ describe("transforms between inputs and outputs", () => {
     InsertedUser,
     UpdatedUser,
     ["id"],
-    InsertReturnedUser,
-    UpdateReturnedUser
+    ReturnedUser
   > {
     constructor(db: Kysely<Database>) {
       super(db, "users", {
@@ -182,7 +180,7 @@ describe("transforms between inputs and outputs", () => {
           email: source.email,
         }),
         insertReturnTransform: (source, returns) => {
-          const returnedUser = new InsertReturnedUser(
+          const returnedUser = new ReturnedUser(
             source.id,
             source.firstName,
             source.lastName,
@@ -199,7 +197,7 @@ describe("transforms between inputs and outputs", () => {
           return returnedUser;
         },
         updateReturnTransform: (source, returns) => {
-          const returnedUser = new UpdateReturnedUser(
+          const returnedUser = new ReturnedUser(
             source.id,
             source.firstName,
             source.lastName,
@@ -331,13 +329,13 @@ describe("transforms between inputs and outputs", () => {
 
     testTransformUpdateReturn() {
       expect(this.transformUpdateReturn(updatedUser1, [{ id: 1 }])).toEqual([
-        UpdateReturnedUser.create(1, userObject1),
+        ReturnedUser.create(1, userObject1),
       ]);
       expect(
         this.transformUpdateReturn(updatedUser1, [{ id: 1 }, { id: 2 }])
       ).toEqual([
-        UpdateReturnedUser.create(1, userObject1),
-        UpdateReturnedUser.create(2, userObject1),
+        ReturnedUser.create(1, userObject1),
+        ReturnedUser.create(2, userObject1),
       ]);
 
       ignore("detects transformUpdateReturn type errors", () => {

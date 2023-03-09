@@ -24,12 +24,7 @@ export class StandardFacet<
   ReturnColumns extends
     | (keyof Selectable<DB[TableName]> & string)[]
     | ["*"] = [],
-  InsertReturnedType = ReturnColumns extends []
-    ? void
-    : ReturnColumns extends ["*"]
-    ? Selectable<DB[TableName]>
-    : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>,
-  UpdateReturnedType = ReturnColumns extends []
+  ReturnedType = ReturnColumns extends []
     ? void
     : ReturnColumns extends ["*"]
     ? Selectable<DB[TableName]>
@@ -41,8 +36,7 @@ export class StandardFacet<
   InsertedType,
   UpdatedType,
   ReturnColumns,
-  InsertReturnedType,
-  UpdateReturnedType
+  ReturnedType
 > {
   /**
    * Columns to return from table upon insertion. Contrary to the meaning of
@@ -67,8 +61,7 @@ export class StandardFacet<
       InsertedType,
       UpdatedType,
       ReturnColumns,
-      InsertReturnedType,
-      UpdateReturnedType
+      ReturnedType
     >
   ) {
     super(db, tableName, options);
@@ -109,16 +102,16 @@ export class StandardFacet<
    * Inserts multiple rows into this table, returning columns from the
    * inserted rows when configured with `returnColumns`.
    * @param objs The objects to insert as rows.
-   * @returns If `returnColumns` was configured in the options, returns an
-   *  array of `InsertReturnedType` objects, one for each inserted row,
+   * @returns If `returnColumns` was configured in the options, returns
+   *  an array of `ReturnedType` objects, one for each inserted row,
    *  defaulting to the returned columns. Otherwise, returns nothing.
    */
   async insertMany(
     objs: InsertedType[]
-  ): Promise<ReturnColumns extends [] ? void : InsertReturnedType[]> {
+  ): Promise<ReturnColumns extends [] ? void : ReturnedType[]> {
     const transformedObjs = this.transformInsertion(objs);
     const qb = this.insertRows().values(transformedObjs);
-    let output: InsertReturnedType[] | undefined;
+    let output: ReturnedType[] | undefined;
 
     if (this.returnColumns === null) {
       await qb.execute();
@@ -142,16 +135,16 @@ export class StandardFacet<
    * @param returning The columns to return from the inserted row. If
    *  `["*"]` is given, all columns are returned. If a list of field names
    *  is given, returns only those field names. If omitted, returns type
-   *  `UpdateReturnedType`. Useful for getting auto-generated columns.
+   *  `ReturnedType`. Useful for getting auto-generated columns.
    * @returns An object containing the requested return columns, if any.
-   *  Returns an `UpdateReturnedType` when `returning` is omitted.
+   *  Returns an `ReturnedType` when `returning` is omitted.
    */
   async insertOne(
     obj: InsertedType
-  ): Promise<ReturnColumns extends [] ? void : InsertReturnedType> {
+  ): Promise<ReturnColumns extends [] ? void : ReturnedType> {
     const transformedObj = this.transformInsertion(obj);
     const qb = this.insertRows().values(transformedObj);
-    let output: InsertReturnedType | undefined;
+    let output: ReturnedType | undefined;
 
     if (this.returnColumns === null) {
       await qb.execute();
@@ -215,7 +208,7 @@ export class StandardFacet<
    * @param filter Filter specifying the rows to update.
    * @param obj The object whose field values are to be assigned to the row.
    * @returns If `returnColumns` was configured in the options, returns an
-   *  array of `UpdateReturnedType` objects, one for each updated row,
+   *  array of `ReturnedType` objects, one for each updated row,
    *  defaulting to the returned columns. Otherwise, returns a count of the
    *  number of rows updated.
    */
@@ -225,11 +218,11 @@ export class StandardFacet<
   >(
     filter: QueryFilter<DB, TableName, QB, RE>,
     obj: UpdatedType
-  ): Promise<UpdateReturnedType extends void ? number : UpdateReturnedType[]> {
+  ): Promise<ReturnedType extends void ? number : ReturnedType[]> {
     const transformedObj = this.transformUpdate(obj);
     const uqb = this.updateRows().set(transformedObj as any);
     const fqb = applyQueryFilter(this, filter)(uqb as any);
-    let output: UpdateReturnedType[] | number | undefined;
+    let output: ReturnedType[] | number | undefined;
 
     if (this.returnColumns === null) {
       const result = await fqb.executeTakeFirst();
