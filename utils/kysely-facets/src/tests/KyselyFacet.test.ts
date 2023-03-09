@@ -39,8 +39,8 @@ export class PlainUserFacet extends KyselyFacet<
 }
 
 const userObjectWithID = { id: 1, ...userObject1 };
-const updatedUser1 = UpdatedUser.create(0, userObject1);
-const updatedUser2 = UpdatedUser.create(0, userObject2);
+const updaterUser1 = UpdatedUser.create(0, userObject1);
+const updaterUser2 = UpdatedUser.create(0, userObject2);
 
 let db: Kysely<Database>;
 let plainUserFacet: PlainUserFacet;
@@ -257,9 +257,9 @@ describe("transforms between inputs and outputs", () => {
     }
 
     testTransformUpdate() {
-      expect(this.transformUpdate(updatedUser1)).toEqual(userRow1);
+      expect(this.transformUpdate(updaterUser1)).toEqual(userRow1);
 
-      expect(this.transformUpdate([updatedUser1, updatedUser2])).toEqual([
+      expect(this.transformUpdate([updaterUser1, updaterUser2])).toEqual([
         userRow1,
         userRow2,
       ]);
@@ -276,9 +276,9 @@ describe("transforms between inputs and outputs", () => {
         // @ts-expect-error - incorrect input type
         this.transformUpdate([userObjectWithID]);
         // @ts-expect-error - incorrect output type
-        this.transformUpdate(updatedUser1).firstName;
+        this.transformUpdate(updaterUser1).firstName;
         // @ts-expect-error - incorrect output type
-        this.transformUpdate([updatedUser1])[0].firstName;
+        this.transformUpdate([updaterUser1])[0].firstName;
       });
     }
 
@@ -317,11 +317,11 @@ describe("transforms between inputs and outputs", () => {
     }
 
     testTransformUpdateReturn() {
-      expect(this.transformUpdateReturn(updatedUser1, [{ id: 1 }])).toEqual([
+      expect(this.transformUpdateReturn(updaterUser1, [{ id: 1 }])).toEqual([
         ReturnedUser.create(1, userObject1),
       ]);
       expect(
-        this.transformUpdateReturn(updatedUser1, [{ id: 1 }, { id: 2 }])
+        this.transformUpdateReturn(updaterUser1, [{ id: 1 }, { id: 2 }])
       ).toEqual([
         ReturnedUser.create(1, userObject1),
         ReturnedUser.create(2, userObject1),
@@ -337,7 +337,7 @@ describe("transforms between inputs and outputs", () => {
         // @ts-expect-error - incorrect input type
         this.transformUpdateReturn(selectedUser1, [{ id: 1 }]);
         // @ts-expect-error - incorrect output type
-        this.transformUpdateReturn(updatedUser1, [{ id: 1 }])[0].name;
+        this.transformUpdateReturn(updaterUser1, [{ id: 1 }])[0].name;
       });
     }
   }

@@ -263,14 +263,14 @@ describe("update transformation", () => {
       userRow2,
       userRow3,
     ]);
-    const updatedUser1 = UpdatedUser.create(
+    const updaterUser1 = UpdatedUser.create(
       0,
       Object.assign({}, userObject1, { firstName: "Suzanne" })
     );
 
     const updateReturns = await facet.update(
       anyOf({ id: insertReturns[0].id }, { id: insertReturns[2].id }),
-      updatedUser1
+      updaterUser1
     );
     expect(updateReturns).toEqual([
       { id: insertReturns[0].id },
