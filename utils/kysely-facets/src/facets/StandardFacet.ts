@@ -18,23 +18,23 @@ import { ObjectWithKeys } from "../lib/type-utils";
 export class StandardFacet<
   DB,
   TableName extends keyof DB & string,
-  SelectedType = Selectable<DB[TableName]>,
-  InsertedType = Insertable<DB[TableName]>,
+  SelectedObject = Selectable<DB[TableName]>,
+  InsertedObject = Insertable<DB[TableName]>,
   UpdaterObject = Partial<Insertable<DB[TableName]>>,
   ReturnColumns extends
     | (keyof Selectable<DB[TableName]> & string)[]
     | ["*"] = [],
-  ReturnObject = ReturnColumns extends []
+  ReturnedObject = ReturnColumns extends []
     ? void
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
 > extends KyselyFacet<
   DB,
   TableName,
-  SelectedType,
-  InsertedType,
+  SelectedObject,
+  InsertedObject,
   UpdaterObject,
   ReturnColumns,
-  ReturnObject
+  ReturnedObject
 > {
   /**
    * Columns to return from table upon insertion. Contrary to the meaning of
@@ -55,11 +55,11 @@ export class StandardFacet<
     options?: FacetOptions<
       DB,
       TableName,
-      SelectedType,
-      InsertedType,
+      SelectedObject,
+      InsertedObject,
       UpdaterObject,
       ReturnColumns,
-      ReturnObject
+      ReturnedObject
     >
   ) {
     super(db, tableName, options);
@@ -100,15 +100,15 @@ export class StandardFacet<
    * inserted rows when configured with `returnColumns`.
    * @param objs The objects to insert as rows.
    * @returns If `returnColumns` was configured in the options, returns
-   *  an array of `ReturnObject` objects, one for each inserted row,
+   *  an array of `ReturnedObject` objects, one for each inserted row,
    *  defaulting to the returned columns. Otherwise, returns nothing.
    */
   async insertMany(
-    objs: InsertedType[]
-  ): Promise<ReturnColumns extends [] ? void : ReturnObject[]> {
+    objs: InsertedObject[]
+  ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]> {
     const transformedObjs = this.transformInsertion(objs);
     const qb = this.insertRows().values(transformedObjs);
-    let output: ReturnObject[] | undefined;
+    let output: ReturnedObject[] | undefined;
 
     if (this.returnColumns === null) {
       await qb.execute();
@@ -131,16 +131,16 @@ export class StandardFacet<
    * @param returning The columns to return from the inserted row. If
    *  `["*"]` is given, all columns are returned. If a list of field names
    *  is given, returns only those field names. If omitted, returns type
-   *  `ReturnObject`. Useful for getting auto-generated columns.
+   *  `ReturnedObject`. Useful for getting auto-generated columns.
    * @returns An object containing the requested return columns, if any.
-   *  Returns an `ReturnObject` when `returning` is omitted.
+   *  Returns an `ReturnedObject` when `returning` is omitted.
    */
   async insertOne(
-    obj: InsertedType
-  ): Promise<ReturnColumns extends [] ? void : ReturnObject> {
+    obj: InsertedObject
+  ): Promise<ReturnColumns extends [] ? void : ReturnedObject> {
     const transformedObj = this.transformInsertion(obj);
     const qb = this.insertRows().values(transformedObj);
-    let output: ReturnObject | undefined;
+    let output: ReturnedObject | undefined;
 
     if (this.returnColumns === null) {
       await qb.execute();
@@ -172,7 +172,7 @@ export class StandardFacet<
   async selectMany<
     QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
     RE extends ReferenceExpression<DB, TableName>
-  >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<SelectedType[]> {
+  >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<SelectedObject[]> {
     const sqb = this.selectRows().selectAll();
     const fqb = applyQueryFilter(this, filter)(sqb as any);
     const selections = await fqb.execute();
@@ -189,7 +189,9 @@ export class StandardFacet<
   async selectOne<
     QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
     RE extends ReferenceExpression<DB, TableName>
-  >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<SelectedType | null> {
+  >(
+    filter: QueryFilter<DB, TableName, QB, RE>
+  ): Promise<SelectedObject | null> {
     const sqb = this.selectRows().selectAll();
     const fqb = applyQueryFilter(this, filter)(sqb as any);
     const selection = await fqb.executeTakeFirst();
@@ -203,7 +205,7 @@ export class StandardFacet<
    * @param filter Filter specifying the rows to update.
    * @param obj The object whose field values are to be assigned to the row.
    * @returns If `returnColumns` was configured in the options, returns an
-   *  array of `ReturnObject` objects, one for each updated row,
+   *  array of `ReturnedObject` objects, one for each updated row,
    *  defaulting to the returned columns. Otherwise, returns a count of the
    *  number of rows updated.
    */
@@ -213,11 +215,11 @@ export class StandardFacet<
   >(
     filter: QueryFilter<DB, TableName, QB, RE>,
     obj: UpdaterObject
-  ): Promise<ReturnObject extends void ? number : ReturnObject[]> {
+  ): Promise<ReturnedObject extends void ? number : ReturnedObject[]> {
     const transformedObj = this.transformUpdate(obj);
     const uqb = this.updateRows().set(transformedObj as any);
     const fqb = applyQueryFilter(this, filter)(uqb as any);
-    let output: ReturnObject[] | number | undefined;
+    let output: ReturnedObject[] | number | undefined;
 
     if (this.returnColumns === null) {
       const result = await fqb.executeTakeFirst();

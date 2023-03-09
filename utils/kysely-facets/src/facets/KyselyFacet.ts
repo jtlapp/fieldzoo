@@ -12,13 +12,13 @@ import { ObjectWithKeys } from "../lib/type-utils";
 export class KyselyFacet<
   DB,
   TableName extends keyof DB & string,
-  SelectedType = Selectable<DB[TableName]>,
-  InsertedType = Insertable<DB[TableName]>,
+  SelectedObject = Selectable<DB[TableName]>,
+  InsertedObject = Insertable<DB[TableName]>,
   UpdaterObject = Partial<Insertable<DB[TableName]>>,
   ReturnColumns extends
     | (keyof Selectable<DB[TableName]> & string)[]
     | ["*"] = [],
-  ReturnObject = ReturnColumns extends []
+  ReturnedObject = ReturnColumns extends []
     ? void
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
 > {
@@ -28,11 +28,11 @@ export class KyselyFacet<
     readonly options?: FacetOptions<
       DB,
       TableName,
-      SelectedType,
-      InsertedType,
+      SelectedObject,
+      InsertedObject,
       UpdaterObject,
       ReturnColumns,
-      ReturnObject
+      ReturnedObject
     >
   ) {}
 
@@ -81,12 +81,14 @@ export class KyselyFacet<
    * Transforms an object or array of objects received for insertion into
    * an insertable row or array of rows.
    */
-  protected transformInsertion(source: InsertedType): Insertable<DB[TableName]>;
   protected transformInsertion(
-    source: InsertedType[]
+    source: InsertedObject
+  ): Insertable<DB[TableName]>;
+  protected transformInsertion(
+    source: InsertedObject[]
   ): Insertable<DB[TableName]>[];
   protected transformInsertion(
-    source: InsertedType | InsertedType[]
+    source: InsertedObject | InsertedObject[]
   ): Insertable<DB[TableName]> | Insertable<DB[TableName]>[] {
     if (this.options?.insertTransform) {
       if (Array.isArray(source)) {
@@ -103,19 +105,19 @@ export class KyselyFacet<
    * into a returnable object or an array of objects.
    */
   protected transformInsertReturn(
-    source: InsertedType,
+    source: InsertedObject,
     returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-  ): ReturnObject;
+  ): ReturnedObject;
   protected transformInsertReturn(
-    source: InsertedType[],
+    source: InsertedObject[],
     returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
-  ): ReturnObject[];
+  ): ReturnedObject[];
   protected transformInsertReturn(
-    source: InsertedType | InsertedType[],
+    source: InsertedObject | InsertedObject[],
     returns:
       | ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
       | ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
-  ): ReturnObject | ReturnObject[] {
+  ): ReturnedObject | ReturnedObject[] {
     if (this.options?.insertReturnTransform) {
       if (Array.isArray(source)) {
         if (!Array.isArray(returns)) {
@@ -141,7 +143,7 @@ export class KyselyFacet<
   protected transformUpdateReturn(
     source: UpdaterObject,
     returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
-  ): ReturnObject[] {
+  ): ReturnedObject[] {
     if (this.options?.updateReturnTransform) {
       // TS isn't seeing that options and the transform are defined.
       return returns.map((returnValues) =>
@@ -155,13 +157,15 @@ export class KyselyFacet<
    * Transforms a selected row or array of rows into a returnable
    * object or array of objects.
    */
-  protected transformSelection(source: Selectable<DB[TableName]>): SelectedType;
+  protected transformSelection(
+    source: Selectable<DB[TableName]>
+  ): SelectedObject;
   protected transformSelection(
     source: Selectable<DB[TableName]>[]
-  ): SelectedType[];
+  ): SelectedObject[];
   protected transformSelection(
     source: Selectable<DB[TableName]> | Selectable<DB[TableName]>[]
-  ): SelectedType | SelectedType[] {
+  ): SelectedObject | SelectedObject[] {
     if (this.options?.selectTransform) {
       if (Array.isArray(source)) {
         // TS isn't seeing that options and the transform are defined.

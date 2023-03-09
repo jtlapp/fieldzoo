@@ -7,17 +7,17 @@ import { ObjectWithKeys } from "../lib/type-utils";
 export interface FacetOptions<
   DB,
   TableName extends keyof DB & string,
-  SelectedType,
-  InsertedType,
+  SelectedObject,
+  InsertedObject,
   UpdaterObject,
   ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"],
-  ReturnObject
+  ReturnedObject
 > {
   /** Transformation to apply to selected objects. */
-  selectTransform?: (row: Selectable<DB[TableName]>) => SelectedType;
+  selectTransform?: (row: Selectable<DB[TableName]>) => SelectedObject;
 
   /** Transformation to apply to inserted objects. */
-  insertTransform?: (obj: InsertedType) => Insertable<DB[TableName]>;
+  insertTransform?: (obj: InsertedObject) => Insertable<DB[TableName]>;
 
   /** Transformation to apply to updated objects. */
   updateTransform?: (update: UpdaterObject) => Updateable<DB[TableName]>;
@@ -27,13 +27,13 @@ export interface FacetOptions<
 
   /** Transformation to apply to data returned from inserts. */
   insertReturnTransform?: (
-    source: InsertedType,
+    source: InsertedObject,
     returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-  ) => ReturnObject;
+  ) => ReturnedObject;
 
   /** Transformation to apply to data returned from updates. */
   updateReturnTransform?: (
     source: UpdaterObject,
     returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-  ) => ReturnObject;
+  ) => ReturnedObject;
 }

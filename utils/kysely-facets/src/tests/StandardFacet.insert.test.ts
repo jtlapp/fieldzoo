@@ -326,9 +326,9 @@ describe("insertion transformation", () => {
   ignore("detects insertion transformation type errors", async () => {
     const insertTransformFacet = new InsertTransformFacet(db);
 
-    // @ts-expect-error - requires InsertedType as input
+    // @ts-expect-error - requires InsertedObject as input
     await insertTransformFacet.insertOne(USERS[0]);
-    // @ts-expect-error - requires InsertedType as input
+    // @ts-expect-error - requires InsertedObject as input
     await insertTransformFacet.insertOne(selectedUser1);
   });
 });
