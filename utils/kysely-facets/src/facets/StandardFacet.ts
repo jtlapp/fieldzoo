@@ -20,7 +20,7 @@ export class StandardFacet<
   TableName extends keyof DB & string,
   SelectedType = Selectable<DB[TableName]>,
   InsertedType = Insertable<DB[TableName]>,
-  UpdateObject = Partial<InsertedType>,
+  UpdaterObject = Partial<InsertedType>,
   ReturnColumns extends
     | (keyof Selectable<DB[TableName]> & string)[]
     | ["*"] = [],
@@ -32,7 +32,7 @@ export class StandardFacet<
   TableName,
   SelectedType,
   InsertedType,
-  UpdateObject,
+  UpdaterObject,
   ReturnColumns,
   ReturnObject
 > {
@@ -57,7 +57,7 @@ export class StandardFacet<
       TableName,
       SelectedType,
       InsertedType,
-      UpdateObject,
+      UpdaterObject,
       ReturnColumns,
       ReturnObject
     >
@@ -212,7 +212,7 @@ export class StandardFacet<
     RE extends ReferenceExpression<DB, TableName>
   >(
     filter: QueryFilter<DB, TableName, QB, RE>,
-    obj: UpdateObject
+    obj: UpdaterObject
   ): Promise<ReturnObject extends void ? number : ReturnObject[]> {
     const transformedObj = this.transformUpdate(obj);
     const uqb = this.updateRows().set(transformedObj as any);

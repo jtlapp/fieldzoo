@@ -14,7 +14,7 @@ export class KyselyFacet<
   TableName extends keyof DB & string,
   SelectedType = Selectable<DB[TableName]>,
   InsertedType = Insertable<DB[TableName]>,
-  UpdateObject = Partial<InsertedType>,
+  UpdaterObject = Partial<InsertedType>,
   ReturnColumns extends
     | (keyof Selectable<DB[TableName]> & string)[]
     | ["*"] = [],
@@ -30,7 +30,7 @@ export class KyselyFacet<
       TableName,
       SelectedType,
       InsertedType,
-      UpdateObject,
+      UpdaterObject,
       ReturnColumns,
       ReturnObject
     >
@@ -139,7 +139,7 @@ export class KyselyFacet<
    * into a returnable object or an array of objects.
    */
   protected transformUpdateReturn(
-    source: UpdateObject,
+    source: UpdaterObject,
     returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
   ): ReturnObject[] {
     if (this.options?.updateReturnTransform) {
@@ -177,12 +177,12 @@ export class KyselyFacet<
    * an updateable row or array of rows.
    */
   // TODO: Might not need to support arrays here.
-  protected transformUpdate(source: UpdateObject): Updateable<DB[TableName]>;
+  protected transformUpdate(source: UpdaterObject): Updateable<DB[TableName]>;
   protected transformUpdate(
-    source: UpdateObject[]
+    source: UpdaterObject[]
   ): Updateable<DB[TableName]>[];
   protected transformUpdate(
-    source: UpdateObject | UpdateObject[]
+    source: UpdaterObject | UpdaterObject[]
   ): Updateable<DB[TableName]> | Updateable<DB[TableName]>[] {
     if (this.options?.updateTransform) {
       if (Array.isArray(source)) {
