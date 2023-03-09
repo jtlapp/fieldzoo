@@ -55,12 +55,11 @@ export class KyselyFacet<
     return this.db.deleteFrom(this.tableName);
   }
 
-  // TODO: consider combining selectMany() and selectOne() into select().
   /**
    * Selects zero or more rows from this table, selecting rows according
    * to the provided filter.
    * @param filter Filter that constrains the selected rows.
-   * @returns An array of objects containing the selected rows, possibly empty.
+   * @returns An array of objects for the selected rows, possibly empty.
    */
   async selectMany<
     QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
@@ -76,8 +75,7 @@ export class KyselyFacet<
    * Selects at most one row from this table, selecting rows according
    * to the provided filter.
    * @param filter Filter that constrains the selection.
-   * @returns An object containing the selected row, or `null` if no row
-   *    was selected.
+   * @returns An object for the selected row, or `null` if no row was found.
    */
   async selectOne<
     QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
