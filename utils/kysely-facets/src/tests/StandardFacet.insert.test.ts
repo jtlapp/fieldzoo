@@ -89,16 +89,16 @@ describe("insertMany() without transformation", () => {
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[2].id });
-    const updatedPosts = await stdPostFacetReturningIDAndTitle.insertMany([
+    const updaterPosts = await stdPostFacetReturningIDAndTitle.insertMany([
       post0,
       post1,
       post2,
     ]);
-    expect(updatedPosts.length).toEqual(3);
-    for (let i = 0; i < updatedPosts.length; i++) {
-      expect(updatedPosts[i].id).toBeGreaterThan(0);
-      expect(updatedPosts[i].title).toEqual(POSTS[i].title);
-      expect(Object.keys(updatedPosts[i]).length).toEqual(2);
+    expect(updaterPosts.length).toEqual(3);
+    for (let i = 0; i < updaterPosts.length; i++) {
+      expect(updaterPosts[i].id).toBeGreaterThan(0);
+      expect(updaterPosts[i].title).toEqual(POSTS[i].title);
+      expect(Object.keys(updaterPosts[i]).length).toEqual(2);
     }
   });
 
@@ -148,15 +148,15 @@ describe("insertOne() without transformation", () => {
     expect(readUser0?.email).toEqual(USERS[0].email);
 
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturn.id });
-    const updatedPost = await stdPostFacetReturningIDAndTitle.insertOne(post0);
-    expect(updatedPost.id).toBeGreaterThan(0);
-    expect(updatedPost.title).toEqual(POSTS[0].title);
-    expect(Object.keys(updatedPost).length).toEqual(2);
+    const updaterPost = await stdPostFacetReturningIDAndTitle.insertOne(post0);
+    expect(updaterPost.id).toBeGreaterThan(0);
+    expect(updaterPost.title).toEqual(POSTS[0].title);
+    expect(Object.keys(updaterPost).length).toEqual(2);
 
     const readPost0 = await stdPostFacet
       .selectRows()
-      .where("id", "=", updatedPost.id)
-      .where("title", "=", updatedPost.title)
+      .where("id", "=", updaterPost.id)
+      .where("title", "=", updaterPost.title)
       .executeTakeFirst();
     expect(readPost0?.likeCount).toEqual(post0.likeCount);
   });
