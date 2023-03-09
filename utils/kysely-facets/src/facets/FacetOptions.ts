@@ -11,7 +11,7 @@ export interface FacetOptions<
   InsertedType,
   UpdateObject,
   ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"],
-  ReturnedObject
+  ReturnObject
 > {
   /** Transformation to apply to selected objects. */
   selectTransform?: (row: Selectable<DB[TableName]>) => SelectedType;
@@ -29,11 +29,11 @@ export interface FacetOptions<
   insertReturnTransform?: (
     source: InsertedType,
     returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-  ) => ReturnedObject;
+  ) => ReturnObject;
 
   /** Transformation to apply to data returned from updates. */
   updateReturnTransform?: (
     source: UpdateObject,
     returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-  ) => ReturnedObject;
+  ) => ReturnObject;
 }
