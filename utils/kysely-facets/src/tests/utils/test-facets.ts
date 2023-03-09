@@ -28,6 +28,19 @@ export class StdUserFacetReturningID extends StandardFacet<
   }
 }
 
+export class StdUserFacetReturningIDAndHandle extends StandardFacet<
+  Database,
+  "users",
+  Selectable<Users>,
+  Insertable<Users>,
+  Partial<Insertable<Users>>,
+  ["id", "handle"]
+> {
+  constructor(readonly db: Kysely<Database>) {
+    super(db, "users", { returnColumns: ["id", "handle"] });
+  }
+}
+
 export class StdUserFacetReturningAll extends StandardFacet<
   Database,
   "users",

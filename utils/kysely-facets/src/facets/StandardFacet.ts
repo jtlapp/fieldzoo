@@ -29,7 +29,11 @@ export class StandardFacet<
     : ReturnColumns extends ["*"]
     ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>,
-  UpdateReturnedType = void
+  UpdateReturnedType = ReturnColumns extends []
+    ? void
+    : ReturnColumns extends ["*"]
+    ? Selectable<DB[TableName]>
+    : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
 > extends KyselyFacet<
   DB,
   TableName,
@@ -105,9 +109,9 @@ export class StandardFacet<
    * Inserts multiple rows into this table, returning columns from the
    * inserted rows when configured with `returnColumns`.
    * @param objs The objects to insert as rows.
-   * @returns An array of `InsertReturnedType` objects, one for each
-   *  inserted row, if `returnColumns` was configured in the
-   *  options. Otherwise, returns nothing.
+   * @returns If `returnColumns` was configured in the options, returns an
+   *  array of `InsertReturnedType` objects, one for each inserted row,
+   *  defaulting to the returned columns. Otherwise, returns nothing.
    */
   async insertMany(
     objs: InsertedType[]
@@ -206,103 +210,40 @@ export class StandardFacet<
   }
 
   /**
-   * Updates rows in this table matching the provided filter,
-   * optionally returning columns from the updated rows.
+   * Updates rows in this table matching the provided filter, returning
+   * columns from the updated rows when configured with `returnColumns`.
    * @param filter Filter specifying the rows to update.
    * @param obj The object whose field values are to be assigned to the row.
-   * @param returning The columns to return from the updated row. If
-   *    `["*"]` is given, all columns are returned. If a list of field names
-   *    is given, returns only those field names. If `[]` is given, returns
-   *    the number of rows updated. If omitted, an `UpdateReturnedType` is
-   *    returned. Useful for getting auto-generated columns.
-   * @returns If a non-empty `returning` was provided, returns an array of
-   *    objects having the requested return column values. If an empty
-   *    `returning` was provided, returns the number of rows updated.
-   *    Returns an `UpdateReturnedType` if `returning` was omitted.
+   * @returns If `returnColumns` was configured in the options, returns an
+   *  array of `UpdateReturnedType` objects, one for each updated row,
+   *  defaulting to the returned columns. Otherwise, returns a count of the
+   *  number of rows updated.
    */
-  update<
+  async update<
     QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
     RE extends ReferenceExpression<DB, TableName>
   >(
     filter: QueryFilter<DB, TableName, QB, RE>,
     obj: UpdatedType
-  ): Promise<UpdateReturnedType extends void ? void : UpdateReturnedType[]>;
-
-  update<
-    QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
-    RE extends ReferenceExpression<DB, TableName>
-  >(
-    filter: QueryFilter<DB, TableName, QB, RE>,
-    obj: UpdatedType,
-    returning: []
-  ): Promise<number>;
-
-  update<
-    QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
-    RE extends ReferenceExpression<DB, TableName>,
-    R extends keyof Selectable<DB[TableName]> & string
-  >(
-    filter: QueryFilter<DB, TableName, QB, RE>,
-    obj: UpdatedType,
-    returning: R[]
-  ): Promise<Pick<Selectable<DB[TableName]>, R>[]>;
-
-  update<
-    QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
-    RE extends ReferenceExpression<DB, TableName>
-  >(
-    filter: QueryFilter<DB, TableName, QB, RE>,
-    obj: UpdatedType,
-    returning: ["*"]
-  ): Promise<Selectable<DB[TableName]>[]>;
-
-  async update<
-    QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
-    RE extends ReferenceExpression<DB, TableName>,
-    R extends keyof Selectable<DB[TableName]> & string
-  >(
-    filter: QueryFilter<DB, TableName, QB, RE>,
-    obj: UpdatedType,
-    returning?: [] | R[] | ["*"]
-  ): Promise<
-    | UpdateReturnedType[]
-    | Selectable<DB[TableName]>[]
-    | Pick<Selectable<DB[TableName]>, R>[]
-    | number
-    | void
-  > {
+  ): Promise<UpdateReturnedType extends void ? number : UpdateReturnedType[]> {
     const transformedObj = this.transformUpdate(obj);
     const uqb = this.updateRows().set(transformedObj as any);
     const fqb = applyQueryFilter(this, filter)(uqb as any);
+    let output: UpdateReturnedType[] | number | undefined;
 
-    // Return columns requested via `returning` parameter.
-
-    if (returning) {
-      if (returning.length === 0) {
-        const result = await fqb.executeTakeFirstOrThrow();
-        return Number(result.numUpdatedRows);
-      }
-      // Cast here because TS wasn't allowing the check.
-      if ((returning as string[]).includes("*")) {
-        const result = await fqb.returningAll().execute();
-        return result as Selectable<DB[TableName]>[];
-      }
-      const result = await fqb.returning(returning as any).execute();
-      return result as Pick<Selectable<DB[TableName]>, R>[];
+    if (this.returnColumns === null) {
+      const result = await fqb.executeTakeFirst();
+      output = Number(result.numUpdatedRows);
+    } else if (this.returnColumns.length == 0) {
+      const result = await fqb.returningAll().execute();
+      output = this.transformUpdateReturn(obj, result);
+    } else {
+      const result = await fqb.returning(this.returnColumns).execute();
+      output = this.transformUpdateReturn(
+        obj,
+        result as Partial<Selectable<DB[TableName]>>[]
+      );
     }
-
-    // Return columns requested via `defaultUpdateReturns` option.
-
-    const defaultUpdateReturns = this.options?.defaultUpdateReturns;
-    if (defaultUpdateReturns) {
-      const returns = await fqb
-        .returning(defaultUpdateReturns as any)
-        .execute();
-      return this.transformUpdateReturn(obj, returns as any);
-    }
-
-    // No return columns requested when no `defaultUpdateReturns` option.
-
-    await fqb.execute();
+    return output as any;
   }
 }

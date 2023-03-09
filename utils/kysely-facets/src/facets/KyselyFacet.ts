@@ -23,7 +23,11 @@ export class KyselyFacet<
     : ReturnColumns extends ["*"]
     ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>,
-  UpdateReturnedType = void
+  UpdateReturnedType = ReturnColumns extends []
+    ? void
+    : ReturnColumns extends ["*"]
+    ? Selectable<DB[TableName]>
+    : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
 > {
   constructor(
     readonly db: Kysely<DB>,

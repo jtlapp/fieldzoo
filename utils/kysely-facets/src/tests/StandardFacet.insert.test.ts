@@ -72,7 +72,7 @@ describe("insertMany() without transformation", () => {
     }
   });
 
-  it("inserts rows returning indicated columns", async () => {
+  it("inserts rows returning configured return columns", async () => {
     const insertReturns = await stdUserFacetReturningID.insertMany(USERS);
     expect(insertReturns.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
@@ -102,7 +102,7 @@ describe("insertMany() without transformation", () => {
     }
   });
 
-  it("inserts rows returning all columns", async () => {
+  it("inserts rows configured to return all columns", async () => {
     const insertReturns = await stdUserFacetReturningAll.insertMany(USERS);
     for (let i = 0; i < USERS.length; i++) {
       expect(insertReturns[i].id).toBeGreaterThan(0);
@@ -136,7 +136,7 @@ describe("insertOne() without transformation", () => {
     expect(readUser0?.email).toEqual(USERS[0].email);
   });
 
-  it("inserts one returning indicated columns", async () => {
+  it("inserts one returning configured return columns", async () => {
     const insertReturn = await stdUserFacetReturningID.insertOne(USERS[0]);
     expect(insertReturn.id).toBeGreaterThan(0);
     expect(Object.keys(insertReturn).length).toEqual(1);
@@ -161,7 +161,7 @@ describe("insertOne() without transformation", () => {
     expect(readPost0?.likeCount).toEqual(post0.likeCount);
   });
 
-  it("inserts one returning all columns", async () => {
+  it("inserts one configured to return all columns", async () => {
     const insertReturn = await stdUserFacetReturningAll.insertOne(USERS[0]);
     expect(insertReturn.id).toBeGreaterThan(0);
     const expectedUser = Object.assign({}, USERS[0], { id: insertReturn.id });
