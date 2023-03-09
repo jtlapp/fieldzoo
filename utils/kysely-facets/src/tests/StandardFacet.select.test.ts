@@ -1,6 +1,6 @@
 import { Kysely, sql } from "kysely";
 
-import { StandardFacet } from "..";
+import { KyselyFacet } from "..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
 import { StdUserFacetReturningID } from "./utils/test-facets";
@@ -18,10 +18,12 @@ import { allOf, anyOf } from "../filters/ComboFilter";
 import { SelectedUser } from "./utils/test-types";
 
 let db: Kysely<Database>;
+let plainUserFacet: KyselyFacet<Database, "users">;
 let stdUserFacet: StdUserFacetReturningID;
 
 beforeAll(async () => {
   db = await createDB();
+  plainUserFacet = new KyselyFacet(db, "users");
   stdUserFacet = new StdUserFacetReturningID(db);
 });
 beforeEach(() => resetDB(db));
@@ -32,7 +34,7 @@ describe("selectMany()", () => {
     await stdUserFacet.insertMany(USERS);
 
     // Test selecting all
-    const users = await stdUserFacet.selectMany({});
+    const users = await plainUserFacet.selectMany({});
     expect(users.length).toEqual(USERS.length);
     for (let i = 0; i < USERS.length; i++) {
       expect(users[i].handle).toEqual(USERS[i].handle);
@@ -42,14 +44,14 @@ describe("selectMany()", () => {
   it("selects with a matching field filter", async () => {
     await stdUserFacet.insertMany(USERS);
 
-    let users = await stdUserFacet.selectMany({
+    let users = await plainUserFacet.selectMany({
       name: USERS[0].name,
     });
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
 
-    users = await stdUserFacet.selectMany({
+    users = await plainUserFacet.selectMany({
       name: USERS[0].name,
       handle: USERS[2].handle,
     });
@@ -61,20 +63,20 @@ describe("selectMany()", () => {
     await stdUserFacet.insertMany(USERS);
 
     // Test selecting by condition (with results)
-    let users = await stdUserFacet.selectMany(["name", "=", USERS[0].name]);
+    let users = await plainUserFacet.selectMany(["name", "=", USERS[0].name]);
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
 
     // Test selecting by condition (no results)
-    users = await stdUserFacet.selectMany(["name", "=", "nonexistent"]);
+    users = await plainUserFacet.selectMany(["name", "=", "nonexistent"]);
     expect(users.length).toEqual(0);
   });
 
   it("selects with a query builder filter", async () => {
     await stdUserFacet.insertMany(USERS);
 
-    const users = await stdUserFacet.selectMany((qb) =>
+    const users = await plainUserFacet.selectMany((qb) =>
       qb.where("name", "=", USERS[0].name).orderBy("handle", "desc")
     );
     expect(users.length).toEqual(2);
@@ -85,7 +87,9 @@ describe("selectMany()", () => {
   it("selects with a query expression filter", async () => {
     await stdUserFacet.insertMany(USERS);
 
-    const users = await stdUserFacet.selectMany(sql`name != ${USERS[0].name}`);
+    const users = await plainUserFacet.selectMany(
+      sql`name != ${USERS[0].name}`
+    );
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
@@ -93,7 +97,7 @@ describe("selectMany()", () => {
   it("selects with a MatchAllFilter", async () => {
     const userIDs = await stdUserFacet.insertMany(USERS);
 
-    const users = await stdUserFacet.selectMany(
+    const users = await plainUserFacet.selectMany(
       allOf({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
     );
     expect(users.length).toEqual(1);
@@ -103,7 +107,7 @@ describe("selectMany()", () => {
   it("selects with a MatchAnyFilter", async () => {
     await stdUserFacet.insertMany(USERS);
 
-    const users = await stdUserFacet.selectMany(
+    const users = await plainUserFacet.selectMany(
       anyOf({ handle: USERS[0].handle }, ["handle", "=", USERS[2].handle])
     );
     expect(users.length).toEqual(2);
@@ -114,7 +118,7 @@ describe("selectMany()", () => {
   it("selects with a MatchAnyFilter with a nested MatchAllFilter", async () => {
     const userIDs = await stdUserFacet.insertMany(USERS);
 
-    const users = await stdUserFacet.selectMany(
+    const users = await plainUserFacet.selectMany(
       anyOf(
         { handle: USERS[0].handle },
         allOf(["id", ">", userIDs[0].id], (qb) =>
@@ -129,23 +133,23 @@ describe("selectMany()", () => {
 
   ignore("detects selectMany() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expressions
-    stdUserFacet.selectMany("name = 'John Doe'");
+    plainUserFacet.selectMany("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments
-    stdUserFacet.selectMany("name", "=");
+    plainUserFacet.selectMany("name", "=");
     // @ts-expect-error - object filter fields must be valid
-    stdUserFacet.selectMany({ notThere: "xyz" });
+    plainUserFacet.selectMany({ notThere: "xyz" });
     // @ts-expect-error - binary op filter fields must be valid
-    stdUserFacet.selectMany(["notThere", "=", "foo"]);
+    plainUserFacet.selectMany(["notThere", "=", "foo"]);
     // @ts-expect-error - only table columns are accessible unfiltered
-    (await stdUserFacet.selectMany({}))[0].notThere;
+    (await plainUserFacet.selectMany({}))[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ object filter
-    (await stdUserFacet.selectMany({ name: "Sue" }))[0].notThere;
+    (await plainUserFacet.selectMany({ name: "Sue" }))[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ op filter
-    (await stdUserFacet.selectMany(["name", "=", "Sue"]))[0].notThere;
+    (await plainUserFacet.selectMany(["name", "=", "Sue"]))[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ QB filter
-    (await stdUserFacet.selectMany((qb) => qb))[0].notThere;
+    (await plainUserFacet.selectMany((qb) => qb))[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ expr filter
-    (await stdUserFacet.selectMany(sql`name = 'Sue'`))[0].notThere;
+    (await plainUserFacet.selectMany(sql`name = 'Sue'`))[0].notThere;
   });
 });
 
@@ -153,17 +157,17 @@ describe("selectOne()", () => {
   it("selects the first row with no filter", async () => {
     await stdUserFacet.insertMany(USERS);
 
-    const user = await stdUserFacet.selectOne({});
+    const user = await plainUserFacet.selectOne({});
     expect(user?.handle).toEqual(USERS[0].handle);
   });
 
   it("selects the first row with a matching field filter", async () => {
     await stdUserFacet.insertMany(USERS);
 
-    let user = await stdUserFacet.selectOne({ name: USERS[0].name });
+    let user = await plainUserFacet.selectOne({ name: USERS[0].name });
     expect(user?.handle).toEqual(USERS[0].handle);
 
-    user = await stdUserFacet.selectOne({
+    user = await plainUserFacet.selectOne({
       name: USERS[0].name,
       handle: USERS[2].handle,
     });
@@ -174,18 +178,18 @@ describe("selectOne()", () => {
     await stdUserFacet.insertMany(USERS);
 
     // Test selecting by condition (with result)
-    let user = await stdUserFacet.selectOne(["name", "=", USERS[0].name]);
+    let user = await plainUserFacet.selectOne(["name", "=", USERS[0].name]);
     expect(user?.handle).toEqual(USERS[0].handle);
 
     // Test selecting by condition (no result)
-    user = await stdUserFacet.selectOne(["name", "=", "nonexistent"]);
+    user = await plainUserFacet.selectOne(["name", "=", "nonexistent"]);
     expect(user).toBeNull();
   });
 
   it("selects the first row with a query builder filter", async () => {
     await stdUserFacet.insertMany(USERS);
 
-    const user = await stdUserFacet.selectOne((qb) =>
+    const user = await plainUserFacet.selectOne((qb) =>
       qb.where("name", "=", USERS[0].name).orderBy("handle", "desc")
     );
     expect(user?.handle).toEqual(USERS[2].handle);
@@ -194,7 +198,7 @@ describe("selectOne()", () => {
   it("selects the first row with a query expression filter", async () => {
     await stdUserFacet.insertMany(USERS);
 
-    const user = await stdUserFacet.selectOne(sql`name != ${USERS[0].name}`);
+    const user = await plainUserFacet.selectOne(sql`name != ${USERS[0].name}`);
     expect(user?.handle).toEqual(USERS[1].handle);
   });
 
@@ -208,53 +212,52 @@ describe("selectOne()", () => {
 
   ignore("detects selectOne() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expression filters
-    stdUserFacet.selectOne("name = 'John Doe'");
+    plainUserFacet.selectOne("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments of a binary op
-    stdUserFacet.selectOne(["name", "="]);
+    plainUserFacet.selectOne(["name", "="]);
     // @ts-expect-error - object filter fields must be valid
-    stdUserFacet.selectOne({ notThere: "xyz" });
+    plainUserFacet.selectOne({ notThere: "xyz" });
     // @ts-expect-error - binary op filter fields must be valid
-    stdUserFacet.selectOne(["notThere", "=", "foo"]);
+    plainUserFacet.selectOne(["notThere", "=", "foo"]);
     // @ts-expect-error - only table columns are accessible unfiltered
-    (await stdUserFacet.selectOne({})).notThere;
+    (await plainUserFacet.selectOne({})).notThere;
     // @ts-expect-error - only table columns are accessible w/ object filter
-    (await stdUserFacet.selectOne({ name: "Sue" })).notThere;
+    (await plainUserFacet.selectOne({ name: "Sue" })).notThere;
     // @ts-expect-error - only table columns are accessible w/ op filter
-    (await stdUserFacet.selectOne(["name", "=", "Sue"])).notThere;
+    (await plainUserFacet.selectOne(["name", "=", "Sue"])).notThere;
     // @ts-expect-error - only table columns are accessible w/ QB filter
-    (await stdUserFacet.selectOne((qb) => qb)).notThere;
+    (await plainUserFacet.selectOne((qb) => qb)).notThere;
     // @ts-expect-error - only table columns are accessible w/ expr filter
-    (await stdUserFacet.selectOne(sql`name = 'Sue'`)).notThere;
+    (await plainUserFacet.selectOne(sql`name = 'Sue'`)).notThere;
   });
 });
 
 describe("selection transformation", () => {
-  class SelectTransformFacet extends StandardFacet<
+  class SelectTransformFacet extends KyselyFacet<
     Database,
     "users",
     SelectedUser
   > {
     constructor(db: Kysely<Database>) {
-      super(db, "users", {
-        selectTransform: (source) =>
-          SelectedUser.create(source.id, {
-            firstName: source.name.split(" ")[0],
-            lastName: source.name.split(" ")[1],
-            handle: source.handle,
-            email: source.email,
-          }),
-      });
+      super(db, "users", (source) =>
+        SelectedUser.create(source.id, {
+          firstName: source.name.split(" ")[0],
+          lastName: source.name.split(" ")[1],
+          handle: source.handle,
+          email: source.email,
+        })
+      );
     }
   }
 
   it("transforms the selection", async () => {
     const selectTransformFacet = new SelectTransformFacet(db);
 
-    await selectTransformFacet.insertOne(userRow1);
+    await stdUserFacet.insertOne(userRow1);
     const user = await selectTransformFacet.selectOne({});
     expect(user).toEqual(selectedUser1);
 
-    await selectTransformFacet.insertMany([userRow2, userRow3]);
+    await stdUserFacet.insertMany([userRow2, userRow3]);
     const users = await selectTransformFacet.selectMany((qb) =>
       qb.orderBy("id")
     );

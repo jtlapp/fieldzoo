@@ -1,8 +1,8 @@
-import { Kysely, Selectable } from "kysely";
+import { Kysely, ReferenceExpression, Selectable } from "kysely";
+import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
+import { applyQueryFilter, QueryFilter } from "../filters/QueryFilter";
 import { SelectTransform } from "../lib/type-utils";
-
-// TODO: move options to appropriate subclasses
 
 /**
  * Base class for all Kysely facets.
@@ -53,6 +53,43 @@ export class KyselyFacet<
    */
   deleteRows() {
     return this.db.deleteFrom(this.tableName);
+  }
+
+  // TODO: consider combining selectMany() and selectOne() into select().
+  /**
+   * Selects zero or more rows from this table, selecting rows according
+   * to the provided filter.
+   * @param filter Filter that constrains the selected rows.
+   * @returns An array of objects containing the selected rows, possibly empty.
+   */
+  async selectMany<
+    QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
+    RE extends ReferenceExpression<DB, TableName>
+  >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<SelectedObject[]> {
+    const sqb = this.selectRows().selectAll();
+    const fqb = applyQueryFilter(this, filter)(sqb as any);
+    const selections = await fqb.execute();
+    return this.transformSelection(selections as Selectable<DB[TableName]>[]);
+  }
+
+  /**
+   * Selects at most one row from this table, selecting rows according
+   * to the provided filter.
+   * @param filter Filter that constrains the selection.
+   * @returns An object containing the selected row, or `null` if no row
+   *    was selected.
+   */
+  async selectOne<
+    QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
+    RE extends ReferenceExpression<DB, TableName>
+  >(
+    filter: QueryFilter<DB, TableName, QB, RE>
+  ): Promise<SelectedObject | null> {
+    const sqb = this.selectRows().selectAll();
+    const fqb = applyQueryFilter(this, filter)(sqb as any);
+    const selection = await fqb.executeTakeFirst();
+    if (!selection) return null;
+    return this.transformSelection(selection as Selectable<DB[TableName]>);
   }
 
   /**
