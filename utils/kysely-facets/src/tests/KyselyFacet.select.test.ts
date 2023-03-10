@@ -30,6 +30,13 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe("selectMany()", () => {
+  it("selects nothing when nothing matches filter", async () => {
+    await stdUserFacet.insert(USERS);
+
+    const users = await plainUserFacet.selectMany({ name: "Not There" });
+    expect(users.length).toEqual(0);
+  });
+
   it("selects all rows with no filter", async () => {
     await stdUserFacet.insert(USERS);
 

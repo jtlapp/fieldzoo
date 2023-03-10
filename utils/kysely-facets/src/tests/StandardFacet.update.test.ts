@@ -36,14 +36,26 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe("updating rows via StandardFacet", () => {
-  it("updates returning update count", async () => {
+  it("updates returning zero update count", async () => {
+    const updateValues = { email: "new.email@xyz.pdq" };
+    const updateCount = await stdUserFacet.update({ id: 1 }, updateValues);
+    expect(updateCount).toEqual(0);
+
+    const updates = await stdUserFacetReturningID.updateReturning(
+      { id: 1 },
+      updateValues
+    );
+    expect(updates.length).toEqual(0);
+  });
+
+  it("updates returning non-zero update count", async () => {
+    const updateValues = { email: "new.email@xyz.pdq" };
     const insertReturn0 = await stdUserFacetReturningID.insertReturning(
       USERS[0]
     );
     await stdUserFacetReturningID.insert(USERS[1]);
     await stdUserFacetReturningID.insert(USERS[2]);
 
-    const updateValues = { email: "new.email@xyz.pdq" };
     const updateCount1 = await stdUserFacet.update(
       { id: insertReturn0.id },
       updateValues
