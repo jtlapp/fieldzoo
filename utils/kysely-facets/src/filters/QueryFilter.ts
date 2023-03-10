@@ -15,6 +15,8 @@ import {
 import { KyselyFacet } from "../facets/KyselyFacet";
 import { AppliedFilter } from "./AppliedFilter";
 
+type AnyWhere = WhereInterface<any, any>;
+
 /**
  * Type of the query filter object, which can be passed as an argument
  * to query functions to constrain results.
@@ -74,42 +76,42 @@ export type QueryExpressionFilter = Expression<any>;
 export function applyQueryFilter<
   DB,
   TableName extends keyof DB & string,
-  QB extends WhereInterface<DB, TableName>,
+  FQB extends WhereInterface<any, any>,
   RE extends ReferenceExpression<DB, TableName>
 >(
   base: KyselyFacet<DB, TableName, any>,
-  filter: QueryFilter<DB, TableName, QB, RE>
-): (qb: QB) => QB {
+  filter: QueryFilter<DB, TableName, FQB, RE>
+): <QB extends WhereInterface<any, any>>(qb: QB) => FQB {
   // Process a query builder filter.
   if (typeof filter === "function") {
-    return filter;
+    return filter as (qb: AnyWhere) => FQB;
   }
 
   if (typeof filter === "object" && filter !== null) {
     // Process a query expression filter. Check for expressions
     // first because they could potentially be plain objects.
     if ("expressionType" in filter) {
-      return (qb) => qb.where(filter) as QB;
+      return (qb) => qb.where(filter) as FQB;
     }
 
     // Process a field matching filter. `{}` matches all rows.
     if (filter.constructor === Object) {
-      return (qb) => {
+      return (qb: AnyWhere) => {
         for (const [column, value] of Object.entries(filter)) {
-          qb = qb.where(base.ref(column), "=", value) as QB;
+          qb = qb.where(base.ref(column), "=", value);
         }
-        return qb;
+        return qb as FQB;
       };
     }
 
     // Process a binary operation filter.
     if (Array.isArray(filter)) {
-      return (qb) => qb.where(...filter) as QB;
+      return (qb) => qb.where(...filter) as FQB;
     }
 
     // Process a combination filter.
     if (filter instanceof AppliedFilter) {
-      return filter.apply(base);
+      return filter.apply(base) as (qb: AnyWhere) => FQB;
     }
   }
 

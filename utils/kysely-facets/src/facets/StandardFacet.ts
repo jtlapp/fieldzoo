@@ -6,15 +6,12 @@ import {
   UpdateQueryBuilder,
   UpdateResult,
   Updateable,
+  DeleteQueryBuilder,
 } from "kysely";
 
 import { FacetOptions } from "./FacetOptions";
 import { KyselyFacet } from "./KyselyFacet";
-import {
-  QueryFilter,
-  applyQueryFilter,
-  // applyDeleteQueryFilter,
-} from "../filters/QueryFilter";
+import { QueryFilter, applyQueryFilter } from "../filters/QueryFilter";
 import { ObjectWithKeys } from "../lib/type-utils";
 
 // TODO: Configure type of returned counts (e.g. number vs bigint)
@@ -109,14 +106,12 @@ export class StandardFacet<
    * @returns Returns the number of deleted rows.
    */
   async delete<
-    QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
+    QB extends DeleteQueryBuilder<DB, TableName, any>,
     RE extends ReferenceExpression<DB, TableName>
   >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<number> {
-    //const foo = applyDeleteQueryFilter(this, filter)(this.deleteRows());
-    const qb = applyQueryFilter(this, filter)(this.deleteRows() as any);
+    const qb = applyQueryFilter(this, filter)(this.deleteRows());
     const result = await qb.executeTakeFirst();
-    // TODO: fix type problem
-    return Number((result as any).numDeletedRows);
+    return Number(result.numDeletedRows);
   }
 
   /**
@@ -192,7 +187,7 @@ export class StandardFacet<
   ): Promise<number> {
     const transformedObj = this.transformUpdater(obj);
     const uqb = this.updateRows().set(transformedObj as any);
-    const fqb = applyQueryFilter(this, filter)(uqb as any);
+    const fqb = applyQueryFilter(this, filter)(uqb);
     const result = await fqb.executeTakeFirst();
     return Number(result.numUpdatedRows);
   }
@@ -219,7 +214,7 @@ export class StandardFacet<
 
     const transformedObj = this.transformUpdater(obj);
     const uqb = this.updateRows().set(transformedObj as any);
-    const fqb = applyQueryFilter(this, filter)(uqb as any);
+    const fqb = applyQueryFilter(this, filter)(uqb);
 
     const result =
       this.returnColumns.length == 0

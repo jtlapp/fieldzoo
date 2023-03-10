@@ -66,7 +66,7 @@ export class KyselyFacet<
     RE extends ReferenceExpression<DB, TableName>
   >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<SelectedObject[]> {
     const sqb = this.selectRows().selectAll();
-    const fqb = applyQueryFilter(this, filter)(sqb as any);
+    const fqb = applyQueryFilter(this, filter)(sqb);
     const selections = await fqb.execute();
     return this.transformSelection(selections as Selectable<DB[TableName]>[]);
   }
@@ -84,7 +84,7 @@ export class KyselyFacet<
     filter: QueryFilter<DB, TableName, QB, RE>
   ): Promise<SelectedObject | null> {
     const sqb = this.selectRows().selectAll();
-    const fqb = applyQueryFilter(this, filter)(sqb as any);
+    const fqb = applyQueryFilter(this, filter)(sqb);
     const selection = await fqb.executeTakeFirst();
     if (!selection) return null;
     return this.transformSelection(selection as Selectable<DB[TableName]>);
