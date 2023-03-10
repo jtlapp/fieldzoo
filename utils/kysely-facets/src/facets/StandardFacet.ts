@@ -29,10 +29,10 @@ export interface StandardFacetOptions<
   ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"],
   ReturnedObject
 > extends FacetOptions<DB, TableName, SelectedObject> {
-  /** Transformation to apply to inserted objects. */
+  /** Transformation to apply to inserted objects before insertion. */
   readonly insertTransform?: (obj: InsertedObject) => Insertable<DB[TableName]>;
 
-  /** Transformation to apply to objects provided for updating rows. */
+  /** Transformation to apply to objects provided for updating values. */
   readonly updaterTransform?: (
     update: UpdaterObject
   ) => Updateable<DB[TableName]>;
@@ -40,13 +40,13 @@ export interface StandardFacetOptions<
   /** Columns to return from table upon insertion or update. */
   readonly returnColumns?: ReturnColumns;
 
-  /** Transformation to apply to data returned from inserts. */
+  /** Transformation to apply to column values returned from inserts. */
   readonly insertReturnTransform?: (
     source: InsertedObject,
     returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
   ) => ReturnedObject;
 
-  /** Transformation to apply to data returned from updates. */
+  /** Transformation to apply to column values returned from updates. */
   readonly updateReturnTransform?: (
     source: UpdaterObject,
     returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
