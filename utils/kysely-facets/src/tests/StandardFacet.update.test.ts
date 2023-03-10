@@ -235,6 +235,19 @@ describe("updating rows via StandardFacet", () => {
     }
   });
 
+  it("errors when requesting returns that weren't configured", async () => {
+    await stdUserFacetReturningID.insert(USERS);
+
+    const updateValues = { email: "new.email@xyz.pdq" };
+    expect(
+      async () =>
+        await stdUserFacet.updateReturning(
+          { name: USERS[0].name },
+          updateValues
+        )
+    ).rejects.toThrow("No 'returnColumns' configured for 'updateReturning'");
+  });
+
   // TODO: Add update() tests for MatchAllFilter and MatchAllFilter queries.
 
   ignore("detects update() and updateReturning() type errors", async () => {
