@@ -1,8 +1,10 @@
 import { Kysely, ReferenceExpression, Selectable } from "kysely";
-import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
 import { applyQueryFilter, QueryFilter } from "../filters/QueryFilter";
-import { FilterMaker } from "../filters/FilterMaker";
+
+type SelectQB<DB, TableName extends keyof DB & string> = ReturnType<
+  KyselyFacet<DB, TableName, any>["selectRows"]
+>;
 
 /**
  * Options governing KyselyFacet behavior.
@@ -89,10 +91,9 @@ export class KyselyFacet<
    * @param filter Filter that constrains the selected rows.
    * @returns An array of objects for the selected rows, possibly empty.
    */
-  async selectMany<
-    QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
-    RE extends ReferenceExpression<DB, TableName>
-  >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<SelectedObject[]> {
+  async selectMany<RE extends ReferenceExpression<DB, TableName>>(
+    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>
+  ): Promise<SelectedObject[]> {
     const sqb = this.selectRows().selectAll();
     const fqb = applyQueryFilter(this, filter)(sqb);
     const selections = await fqb.execute();
@@ -107,30 +108,14 @@ export class KyselyFacet<
    * @param filter Filter that constrains the selection.
    * @returns An object for the selected row, or `null` if no row was found.
    */
-  async selectOne<
-    QB extends SelectAllQueryBuilder<DB, TableName, object, TableName>,
-    RE extends ReferenceExpression<DB, TableName>
-  >(
-    filter: QueryFilter<DB, TableName, QB, RE>
+  async selectOne<RE extends ReferenceExpression<DB, TableName>>(
+    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>
   ): Promise<SelectedObject | null> {
     const sqb = this.selectRows().selectAll();
     const fqb = applyQueryFilter(this, filter)(sqb);
     const selection = await fqb.executeTakeFirst();
     if (!selection) return null;
     return this.transformSelection(selection as Selectable<DB[TableName]>);
-  }
-
-  /**
-   * Returns a selection filter maker for this facet.
-   * @returns A selection filter maker for this facet.
-   */
-  selectFilterMaker() {
-    return new FilterMaker<
-      DB,
-      TableName,
-      // TODO: can I replace SelectedObject with any?
-      ReturnType<KyselyFacet<DB, TableName, SelectedObject>["selectRows"]>
-    >();
   }
 
   /**

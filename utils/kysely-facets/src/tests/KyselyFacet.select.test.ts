@@ -18,6 +18,7 @@ import {
 } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
 import { SelectedUser } from "./utils/test-types";
+import { allOf, anyOf } from "../filters/ComboFilter";
 
 let db: Kysely<Database>;
 let plainUserFacet: KyselyFacet<Database, "users">;
@@ -104,7 +105,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a MatchAllFilter", async () => {
-    const allOf = stdUserFacet.selectFilterMaker().allOf;
+    //const allOf = stdUserFacet.selectFilterMaker().allOf;
     const userIDs = await stdUserFacet.insertReturning(USERS);
 
     const users = await plainUserFacet.selectMany(
@@ -115,7 +116,6 @@ describe("selectMany()", () => {
   });
 
   it("selects with a MatchAnyFilter", async () => {
-    const anyOf = stdUserFacet.selectFilterMaker().anyOf;
     await stdUserFacet.insert(USERS);
 
     const users = await plainUserFacet.selectMany(
@@ -127,8 +127,6 @@ describe("selectMany()", () => {
   });
 
   it("selects with a MatchAnyFilter with a nested MatchAllFilter", async () => {
-    const allOf = stdUserFacet.selectFilterMaker().allOf;
-    const anyOf = stdUserFacet.selectFilterMaker().anyOf;
     const userIDs = await stdUserFacet.insertReturning(USERS);
 
     const users = await plainUserFacet.selectMany(
@@ -145,9 +143,6 @@ describe("selectMany()", () => {
   });
 
   ignore("detects selectMany() type errors", async () => {
-    const allOf = stdUserFacet.selectFilterMaker().allOf;
-    const anyOf = stdUserFacet.selectFilterMaker().anyOf;
-
     // @ts-expect-error - doesn't allow plain string expressions
     plainUserFacet.selectMany("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments
@@ -243,9 +238,6 @@ describe("selectOne()", () => {
   // TODO: Add tests for selectOne() with MatchAllFilter and MatchAllFilter filters
 
   ignore("detects selectOne() type errors", async () => {
-    const allOf = stdUserFacet.selectFilterMaker().allOf;
-    const anyOf = stdUserFacet.selectFilterMaker().anyOf;
-
     // @ts-expect-error - doesn't allow plain string expression filters
     plainUserFacet.selectOne("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments of a binary op

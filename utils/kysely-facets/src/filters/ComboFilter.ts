@@ -53,6 +53,20 @@ export class MatchAllFilter<
 }
 
 /**
+ * Creates a filter that matches all of the provided filters.
+ * @param filters The filters to combine, listed as separate arguments.
+ * @returns A filter that matches all of the provided filters.
+ */
+export function allOf<
+  DB,
+  TableName extends keyof DB & string,
+  QB extends WhereInterface<any, any>,
+  RE extends ReferenceExpression<DB, TableName>
+>(...filters: QueryFilter<DB, TableName, QB, RE>[]) {
+  return new MatchAllFilter<DB, TableName, QB, RE>(filters);
+}
+
+/**
  * A filter that matches at least one of the provided filters.
  * @param filters The filters to combine, listed as separate arguments.
  */
@@ -70,4 +84,18 @@ export class MatchAnyFilter<
       return qb;
     };
   }
+}
+
+/**
+ * Creates a filter that matches at least one of the provided filters.
+ * @param filters The filters to combine, listed as separate arguments.
+ * @returns A filter that matches at least one of the provided filters.
+ */
+export function anyOf<
+  DB,
+  TableName extends keyof DB & string,
+  QB extends WhereInterface<any, any>,
+  RE extends ReferenceExpression<DB, TableName>
+>(...filters: QueryFilter<DB, TableName, QB, RE>[]) {
+  return new MatchAnyFilter<DB, TableName, QB, RE>(filters);
 }

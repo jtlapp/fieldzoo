@@ -3,10 +3,7 @@ import {
   Insertable,
   ReferenceExpression,
   Selectable,
-  UpdateQueryBuilder,
-  UpdateResult,
   Updateable,
-  DeleteQueryBuilder,
   InsertQueryBuilder,
   InsertResult,
 } from "kysely";
@@ -16,6 +13,13 @@ import { QueryFilter, applyQueryFilter } from "../filters/QueryFilter";
 import { ObjectWithKeys } from "../lib/type-utils";
 
 // TODO: Configure type of returned counts (e.g. number vs bigint)
+
+type DeleteQB<DB, TableName extends keyof DB & string> = ReturnType<
+  KyselyFacet<DB, TableName, any>["deleteRows"]
+>;
+type UpdateQB<DB, TableName extends keyof DB & string> = ReturnType<
+  KyselyFacet<DB, TableName, any>["updateRows"]
+>;
 
 /**
  * Options governing StandardFacet behavior.
@@ -139,10 +143,9 @@ export class StandardFacet<
    * @param filter Filter specifying the rows to delete.
    * @returns Returns the number of deleted rows.
    */
-  async delete<
-    QB extends DeleteQueryBuilder<DB, TableName, any>,
-    RE extends ReferenceExpression<DB, TableName>
-  >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<number> {
+  async delete<RE extends ReferenceExpression<DB, TableName>>(
+    filter: QueryFilter<DB, TableName, DeleteQB<DB, TableName>, RE>
+  ): Promise<number> {
     const qb = applyQueryFilter(this, filter)(this.deleteRows());
     const result = await qb.executeTakeFirst();
     return Number(result.numDeletedRows);
@@ -217,11 +220,8 @@ export class StandardFacet<
    * @param obj The object whose field values are to be assigned to the row.
    * @returns Returns the number of updated rows.
    */
-  async update<
-    QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
-    RE extends ReferenceExpression<DB, TableName>
-  >(
-    filter: QueryFilter<DB, TableName, QB, RE>,
+  async update<RE extends ReferenceExpression<DB, TableName>>(
+    filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
     obj: UpdaterObject
   ): Promise<number> {
     const transformedObj = this.transformUpdater(obj);
@@ -240,11 +240,8 @@ export class StandardFacet<
    *  updated row.
    * @throws Error if `ReturnedObject` was not assigned.
    */
-  async updateReturning<
-    QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
-    RE extends ReferenceExpression<DB, TableName>
-  >(
-    filter: QueryFilter<DB, TableName, QB, RE>,
+  async updateReturning<RE extends ReferenceExpression<DB, TableName>>(
+    filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
     obj: UpdaterObject
   ): Promise<ReturnedObject extends void ? never : ReturnedObject[]> {
     if (this.returnColumns === null) {
@@ -260,7 +257,7 @@ export class StandardFacet<
     const returns =
       this.returnColumns.length == 0
         ? await fqb.returningAll().execute()
-        : await fqb.returning(this.returnColumns).execute();
+        : await fqb.returning(this.returnColumns as any).execute();
     if (returns === undefined) {
       throw Error("No rows returned from update expecting returned columns");
     }

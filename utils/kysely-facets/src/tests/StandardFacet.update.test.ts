@@ -1,6 +1,6 @@
 import { Insertable, Kysely, Selectable, sql } from "kysely";
 
-import { anyOf, StandardFacet } from "..";
+import { allOf, anyOf, StandardFacet } from "..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
 import {
@@ -217,7 +217,7 @@ describe("updating rows via StandardFacet", () => {
   it("updates rows indicated by a kysely expression", async () => {
     const insertReturns = await stdUserFacetReturningID.insertReturning(USERS);
 
-    const updateValues = { email: "new.email.@xyz.pdq" };
+    const updateValues = { email: "new.email@xyz.pdq" };
     const updateCount = await stdUserFacet.update(
       sql`id > ${insertReturns[0].id}`,
       updateValues
@@ -233,6 +233,45 @@ describe("updating rows via StandardFacet", () => {
     for (const user of readUsers) {
       expect(user.email).toEqual(updateValues.email);
     }
+  });
+
+  it("updates rows indicated by anyOf filter", async () => {
+    const insertReturns = await stdUserFacetReturningID.insertReturning(USERS);
+
+    const updateValues1 = { email: "foo@xyz.pdq" };
+    const updateCount = await stdUserFacet.update(
+      anyOf(["id", "=", insertReturns[0].id], ["id", "=", insertReturns[2].id]),
+      updateValues1
+    );
+    expect(updateCount).toEqual(2);
+
+    const updateValues2 = { email: "bar@xyz.pdq" };
+    const updateReturns = await stdUserFacetReturningID.updateReturning(
+      anyOf(["id", "=", insertReturns[0].id], ["id", "=", insertReturns[2].id]),
+      updateValues2
+    );
+    expect(updateReturns).toEqual([
+      { id: insertReturns[0].id },
+      { id: insertReturns[2].id },
+    ]);
+  });
+
+  it("updates rows indicated by allOf filter", async () => {
+    const insertReturns = await stdUserFacetReturningID.insertReturning(USERS);
+
+    const updateValues1 = { email: "foo@xyz.pdq" };
+    const updateCount = await stdUserFacet.update(
+      allOf(["id", "=", insertReturns[0].id], ["name", "=", "Sue"]),
+      updateValues1
+    );
+    expect(updateCount).toEqual(1);
+
+    const updateValues2 = { email: "bar@xyz.pdq" };
+    const updateReturns = await stdUserFacetReturningID.updateReturning(
+      allOf(["id", "=", insertReturns[0].id], ["name", "=", "Sue"]),
+      updateValues2
+    );
+    expect(updateReturns).toEqual([{ id: insertReturns[0].id }]);
   });
 
   it("errors when requesting returns that weren't configured", async () => {
@@ -285,6 +324,26 @@ describe("updating rows via StandardFacet", () => {
     // @ts-expect-error - only requested columns are accessible
     // prettier-ignore
     (await stdUserFacetReturningID.updateReturning({ id: 32 }, USERS[0]))[0].name;
+    await stdUserFacetReturningID.update(
+      // @ts-expect-error - only table columns are accessible via anyOf()
+      anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
+      USERS[0]
+    );
+    await stdUserFacetReturningID.updateReturning(
+      // @ts-expect-error - only table columns are accessible via anyOf()
+      anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
+      USERS[0]
+    );
+    await stdUserFacetReturningID.update(
+      // @ts-expect-error - only table columns are accessible via allOf()
+      allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
+      USERS[0]
+    );
+    await stdUserFacetReturningID.updateReturning(
+      // @ts-expect-error - only table columns are accessible via allOf()
+      allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
+      USERS[0]
+    );
   });
 });
 
