@@ -76,12 +76,12 @@ export type QueryExpressionFilter = Expression<any>;
 export function applyQueryFilter<
   DB,
   TableName extends keyof DB & string,
-  FQB extends WhereInterface<any, any>,
+  FQB extends AnyWhere,
   RE extends ReferenceExpression<DB, TableName>
 >(
   base: KyselyFacet<DB, TableName, any>,
   filter: QueryFilter<DB, TableName, FQB, RE>
-): <QB extends WhereInterface<any, any>>(qb: QB) => FQB {
+): <QB extends AnyWhere>(qb: QB) => FQB {
   // Process a query builder filter.
   if (typeof filter === "function") {
     return filter as (qb: AnyWhere) => FQB;
