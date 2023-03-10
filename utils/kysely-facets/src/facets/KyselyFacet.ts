@@ -2,7 +2,18 @@ import { Kysely, ReferenceExpression, Selectable } from "kysely";
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
 import { applyQueryFilter, QueryFilter } from "../filters/QueryFilter";
-import { SelectTransform } from "../lib/type-utils";
+
+/**
+ * Options governing KyselyFacet behavior.
+ */
+export interface FacetOptions<
+  DB,
+  TableName extends keyof DB & string,
+  SelectedObject
+> {
+  /** Transformation to apply to selected objects. */
+  readonly selectTransform?: (row: Selectable<DB[TableName]>) => SelectedObject;
+}
 
 /**
  * Base class for all Kysely facets.
@@ -12,15 +23,31 @@ export class KyselyFacet<
   TableName extends keyof DB & string,
   SelectedObject = Selectable<DB[TableName]>
 > {
-  /** Transformation to apply to selected objects. */
-  readonly selectTransform?: SelectTransform<DB, TableName, SelectedObject>;
+  /**
+   * Transforms selected rows into the mapped object type.
+   * @param row Selected row.
+   * @returns Object representation of the row.
+   */
+  // This lengthy type provides better type assistance messages
+  // in VSCode than a dedicated TransformInsertion type would.
+  protected transformSelection: NonNullable<
+    FacetOptions<DB, TableName, SelectedObject>["selectTransform"]
+  > = (row) => row as SelectedObject;
 
+  /**
+   * Creates a new Kysely facet.
+   * @param db Kysely database instance.
+   * @param tableName Name of the table this facet is for.
+   * @param options Options governing facet behavior.
+   */
   constructor(
     readonly db: Kysely<DB>,
     readonly tableName: TableName,
-    selectTransform?: SelectTransform<DB, TableName, SelectedObject>
+    readonly options: FacetOptions<DB, TableName, SelectedObject> = {}
   ) {
-    this.selectTransform = selectTransform;
+    if (options.selectTransform) {
+      this.transformSelection = options.selectTransform;
+    }
   }
 
   /**
@@ -68,7 +95,9 @@ export class KyselyFacet<
     const sqb = this.selectRows().selectAll();
     const fqb = applyQueryFilter(this, filter)(sqb);
     const selections = await fqb.execute();
-    return this.transformSelection(selections as Selectable<DB[TableName]>[]);
+    return this.transformSelectionArray(
+      selections as Selectable<DB[TableName]>[]
+    );
   }
 
   /**
@@ -100,24 +129,15 @@ export class KyselyFacet<
   }
 
   /**
-   * Transforms a selected row or array of rows into a returnable
-   * object or array of objects.
+   * Transforms a selected array of rows into a returnable array of objects.
+   *  A utility for keeping transform code simple and performant.
    */
-  protected transformSelection(
-    source: Selectable<DB[TableName]>
-  ): SelectedObject;
-  protected transformSelection(
+  protected transformSelectionArray(
     source: Selectable<DB[TableName]>[]
-  ): SelectedObject[];
-  protected transformSelection(
-    source: Selectable<DB[TableName]> | Selectable<DB[TableName]>[]
-  ): SelectedObject | SelectedObject[] {
-    if (this.selectTransform) {
-      if (Array.isArray(source)) {
-        // TS isn't seeing that options and the transform are defined.
-        return source.map((obj) => this.selectTransform!(obj));
-      }
-      return this.selectTransform(source);
+  ): SelectedObject[] {
+    if (this.options.selectTransform) {
+      // TS isn't seeing that options and the transform are defined.
+      return source.map((obj) => this.transformSelection(obj));
     }
     return source as any;
   }

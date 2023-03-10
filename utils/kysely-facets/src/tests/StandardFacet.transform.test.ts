@@ -7,7 +7,6 @@ import {
   userRow1,
   userRow2,
   userObject1,
-  userObject2,
   selectedUser1,
   insertedUser1,
   insertedUser2,
@@ -38,7 +37,6 @@ export class PlainUserFacet extends StandardFacet<
 
 const userObjectWithID = { id: 1, ...userObject1 };
 const updaterUser1 = UpdatedUser.create(0, userObject1);
-const updaterUser2 = UpdatedUser.create(0, userObject2);
 
 let db: Kysely<Database>;
 
@@ -56,7 +54,7 @@ describe("transforms between inputs and outputs", () => {
 
     testTransformInsertion() {
       expect(this.transformInsertion(userRow1)).toEqual(userRow1);
-      expect(this.transformInsertion([userRow1, userRow2])).toEqual([
+      expect(this.transformInsertionArray([userRow1, userRow2])).toEqual([
         userRow1,
         userRow2,
       ]);
@@ -64,10 +62,7 @@ describe("transforms between inputs and outputs", () => {
 
     testTransformUpdater() {
       const user1 = { id: 1, ...userRow1 };
-      const user2 = { id: 2, ...userRow2 };
-
       expect(this.transformUpdater(user1)).toEqual(user1);
-      expect(this.transformUpdater([user1, user2])).toEqual([user1, user2]);
     }
 
     testTransformInsertReturn() {
@@ -75,7 +70,10 @@ describe("transforms between inputs and outputs", () => {
         id: 1,
       });
       expect(
-        this.transformInsertReturn([userRow1, userRow2], [{ id: 1 }, { id: 2 }])
+        this.transformInsertReturnArray(
+          [userRow1, userRow2],
+          [{ id: 1 }, { id: 2 }]
+        )
       ).toEqual([{ id: 1 }, { id: 2 }]);
     }
 
@@ -106,7 +104,7 @@ describe("transforms between inputs and outputs", () => {
           handle: source.handle,
           email: source.email,
         }),
-        updateTransform: (source) => ({
+        updaterTransform: (source) => ({
           name: `${source.firstName} ${source.lastName}`,
           handle: source.handle,
           email: source.email,
@@ -140,10 +138,9 @@ describe("transforms between inputs and outputs", () => {
     testTransformInsertion() {
       expect(this.transformInsertion(insertedUser1)).toEqual(userRow1);
 
-      expect(this.transformInsertion([insertedUser1, insertedUser2])).toEqual([
-        userRow1,
-        userRow2,
-      ]);
+      expect(
+        this.transformInsertionArray([insertedUser1, insertedUser2])
+      ).toEqual([userRow1, userRow2]);
 
       ignore("detects transformInsertion type errors", () => {
         const user = User.create(0, userObject1);
@@ -166,26 +163,15 @@ describe("transforms between inputs and outputs", () => {
     testTransformUpdater() {
       expect(this.transformUpdater(updaterUser1)).toEqual(userRow1);
 
-      expect(this.transformUpdater([updaterUser1, updaterUser2])).toEqual([
-        userRow1,
-        userRow2,
-      ]);
-
       ignore("detects transformUpdater type errors", () => {
         const user = User.create(0, userObject1);
 
         // @ts-expect-error - incorrect input type
         this.transformUpdater(user);
         // @ts-expect-error - incorrect input type
-        this.transformUpdater([user]);
-        // @ts-expect-error - incorrect input type
         this.transformUpdater(userObjectWithID);
-        // @ts-expect-error - incorrect input type
-        this.transformUpdater([userObjectWithID]);
         // @ts-expect-error - incorrect output type
         this.transformUpdater(updaterUser1).firstName;
-        // @ts-expect-error - incorrect output type
-        this.transformUpdater([updaterUser1])[0].firstName;
       });
     }
 
@@ -195,7 +181,7 @@ describe("transforms between inputs and outputs", () => {
       );
 
       expect(
-        this.transformInsertReturn(
+        this.transformInsertReturnArray(
           [insertedUser1, insertedUser2],
           [{ id: 1 }, { id: 2 }]
         )

@@ -41,7 +41,10 @@ describe("transforms selection objects", () => {
       const user2 = { id: 2, ...userRow2 };
 
       expect(this.transformSelection(user1)).toEqual(user1);
-      expect(this.transformSelection([user1, user2])).toEqual([user1, user2]);
+      expect(this.transformSelectionArray([user1, user2])).toEqual([
+        user1,
+        user2,
+      ]);
     }
   }
   const testPassThruFacet = new TestPassThruFacet(db);
@@ -52,18 +55,16 @@ describe("transforms selection objects", () => {
     SelectedUser
   > {
     constructor(db: Kysely<Database>) {
-      super(
-        db,
-        "users",
-        (source) =>
+      super(db, "users", {
+        selectTransform: (source) =>
           new SelectedUser(
             source.id,
             source.name.split(" ")[0],
             source.name.split(" ")[1],
             source.handle,
             source.email
-          )
-      );
+          ),
+      });
     }
 
     testTransformSelection() {
@@ -72,7 +73,7 @@ describe("transforms selection objects", () => {
       );
 
       expect(
-        this.transformSelection([
+        this.transformSelectionArray([
           { id: 1, ...userRow1 },
           { id: 2, ...userRow2 },
         ])

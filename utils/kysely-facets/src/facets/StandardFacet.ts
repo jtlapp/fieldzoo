@@ -7,14 +7,51 @@ import {
   UpdateResult,
   Updateable,
   DeleteQueryBuilder,
+  InsertQueryBuilder,
+  InsertResult,
 } from "kysely";
 
-import { FacetOptions } from "./FacetOptions";
-import { KyselyFacet } from "./KyselyFacet";
+import { FacetOptions, KyselyFacet } from "./KyselyFacet";
 import { QueryFilter, applyQueryFilter } from "../filters/QueryFilter";
 import { ObjectWithKeys } from "../lib/type-utils";
 
 // TODO: Configure type of returned counts (e.g. number vs bigint)
+
+/**
+ * Options governing StandardFacet behavior.
+ */
+export interface StandardFacetOptions<
+  DB,
+  TableName extends keyof DB & string,
+  SelectedObject,
+  InsertedObject,
+  UpdaterObject,
+  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"],
+  ReturnedObject
+> extends FacetOptions<DB, TableName, SelectedObject> {
+  /** Transformation to apply to inserted objects. */
+  readonly insertTransform?: (obj: InsertedObject) => Insertable<DB[TableName]>;
+
+  /** Transformation to apply to objects provided for updating rows. */
+  readonly updaterTransform?: (
+    update: UpdaterObject
+  ) => Updateable<DB[TableName]>;
+
+  /** Columns to return from table upon insertion or update. */
+  readonly returnColumns?: ReturnColumns;
+
+  /** Transformation to apply to data returned from inserts. */
+  readonly insertReturnTransform?: (
+    source: InsertedObject,
+    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
+  ) => ReturnedObject;
+
+  /** Transformation to apply to data returned from updates. */
+  readonly updateReturnTransform?: (
+    source: UpdaterObject,
+    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
+  ) => ReturnedObject;
+}
 
 export class StandardFacet<
   DB,
@@ -30,19 +67,6 @@ export class StandardFacet<
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
 > extends KyselyFacet<DB, TableName, SelectedObject> {
   /**
-   * Options governing facet behavior.
-   */
-  protected options?: FacetOptions<
-    DB,
-    TableName,
-    SelectedObject,
-    InsertedObject,
-    UpdaterObject,
-    ReturnColumns,
-    ReturnedObject
-  >;
-
-  /**
    * Columns to return from table upon insertion. Contrary to the meaning of
    * `ReturnColumns`, an empty array here returns all columns, while null
    * returns none. `ReturnColumns` is more intuitive using `["*"]` and
@@ -54,11 +78,12 @@ export class StandardFacet<
    * Constructs a new Kysely table.
    * @param db The Kysely database.
    * @param tableName The name of the table.
+   * @param options Options governing facet behavior.
    */
   constructor(
     db: Kysely<DB>,
     tableName: TableName,
-    options?: FacetOptions<
+    readonly options: StandardFacetOptions<
       DB,
       TableName,
       SelectedObject,
@@ -66,30 +91,39 @@ export class StandardFacet<
       UpdaterObject,
       ReturnColumns,
       ReturnedObject
-    >
+    > = {}
   ) {
-    super(db, tableName, options?.selectTransform);
-    this.options = options;
+    super(db, tableName, options);
 
-    if (options?.insertReturnTransform) {
+    if (options.insertReturnTransform) {
       if (!options.returnColumns) {
         throw Error("'insertReturnTransform' requires 'returnColumns'");
       }
-      if (options?.returnColumns?.length === 0) {
+      if (options.returnColumns?.length === 0) {
         throw Error("No 'returnColumns' returned for 'insertReturnTransform'");
       }
     }
-    if (options?.updateReturnTransform) {
+    if (options.updateReturnTransform) {
       if (!options.returnColumns) {
         throw Error("'updateReturnTransform' requires 'returnColumns'");
       }
-      if (options?.returnColumns?.length === 0) {
+      if (options.returnColumns?.length === 0) {
         throw Error("No 'returnColumns' returned for 'updateReturnTransform'");
       }
     }
 
+    if (options.insertTransform) {
+      this.transformInsertion = options.insertTransform;
+    }
+    if (options.updaterTransform) {
+      this.transformUpdater = options.updaterTransform;
+    }
+    if (options.insertReturnTransform) {
+      this.transformInsertReturn = options.insertReturnTransform;
+    }
+
     this.returnColumns = null;
-    if (options?.returnColumns) {
+    if (options.returnColumns) {
       // Cast here because TS wasn't allowing the includes() check.
       const returnColumns = options.returnColumns as string[];
       if (returnColumns.length > 0) {
@@ -150,13 +184,25 @@ export class StandardFacet<
   ): Promise<
     ReturnColumns extends [] ? never : ReturnedObject | ReturnedObject[]
   > {
+    // TODO: maybe return empty objects in this case?
     if (this.returnColumns === null) {
       throw Error("No 'returnColumns' configured for 'insertReturning'");
     }
 
-    const transformedObjOrObjs = this.transformInsertion(objOrObjs as any);
-    const qb = this.insertRows().values(transformedObjOrObjs);
+    const insertedAnArray = Array.isArray(objOrObjs); // expensive operation
+    let qb: InsertQueryBuilder<DB, TableName, InsertResult>;
+    if (insertedAnArray) {
+      const transformedObjs = this.transformInsertionArray(objOrObjs);
+      // TS requires separate calls to values() for different argument types.
+      qb = this.insertRows().values(transformedObjs);
+    } else {
+      const transformedObj = this.transformInsertion(objOrObjs);
+      // TS requires separate calls to values() for different argument types.
+      qb = this.insertRows().values(transformedObj);
+    }
 
+    // TODO: maybe move this to a shared method?
+    // Assign `returns` all at once to capture its complex type.
     const returns =
       this.returnColumns.length == 0
         ? await qb.returningAll().execute()
@@ -164,11 +210,12 @@ export class StandardFacet<
     if (returns === undefined) {
       throw Error("No row returned from insert expecting returned columns");
     }
+
     // TODO: revisit these casts
-    return this.transformInsertReturn(
-      objOrObjs as any,
-      (Array.isArray(objOrObjs) ? returns : returns[0]) as any
-    ) as any;
+    if (insertedAnArray) {
+      return this.transformInsertReturnArray(objOrObjs, returns as any) as any;
+    }
+    return this.transformInsertReturn(objOrObjs, returns[0] as any) as any;
   }
 
   /**
@@ -224,98 +271,115 @@ export class StandardFacet<
   }
 
   /**
-   * Transforms an object or array of objects received for insertion into
-   * an insertable row or array of rows.
+   * Transforms an object into a row for insertion.
+   * @param obj The object to transform.
+   * @returns Row representation of the object.
    */
-  protected transformInsertion(
-    source: InsertedObject
-  ): Insertable<DB[TableName]>;
-  protected transformInsertion(
+  // This lengthy type provides better type assistance messages
+  // in VSCode than a dedicated TransformInsertion type would.
+  protected transformInsertion: NonNullable<
+    StandardFacetOptions<
+      DB,
+      TableName,
+      SelectedObject,
+      InsertedObject,
+      UpdaterObject,
+      ReturnColumns,
+      ReturnedObject
+    >["insertTransform"]
+  > = (obj) => obj as Insertable<DB[TableName]>;
+
+  /**
+   * Transforms an array of to-be-inserted objects into an insertable array
+   * of rows. A utility for keeping transform code simple and performant.
+   * @param source The array of inseted objects to transform.
+   * @returns Array of rows representing the objects.
+   */
+  protected transformInsertionArray(
     source: InsertedObject[]
-  ): Insertable<DB[TableName]>[];
-  protected transformInsertion(
-    source: InsertedObject | InsertedObject[]
-  ): Insertable<DB[TableName]> | Insertable<DB[TableName]>[] {
-    if (this.options?.insertTransform) {
-      if (Array.isArray(source)) {
-        // TS isn't seeing that options and the transform are defined.
-        return source.map((obj) => this.options!.insertTransform!(obj));
-      }
-      return this.options.insertTransform(source);
+  ): Insertable<DB[TableName]>[] {
+    if (this.options.insertTransform) {
+      // TS isn't seeing that that transform is defined.
+      return source.map((obj) => this.options.insertTransform!(obj));
     }
     return source as any;
   }
 
   /**
-   * Transforms an object or an array of objects returned from an insert
-   * into a returnable object or an array of objects.
+   * Transforms an object returned from an insert into an object to be
+   * returned to the caller.
+   * @param source The object that was inserted.
+   * @param returns The object returned from the insert.
+   * @returns The object to be returned to the caller.
    */
-  protected transformInsertReturn(
-    source: InsertedObject,
-    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-  ): ReturnedObject;
-  protected transformInsertReturn(
+  // This lengthy type provides better type assistance messages
+  // in VSCode than a dedicated TransformInsertion type would.
+  protected transformInsertReturn: NonNullable<
+    StandardFacetOptions<
+      DB,
+      TableName,
+      SelectedObject,
+      InsertedObject,
+      UpdaterObject,
+      ReturnColumns,
+      ReturnedObject
+    >["insertReturnTransform"]
+  > = (_obj, ret) => ret as any;
+
+  /**
+   * Transforms an array of objects returned from an insert into an array
+   * of objects to be returned to the caller.
+   * @param source The array of objects that were inserted.
+   * @param returns The array of objects returned from the insert.
+   * @returns Array of objects to be returned to the caller.
+   */
+  protected transformInsertReturnArray(
     source: InsertedObject[],
     returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
-  ): ReturnedObject[];
-  protected transformInsertReturn(
-    source: InsertedObject | InsertedObject[],
-    returns:
-      | ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-      | ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
-  ): ReturnedObject | ReturnedObject[] {
-    if (this.options?.insertReturnTransform) {
-      if (Array.isArray(source)) {
-        if (!Array.isArray(returns)) {
-          throw Error("Expected returns to be an array");
-        }
-        // TS isn't seeing that options and the transform are defined.
-        return source.map((obj, i) =>
-          this.options!.insertReturnTransform!(obj, returns[i])
-        );
-      }
-      if (Array.isArray(returns)) {
-        throw Error("Expected returns to be a single object");
-      }
-      return this.options.insertReturnTransform(source, returns);
+  ): ReturnedObject[] {
+    if (this.options.insertReturnTransform) {
+      return source.map((obj, i) =>
+        // TS isn't seeing that that transform is defined.
+        this.options.insertReturnTransform!(obj, returns[i])
+      );
     }
     return returns as any;
   }
 
   /**
-   * Transforms an object or array of objects received for update into
-   * an updateable row or array of rows.
+   * Transforms an object into a row for insertion.
+   * @param obj The object to transform.
+   * @returns Row representation of the object.
    */
-  // TODO: Might not need to support arrays here.
-  protected transformUpdater(source: UpdaterObject): Updateable<DB[TableName]>;
-  protected transformUpdater(
-    source: UpdaterObject[]
-  ): Updateable<DB[TableName]>[];
-  protected transformUpdater(
-    source: UpdaterObject | UpdaterObject[]
-  ): Updateable<DB[TableName]> | Updateable<DB[TableName]>[] {
-    if (this.options?.updateTransform) {
-      if (Array.isArray(source)) {
-        // TS isn't seeing that options and the transform are defined.
-        return source.map((obj) => this.options!.updateTransform!(obj));
-      }
-      return this.options.updateTransform(source);
-    }
-    return source as any;
-  }
+  // This lengthy type provides better type assistance messages
+  // in VSCode than a dedicated TransformInsertion type would.
+  protected transformUpdater: NonNullable<
+    StandardFacetOptions<
+      DB,
+      TableName,
+      SelectedObject,
+      InsertedObject,
+      UpdaterObject,
+      ReturnColumns,
+      ReturnedObject
+    >["updaterTransform"]
+  > = (obj) => obj as Updateable<DB[TableName]>;
 
   /**
-   * Transforms an object or an array of objects returned from an update
-   * into a returnable object or an array of objects.
+   * Transforms an array of objects returned from an update
+   * into objects to be returned to the caller.
+   * @param source The object that provided the update values.
+   * @param returns The array of objects returned from the update.
+   * @returns Array of objects to be returned to the caller.
    */
   protected transformUpdateReturn(
     source: UpdaterObject,
     returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>[]
   ): ReturnedObject[] {
-    if (this.options?.updateReturnTransform) {
-      // TS isn't seeing that options and the transform are defined.
+    if (this.options.updateReturnTransform) {
       return returns.map((returnValues) =>
-        this.options!.updateReturnTransform!(source, returnValues)
+        // TS isn't seeing that that transform is defined.
+        this.options.updateReturnTransform!(source, returnValues)
       );
     }
     return returns as any;

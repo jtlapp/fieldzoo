@@ -274,7 +274,7 @@ describe("update transformation", () => {
   > {
     constructor(db: Kysely<Database>) {
       super(db, "users", {
-        updateTransform: (source) => ({
+        updaterTransform: (source) => ({
           name: `${source.firstName} ${source.lastName}`,
           handle: source.handle,
           email: source.email,
@@ -376,7 +376,7 @@ describe("update transformation", () => {
     > {
       constructor(db: Kysely<Database>) {
         super(db, "users", {
-          updateTransform: (source) => ({
+          updaterTransform: (source) => ({
             name: `${source.firstName} ${source.lastName}`,
             handle: source.handle,
             email: source.email,

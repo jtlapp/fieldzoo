@@ -239,14 +239,15 @@ describe("selection transformation", () => {
     SelectedUser
   > {
     constructor(db: Kysely<Database>) {
-      super(db, "users", (source) =>
-        SelectedUser.create(source.id, {
-          firstName: source.name.split(" ")[0],
-          lastName: source.name.split(" ")[1],
-          handle: source.handle,
-          email: source.email,
-        })
-      );
+      super(db, "users", {
+        selectTransform: (source) =>
+          SelectedUser.create(source.id, {
+            firstName: source.name.split(" ")[0],
+            lastName: source.name.split(" ")[1],
+            handle: source.handle,
+            email: source.email,
+          }),
+      });
     }
   }
 

@@ -1,8 +1,7 @@
 import { Insertable, Kysely, Selectable, SelectType, Updateable } from "kysely";
 import { ObjectWithKeys } from "../lib/type-utils";
-import { FacetOptions } from "./FacetOptions";
 
-import { StandardFacet } from "./StandardFacet";
+import { StandardFacetOptions, StandardFacet } from "./StandardFacet";
 
 // TODO: generalize to compound keys and rename to KeyFacet
 export class StandardIdFacet<
@@ -32,7 +31,7 @@ export class StandardIdFacet<
     readonly db: Kysely<DB>,
     readonly tableName: TableName,
     readonly idColumnName: IdColumnName = "id" as any,
-    options?: FacetOptions<
+    options: StandardFacetOptions<
       DB,
       TableName,
       SelectedObject,
@@ -40,7 +39,7 @@ export class StandardIdFacet<
       UpdaterObject,
       ReturnColumns,
       ReturnedObject
-    >
+    > = {}
   ) {
     super(db, tableName, _prepareOptions(idColumnName, options) as any);
   }
@@ -98,7 +97,7 @@ function _prepareOptions<
   ReturnedObject
 >(
   idColumnName: IdColumnName,
-  options?: FacetOptions<
+  options: StandardFacetOptions<
     DB,
     TableName,
     SelectedObject,
@@ -108,7 +107,7 @@ function _prepareOptions<
     ReturnedObject
   >
 ) {
-  const returnColumns = options?.returnColumns ?? [idColumnName];
+  const returnColumns = options.returnColumns ?? [idColumnName];
   if (
     !returnColumns.includes(idColumnName as any) &&
     !returnColumns.includes("*" as any)
