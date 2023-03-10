@@ -5,7 +5,11 @@ import { KyselyFacet } from "../facets/KyselyFacet";
 /**
  * Base class for custom filters that are implemented as objects.
  */
-export abstract class AppliedFilter {
+export abstract class AppliedFilter<
+  DB,
+  TableName extends keyof DB & string,
+  QB extends WhereInterface<any, any>
+> {
   /**
    * Applies this filter to a query builder.
    * @param base The facet that this filter is applied to.
@@ -13,9 +17,5 @@ export abstract class AppliedFilter {
    * @returns A function that takes a query builder and returns a query
    *    builder that is constrained according to this filter.
    */
-  abstract apply<
-    DB,
-    TableName extends keyof DB & string,
-    QB extends WhereInterface<DB, TableName>
-  >(base: KyselyFacet<DB, TableName>): (qb: QB) => QB;
+  abstract apply(base: KyselyFacet<DB, TableName>): (qb: QB) => QB;
 }

@@ -1,5 +1,8 @@
 import { Kysely, sql } from "kysely";
 
+// TODO: look at simplifying instances of facet creation with inferencing
+// TODO: look at thoroughly testing filters in a filter-only test file
+
 import { KyselyFacet } from "..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
@@ -14,7 +17,6 @@ import {
   USERS,
 } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
-import { allOf, anyOf } from "../filters/ComboFilter";
 import { SelectedUser } from "./utils/test-types";
 
 let db: Kysely<Database>;
@@ -102,6 +104,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a MatchAllFilter", async () => {
+    const allOf = stdUserFacet.selectFilterMaker().allOf;
     const userIDs = await stdUserFacet.insertReturning(USERS);
 
     const users = await plainUserFacet.selectMany(
@@ -112,6 +115,7 @@ describe("selectMany()", () => {
   });
 
   it("selects with a MatchAnyFilter", async () => {
+    const anyOf = stdUserFacet.selectFilterMaker().anyOf;
     await stdUserFacet.insert(USERS);
 
     const users = await plainUserFacet.selectMany(
@@ -123,6 +127,8 @@ describe("selectMany()", () => {
   });
 
   it("selects with a MatchAnyFilter with a nested MatchAllFilter", async () => {
+    const allOf = stdUserFacet.selectFilterMaker().allOf;
+    const anyOf = stdUserFacet.selectFilterMaker().anyOf;
     const userIDs = await stdUserFacet.insertReturning(USERS);
 
     const users = await plainUserFacet.selectMany(
@@ -139,6 +145,9 @@ describe("selectMany()", () => {
   });
 
   ignore("detects selectMany() type errors", async () => {
+    const allOf = stdUserFacet.selectFilterMaker().allOf;
+    const anyOf = stdUserFacet.selectFilterMaker().anyOf;
+
     // @ts-expect-error - doesn't allow plain string expressions
     plainUserFacet.selectMany("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments
@@ -157,6 +166,22 @@ describe("selectMany()", () => {
     (await plainUserFacet.selectMany((qb) => qb))[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ expr filter
     (await plainUserFacet.selectMany(sql`name = 'Sue'`))[0].notThere;
+    await plainUserFacet.selectMany(
+      // @ts-expect-error - only table columns are accessible via anyOf()
+      anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
+    );
+    await plainUserFacet.selectMany(
+      // @ts-expect-error - only table columns are accessible via allOf()
+      allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
+    );
+    await plainUserFacet.selectMany(
+      // @ts-expect-error - only table columns are accessible via anyOf()
+      anyOf({ name: "xyz" }, allOf(["notThere", "=", "Sue"]))
+    );
+    await plainUserFacet.selectMany(
+      // @ts-expect-error - only table columns are accessible via anyOf()
+      allOf({ name: "xyz" }, anyOf(["notThere", "=", "Sue"]))
+    );
   });
 });
 
@@ -218,6 +243,9 @@ describe("selectOne()", () => {
   // TODO: Add tests for selectOne() with MatchAllFilter and MatchAllFilter filters
 
   ignore("detects selectOne() type errors", async () => {
+    const allOf = stdUserFacet.selectFilterMaker().allOf;
+    const anyOf = stdUserFacet.selectFilterMaker().anyOf;
+
     // @ts-expect-error - doesn't allow plain string expression filters
     plainUserFacet.selectOne("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments of a binary op
@@ -236,6 +264,14 @@ describe("selectOne()", () => {
     (await plainUserFacet.selectOne((qb) => qb)).notThere;
     // @ts-expect-error - only table columns are accessible w/ expr filter
     (await plainUserFacet.selectOne(sql`name = 'Sue'`)).notThere;
+    await plainUserFacet.selectOne(
+      // @ts-expect-error - only table columns are accessible via anyOf()
+      anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
+    );
+    await plainUserFacet.selectOne(
+      // @ts-expect-error - only table columns are accessible via allOf()
+      allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
+    );
   });
 });
 

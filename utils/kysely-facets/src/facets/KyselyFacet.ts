@@ -2,6 +2,7 @@ import { Kysely, ReferenceExpression, Selectable } from "kysely";
 import { SelectAllQueryBuilder } from "kysely/dist/cjs/parser/select-parser";
 
 import { applyQueryFilter, QueryFilter } from "../filters/QueryFilter";
+import { FilterMaker } from "../filters/FilterMaker";
 
 /**
  * Options governing KyselyFacet behavior.
@@ -117,6 +118,19 @@ export class KyselyFacet<
     const selection = await fqb.executeTakeFirst();
     if (!selection) return null;
     return this.transformSelection(selection as Selectable<DB[TableName]>);
+  }
+
+  /**
+   * Returns a selection filter maker for this facet.
+   * @returns A selection filter maker for this facet.
+   */
+  selectFilterMaker() {
+    return new FilterMaker<
+      DB,
+      TableName,
+      // TODO: can I replace SelectedObject with any?
+      ReturnType<KyselyFacet<DB, TableName, SelectedObject>["selectRows"]>
+    >();
   }
 
   /**

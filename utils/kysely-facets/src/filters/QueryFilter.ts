@@ -15,7 +15,7 @@ import {
 import { KyselyFacet } from "../facets/KyselyFacet";
 import { AppliedFilter } from "./AppliedFilter";
 
-type AnyWhere = WhereInterface<any, any>;
+type AnyWhereInterface = WhereInterface<any, any>;
 
 /**
  * Type of the query filter object, which can be passed as an argument
@@ -24,14 +24,14 @@ type AnyWhere = WhereInterface<any, any>;
 export type QueryFilter<
   DB,
   TableName extends keyof DB & string,
-  QB extends WhereInterface<DB, TableName>,
+  QB extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TableName>
 > =
   | BinaryOperationFilter<DB, TableName, RE>
   | FieldMatchingFilter<DB, TableName>
   | QueryBuilderFilter<QB>
   | QueryExpressionFilter
-  | AppliedFilter;
+  | AppliedFilter<DB, TableName, QB>;
 
 /**
  * A filter that is a binary operation, such as `eq` or `gt`.
@@ -76,42 +76,42 @@ export type QueryExpressionFilter = Expression<any>;
 export function applyQueryFilter<
   DB,
   TableName extends keyof DB & string,
-  FQB extends AnyWhere,
+  QB extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TableName>
 >(
   base: KyselyFacet<DB, TableName, any>,
-  filter: QueryFilter<DB, TableName, FQB, RE>
-): (qb: AnyWhere) => FQB {
+  filter: QueryFilter<DB, TableName, QB, RE>
+): (qb: AnyWhereInterface) => QB {
   // Process a query builder filter.
   if (typeof filter === "function") {
-    return filter as (qb: AnyWhere) => FQB;
+    return filter as (qb: AnyWhereInterface) => QB;
   }
 
   if (typeof filter === "object" && filter !== null) {
     // Process a query expression filter. Check for expressions
     // first because they could potentially be plain objects.
     if ("expressionType" in filter) {
-      return (qb) => qb.where(filter) as FQB;
+      return (qb) => qb.where(filter) as QB;
     }
 
     // Process a field matching filter. `{}` matches all rows.
     if (filter.constructor === Object) {
-      return (qb: AnyWhere) => {
+      return (qb: AnyWhereInterface) => {
         for (const [column, value] of Object.entries(filter)) {
-          qb = qb.where(base.ref(column), "=", value);
+          qb = qb.where(base.ref(column), "=", value) as QB;
         }
-        return qb as FQB;
+        return qb as QB;
       };
     }
 
     // Process a binary operation filter.
     if (Array.isArray(filter)) {
-      return (qb) => qb.where(...filter) as FQB;
+      return (qb) => qb.where(...filter) as QB;
     }
 
     // Process a combination filter.
     if (filter instanceof AppliedFilter) {
-      return filter.apply(base) as (qb: AnyWhere) => FQB;
+      return filter.apply(base) as (qb: AnyWhereInterface) => QB;
     }
   }
 

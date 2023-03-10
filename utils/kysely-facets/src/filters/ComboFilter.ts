@@ -3,7 +3,7 @@
  * be passed as an argument to query functions to constrain results.
  */
 
-import { WhereInterface } from "kysely";
+import { ReferenceExpression, WhereInterface } from "kysely";
 
 import { KyselyFacet } from "../facets/KyselyFacet";
 import { AppliedFilter } from "./AppliedFilter";
@@ -12,8 +12,13 @@ import { QueryFilter, applyQueryFilter } from "./QueryFilter";
 /**
  * A filter that is a combination of other filters.
  */
-export abstract class ComboFilter extends AppliedFilter {
-  filters: QueryFilter<any, any, any, any>[];
+export abstract class ComboFilter<
+  DB,
+  TableName extends keyof DB & string,
+  QB extends WhereInterface<any, any>,
+  RE extends ReferenceExpression<DB, TableName>
+> extends AppliedFilter<DB, TableName, QB> {
+  filters: QueryFilter<DB, TableName, QB, RE>[];
 
   /**
    * Constructs a combo filter.
@@ -31,55 +36,38 @@ export abstract class ComboFilter extends AppliedFilter {
 /**
  * A filter that matches all of the provided filters.
  */
-export class MatchAllFilter extends ComboFilter {
-  apply<
-    DB,
-    TableName extends keyof DB & string,
-    QB extends WhereInterface<DB, TableName>
-  >(base: KyselyFacet<DB, TableName>): (qb: QB) => QB {
+export class MatchAllFilter<
+  DB,
+  TableName extends keyof DB & string,
+  QB extends WhereInterface<any, any>,
+  RE extends ReferenceExpression<DB, TableName>
+> extends ComboFilter<DB, TableName, QB, RE> {
+  apply(base: KyselyFacet<DB, TableName>): (qb: QB) => QB {
     return (qb) => {
       for (const filter of this.filters) {
-        qb = applyQueryFilter(base, filter)(qb);
+        qb = applyQueryFilter(base, filter)(qb) as QB;
       }
       return qb;
     };
   }
-}
-
-/**
- * Returns a filter that matches all of the provided filters.
- */
-export function allOf(
-  ...filters: QueryFilter<any, any, any, any>[]
-): MatchAllFilter {
-  return new MatchAllFilter(filters);
 }
 
 /**
  * A filter that matches at least one of the provided filters.
  * @param filters The filters to combine, listed as separate arguments.
  */
-export class MatchAnyFilter extends ComboFilter {
-  apply<
-    DB,
-    TableName extends keyof DB & string,
-    QB extends WhereInterface<DB, TableName>
-  >(base: KyselyFacet<DB, TableName>): (qb: QB) => QB {
+export class MatchAnyFilter<
+  DB,
+  TableName extends keyof DB & string,
+  QB extends WhereInterface<any, any>,
+  RE extends ReferenceExpression<DB, TableName>
+> extends ComboFilter<DB, TableName, QB, RE> {
+  apply(base: KyselyFacet<DB, TableName>): (qb: QB) => QB {
     return (qb) => {
       for (const filter of this.filters) {
-        qb = qb.orWhere((qb) => applyQueryFilter(base, filter)(qb)) as QB;
+        qb = qb.orWhere((qb) => applyQueryFilter(base, filter)(qb as QB)) as QB;
       }
       return qb;
     };
   }
-}
-
-/**
- * Returns a filter that matches at least one of the provided filters.
- * @param filters The filters to combine, listed as separate arguments.
- */
-export function anyOf(
-  ...filters: QueryFilter<any, any, any, any>[]
-): MatchAnyFilter {
-  return new MatchAnyFilter(filters);
 }
