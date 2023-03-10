@@ -17,7 +17,7 @@ import {
   User,
   SelectedUser,
   InsertedUser,
-  UpdatedUser,
+  UpdaterUser,
   ReturnedUser,
 } from "./utils/test-types";
 import { ignore } from "@fieldzoo/testing-utils";
@@ -36,7 +36,7 @@ export class PlainUserFacet extends StandardFacet<
 }
 
 const userObjectWithID = { id: 1, ...userObject1 };
-const updaterUser1 = UpdatedUser.create(0, userObject1);
+const updaterUser1 = UpdaterUser.create(0, userObject1);
 
 let db: Kysely<Database>;
 
@@ -93,7 +93,7 @@ describe("transforms between inputs and outputs", () => {
     "users",
     SelectedUser,
     InsertedUser,
-    UpdatedUser,
+    UpdaterUser,
     ["id"],
     ReturnedUser
   > {

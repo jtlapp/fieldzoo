@@ -46,11 +46,11 @@ export class SelectedUser extends User {
   }
 }
 
-export class UpdatedUser extends User {
-  readonly __type = "UpdatedUser";
+export class UpdaterUser extends User {
+  readonly __type = "UpdaterUser";
 
-  static create(id: number, obj: VariableFieldsOf<UpdatedUser>): UpdatedUser {
-    return new UpdatedUser(
+  static create(id: number, obj: VariableFieldsOf<UpdaterUser>): UpdaterUser {
+    return new UpdaterUser(
       id,
       obj.firstName,
       obj.lastName,

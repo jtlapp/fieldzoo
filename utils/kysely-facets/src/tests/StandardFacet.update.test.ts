@@ -17,7 +17,7 @@ import {
   USERS,
 } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
-import { ReturnedUser, UpdatedUser } from "./utils/test-types";
+import { ReturnedUser, UpdaterUser } from "./utils/test-types";
 
 let db: Kysely<Database>;
 let stdUserFacet: StdUserFacet;
@@ -353,7 +353,7 @@ describe("update transformation", () => {
     "users",
     Selectable<Database["users"]>,
     Insertable<Database["users"]>,
-    UpdatedUser,
+    UpdaterUser,
     ["id"]
   > {
     constructor(db: Kysely<Database>) {
@@ -376,7 +376,7 @@ describe("update transformation", () => {
       userRow2,
       userRow3,
     ]);
-    const updaterUser1 = UpdatedUser.create(
+    const updaterUser1 = UpdaterUser.create(
       0,
       Object.assign({}, userObject1, { firstName: "Suzanne" })
     );
@@ -454,7 +454,7 @@ describe("update transformation", () => {
       "users",
       Selectable<Database["users"]>,
       Insertable<Database["users"]>,
-      UpdatedUser,
+      UpdaterUser,
       ["id"],
       ReturnedUser
     > {
@@ -484,7 +484,7 @@ describe("update transformation", () => {
     );
     const updateReturn = await updateAndReturnTransformFacet.updateReturning(
       { id: insertReturn.id },
-      UpdatedUser.create(0, userObject1)
+      UpdaterUser.create(0, userObject1)
     );
     expect(updateReturn).toEqual([
       new ReturnedUser(

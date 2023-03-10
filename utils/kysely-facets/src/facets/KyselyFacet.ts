@@ -135,7 +135,6 @@ export class KyselyFacet<
     source: Selectable<DB[TableName]>[]
   ): SelectedObject[] {
     if (this.options.selectTransform) {
-      // TS isn't seeing that options and the transform are defined.
       return source.map((obj) => this.transformSelection(obj));
     }
     return source as any;
