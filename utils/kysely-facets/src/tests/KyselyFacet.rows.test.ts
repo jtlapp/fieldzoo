@@ -57,7 +57,11 @@ describe("basic row queries", () => {
     expect(readUser1?.email).toEqual(NEW_EMAIL);
 
     // Delete user by row query
-    await plainUserFacet.deleteRows().where("id", "=", user1.id).execute();
+    const result = await plainUserFacet
+      .deleteRows()
+      .where("id", "=", user1.id)
+      .executeTakeFirst();
+    expect(Number(result.numDeletedRows)).toEqual(1);
 
     // Verify correct user was deleted
     const readUser0 = await plainUserFacet

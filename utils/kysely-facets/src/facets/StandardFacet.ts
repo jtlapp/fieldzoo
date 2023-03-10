@@ -10,7 +10,11 @@ import {
 
 import { FacetOptions } from "./FacetOptions";
 import { KyselyFacet } from "./KyselyFacet";
-import { QueryFilter, applyQueryFilter } from "../filters/QueryFilter";
+import {
+  QueryFilter,
+  applyQueryFilter,
+  // applyDeleteQueryFilter,
+} from "../filters/QueryFilter";
 import { ObjectWithKeys } from "../lib/type-utils";
 
 // TODO: Configure type of returned counts (e.g. number vs bigint)
@@ -97,6 +101,22 @@ export class StandardFacet<
           : (returnColumns as (keyof Selectable<DB[TableName]> & string)[]);
       }
     }
+  }
+
+  /**
+   * Deletes rows matching the provided filter from this table.
+   * @param filter Filter specifying the rows to delete.
+   * @returns Returns the number of deleted rows.
+   */
+  async delete<
+    QB extends UpdateQueryBuilder<DB, TableName, TableName, UpdateResult>,
+    RE extends ReferenceExpression<DB, TableName>
+  >(filter: QueryFilter<DB, TableName, QB, RE>): Promise<number> {
+    //const foo = applyDeleteQueryFilter(this, filter)(this.deleteRows());
+    const qb = applyQueryFilter(this, filter)(this.deleteRows() as any);
+    const result = await qb.executeTakeFirst();
+    // TODO: fix type problem
+    return Number((result as any).numDeletedRows);
   }
 
   /**
