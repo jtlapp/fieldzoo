@@ -171,19 +171,13 @@ export class StandardFacet<
    *  array when `objOrObjs` is an array, and a single object otherwise.
    * @throws Error if `ReturnedObject` was not assigned.
    */
-  insertReturning(
-    obj: InsertedObject
-  ): Promise<ReturnColumns extends [] ? never : ReturnedObject>;
+  insertReturning(obj: InsertedObject): Promise<ReturnedObject>;
 
-  insertReturning(
-    objs: InsertedObject[]
-  ): Promise<ReturnColumns extends [] ? never : ReturnedObject[]>;
+  insertReturning(objs: InsertedObject[]): Promise<ReturnedObject[]>;
 
   async insertReturning(
     objOrObjs: InsertedObject | InsertedObject[]
-  ): Promise<
-    ReturnColumns extends [] ? never : ReturnedObject | ReturnedObject[]
-  > {
+  ): Promise<ReturnedObject | ReturnedObject[]> {
     // TODO: maybe return empty objects in this case?
     if (this.returnColumns === null) {
       throw Error("No 'returnColumns' configured for 'insertReturning'");
@@ -213,9 +207,9 @@ export class StandardFacet<
 
     // TODO: revisit these casts
     if (insertedAnArray) {
-      return this.transformInsertReturnArray(objOrObjs, returns as any) as any;
+      return this.transformInsertReturnArray(objOrObjs, returns as any);
     }
-    return this.transformInsertReturn(objOrObjs, returns[0] as any) as any;
+    return this.transformInsertReturn(objOrObjs, returns[0] as any);
   }
 
   /**
