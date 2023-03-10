@@ -195,17 +195,15 @@ export class StandardFacet<
       qb = this.insertRows().values(transformedObj);
     }
 
-    // TODO: maybe move this to a shared method?
-    // Assign `returns` all at once to capture its complex type.
+    // Assign `returns` all at once to capture its complex type. Can't place
+    // this in a shared method because the types are not compatible.
     const returns =
       this.returnColumns.length == 0
         ? await qb.returningAll().execute()
         : await qb.returning(this.returnColumns).execute();
     if (returns === undefined) {
-      throw Error("No row returned from insert expecting returned columns");
+      throw Error("No rows returned from insert expecting returned columns");
     }
-
-    // TODO: revisit these casts
     if (insertedAnArray) {
       return this.transformInsertReturnArray(objOrObjs, returns as any);
     }
@@ -257,11 +255,16 @@ export class StandardFacet<
     const uqb = this.updateRows().set(transformedObj as any);
     const fqb = applyQueryFilter(this, filter)(uqb);
 
-    const result =
+    // Assign `returns` all at once to capture its complex type. Can't place
+    // this in a shared method because the types are not compatible.
+    const returns =
       this.returnColumns.length == 0
         ? await fqb.returningAll().execute()
         : await fqb.returning(this.returnColumns).execute();
-    return this.transformUpdateReturn(obj, result as any) as any;
+    if (returns === undefined) {
+      throw Error("No rows returned from update expecting returned columns");
+    }
+    return this.transformUpdateReturn(obj, returns as any) as any;
   }
 
   /**
