@@ -81,7 +81,7 @@ export function applyQueryFilter<
 >(
   base: KyselyFacet<DB, TableName, any>,
   filter: QueryFilter<DB, TableName, FQB, RE>
-): <QB extends AnyWhere>(qb: QB) => FQB {
+): (qb: AnyWhere) => FQB {
   // Process a query builder filter.
   if (typeof filter === "function") {
     return filter as (qb: AnyWhere) => FQB;
