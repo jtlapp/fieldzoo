@@ -15,10 +15,10 @@ import { ObjectWithKeys } from "../lib/type-utils";
 // TODO: Configure type of returned counts (e.g. number vs bigint)
 
 type DeleteQB<DB, TableName extends keyof DB & string> = ReturnType<
-  KyselyFacet<DB, TableName, any>["deleteRows"]
+  StandardFacet<DB, TableName, any>["deleteQB"]
 >;
 type UpdateQB<DB, TableName extends keyof DB & string> = ReturnType<
-  KyselyFacet<DB, TableName, any>["updateRows"]
+  StandardFacet<DB, TableName, any>["updateQB"]
 >;
 
 /**
@@ -139,6 +139,14 @@ export class StandardFacet<
   }
 
   /**
+   * Creates a query builder for deleting rows from this table.
+   * @returns A query builder for deleting rows from this table.
+   */
+  deleteQB() {
+    return this.db.deleteFrom(this.tableName);
+  }
+
+  /**
    * Deletes rows matching the provided filter from this table.
    * @param filter Filter specifying the rows to delete.
    * @returns Returns the number of deleted rows.
@@ -146,9 +154,17 @@ export class StandardFacet<
   async delete<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<DB, TableName, DeleteQB<DB, TableName>, RE>
   ): Promise<number> {
-    const qb = applyQueryFilter(this, filter)(this.deleteRows());
+    const qb = applyQueryFilter(this, filter)(this.deleteQB());
     const result = await qb.executeTakeFirst();
     return Number(result.numDeletedRows);
+  }
+
+  /**
+   * Creates a query builder for inserting rows into this table.
+   * @returns A query builder for inserting rows into this table.
+   */
+  insertQB() {
+    return this.db.insertInto(this.tableName);
   }
 
   /**
@@ -162,7 +178,7 @@ export class StandardFacet<
 
   async insert(objOrObjs: InsertedObject | InsertedObject[]): Promise<void> {
     const transformedObjOrObjs = this.transformInsertion(objOrObjs as any);
-    const qb = this.insertRows().values(transformedObjOrObjs);
+    const qb = this.insertQB().values(transformedObjOrObjs);
     await qb.execute();
   }
 
@@ -191,11 +207,11 @@ export class StandardFacet<
     if (insertedAnArray) {
       const transformedObjs = this.transformInsertionArray(objOrObjs);
       // TS requires separate calls to values() for different argument types.
-      qb = this.insertRows().values(transformedObjs);
+      qb = this.insertQB().values(transformedObjs);
     } else {
       const transformedObj = this.transformInsertion(objOrObjs);
       // TS requires separate calls to values() for different argument types.
-      qb = this.insertRows().values(transformedObj);
+      qb = this.insertQB().values(transformedObj);
     }
 
     // Assign `returns` all at once to capture its complex type. Can't place
@@ -214,6 +230,14 @@ export class StandardFacet<
   }
 
   /**
+   * Creates a query builder for updating rows in this table.
+   * @returns A query builder for updating rows in this table.
+   */
+  updateQB() {
+    return this.db.updateTable(this.tableName);
+  }
+
+  /**
    * Updates rows in this table matching the provided filter, without returning
    * any columns, regardless of whether `returnColumns` was configured.
    * @param filter Filter specifying the rows to update.
@@ -225,7 +249,7 @@ export class StandardFacet<
     obj: UpdaterObject
   ): Promise<number> {
     const transformedObj = this.transformUpdater(obj);
-    const uqb = this.updateRows().set(transformedObj as any);
+    const uqb = this.updateQB().set(transformedObj as any);
     const fqb = applyQueryFilter(this, filter)(uqb);
     const result = await fqb.executeTakeFirst();
     return Number(result.numUpdatedRows);
@@ -249,7 +273,7 @@ export class StandardFacet<
     }
 
     const transformedObj = this.transformUpdater(obj);
-    const uqb = this.updateRows().set(transformedObj as any);
+    const uqb = this.updateQB().set(transformedObj as any);
     const fqb = applyQueryFilter(this, filter)(uqb);
 
     // Assign `returns` all at once to capture its complex type. Can't place

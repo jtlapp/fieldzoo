@@ -60,6 +60,18 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
+it("insertQB() allows for inserting rows", async () => {
+  const user0 = (await stdUserFacet
+    .insertQB()
+    .values(USERS[0])
+    .returningAll()
+    .executeTakeFirst())!;
+
+  const readUser0 = await stdUserFacet.selectOne(["id", "=", user0.id]);
+  expect(readUser0?.handle).toEqual(USERS[0].handle);
+  expect(readUser0?.email).toEqual(USERS[0].email);
+});
+
 describe("insert an array of objects without transformation", () => {
   it("inserts rows without returning columns", async () => {
     const result = await stdUserFacet.insert(USERS);
@@ -142,7 +154,7 @@ describe("inserting a single object without transformation", () => {
     expect(result).toBeUndefined();
 
     const readUser0 = await stdUserFacet
-      .selectRows()
+      .selectQB()
       .where("email", "=", USERS[0].email)
       .executeTakeFirst();
     expect(readUser0?.email).toEqual(USERS[0].email);
@@ -162,7 +174,7 @@ describe("inserting a single object without transformation", () => {
     expect(Object.keys(insertReturn).length).toEqual(1);
 
     const readUser0 = await stdUserFacet
-      .selectRows()
+      .selectQB()
       .where("id", "=", insertReturn.id)
       .executeTakeFirst();
     expect(readUser0?.email).toEqual(USERS[0].email);
@@ -176,7 +188,7 @@ describe("inserting a single object without transformation", () => {
     expect(Object.keys(updaterPost).length).toEqual(2);
 
     const readPost0 = await stdPostFacet
-      .selectRows()
+      .selectQB()
       .where("id", "=", updaterPost.id)
       .where("title", "=", updaterPost.title)
       .executeTakeFirst();

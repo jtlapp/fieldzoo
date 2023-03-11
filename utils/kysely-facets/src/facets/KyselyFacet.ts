@@ -3,7 +3,7 @@ import { Kysely, ReferenceExpression, Selectable } from "kysely";
 import { applyQueryFilter, QueryFilter } from "../filters/QueryFilter";
 
 type SelectQB<DB, TableName extends keyof DB & string> = ReturnType<
-  KyselyFacet<DB, TableName, any>["selectRows"]
+  KyselyFacet<DB, TableName, any>["selectQB"]
 >;
 
 /**
@@ -54,35 +54,11 @@ export class KyselyFacet<
   }
 
   /**
-   * Creates a query builder for inserting rows into this table.
-   * @returns A query builder for inserting rows into this table.
-   */
-  insertRows() {
-    return this.db.insertInto(this.tableName);
-  }
-
-  /**
-   * Creates a query builder for updating rows in this table.
-   * @returns A query builder for updating rows in this table.
-   */
-  updateRows() {
-    return this.db.updateTable(this.tableName);
-  }
-
-  /**
    * Creates a query builder for selecting rows from this table.
    * @returns A query builder for selecting rows from this table.
    */
-  selectRows() {
+  selectQB() {
     return this.db.selectFrom(this.tableName).selectAll();
-  }
-
-  /**
-   * Creates a query builder for deleting rows from this table.
-   * @returns A query builder for deleting rows from this table.
-   */
-  deleteRows() {
-    return this.db.deleteFrom(this.tableName);
   }
 
   /**
@@ -94,7 +70,7 @@ export class KyselyFacet<
   async selectMany<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>
   ): Promise<SelectedObject[]> {
-    const sqb = this.selectRows().selectAll();
+    const sqb = this.selectQB().selectAll();
     const fqb = applyQueryFilter(this, filter)(sqb);
     const selections = await fqb.execute();
     return this.transformSelectionArray(
@@ -111,7 +87,7 @@ export class KyselyFacet<
   async selectOne<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>
   ): Promise<SelectedObject | null> {
-    const sqb = this.selectRows().selectAll();
+    const sqb = this.selectQB().selectAll();
     const fqb = applyQueryFilter(this, filter)(sqb);
     const selection = await fqb.executeTakeFirst();
     if (!selection) return null;

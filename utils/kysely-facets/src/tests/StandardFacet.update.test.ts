@@ -35,6 +35,21 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
+it("updateQB() allows for updating rows", async () => {
+  const user1 = await stdUserFacetReturningID.insertReturning(USERS[1]);
+  const updater = { email: "new@baz.com" };
+
+  await stdUserFacet
+    .updateQB()
+    .set(updater)
+    .where("id", "=", user1.id)
+    .execute();
+
+  const readUser1 = await stdUserFacet.selectOne({ id: user1.id });
+  expect(readUser1?.handle).toEqual(USERS[1].handle);
+  expect(readUser1?.email).toEqual(updater.email);
+});
+
 describe("updating rows via StandardFacet", () => {
   it("updates returning zero update count", async () => {
     const updateValues = { email: "new.email@xyz.pdq" };

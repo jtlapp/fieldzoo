@@ -24,6 +24,26 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
+it("selectQB() allows for selecting rows", async () => {
+  await db
+    .insertInto("users")
+    .values(USERS[0])
+    .returningAll()
+    .executeTakeFirst()!;
+  const user1 = (await db
+    .insertInto("users")
+    .values(USERS[1])
+    .returningAll()
+    .executeTakeFirst())!;
+
+  const readUser1 = await plainUserFacet
+    .selectQB()
+    .where("id", "=", user1.id)
+    .executeTakeFirst();
+  expect(readUser1?.handle).toEqual(USERS[1].handle);
+  expect(readUser1?.email).toEqual(USERS[1].email);
+});
+
 describe("selectMany() with simple filters", () => {
   it("selects nothing when nothing matches filter", async () => {
     await stdUserFacet.insert(USERS);

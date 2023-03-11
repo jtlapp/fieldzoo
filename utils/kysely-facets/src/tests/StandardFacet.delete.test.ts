@@ -17,6 +17,23 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
+it("deleteQB() allows for deleting rows", async () => {
+  await stdUserFacet.insert(USERS[1]);
+
+  const readUser1 = await stdUserFacet.selectOne({ handle: USERS[1].handle });
+  expect(readUser1?.handle).toEqual(USERS[1].handle);
+  expect(readUser1?.email).toEqual(USERS[1].email);
+
+  const result = await stdUserFacet
+    .deleteQB()
+    .where("handle", "=", USERS[1].handle)
+    .executeTakeFirst();
+  expect(Number(result.numDeletedRows)).toEqual(1);
+
+  const readUser2 = await stdUserFacet.selectOne({ handle: USERS[1].handle });
+  expect(readUser2).toBeNull();
+});
+
 describe("deleting rows via StandardFacet", () => {
   it("deletes rows returning the deletion count", async () => {
     const count1 = await stdUserFacet.delete({ name: USERS[0].name });
