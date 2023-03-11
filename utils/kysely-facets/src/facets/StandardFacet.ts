@@ -243,7 +243,7 @@ export class StandardFacet<
   async updateReturning<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
     obj: UpdaterObject
-  ): Promise<ReturnedObject extends void ? never : ReturnedObject[]> {
+  ): Promise<ReturnedObject[]> {
     if (this.returnColumns === null) {
       throw Error("No 'returnColumns' configured for 'updateReturning'");
     }

@@ -61,7 +61,9 @@ export class StandardIdFacet<
    * @param id The ID of the row to select.
    * @returns An object for the row, or null if no row was found.
    */
-  selectById(id: SelectType<DB[TableName][IdColumnName]>) {
+  selectById(
+    id: SelectType<DB[TableName][IdColumnName]>
+  ): Promise<SelectedObject | null> {
     return this.selectOne([this.ref(this.idColumnName), "=", id]);
   }
 
@@ -69,9 +71,9 @@ export class StandardIdFacet<
    * Update the row having the given ID, without returning any columns.
    * @param obj Object containing the fields to update. The ID of the row
    *  to update is taken from this object.
-   * @returns The number of rows updated.
+   * @returns True if a row was updated, false otherwise.
    */
-  async updateById(obj: UpdaterObject) {
+  async updateById(obj: UpdaterObject): Promise<boolean> {
     const updateCount = await this.update(
       [this.ref(this.idColumnName), "=", (obj as any)[this.idColumnName]],
       obj as any
@@ -86,12 +88,14 @@ export class StandardIdFacet<
    * to update is taken from this object.
    * @returns An object for the row, or null if no row was found.
    */
-  async updateByIdReturning(obj: UpdaterObject) {
-    const result = await this.updateReturning(
+  async updateByIdReturning(
+    obj: UpdaterObject
+  ): Promise<ReturnedObject | null> {
+    const updates = await this.updateReturning(
       [this.ref(this.idColumnName), "=", (obj as any)[this.idColumnName]],
       obj as any
     );
-    return result;
+    return updates.length == 0 ? null : updates[0];
   }
 }
 

@@ -28,6 +28,20 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe("facet for table with unique ID", () => {
+  it("selects, updates, and deletes nothing when no rows match", async () => {
+    const readUser = await explicitIdFacet.selectById(1);
+    expect(readUser).toBeNull();
+
+    const updated = await explicitIdFacet.updateById({
+      id: 1,
+      email: "new@baz.com",
+    });
+    expect(updated).toEqual(false);
+
+    const deleted = await explicitIdFacet.deleteById(1);
+    expect(deleted).toEqual(false);
+  });
+
   it("inserts, selects, updates, and deletes objects by ID", async () => {
     // Add users
     const id0 = (await explicitIdFacet.insertReturning(USERS[0])).id;
@@ -66,7 +80,7 @@ describe("facet for table with unique ID", () => {
       email: NEW_EMAIL,
     });
     // prettier-ignore
-    expect(updated).toEqual([{ id: id1 }]);
+    expect(updated).toEqual({ id: id1 });
   });
 
   it("provides a default ID of 'id'", async () => {
