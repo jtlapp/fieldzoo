@@ -2,8 +2,14 @@ import { Kysely } from "kysely";
 
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
-import { USERS } from "./utils/test-objects";
+import {
+  USERS,
+  STANDARD_OPTIONS,
+  insertedUser1,
+  selectedUser1,
+} from "./utils/test-objects";
 import { StandardIdFacet } from "../facets/StandardIdFacet";
+import { ReturnedUser, SelectedUser, UpdaterUser } from "./utils/test-types";
 
 class ExplicitIdFacet extends StandardIdFacet<Database, "users", "id"> {
   constructor(readonly db: Kysely<Database>) {
@@ -101,7 +107,41 @@ describe("facet for table with unique ID", () => {
     });
   });
 
-  // TODO: maybe add tests for transforms
+  it("transforms inputs and outputs", async () => {
+    const testTransformFacet = new StandardIdFacet(
+      db,
+      "users",
+      "id",
+      STANDARD_OPTIONS
+    );
+
+    const insertReturn1 = await testTransformFacet.insertReturning(
+      insertedUser1
+    );
+    expect(insertReturn1).toEqual(ReturnedUser.create(1, insertedUser1));
+
+    const readUser1 = await testTransformFacet.selectById(1);
+    expect(readUser1).toEqual(selectedUser1);
+
+    const updaterUser = new UpdaterUser(
+      1,
+      "Jimmy",
+      "James",
+      "jjames",
+      "jjames@abc.def"
+    );
+    const updated = await testTransformFacet.updateById(updaterUser);
+    expect(updated).toEqual(true);
+
+    const readUser2 = await testTransformFacet.selectById(1);
+    expect(readUser2).toEqual(SelectedUser.create(1, updaterUser));
+
+    const deleted = await testTransformFacet.deleteById(1);
+    expect(deleted).toEqual(true);
+
+    const readUser3 = await testTransformFacet.selectById(1);
+    expect(readUser3).toBeNull();
+  });
 
   it("errors when ID column is not in 'returnColumns'", async () => {
     expect(() => {

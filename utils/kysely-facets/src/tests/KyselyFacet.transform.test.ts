@@ -8,9 +8,12 @@ import {
   userRow2,
   selectedUser1,
   selectedUser2,
+  userRow3,
+  selectedUser3,
 } from "./utils/test-objects";
 import { SelectedUser } from "./utils/test-types";
 import { ignore } from "@fieldzoo/testing-utils";
+import { StdUserFacet } from "./utils/test-facets";
 
 export class PlainUserFacet extends KyselyFacet<
   Database,
@@ -23,9 +26,11 @@ export class PlainUserFacet extends KyselyFacet<
 }
 
 let db: Kysely<Database>;
+let stdUserFacet: StdUserFacet;
 
 beforeAll(async () => {
   db = await createDB();
+  stdUserFacet = new StdUserFacet(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
@@ -94,8 +99,27 @@ describe("transforms selection objects", () => {
   }
   const testTransformFacet = new TestTransformFacet(db);
 
-  it("transforms selections", () => {
+  it("internally transforms selections", () => {
     testPassThruFacet.testTransformSelection();
     testTransformFacet.testTransformSelection();
+  });
+
+  it("transforms selected objects", async () => {
+    const testTransformFacet = new TestTransformFacet(db);
+
+    await stdUserFacet.insert(userRow1);
+    const user = await testTransformFacet.selectOne({});
+    expect(user).toEqual(selectedUser1);
+
+    await stdUserFacet.insert([userRow2, userRow3]);
+    const users = await testTransformFacet.selectMany((qb) => qb.orderBy("id"));
+    expect(users).toEqual([selectedUser1, selectedUser2, selectedUser3]);
+  });
+
+  ignore("detects selected object type errors", async () => {
+    const testTransformFacet = new TestTransformFacet(db);
+
+    // @ts-expect-error - only returns transformed selection
+    (await testTransformFacet.selectOne({})).name;
   });
 });

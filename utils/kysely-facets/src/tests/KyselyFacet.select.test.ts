@@ -1,23 +1,15 @@
-import { Kysely, sql } from "kysely";
+/**
+ * Tests KyselyFacet.selectMany(), KyselyFacet.selectOne(), and query filters.
+ */
 
-// TODO: look at simplifying instances of facet creation with inferencing
-// TODO: look at thoroughly testing filters in a filter-only test file
+import { Kysely, sql } from "kysely";
 
 import { KyselyFacet } from "..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
 import { StdUserFacetReturningID } from "./utils/test-facets";
-import {
-  selectedUser1,
-  selectedUser2,
-  selectedUser3,
-  userRow1,
-  userRow2,
-  userRow3,
-  USERS,
-} from "./utils/test-objects";
+import { USERS } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
-import { SelectedUser } from "./utils/test-types";
 import { allOf, anyOf } from "../filters/ComboFilter";
 
 let db: Kysely<Database>;
@@ -32,7 +24,7 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe("selectMany()", () => {
+describe("selectMany() with simple filters", () => {
   it("selects nothing when nothing matches filter", async () => {
     await stdUserFacet.insert(USERS);
 
@@ -104,45 +96,13 @@ describe("selectMany()", () => {
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
 
-  it("selects with a MatchAllFilter", async () => {
-    //const allOf = stdUserFacet.selectFilterMaker().allOf;
-    const userIDs = await stdUserFacet.insertReturning(USERS);
-
-    const users = await plainUserFacet.selectMany(
-      allOf({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
+  it("throws on unrecognized filter", async () => {
+    expect(stdUserFacet.selectMany("" as any)).rejects.toThrow(
+      "Unrecognized query filter"
     );
-    expect(users.length).toEqual(1);
-    expect(users[0].handle).toEqual(USERS[2].handle);
   });
 
-  it("selects with a MatchAnyFilter", async () => {
-    await stdUserFacet.insert(USERS);
-
-    const users = await plainUserFacet.selectMany(
-      anyOf({ handle: USERS[0].handle }, ["handle", "=", USERS[2].handle])
-    );
-    expect(users.length).toEqual(2);
-    expect(users[0].handle).toEqual(USERS[0].handle);
-    expect(users[1].handle).toEqual(USERS[2].handle);
-  });
-
-  it("selects with a MatchAnyFilter with a nested MatchAllFilter", async () => {
-    const userIDs = await stdUserFacet.insertReturning(USERS);
-
-    const users = await plainUserFacet.selectMany(
-      anyOf(
-        { handle: USERS[0].handle },
-        allOf(["id", ">", userIDs[0].id], (qb) =>
-          qb.where("name", "=", USERS[0].name)
-        )
-      )
-    );
-    expect(users.length).toEqual(2);
-    expect(users[0].handle).toEqual(USERS[0].handle);
-    expect(users[1].handle).toEqual(USERS[2].handle);
-  });
-
-  ignore("detects selectMany() type errors", async () => {
+  ignore("detects selectMany() simple filter type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expressions
     plainUserFacet.selectMany("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments
@@ -161,6 +121,49 @@ describe("selectMany()", () => {
     (await plainUserFacet.selectMany((qb) => qb))[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ expr filter
     (await plainUserFacet.selectMany(sql`name = 'Sue'`))[0].notThere;
+  });
+});
+
+describe("selectMany() with compound filters", () => {
+  it("selects with allOf()", async () => {
+    //const allOf = stdUserFacet.selectFilterMaker().allOf;
+    const userIDs = await stdUserFacet.insertReturning(USERS);
+
+    const users = await plainUserFacet.selectMany(
+      allOf({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
+    );
+    expect(users.length).toEqual(1);
+    expect(users[0].handle).toEqual(USERS[2].handle);
+  });
+
+  it("selects with anyOf()", async () => {
+    await stdUserFacet.insert(USERS);
+
+    const users = await plainUserFacet.selectMany(
+      anyOf({ handle: USERS[0].handle }, ["handle", "=", USERS[2].handle])
+    );
+    expect(users.length).toEqual(2);
+    expect(users[0].handle).toEqual(USERS[0].handle);
+    expect(users[1].handle).toEqual(USERS[2].handle);
+  });
+
+  it("selects with anyOf() and a nested allOf()", async () => {
+    const userIDs = await stdUserFacet.insertReturning(USERS);
+
+    const users = await plainUserFacet.selectMany(
+      anyOf(
+        { handle: USERS[0].handle },
+        allOf(["id", ">", userIDs[0].id], (qb) =>
+          qb.where("name", "=", USERS[0].name)
+        )
+      )
+    );
+    expect(users.length).toEqual(2);
+    expect(users[0].handle).toEqual(USERS[0].handle);
+    expect(users[1].handle).toEqual(USERS[2].handle);
+  });
+
+  ignore("detects selectMany() compound filter type errors", async () => {
     await plainUserFacet.selectMany(
       // @ts-expect-error - only table columns are accessible via anyOf()
       anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
@@ -229,13 +232,20 @@ describe("selectOne()", () => {
     expect(user?.handle).toEqual(USERS[1].handle);
   });
 
+  it("selects the first row with a compound filter", async () => {
+    const userIDs = await stdUserFacet.insertReturning(USERS);
+
+    const user = await plainUserFacet.selectOne(
+      allOf({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
+    );
+    expect(user?.handle).toEqual(USERS[2].handle);
+  });
+
   it("throws on unrecognized filter", async () => {
     expect(stdUserFacet.selectOne("" as any)).rejects.toThrow(
       "Unrecognized query filter"
     );
   });
-
-  // TODO: Add tests for selectOne() with MatchAllFilter and MatchAllFilter filters
 
   ignore("detects selectOne() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expression filters
@@ -264,46 +274,13 @@ describe("selectOne()", () => {
       // @ts-expect-error - only table columns are accessible via allOf()
       allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
     );
-  });
-});
-
-describe("selection transformation", () => {
-  class SelectTransformFacet extends KyselyFacet<
-    Database,
-    "users",
-    SelectedUser
-  > {
-    constructor(db: Kysely<Database>) {
-      super(db, "users", {
-        selectTransform: (source) =>
-          SelectedUser.create(source.id, {
-            firstName: source.name.split(" ")[0],
-            lastName: source.name.split(" ")[1],
-            handle: source.handle,
-            email: source.email,
-          }),
-      });
-    }
-  }
-
-  it("transforms the selection", async () => {
-    const selectTransformFacet = new SelectTransformFacet(db);
-
-    await stdUserFacet.insert(userRow1);
-    const user = await selectTransformFacet.selectOne({});
-    expect(user).toEqual(selectedUser1);
-
-    await stdUserFacet.insert([userRow2, userRow3]);
-    const users = await selectTransformFacet.selectMany((qb) =>
-      qb.orderBy("id")
+    await plainUserFacet.selectOne(
+      // @ts-expect-error - only table columns are accessible via anyOf()
+      anyOf({ name: "xyz" }, allOf(["notThere", "=", "Sue"]))
     );
-    expect(users).toEqual([selectedUser1, selectedUser2, selectedUser3]);
-  });
-
-  ignore("detects selectTransform type errors", async () => {
-    const selectTransformFacet = new SelectTransformFacet(db);
-
-    // @ts-expect-error - only returns transformed selection
-    (await selectTransformFacet.selectOne({})).name;
+    await plainUserFacet.selectOne(
+      // @ts-expect-error - only table columns are accessible via anyOf()
+      allOf({ name: "xyz" }, anyOf(["notThere", "=", "Sue"]))
+    );
   });
 });

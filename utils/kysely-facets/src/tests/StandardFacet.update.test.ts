@@ -235,7 +235,7 @@ describe("updating rows via StandardFacet", () => {
     }
   });
 
-  it("updates rows indicated by anyOf filter", async () => {
+  it("updates rows indicated by anyOf() filter", async () => {
     const insertReturns = await stdUserFacetReturningID.insertReturning(USERS);
 
     const updateValues1 = { email: "foo@xyz.pdq" };
@@ -256,7 +256,7 @@ describe("updating rows via StandardFacet", () => {
     ]);
   });
 
-  it("updates rows indicated by allOf filter", async () => {
+  it("updates rows indicated by allOf() filter", async () => {
     const insertReturns = await stdUserFacetReturningID.insertReturning(USERS);
 
     const updateValues1 = { email: "foo@xyz.pdq" };
@@ -286,8 +286,6 @@ describe("updating rows via StandardFacet", () => {
         )
     ).rejects.toThrow("No 'returnColumns' configured for 'updateReturning'");
   });
-
-  // TODO: Add update() tests for MatchAllFilter and MatchAllFilter queries.
 
   ignore("detects update() and updateReturning() type errors", async () => {
     stdUserFacetReturningID.update(

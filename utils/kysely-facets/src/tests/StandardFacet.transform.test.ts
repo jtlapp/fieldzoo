@@ -12,6 +12,7 @@ import {
   insertedUser2,
   insertReturnedUser1,
   insertReturnedUser2,
+  STANDARD_OPTIONS,
 } from "./utils/test-objects";
 import {
   User,
@@ -98,41 +99,7 @@ describe("transforms between inputs and outputs", () => {
     ReturnedUser
   > {
     constructor(db: Kysely<Database>) {
-      super(db, "users", {
-        insertTransform: (source) => ({
-          name: `${source.firstName} ${source.lastName}`,
-          handle: source.handle,
-          email: source.email,
-        }),
-        updaterTransform: (source) => ({
-          name: `${source.firstName} ${source.lastName}`,
-          handle: source.handle,
-          email: source.email,
-        }),
-        insertReturnTransform: (source, returns) => {
-          const returnedUser = new ReturnedUser(
-            source.id,
-            source.firstName,
-            source.lastName,
-            source.handle,
-            source.email
-          );
-          returnedUser.id = returns.id;
-          return returnedUser;
-        },
-        updateReturnTransform: (source, returns) => {
-          const returnedUser = new ReturnedUser(
-            source.id,
-            source.firstName,
-            source.lastName,
-            source.handle,
-            source.email
-          );
-          returnedUser.id = returns.id;
-          return returnedUser;
-        },
-        returnColumns: ["id"],
-      });
+      super(db, "users", STANDARD_OPTIONS);
     }
 
     testTransformInsertion() {

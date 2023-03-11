@@ -31,7 +31,7 @@ describe("deleting rows via StandardFacet", () => {
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
 
-  it("deletes rows specified via ComboFilter", async () => {
+  it("deletes rows specified via compound filter", async () => {
     await stdUserFacet.insert(USERS);
 
     const count1 = await stdUserFacet.delete(
