@@ -143,9 +143,8 @@ export class KyselyFacet<
     filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
     returnColumns: RC
   ): Promise<
-    RC extends ["*"]
-      ? Selectable<DB[TableName]>[]
-      : ObjectWithKeys<Selectable<DB[TableName]>, RC>[]
+    | Selectable<DB[TableName]>[]
+    | ObjectWithKeys<Selectable<DB[TableName]>, RC>[]
   > {
     const sqb = (returnColumns as string[]).includes("*")
       ? this.selectAllQB()
@@ -182,9 +181,8 @@ export class KyselyFacet<
     filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
     returnColumns: RC
   ): Promise<
-    | (RC extends ["*"]
-        ? Selectable<DB[TableName]>
-        : ObjectWithKeys<Selectable<DB[TableName]>, RC>)
+    | Selectable<DB[TableName]>
+    | ObjectWithKeys<Selectable<DB[TableName]>, RC>
     | null
   > {
     const sqb = (returnColumns as string[]).includes("*")
