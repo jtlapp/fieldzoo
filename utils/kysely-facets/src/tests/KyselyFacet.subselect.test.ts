@@ -38,17 +38,19 @@ it("selectQB() allows for selecting rows", async () => {
 describe("subselectMany()", () => {
   it("returning all, selects nothing when nothing matches filter", async () => {
     await stdUserFacet.insert(USERS);
-    const users = await plainUserFacet.subselectMany({ name: "nonexistent" }, [
-      "*",
-    ]);
+    const users = await plainUserFacet.subselectMany(
+      { name: "nonexistent" },
+      []
+    );
     expect(users).toEqual([]);
   });
 
   it("returning all, selects rows matching filter", async () => {
     await stdUserFacet.insert(USERS);
-    const users = await plainUserFacet.subselectMany({ name: USERS[0].name }, [
-      "*",
-    ]);
+    const users = await plainUserFacet.subselectMany(
+      { name: USERS[0].name },
+      []
+    );
     expect(users).toEqual([
       Object.assign({}, USERS[0], { id: 1 }),
       Object.assign({}, USERS[2], { id: 3 }),
@@ -59,7 +61,7 @@ describe("subselectMany()", () => {
     await stdUserFacet.insert(USERS);
     const users = await plainUserFacet.subselectMany(
       allOf({ name: USERS[0].name }, ["id", ">", 1]),
-      ["*"]
+      []
     );
     expect(users).toEqual([Object.assign({}, USERS[2], { id: 3 })]);
   });
@@ -94,28 +96,28 @@ describe("subselectMany()", () => {
 
   ignore("detects subselectMany() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expression filters
-    plainUserFacet.subselectMany("name = 'John Doe'", ["*"]);
+    plainUserFacet.subselectMany("name = 'John Doe'", []);
     // @ts-expect-error - doesn't allow only two arguments of a binary op
-    plainUserFacet.subselectMany(["name", "="], ["*"]);
+    plainUserFacet.subselectMany(["name", "="], []);
     // @ts-expect-error - object filter fields must be valid
-    plainUserFacet.subselectMany({ notThere: "xyz" }, ["*"]);
+    plainUserFacet.subselectMany({ notThere: "xyz" }, []);
     // @ts-expect-error - binary op filter fields must be valid
-    plainUserFacet.subselectMany(["notThere", "=", "foo"], ["*"]);
+    plainUserFacet.subselectMany(["notThere", "=", "foo"], []);
     // @ts-expect-error - only table columns are accessible
-    (await plainUserFacet.subselectMany({}, ["*"]))[0].notThere;
+    (await plainUserFacet.subselectMany({}, []))[0].notThere;
     // @ts-expect-error - only returned columns are accessible
     (await plainUserFacet.subselectMany({}, ["id"]))[0].name;
     // @ts-expect-error - only table columns are accessible w/ object filter
-    (await plainUserFacet.subselectMany({ name: "Sue" }, ["*"]))[0].notThere;
+    (await plainUserFacet.subselectMany({ name: "Sue" }, []))[0].notThere;
     await plainUserFacet.subselectMany(
       // @ts-expect-error - only table columns are accessible via anyOf()
       anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
-      ["*"]
+      []
     );
     await plainUserFacet.subselectMany(
       // @ts-expect-error - only table columns are accessible via allOf()
       allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
-      ["*"]
+      []
     );
   });
 });
@@ -123,17 +125,13 @@ describe("subselectMany()", () => {
 describe("subselectOne()", () => {
   it("returning all, selects nothing when nothing matches filter", async () => {
     await stdUserFacet.insert(USERS);
-    const user = await plainUserFacet.subselectOne({ name: "nonexistent" }, [
-      "*",
-    ]);
+    const user = await plainUserFacet.subselectOne({ name: "nonexistent" }, []);
     expect(user).toBeNull();
   });
 
   it("returning all, selects row matching filter", async () => {
     await stdUserFacet.insert(USERS);
-    const user = await plainUserFacet.subselectOne({ name: USERS[0].name }, [
-      "*",
-    ]);
+    const user = await plainUserFacet.subselectOne({ name: USERS[0].name }, []);
     expect(user).toEqual(Object.assign({}, USERS[0], { id: 1 }));
   });
 
@@ -141,7 +139,7 @@ describe("subselectOne()", () => {
     await stdUserFacet.insert(USERS);
     const user = await plainUserFacet.subselectOne(
       allOf({ name: USERS[0].name }, ["id", ">", 1]),
-      ["*"]
+      []
     );
     expect(user).toEqual(Object.assign({}, USERS[2], { id: 3 }));
   });
@@ -170,28 +168,28 @@ describe("subselectOne()", () => {
 
   ignore("detects subselectOne() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expression filters
-    plainUserFacet.subselectOne("name = 'John Doe'", ["*"]);
+    plainUserFacet.subselectOne("name = 'John Doe'", []);
     // @ts-expect-error - doesn't allow only two arguments of a binary op
-    plainUserFacet.subselectOne(["name", "="], ["*"]);
+    plainUserFacet.subselectOne(["name", "="], []);
     // @ts-expect-error - object filter fields must be valid
-    plainUserFacet.subselectOne({ notThere: "xyz" }, ["*"]);
+    plainUserFacet.subselectOne({ notThere: "xyz" }, []);
     // @ts-expect-error - binary op filter fields must be valid
-    plainUserFacet.subselectOne(["notThere", "=", "foo"], ["*"]);
+    plainUserFacet.subselectOne(["notThere", "=", "foo"], []);
     // @ts-expect-error - only table columns are accessible
-    (await plainUserFacet.subselectOne({}, ["*"]))?.notThere;
+    (await plainUserFacet.subselectOne({}, []))?.notThere;
     // @ts-expect-error - only returned columns are accessible
     (await plainUserFacet.subselectOne({}, ["id"]))?.name;
     // @ts-expect-error - only table columns are accessible w/ object filter
-    (await plainUserFacet.subselectOne({ name: "Sue" }, ["*"]))?.notThere;
+    (await plainUserFacet.subselectOne({ name: "Sue" }, []))?.notThere;
     await plainUserFacet.subselectOne(
       // @ts-expect-error - only table columns are accessible via anyOf()
       anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
-      ["*"]
+      []
     );
     await plainUserFacet.subselectOne(
       // @ts-expect-error - only table columns are accessible via allOf()
       allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
-      ["*"]
+      []
     );
   });
 });
