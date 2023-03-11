@@ -154,7 +154,7 @@ describe("inserting a single object without transformation", () => {
     expect(result).toBeUndefined();
 
     const readUser0 = await stdUserFacet
-      .selectQB()
+      .selectAllQB()
       .where("email", "=", USERS[0].email)
       .executeTakeFirst();
     expect(readUser0?.email).toEqual(USERS[0].email);
@@ -174,7 +174,7 @@ describe("inserting a single object without transformation", () => {
     expect(Object.keys(insertReturn).length).toEqual(1);
 
     const readUser0 = await stdUserFacet
-      .selectQB()
+      .selectAllQB()
       .where("id", "=", insertReturn.id)
       .executeTakeFirst();
     expect(readUser0?.email).toEqual(USERS[0].email);
@@ -188,7 +188,7 @@ describe("inserting a single object without transformation", () => {
     expect(Object.keys(updaterPost).length).toEqual(2);
 
     const readPost0 = await stdPostFacet
-      .selectQB()
+      .selectAllQB()
       .where("id", "=", updaterPost.id)
       .where("title", "=", updaterPost.title)
       .executeTakeFirst();

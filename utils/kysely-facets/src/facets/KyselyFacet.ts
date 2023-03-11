@@ -1,9 +1,16 @@
-import { Kysely, ReferenceExpression, Selectable } from "kysely";
+import {
+  Kysely,
+  ReferenceExpression,
+  Selectable,
+  SelectExpressionOrList,
+} from "kysely";
+import { QueryBuilderWithSelection } from "kysely/dist/cjs/parser/select-parser";
 
 import { applyQueryFilter, QueryFilter } from "../filters/QueryFilter";
+import { ObjectWithKeys } from "../lib/type-utils";
 
 type SelectQB<DB, TableName extends keyof DB & string> = ReturnType<
-  KyselyFacet<DB, TableName, any>["selectQB"]
+  KyselyFacet<DB, TableName, any>["selectAllQB"]
 >;
 
 /**
@@ -54,10 +61,25 @@ export class KyselyFacet<
   }
 
   /**
-   * Creates a query builder for selecting rows from this table.
-   * @returns A query builder for selecting rows from this table.
+   * Creates a query builder for selecting rows from this table,
+   * returning only the requested columns.
+   * @param selections Column to return or array of columns to return.
+   * @returns A query builder for selecting rows from this table,
+   *  returning only the requested column or columns.
    */
-  selectQB() {
+  selectQB<SE extends SelectExpressionOrList<DB, TableName>>(
+    selections: SE
+  ): QueryBuilderWithSelection<DB, TableName, object, SE> {
+    return this.db.selectFrom(this.tableName).select(selections as any) as any;
+  }
+
+  /**
+   * Creates a query builder for selecting rows from this table,
+   * returning all columns.
+   * @returns A query builder for selecting rows from this table,
+   * returning all columns.
+   */
+  selectAllQB() {
     return this.db.selectFrom(this.tableName).selectAll();
   }
 
@@ -70,7 +92,7 @@ export class KyselyFacet<
   async selectMany<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>
   ): Promise<SelectedObject[]> {
-    const sqb = this.selectQB().selectAll();
+    const sqb = this.selectAllQB();
     const fqb = applyQueryFilter(this, filter)(sqb);
     const selections = await fqb.execute();
     return this.transformSelectionArray(
@@ -79,19 +101,98 @@ export class KyselyFacet<
   }
 
   /**
-   * Selects at most one row from this table, selecting rows according
-   * to the provided filter.
+   * Selects the first row from this table matching the provided filter.
    * @param filter Filter that constrains the selection.
    * @returns An object for the selected row, or `null` if no row was found.
    */
   async selectOne<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>
   ): Promise<SelectedObject | null> {
-    const sqb = this.selectQB().selectAll();
+    const sqb = this.selectAllQB();
     const fqb = applyQueryFilter(this, filter)(sqb);
     const selection = await fqb.executeTakeFirst();
     if (!selection) return null;
     return this.transformSelection(selection as Selectable<DB[TableName]>);
+  }
+
+  /**
+   * Selects zero or more rows from this table, selecting rows according
+   * to the provided filter, returning the given columns.
+   * @param filter Filter that constrains the selected rows.
+   * @param returnColumns Columns to return. ["*"] returns all columns.
+   * @returns An array of the selected rows, possibly empty,
+   *  only containing the requested columns.
+   */
+  subselectMany<
+    RE extends ReferenceExpression<DB, TableName>,
+    RC extends (keyof Selectable<DB[TableName]> & string)[]
+  >(
+    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    returnColumns: RC
+  ): Promise<ObjectWithKeys<Selectable<DB[TableName]>, RC>[]>;
+
+  subselectMany<RE extends ReferenceExpression<DB, TableName>>(
+    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    returnColumns: ["*"]
+  ): Promise<Selectable<DB[TableName]>[]>;
+
+  async subselectMany<
+    RE extends ReferenceExpression<DB, TableName>,
+    RC extends (keyof Selectable<DB[TableName]> & string)[] | ["*"]
+  >(
+    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    returnColumns: RC
+  ): Promise<
+    RC extends ["*"]
+      ? Selectable<DB[TableName]>[]
+      : ObjectWithKeys<Selectable<DB[TableName]>, RC>[]
+  > {
+    const sqb = (returnColumns as string[]).includes("*")
+      ? this.selectAllQB()
+      : this.selectQB(returnColumns as any);
+    const fqb = applyQueryFilter(this, filter)(sqb);
+    return fqb.execute() as any;
+  }
+
+  /**
+   * Selects the first row from this table matching the provided filter,
+   * returning the given columns.
+   * @param filter Filter that constrains the selection.
+   * @param returnColumns Columns to return. ["*"] returns all columns.
+   * @returns The selected row, only containing the requested columns,
+   *  or `null` if no matching row was found.
+   */
+  subselectOne<
+    RE extends ReferenceExpression<DB, TableName>,
+    RC extends (keyof Selectable<DB[TableName]> & string)[]
+  >(
+    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    returnColumns: RC
+  ): Promise<ObjectWithKeys<Selectable<DB[TableName]>, RC> | null>;
+
+  subselectOne<RE extends ReferenceExpression<DB, TableName>>(
+    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    returnColumns: ["*"]
+  ): Promise<Selectable<DB[TableName]> | null>;
+
+  async subselectOne<
+    RE extends ReferenceExpression<DB, TableName>,
+    RC extends (keyof Selectable<DB[TableName]> & string)[] | ["*"]
+  >(
+    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    returnColumns: RC
+  ): Promise<
+    | (RC extends ["*"]
+        ? Selectable<DB[TableName]>
+        : ObjectWithKeys<Selectable<DB[TableName]>, RC>)
+    | null
+  > {
+    const sqb = (returnColumns as string[]).includes("*")
+      ? this.selectAllQB()
+      : this.selectQB(returnColumns as any);
+    const fqb = applyQueryFilter(this, filter)(sqb);
+    const result = await fqb.executeTakeFirst();
+    return result ? (result as any) : null;
   }
 
   /**
