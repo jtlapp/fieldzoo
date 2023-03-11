@@ -1,4 +1,4 @@
-import { Insertable, Kysely, Selectable, SelectType, Updateable } from "kysely";
+import { Insertable, Kysely, Selectable, SelectType } from "kysely";
 import { ObjectWithKeys } from "../lib/type-utils";
 
 import { StandardFacetOptions, StandardFacet } from "./StandardFacet";
@@ -52,11 +52,8 @@ export class StandardIdFacet<
   async deleteById(
     id: SelectType<DB[TableName][IdColumnName]>
   ): Promise<boolean> {
-    const result = await this.db
-      .deleteFrom(this.tableName)
-      .where(this.ref(this.idColumnName), "=", id)
-      .executeTakeFirst();
-    return Number(result.numDeletedRows) == 1;
+    const count = await this.delete([this.ref(this.idColumnName), "=", id]);
+    return count == 1;
   }
 
   /**
@@ -69,17 +66,32 @@ export class StandardIdFacet<
   }
 
   /**
-   * Update the row having the given ID.
+   * Update the row having the given ID, without returning any columns.
    * @param obj Object containing the fields to update. The ID of the row
    *  to update is taken from this object.
    * @returns The number of rows updated.
    */
-  async updateById(obj: Updateable<DB[TableName]>) {
+  async updateById(obj: UpdaterObject) {
     const updateCount = await this.update(
       [this.ref(this.idColumnName), "=", (obj as any)[this.idColumnName]],
       obj as any
     );
     return updateCount == 1;
+  }
+
+  /**
+   * Update the row having the given ID, returning the columns specified in
+   * the `returnColumns` option from the row or rows.
+   * @param obj Object containing the fields to update. The ID of the row
+   * to update is taken from this object.
+   * @returns An object for the row, or null if no row was found.
+   */
+  async updateByIdReturning(obj: UpdaterObject) {
+    const result = await this.updateReturning(
+      [this.ref(this.idColumnName), "=", (obj as any)[this.idColumnName]],
+      obj as any
+    );
+    return result;
   }
 }
 

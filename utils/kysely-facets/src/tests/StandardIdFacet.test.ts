@@ -33,7 +33,7 @@ describe("facet for table with unique ID", () => {
     const id0 = (await explicitIdFacet.insertReturning(USERS[0])).id;
     const id1 = (await explicitIdFacet.insertReturning(USERS[1])).id;
 
-    // Update a user
+    // Update a user without returning columns
     const NEW_EMAIL = "new@baz.com";
     const updated = await explicitIdFacet.updateById({
       id: id1,
@@ -55,6 +55,18 @@ describe("facet for table with unique ID", () => {
     expect(readUser0?.handle).toEqual(USERS[0].handle);
     const noUser = await explicitIdFacet.selectById(id1);
     expect(noUser).toBeNull();
+  });
+
+  it("updates returning expected columns", async () => {
+    const id1 = (await explicitIdFacet.insertReturning(USERS[1])).id;
+
+    const NEW_EMAIL = "new@baz.com";
+    const updated = await explicitIdFacet.updateByIdReturning({
+      id: id1,
+      email: NEW_EMAIL,
+    });
+    // prettier-ignore
+    expect(updated).toEqual([{ id: id1 }]);
   });
 
   it("provides a default ID of 'id'", async () => {
