@@ -24,6 +24,17 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
+it("selectQB() allows for selecting rows", async () => {
+  await stdUserFacet.insert(USERS);
+  const users1 = await plainUserFacet.selectQB("handle").execute();
+  expect(users1).toEqual(USERS.map((u) => ({ handle: u.handle })));
+
+  const users2 = await plainUserFacet.selectQB(["name", "handle"]).execute();
+  expect(users2).toEqual(
+    USERS.map((u) => ({ name: u.name, handle: u.handle }))
+  );
+});
+
 describe("subselectMany()", () => {
   it("returning all, selects nothing when nothing matches filter", async () => {
     await stdUserFacet.insert(USERS);
