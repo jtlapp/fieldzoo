@@ -5,7 +5,7 @@ import { Database } from "./utils/test-tables";
 import { StdUserFacet } from "./utils/test-facets";
 import { USERS } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
-import { allOf, anyOf } from "../filters/ComboFilter";
+import { allOf, anyOf } from "../filters/CompoundFilter";
 
 let db: Kysely<Database>;
 let stdUserFacet: StdUserFacet;

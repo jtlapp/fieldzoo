@@ -1,6 +1,5 @@
 /**
- * The type and implementation of the query filter object, which can
- * be passed as an argument to query functions to constrain results.
+ * Compound filters, consisting of multiple filters.
  */
 
 import { ReferenceExpression, WhereInterface } from "kysely";
@@ -12,7 +11,7 @@ import { QueryFilter, applyQueryFilter } from "./QueryFilter";
 /**
  * A filter that is a combination of other filters.
  */
-export abstract class ComboFilter<
+export abstract class CompoundFilter<
   DB,
   TableName extends keyof DB & string,
   QB extends WhereInterface<any, any>,
@@ -21,7 +20,7 @@ export abstract class ComboFilter<
   filters: QueryFilter<DB, TableName, QB, RE>[];
 
   /**
-   * Constructs a combo filter.
+   * Constructs a compound filter.
    * @param filters The filters to combine.
    */
   constructor(filters: QueryFilter<any, any, any, any>[]) {
@@ -41,7 +40,7 @@ export class MatchAllFilter<
   TableName extends keyof DB & string,
   QB extends WhereInterface<any, any>,
   RE extends ReferenceExpression<DB, TableName>
-> extends ComboFilter<DB, TableName, QB, RE> {
+> extends CompoundFilter<DB, TableName, QB, RE> {
   apply(base: KyselyFacet<DB, TableName>): (qb: QB) => QB {
     return (qb) => {
       for (const filter of this.filters) {
@@ -75,7 +74,7 @@ export class MatchAnyFilter<
   TableName extends keyof DB & string,
   QB extends WhereInterface<any, any>,
   RE extends ReferenceExpression<DB, TableName>
-> extends ComboFilter<DB, TableName, QB, RE> {
+> extends CompoundFilter<DB, TableName, QB, RE> {
   apply(base: KyselyFacet<DB, TableName>): (qb: QB) => QB {
     return (qb) => {
       for (const filter of this.filters) {
