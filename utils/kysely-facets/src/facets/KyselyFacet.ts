@@ -119,11 +119,21 @@ export class KyselyFacet<
    * Selects zero or more rows from this table, selecting rows according
    * to the provided filter, returning the given columns.
    * @param filter Filter that constrains the selected rows.
-   * @param returnColumns Columns to return. `[]` returns all columns.
+   * @param returnColumns Columns to return. `[]` returns all columns,
+   *  as does omitting the argument.
    * @returns An array of the selected rows, possibly empty,
    *  only containing the requested columns.
    */
-  async subselectMany<
+  subselectMany<RE extends ReferenceExpression<DB, TableName>>(
+    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>
+  ): Promise<Selectable<DB[TableName]>[]>;
+
+  subselectMany<RE extends ReferenceExpression<DB, TableName>>(
+    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    returnColumns: []
+  ): Promise<Selectable<DB[TableName]>[]>;
+
+  subselectMany<
     RE extends ReferenceExpression<DB, TableName>,
     RC extends (keyof Selectable<DB[TableName]> & string)[]
   >(
@@ -132,9 +142,20 @@ export class KyselyFacet<
   ): Promise<
     | Selectable<DB[TableName]>[]
     | ObjectWithKeys<Selectable<DB[TableName]>, RC>[]
+  >;
+
+  async subselectMany<
+    RE extends ReferenceExpression<DB, TableName>,
+    RC extends (keyof Selectable<DB[TableName]> & string)[]
+  >(
+    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    returnColumns?: RC
+  ): Promise<
+    | Selectable<DB[TableName]>[]
+    | ObjectWithKeys<Selectable<DB[TableName]>, RC>[]
   > {
     const sqb =
-      returnColumns.length === 0
+      !returnColumns || returnColumns.length === 0
         ? this.selectAllQB()
         : this.selectQB(returnColumns as any);
     const fqb = applyQueryFilter(this, filter)(sqb);
@@ -145,11 +166,21 @@ export class KyselyFacet<
    * Selects the first row from this table matching the provided filter,
    * returning the given columns.
    * @param filter Filter that constrains the selection.
-   * @param returnColumns Columns to return. `[]` returns all columns.
+   * @param returnColumns Columns to return. `[]` returns all columns,
+   *  as does omitting the argument.
    * @returns The selected row, only containing the requested columns,
    *  or `null` if no matching row was found.
    */
-  async subselectOne<
+  subselectOne<RE extends ReferenceExpression<DB, TableName>>(
+    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>
+  ): Promise<Selectable<DB[TableName]> | null>;
+
+  subselectOne<RE extends ReferenceExpression<DB, TableName>>(
+    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    returnColumns: []
+  ): Promise<Selectable<DB[TableName]> | null>;
+
+  subselectOne<
     RE extends ReferenceExpression<DB, TableName>,
     RC extends (keyof Selectable<DB[TableName]> & string)[]
   >(
@@ -159,9 +190,21 @@ export class KyselyFacet<
     | Selectable<DB[TableName]>
     | ObjectWithKeys<Selectable<DB[TableName]>, RC>
     | null
+  >;
+
+  async subselectOne<
+    RE extends ReferenceExpression<DB, TableName>,
+    RC extends (keyof Selectable<DB[TableName]> & string)[]
+  >(
+    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    returnColumns?: RC
+  ): Promise<
+    | Selectable<DB[TableName]>
+    | ObjectWithKeys<Selectable<DB[TableName]>, RC>
+    | null
   > {
     const sqb =
-      returnColumns.length === 0
+      !returnColumns || returnColumns.length === 0
         ? this.selectAllQB()
         : this.selectQB(returnColumns as any);
     const fqb = applyQueryFilter(this, filter)(sqb);

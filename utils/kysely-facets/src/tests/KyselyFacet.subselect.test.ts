@@ -47,14 +47,18 @@ describe("subselectMany()", () => {
 
   it("returning all, selects rows matching filter", async () => {
     await stdUserFacet.insert(USERS);
-    const users = await plainUserFacet.subselectMany(
-      { name: USERS[0].name },
-      []
-    );
-    expect(users).toEqual([
+    const expectedUsers = [
       Object.assign({}, USERS[0], { id: 1 }),
       Object.assign({}, USERS[2], { id: 3 }),
-    ]);
+    ];
+
+    let users = await plainUserFacet.subselectMany({
+      name: USERS[0].name,
+    });
+    expect(users).toEqual(expectedUsers);
+
+    users = await plainUserFacet.subselectMany({ name: USERS[0].name }, []);
+    expect(users).toEqual(expectedUsers);
   });
 
   it("returning all, selects rows matching compound filter", async () => {
@@ -131,7 +135,13 @@ describe("subselectOne()", () => {
 
   it("returning all, selects row matching filter", async () => {
     await stdUserFacet.insert(USERS);
-    const user = await plainUserFacet.subselectOne({ name: USERS[0].name }, []);
+
+    let user = await plainUserFacet.subselectOne({
+      name: USERS[0].name,
+    });
+    expect(user).toEqual(Object.assign({}, USERS[0], { id: 1 }));
+
+    user = await plainUserFacet.subselectOne({ name: USERS[0].name }, []);
     expect(user).toEqual(Object.assign({}, USERS[0], { id: 1 }));
   });
 
