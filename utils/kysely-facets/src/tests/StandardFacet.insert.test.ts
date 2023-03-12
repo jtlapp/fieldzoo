@@ -6,7 +6,7 @@ import { Database, Posts } from "./utils/test-tables";
 import {
   StdUserFacet,
   StdUserFacetReturningID,
-  StdUserFacetReturningAll,
+  StdUserFacetExplicitlyReturningAll,
 } from "./utils/test-facets";
 import {
   USERS,
@@ -29,7 +29,7 @@ let db: Kysely<Database>;
 
 let stdUserFacet: StdUserFacet;
 let stdUserFacetReturningID: StdUserFacetReturningID;
-let stdUserFacetReturningAll: StdUserFacetReturningAll;
+let stdUserFacetExplicitlyReturningAll: StdUserFacetExplicitlyReturningAll;
 
 let stdPostFacet: StandardFacet<
   Database,
@@ -51,7 +51,9 @@ beforeAll(async () => {
   db = await createDB();
   stdUserFacet = new StdUserFacet(db);
   stdUserFacetReturningID = new StdUserFacetReturningID(db);
-  stdUserFacetReturningAll = new StdUserFacetReturningAll(db);
+  stdUserFacetExplicitlyReturningAll = new StdUserFacetExplicitlyReturningAll(
+    db
+  );
   stdPostFacet = new StandardFacet(db, "posts");
   stdPostFacetReturningIDAndTitle = new StandardFacet(db, "posts", {
     returnColumns: ["id", "title"],
@@ -84,12 +86,6 @@ describe("insert an array of objects without transformation", () => {
     }
   });
 
-  it("errors when requesting returns that weren't configured", async () => {
-    expect(
-      async () => await stdUserFacet.insertReturning(USERS)
-    ).rejects.toThrow("No 'returnColumns' configured for 'insertReturning'");
-  });
-
   it("inserts rows returning configured return columns", async () => {
     const insertReturns = await stdUserFacetReturningID.insertReturning(USERS);
     expect(insertReturns.length).toEqual(3);
@@ -120,8 +116,21 @@ describe("insert an array of objects without transformation", () => {
     }
   });
 
+  it("inserts rows returning all columns by default", async () => {
+    const insertReturns = await stdUserFacet.insertReturning(USERS);
+    for (let i = 0; i < USERS.length; i++) {
+      expect(insertReturns[i].id).toBeGreaterThan(0);
+    }
+    expect(insertReturns).toEqual(
+      USERS.map((user, i) =>
+        Object.assign({}, user, { id: insertReturns[i].id })
+      )
+    );
+  });
+
   it("inserts rows configured to return all columns", async () => {
-    const insertReturns = await stdUserFacetReturningAll.insertReturning(USERS);
+    const insertReturns =
+      await stdUserFacetExplicitlyReturningAll.insertReturning(USERS);
     for (let i = 0; i < USERS.length; i++) {
       expect(insertReturns[i].id).toBeGreaterThan(0);
     }
@@ -160,12 +169,6 @@ describe("inserting a single object without transformation", () => {
     expect(readUser0?.email).toEqual(USERS[0].email);
   });
 
-  it("errors when requesting returns that weren't configured", async () => {
-    expect(
-      async () => await stdUserFacet.insertReturning(USERS[0])
-    ).rejects.toThrow("No 'returnColumns' configured for 'insertReturning'");
-  });
-
   it("inserts one returning configured return columns", async () => {
     const insertReturn = await stdUserFacetReturningID.insertReturning(
       USERS[0]
@@ -196,9 +199,8 @@ describe("inserting a single object without transformation", () => {
   });
 
   it("inserts one configured to return all columns", async () => {
-    const insertReturn = await stdUserFacetReturningAll.insertReturning(
-      USERS[0]
-    );
+    const insertReturn =
+      await stdUserFacetExplicitlyReturningAll.insertReturning(USERS[0]);
     expect(insertReturn.id).toBeGreaterThan(0);
     const expectedUser = Object.assign({}, USERS[0], { id: insertReturn.id });
     expect(insertReturn).toEqual(expectedUser);
@@ -216,7 +218,7 @@ describe("inserting a single object without transformation", () => {
     // @ts-expect-error - only requested columns are returned
     (await stdUserFacet.insert(USERS[0])).name;
     // @ts-expect-error - only requested columns are returned
-    (await stdUserFacet.insertReturning(USERS[0])).name;
+    (await stdUserFacetReturningID.insertReturning(USERS[0])).name;
   });
 });
 
@@ -348,25 +350,6 @@ describe("insertion transformation", () => {
       insertedUser3,
     ]);
     expect(insertReturns).toEqual([insertReturnedUser2, insertReturnedUser3]);
-  });
-
-  it("errors when providing an empty returnColumns array", () => {
-    expect(
-      () =>
-        new StandardFacet(db, "users", {
-          insertReturnTransform: (source, _returns) => source,
-          returnColumns: [],
-        })
-    ).toThrow("No 'returnColumns' returned for 'insertReturnTransform'");
-  });
-
-  it("errors when providing insertReturnTransform but not returnColumns", () => {
-    expect(
-      () =>
-        new StandardFacet(db, "users", {
-          insertReturnTransform: (source, _returns) => source,
-        })
-    ).toThrow("'insertReturnTransform' requires 'returnColumns'");
   });
 
   ignore("detects insertion transformation type errors", async () => {

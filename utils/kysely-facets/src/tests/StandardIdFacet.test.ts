@@ -1,7 +1,7 @@
-import { Kysely } from "kysely";
+import { Insertable, Kysely, Selectable } from "kysely";
 
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
-import { Database } from "./utils/test-tables";
+import { Database, Users } from "./utils/test-tables";
 import {
   USERS,
   STANDARD_OPTIONS,
@@ -11,9 +11,17 @@ import {
 import { StandardIdFacet } from "../facets/StandardIdFacet";
 import { ReturnedUser, SelectedUser, UpdaterUser } from "./utils/test-types";
 
-class ExplicitIdFacet extends StandardIdFacet<Database, "users", "id"> {
+class ExplicitIdFacet extends StandardIdFacet<
+  Database,
+  "users",
+  "id",
+  Selectable<Users>,
+  Insertable<Users>,
+  Partial<Insertable<Users>>,
+  ["id"]
+> {
   constructor(readonly db: Kysely<Database>) {
-    super(db, "users", "id");
+    super(db, "users", "id", { returnColumns: ["id"] });
   }
 }
 
@@ -71,6 +79,34 @@ describe("facet for table with unique ID", () => {
     expect(noUser).toBeNull();
   });
 
+  it("updates returning all columns by default with default ID", async () => {
+    const defaultIdFacet = new StandardIdFacet(db, "users");
+    const id1 = (await defaultIdFacet.insertReturning(USERS[1])).id;
+
+    const NEW_EMAIL = "new@baz.com";
+    const updated = await defaultIdFacet.updateByIdReturning({
+      id: id1,
+      email: NEW_EMAIL,
+    });
+    expect(updated).toEqual(
+      Object.assign({}, USERS[1], { id: id1, email: NEW_EMAIL })
+    );
+  });
+
+  it("updates returning all columns by default with specified ID", async () => {
+    const defaultIdFacet = new StandardIdFacet(db, "users", "id");
+    const id1 = (await defaultIdFacet.insertReturning(USERS[1])).id;
+
+    const NEW_EMAIL = "new@baz.com";
+    const updated = await defaultIdFacet.updateByIdReturning({
+      id: id1,
+      email: NEW_EMAIL,
+    });
+    expect(updated).toEqual(
+      Object.assign({}, USERS[1], { id: id1, email: NEW_EMAIL })
+    );
+  });
+
   it("updates returning expected columns", async () => {
     const id1 = (await explicitIdFacet.insertReturning(USERS[1])).id;
 
@@ -112,9 +148,7 @@ describe("facet for table with unique ID", () => {
   });
 
   it("allows for returning all columns", async () => {
-    const allColumnsFacet = new StandardIdFacet(db, "users", "id", {
-      returnColumns: ["*"],
-    });
+    const allColumnsFacet = new StandardIdFacet(db, "users", "id");
 
     const insertReturn1 = await allColumnsFacet.insertReturning(USERS[0]);
     expect(insertReturn1).toEqual({
@@ -174,6 +208,6 @@ describe("facet for table with unique ID", () => {
       new StandardIdFacet(db, "users", "id", {
         returnColumns: ["handle"],
       });
-    }).toThrowError("returnColumns must include idColumnName");
+    }).toThrowError("'returnColumns' must include 'idColumnName'");
   });
 });

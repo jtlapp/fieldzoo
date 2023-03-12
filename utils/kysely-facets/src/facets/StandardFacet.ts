@@ -30,7 +30,7 @@ export interface StandardFacetOptions<
   SelectedObject,
   InsertedObject,
   UpdaterObject,
-  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"],
+  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[],
   ReturnedObject
 > extends FacetOptions<DB, TableName, SelectedObject> {
   /** Transformation to apply to inserted objects before insertion. */
@@ -63,20 +63,16 @@ export class StandardFacet<
   SelectedObject = Selectable<DB[TableName]>,
   InsertedObject = Insertable<DB[TableName]>,
   UpdaterObject = Partial<Insertable<DB[TableName]>>,
-  ReturnColumns extends
-    | (keyof Selectable<DB[TableName]> & string)[]
-    | ["*"] = [],
+  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] = [],
   ReturnedObject = ReturnColumns extends []
-    ? void
+    ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
 > extends KyselyFacet<DB, TableName, SelectedObject> {
   /**
-   * Columns to return from table upon insertion. Contrary to the meaning of
-   * `ReturnColumns`, an empty array here returns all columns, while null
-   * returns none. `ReturnColumns` is more intuitive using `["*"]` and
-   * `[]`, respectively, while the approach here requires fewer clock cycles.
+   * Columns to return from table upon request, whether returning from an
+   * insert or an update. An empty array returns all columns.
    */
-  protected returnColumns: (keyof Selectable<DB[TableName]> & string)[] | null;
+  protected returnColumns: (keyof Selectable<DB[TableName]> & string)[] = [];
 
   /**
    * Constructs a new Kysely table.
@@ -98,23 +94,7 @@ export class StandardFacet<
     > = {}
   ) {
     super(db, tableName, options);
-
-    if (options.insertReturnTransform) {
-      if (!options.returnColumns) {
-        throw Error("'insertReturnTransform' requires 'returnColumns'");
-      }
-      if (options.returnColumns?.length === 0) {
-        throw Error("No 'returnColumns' returned for 'insertReturnTransform'");
-      }
-    }
-    if (options.updateReturnTransform) {
-      if (!options.returnColumns) {
-        throw Error("'updateReturnTransform' requires 'returnColumns'");
-      }
-      if (options.returnColumns?.length === 0) {
-        throw Error("No 'returnColumns' returned for 'updateReturnTransform'");
-      }
-    }
+    this.returnColumns = options.returnColumns ?? [];
 
     if (options.insertTransform) {
       this.transformInsertion = options.insertTransform;
@@ -124,17 +104,6 @@ export class StandardFacet<
     }
     if (options.insertReturnTransform) {
       this.transformInsertReturn = options.insertReturnTransform;
-    }
-
-    this.returnColumns = null;
-    if (options.returnColumns) {
-      // Cast here because TS wasn't allowing the includes() check.
-      const returnColumns = options.returnColumns as string[];
-      if (returnColumns.length > 0) {
-        this.returnColumns = returnColumns.includes("*")
-          ? []
-          : (returnColumns as (keyof Selectable<DB[TableName]> & string)[]);
-      }
     }
   }
 
@@ -168,8 +137,7 @@ export class StandardFacet<
   }
 
   /**
-   * Inserts one or more rows into this table, without returning any
-   * columns, regardless of whether `returnColumns` was configured.
+   * Inserts one or more rows into this table, without returning any columns.
    * @param objOrObjs The object or objects to insert as a row.
    */
   insert(obj: InsertedObject): Promise<void>;
@@ -184,11 +152,10 @@ export class StandardFacet<
 
   /**
    * Inserts one or more rows into this table, returning the columns
-   * specified in the `returnColumns` option from the row or rows.
+   * specified in the `returnColumns` for each row inserted.
    * @param objOrObjs The object or objects to insert as a row.
    * @returns Returns a `ReturnedObject` for each inserted object. An
    *  array when `objOrObjs` is an array, and a single object otherwise.
-   * @throws Error if `ReturnedObject` was not assigned.
    */
   insertReturning(obj: InsertedObject): Promise<ReturnedObject>;
 
@@ -197,11 +164,6 @@ export class StandardFacet<
   async insertReturning(
     objOrObjs: InsertedObject | InsertedObject[]
   ): Promise<ReturnedObject | ReturnedObject[]> {
-    // TODO: maybe return empty objects in this case?
-    if (this.returnColumns === null) {
-      throw Error("No 'returnColumns' configured for 'insertReturning'");
-    }
-
     const insertedAnArray = Array.isArray(objOrObjs); // expensive operation
     let qb: InsertQueryBuilder<DB, TableName, InsertResult>;
     if (insertedAnArray) {
@@ -239,7 +201,7 @@ export class StandardFacet<
 
   /**
    * Updates rows in this table matching the provided filter, without returning
-   * any columns, regardless of whether `returnColumns` was configured.
+   * any columns
    * @param filter Filter specifying the rows to update.
    * @param obj The object whose field values are to be assigned to the row.
    * @returns Returns the number of updated rows.
@@ -257,7 +219,7 @@ export class StandardFacet<
 
   /**
    * Updates rows in this table matching the provided filter, returning the
-   * columns specified in the `returnColumns` option from the row or rows.
+   * columns specified in the `returnColumns` option for each row.
    * @param filter Filter specifying the rows to update.
    * @param obj The object whose field values are to be assigned to the row.
    * @returns Returns an array of `ReturnedObject` objects, one for each
@@ -268,10 +230,6 @@ export class StandardFacet<
     filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
     obj: UpdaterObject
   ): Promise<ReturnedObject[]> {
-    if (this.returnColumns === null) {
-      throw Error("No 'returnColumns' configured for 'updateReturning'");
-    }
-
     const transformedObj = this.transformUpdater(obj);
     const uqb = this.updateQB().set(transformedObj as any);
     const fqb = applyQueryFilter(this, filter)(uqb);

@@ -12,11 +12,9 @@ export class StandardIdFacet<
   SelectedObject = Selectable<DB[TableName]>,
   InsertedObject = Insertable<DB[TableName]>,
   UpdaterObject = Partial<Insertable<DB[TableName]>>,
-  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"] = [
-    IdColumnName
-  ],
+  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] = [],
   ReturnedObject = ReturnColumns extends []
-    ? void
+    ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
 > extends StandardFacet<
   DB,
@@ -109,7 +107,7 @@ function _prepareOptions<
   SelectedObject,
   InsertedObject,
   UpdaterObject,
-  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"],
+  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[],
   ReturnedObject
 >(
   idColumnName: IdColumnName,
@@ -123,12 +121,12 @@ function _prepareOptions<
     ReturnedObject
   >
 ) {
-  const returnColumns = options.returnColumns ?? [idColumnName];
-  if (
-    !returnColumns.includes(idColumnName as any) &&
-    !returnColumns.includes("*" as any)
-  ) {
-    throw Error("returnColumns must include idColumnName");
+  const returnColumns: (keyof Selectable<DB[TableName]> & string)[] =
+    options.returnColumns ?? [];
+  if (returnColumns.length !== 0 && !returnColumns.includes(idColumnName)) {
+    throw Error(
+      "'returnColumns' must include 'idColumnName' (e.g. [] includes all columns)"
+    );
   }
   return { ...options, returnColumns };
 }

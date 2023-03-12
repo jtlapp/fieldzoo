@@ -41,15 +41,15 @@ export class StdUserFacetReturningIDAndHandle extends StandardFacet<
   }
 }
 
-export class StdUserFacetReturningAll extends StandardFacet<
+export class StdUserFacetExplicitlyReturningAll extends StandardFacet<
   Database,
   "users",
   Selectable<Users>,
   Insertable<Users>,
   Partial<Insertable<Users>>,
-  ["*"]
+  []
 > {
   constructor(readonly db: Kysely<Database>) {
-    super(db, "users", { returnColumns: ["*"] });
+    super(db, "users");
   }
 }

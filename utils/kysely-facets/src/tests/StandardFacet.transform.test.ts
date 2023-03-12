@@ -252,7 +252,7 @@ ignore("detects invalid return column configurations", () => {
     Insertable<Users>,
     Partial<Insertable<Users>>,
     // @ts-expect-error - invalid return column configuration
-    ["notThere", "*"]
+    ["name", "notThere"]
   >(db, "users", {});
 
   new StandardFacet<
@@ -277,7 +277,7 @@ ignore("detects invalid return column configurations", () => {
 
   class TestFacet6<
     // Be sure the following is the same as in StandardFacet
-    ReturnColumns extends (keyof Selectable<Users> & string)[] | ["*"] = []
+    ReturnColumns extends (keyof Selectable<Users> & string)[] = []
   > extends StandardFacet<
     Database,
     "users",

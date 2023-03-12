@@ -7,7 +7,7 @@ import {
   StdUserFacet,
   StdUserFacetReturningID,
   StdUserFacetReturningIDAndHandle,
-  StdUserFacetReturningAll,
+  StdUserFacetExplicitlyReturningAll,
 } from "./utils/test-facets";
 import {
   userObject1,
@@ -23,14 +23,16 @@ let db: Kysely<Database>;
 let stdUserFacet: StdUserFacet;
 let stdUserFacetReturningID: StdUserFacetReturningID;
 let stdUserFacetReturningIDAndHandle: StdUserFacetReturningIDAndHandle;
-let stdUserFacetReturningAll: StdUserFacetReturningAll;
+let stdUserFacetExplicitlyReturningAll: StdUserFacetExplicitlyReturningAll;
 
 beforeAll(async () => {
   db = await createDB();
   stdUserFacet = new StdUserFacet(db);
   stdUserFacetReturningID = new StdUserFacetReturningID(db);
   stdUserFacetReturningIDAndHandle = new StdUserFacetReturningIDAndHandle(db);
-  stdUserFacetReturningAll = new StdUserFacetReturningAll(db);
+  stdUserFacetExplicitlyReturningAll = new StdUserFacetExplicitlyReturningAll(
+    db
+  );
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
@@ -166,11 +168,11 @@ describe("updating rows via StandardFacet", () => {
     expect(readUsers.length).toEqual(3);
   });
 
-  it("updates configured to return all columns", async () => {
+  it("updates returning all columns by default", async () => {
     const insertReturns = await stdUserFacetReturningID.insertReturning(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
-    const updateReturns = await stdUserFacetReturningAll.updateReturning(
+    const updateReturns = await stdUserFacet.updateReturning(
       { name: "Sue" },
       updateValues
     );
@@ -187,6 +189,23 @@ describe("updating rows via StandardFacet", () => {
       "Sue",
     ]);
     expect(readUsers).toEqual(expectedUsers);
+  });
+
+  it("updates configured to return all columns", async () => {
+    const insertReturns = await stdUserFacetReturningID.insertReturning(USERS);
+
+    const updateValues = { email: "new.email@xyz.pdq" };
+    const updateReturns =
+      await stdUserFacetExplicitlyReturningAll.updateReturning(
+        { name: "Sue" },
+        updateValues
+      );
+
+    const expectedUsers = [
+      Object.assign({}, USERS[0], updateValues, { id: insertReturns[0].id }),
+      Object.assign({}, USERS[2], updateValues, { id: insertReturns[2].id }),
+    ];
+    expect(updateReturns).toEqual(expectedUsers);
   });
 
   it("updates all rows when no filter is given", async () => {
@@ -287,19 +306,6 @@ describe("updating rows via StandardFacet", () => {
       updateValues2
     );
     expect(updateReturns).toEqual([{ id: insertReturns[0].id }]);
-  });
-
-  it("errors when requesting returns that weren't configured", async () => {
-    await stdUserFacetReturningID.insert(USERS);
-
-    const updateValues = { email: "new.email@xyz.pdq" };
-    expect(
-      async () =>
-        await stdUserFacet.updateReturning(
-          { name: USERS[0].name },
-          updateValues
-        )
-    ).rejects.toThrow("No 'returnColumns' configured for 'updateReturning'");
   });
 
   ignore("detects update() and updateReturning() type errors", async () => {
@@ -508,24 +514,5 @@ describe("update transformation", () => {
         userObject1.email
       ),
     ]);
-  });
-
-  it("errors when providing an empty defaultUpdateReturns array", () => {
-    expect(
-      () =>
-        new StandardFacet(db, "users", {
-          updateReturnTransform: (source, _returns) => source,
-          returnColumns: [],
-        })
-    ).toThrow("No 'returnColumns' returned for 'updateReturnTransform'");
-  });
-
-  it("errors when providing only one of updateReturnTransform and defaultUpdateReturns", () => {
-    expect(
-      () =>
-        new StandardFacet(db, "users", {
-          updateReturnTransform: (source, _returns) => source,
-        })
-    ).toThrow("'updateReturnTransform' requires 'returnColumns'");
   });
 });
