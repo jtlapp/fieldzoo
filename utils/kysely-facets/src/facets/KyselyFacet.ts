@@ -9,7 +9,7 @@ import { QueryBuilderWithSelection } from "kysely/dist/cjs/parser/select-parser"
 import { applyQueryFilter, QueryFilter } from "../filters/QueryFilter";
 import { ObjectWithKeys } from "../lib/type-utils";
 
-type SelectQB<DB, TableName extends keyof DB & string> = ReturnType<
+type SelectAllQB<DB, TableName extends keyof DB & string> = ReturnType<
   KyselyFacet<DB, TableName, any>["selectAllQB"]
 >;
 
@@ -90,7 +90,7 @@ export class KyselyFacet<
    * @returns An array of objects for the selected rows, possibly empty.
    */
   async selectMany<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>
+    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>
   ): Promise<SelectedObject[]> {
     const sqb = this.selectAllQB();
     const fqb = applyQueryFilter(this, filter)(sqb);
@@ -106,7 +106,7 @@ export class KyselyFacet<
    * @returns An object for the selected row, or `null` if no row was found.
    */
   async selectOne<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>
+    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>
   ): Promise<SelectedObject | null> {
     const sqb = this.selectAllQB();
     const fqb = applyQueryFilter(this, filter)(sqb);
@@ -125,11 +125,11 @@ export class KyselyFacet<
    *  only containing the requested columns.
    */
   subselectMany<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>
+    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>
   ): Promise<Selectable<DB[TableName]>[]>;
 
   subselectMany<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>,
     returnColumns: []
   ): Promise<Selectable<DB[TableName]>[]>;
 
@@ -137,7 +137,7 @@ export class KyselyFacet<
     RE extends ReferenceExpression<DB, TableName>,
     RC extends (keyof Selectable<DB[TableName]> & string)[]
   >(
-    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>,
     returnColumns: RC
   ): Promise<
     | Selectable<DB[TableName]>[]
@@ -148,7 +148,7 @@ export class KyselyFacet<
     RE extends ReferenceExpression<DB, TableName>,
     RC extends (keyof Selectable<DB[TableName]> & string)[]
   >(
-    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>,
     returnColumns?: RC
   ): Promise<
     | Selectable<DB[TableName]>[]
@@ -172,11 +172,11 @@ export class KyselyFacet<
    *  or `null` if no matching row was found.
    */
   subselectOne<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>
+    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>
   ): Promise<Selectable<DB[TableName]> | null>;
 
   subselectOne<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>,
     returnColumns: []
   ): Promise<Selectable<DB[TableName]> | null>;
 
@@ -184,7 +184,7 @@ export class KyselyFacet<
     RE extends ReferenceExpression<DB, TableName>,
     RC extends (keyof Selectable<DB[TableName]> & string)[]
   >(
-    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>,
     returnColumns: RC
   ): Promise<
     | Selectable<DB[TableName]>
@@ -196,7 +196,7 @@ export class KyselyFacet<
     RE extends ReferenceExpression<DB, TableName>,
     RC extends (keyof Selectable<DB[TableName]> & string)[]
   >(
-    filter: QueryFilter<DB, TableName, SelectQB<DB, TableName>, RE>,
+    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>,
     returnColumns?: RC
   ): Promise<
     | Selectable<DB[TableName]>
