@@ -1,1 +1,1 @@
-The code in this directory use the MIT license.
+The code in this directory uses the MIT license.
