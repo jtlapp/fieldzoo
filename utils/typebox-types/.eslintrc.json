@@ -1,4 +1,4 @@
 {
   "root": true,
-  "extends": ["../../config/eslint-config-custom.js"]
+  "extends": ["custom"]
 }

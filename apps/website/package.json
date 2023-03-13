@@ -9,12 +9,26 @@
     "lint": "next lint",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
-  "prettier": "../../config/prettierrc.json",
+  "prettier": "prettier-config",
   "dependencies": {
     "next": "latest",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "ui": "workspace:*"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/node": "^18.14.1",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "autoprefixer": "^10.4.13",
+    "eslint-config-custom-react": "workspace:*",
+    "postcss": "^8.4.21",
+    "prettier": "^2.8.4",
+    "prettier-config": "workspace:*",
+    "prettier-plugin-tailwindcss": "^0.2.3",
+    "tailwind-config": "workspace:*",
+    "tailwindcss": "^3.2.7",
+    "tsconfig": "workspace:*",
+    "typescript": "^4.9.5"
+  }
 }

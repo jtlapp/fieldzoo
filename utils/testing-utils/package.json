@@ -15,9 +15,15 @@
     "lint": "TIMING=1 eslint \"src/**/*.ts*\""
   },
   "jest": {
-    "preset": "../../config/jest-preset.node.js"
+    "preset": "jest-presets/node"
   },
-  "prettier": "../../config/prettierrc.json",
+  "prettier": "prettier-config",
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "eslint-config-custom": "workspace:*",
+    "jest-presets": "workspace:*",
+    "prettier": "^2.8.4",
+    "prettier-config": "workspace:*",
+    "tsconfig": "workspace:*"
+  }
 }

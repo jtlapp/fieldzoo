@@ -16,12 +16,22 @@
     "test": "jest"
   },
   "jest": {
-    "preset": "../../config/jest-preset.node.js"
+    "preset": "jest-presets/node"
   },
-  "prettier": "../../config/prettierrc.json",
+  "prettier": "prettier-config",
   "dependencies": {
     "@sinclair/typebox": "^0.25.24",
     "ajv-formats": "^2.1.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@jest/globals": "^29.4.3",
+    "@types/jest": "^29.4.0",
+    "eslint-config-custom": "workspace:*",
+    "jest": "^29.4.3",
+    "jest-presets": "workspace:*",
+    "prettier": "^2.8.4",
+    "prettier-config": "workspace:*",
+    "ts-jest": "^29.0.5",
+    "tsconfig": "workspace:*"
+  }
 }

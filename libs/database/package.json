@@ -15,9 +15,9 @@
     "lint": "TIMING=1 eslint \"src/**/*.ts*\""
   },
   "jest": {
-    "preset": "../../config/jest-preset.node.js"
+    "preset": "jest-presets/node"
   },
-  "prettier": "../../config/prettierrc.json",
+  "prettier": "prettier-config",
   "dependencies": {
     "@fieldzoo/app-config": "workspace:*",
     "@fieldzoo/database-config": "workspace:*",
@@ -28,5 +28,13 @@
     "kysely": "^0.23.4",
     "pg": "^8.9.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/node": "^18.14.1",
+    "@types/pg": "^8.6.6",
+    "eslint-config-custom": "workspace:*",
+    "jest-presets": "workspace:*",
+    "prettier": "^2.8.4",
+    "prettier-config": "workspace:*",
+    "tsconfig": "workspace:*"
+  }
 }
