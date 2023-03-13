@@ -10,6 +10,9 @@
     "eslint-config-turbo": "latest",
     "eslint-plugin-react": "7.28.0"
   },
+  "devDependencies": {
+    "prettier-config": "workspace:*"
+  },
   "publishConfig": {
     "access": "public"
   }

@@ -104,9 +104,11 @@ importers:
     specifiers:
       '@typescript-eslint/eslint-plugin': ^5.53.0
       '@typescript-eslint/parser': ^5.53.0
+      prettier-config: workspace:*
     dependencies:
       '@typescript-eslint/eslint-plugin': 5.53.0_hf6jr7vcffgdrvkvaebocgqxlm
       '@typescript-eslint/parser': 5.53.0_jofidmxrjzhj7l6vknpw5ecvfe
+      prettier-config: link:../prettier-config
 
   config/eslint-config-custom-react:
     specifiers:
@@ -114,26 +116,37 @@ importers:
       eslint-config-prettier: ^8.6.0
       eslint-config-turbo: latest
       eslint-plugin-react: 7.28.0
+      prettier-config: workspace:*
     dependencies:
       eslint-config-next: 13.2.4_jofidmxrjzhj7l6vknpw5ecvfe
       eslint-config-prettier: 8.6.0_eslint@7.32.0
       eslint-config-turbo: 0.0.9_eslint@7.32.0
       eslint-plugin-react: 7.28.0_eslint@7.32.0
+    devDependencies:
+      prettier-config: link:../prettier-config
 
   config/jest-presets:
-    specifiers: {}
+    specifiers:
+      prettier-config: workspace:*
+    devDependencies:
+      prettier-config: link:../prettier-config
 
   config/prettier-config:
     specifiers: {}
 
   config/tailwind-config:
     specifiers:
+      prettier-config: workspace:*
       tailwindcss: ^3.2.7
     devDependencies:
+      prettier-config: link:../prettier-config
       tailwindcss: 3.2.7_postcss@8.4.21
 
   config/tsconfig:
-    specifiers: {}
+    specifiers:
+      prettier-config: workspace:*
+    devDependencies:
+      prettier-config: link:../prettier-config
 
   libs/app-config:
     specifiers:
@@ -316,7 +329,10 @@ importers:
       typescript: 4.9.5
 
   templates/config-template:
-    specifiers: {}
+    specifiers:
+      prettier-config: workspace:*
+    devDependencies:
+      prettier-config: link:../../config/prettier-config
 
   templates/node-cli-template:
     specifiers:

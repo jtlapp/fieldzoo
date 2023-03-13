@@ -12,5 +12,5 @@ module.exports = {
     next: {
       rootDir: ['apps/*/'],
     },
-  },
+  }, 
 };

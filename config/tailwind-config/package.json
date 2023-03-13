@@ -5,6 +5,7 @@
   "main": "index.js",
   "prettier": "prettier-config",
   "devDependencies": {
+    "prettier-config": "workspace:*",
     "tailwindcss": "^3.2.7"
   }
 }

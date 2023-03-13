@@ -6,5 +6,8 @@
   "prettier": "prettier-config",
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "prettier-config": "workspace:*"
   }
 }
