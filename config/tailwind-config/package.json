@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "main": "index.js",
+  "prettier": "prettier-config",
   "devDependencies": {
     "tailwindcss": "^3.2.7"
   }
