@@ -26,11 +26,15 @@
   "devDependencies": {
     "@fieldzoo/testing-utils": "workspace:*",
     "@types/better-sqlite3": "^7.6.3",
+    "@types/jest": "^29.4.0",
     "better-sqlite3": "^8.1.0",
     "eslint-config-custom": "workspace:*",
+    "jest": "^29.4.3",
     "jest-presets": "workspace:*",
     "prettier": "^2.8.4",
     "prettier-config": "workspace:*",
-    "tsconfig": "workspace:*"
+    "ts-jest": "^29.0.5",
+    "tsconfig": "workspace:*",
+    "typescript": "^4.9.5"
   }
 }

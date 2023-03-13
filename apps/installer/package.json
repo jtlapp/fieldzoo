@@ -35,6 +35,8 @@
     "prettier": "^2.8.4",
     "prettier-config": "workspace:*",
     "ts-jest": "^29.0.5",
-    "tsconfig": "workspace:*"
+    "tsconfig": "workspace:*",
+    "typescript": "^4.9.5",
+    "website": "workspace:^1.0.0"
   }
 }
