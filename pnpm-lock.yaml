@@ -5,10 +5,12 @@ importers:
   .:
     specifiers:
       prettier: ^2.8.4
+      prettier-plugin-tailwindcss: ^0.2.3
       syncpack: ^8.5.14
       turbo: latest
     devDependencies:
       prettier: 2.8.4
+      prettier-plugin-tailwindcss: 0.2.3_prettier@2.8.4
       syncpack: 8.5.14
       turbo: 1.8.3
 
@@ -30,8 +32,6 @@ importers:
       jest-presets: workspace:*
       kysely: ^0.23.4
       pg: ^8.9.0
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -54,8 +54,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.3_@types+node@18.14.1
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
@@ -70,9 +68,6 @@ importers:
       eslint-config-custom-react: workspace:*
       next: latest
       postcss: ^8.4.21
-      prettier: ^2.8.4
-      prettier-config: workspace:*
-      prettier-plugin-tailwindcss: ^0.2.3
       react: ^18.2.0
       react-dom: ^18.2.0
       tailwind-config: workspace:*
@@ -92,9 +87,6 @@ importers:
       autoprefixer: 10.4.13_postcss@8.4.21
       eslint-config-custom-react: link:../../config/eslint-config-custom-react
       postcss: 8.4.21
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
-      prettier-plugin-tailwindcss: 0.2.3_prettier@2.8.4
       tailwind-config: link:../../config/tailwind-config
       tailwindcss: 3.2.7_postcss@8.4.21
       tsconfig: link:../../config/tsconfig
@@ -104,11 +96,9 @@ importers:
     specifiers:
       '@typescript-eslint/eslint-plugin': ^5.53.0
       '@typescript-eslint/parser': ^5.53.0
-      prettier-config: workspace:*
     dependencies:
       '@typescript-eslint/eslint-plugin': 5.53.0_hf6jr7vcffgdrvkvaebocgqxlm
       '@typescript-eslint/parser': 5.53.0_jofidmxrjzhj7l6vknpw5ecvfe
-      prettier-config: link:../prettier-config
 
   config/eslint-config-custom-react:
     specifiers:
@@ -116,37 +106,23 @@ importers:
       eslint-config-prettier: ^8.6.0
       eslint-config-turbo: latest
       eslint-plugin-react: 7.28.0
-      prettier-config: workspace:*
     dependencies:
       eslint-config-next: 13.2.4_jofidmxrjzhj7l6vknpw5ecvfe
       eslint-config-prettier: 8.6.0_eslint@7.32.0
       eslint-config-turbo: 0.0.9_eslint@7.32.0
       eslint-plugin-react: 7.28.0_eslint@7.32.0
-    devDependencies:
-      prettier-config: link:../prettier-config
 
   config/jest-presets:
-    specifiers:
-      prettier-config: workspace:*
-    devDependencies:
-      prettier-config: link:../prettier-config
-
-  config/prettier-config:
     specifiers: {}
 
   config/tailwind-config:
     specifiers:
-      prettier-config: workspace:*
       tailwindcss: ^3.2.7
     devDependencies:
-      prettier-config: link:../prettier-config
       tailwindcss: 3.2.7_postcss@8.4.21
 
   config/tsconfig:
-    specifiers:
-      prettier-config: workspace:*
-    devDependencies:
-      prettier-config: link:../prettier-config
+    specifiers: {}
 
   libs/app-config:
     specifiers:
@@ -155,8 +131,6 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -166,8 +140,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.3_@types+node@18.14.1
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
@@ -188,8 +160,6 @@ importers:
       jest-presets: workspace:*
       kysely: ^0.23.4
       pg: ^8.9.0
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -209,8 +179,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.3_@types+node@18.14.1
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
@@ -227,8 +195,6 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -244,8 +210,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.3_@types+node@18.14.1
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
@@ -256,8 +220,6 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -266,8 +228,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.3
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
@@ -278,9 +238,6 @@ importers:
       eslint: ^7.32.0
       eslint-config-custom-react: workspace:*
       postcss: ^8.4.21
-      prettier: ^2.8.4
-      prettier-config: workspace:*
-      prettier-plugin-tailwindcss: ^0.2.3
       react: ^18.2.0
       tailwind-config: workspace:*
       tsconfig: workspace:*
@@ -291,9 +248,6 @@ importers:
       eslint: 7.32.0
       eslint-config-custom-react: link:../../config/eslint-config-custom-react
       postcss: 8.4.21
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
-      prettier-plugin-tailwindcss: 0.2.3_prettier@2.8.4
       react: 18.2.0
       tailwind-config: link:../../config/tailwind-config
       tsconfig: link:../../config/tsconfig
@@ -306,9 +260,6 @@ importers:
       eslint: ^7.32.0
       eslint-config-custom-react: workspace:*
       postcss: ^8.4.21
-      prettier: ^2.8.4
-      prettier-config: workspace:*
-      prettier-plugin-tailwindcss: ^0.2.3
       react: ^18.2.0
       tailwind-config: workspace:*
       tsconfig: workspace:*
@@ -319,9 +270,6 @@ importers:
       eslint: 7.32.0
       eslint-config-custom-react: link:../../config/eslint-config-custom-react
       postcss: 8.4.21
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
-      prettier-plugin-tailwindcss: 0.2.3_prettier@2.8.4
       react: 18.2.0
       tailwind-config: link:../../config/tailwind-config
       tsconfig: link:../../config/tsconfig
@@ -329,10 +277,7 @@ importers:
       typescript: 4.9.5
 
   templates/config-template:
-    specifiers:
-      prettier-config: workspace:*
-    devDependencies:
-      prettier-config: link:../../config/prettier-config
+    specifiers: {}
 
   templates/node-cli-template:
     specifiers:
@@ -341,8 +286,6 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -352,8 +295,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.3_@types+node@18.14.1
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
@@ -364,8 +305,6 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -374,8 +313,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.3
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
@@ -392,8 +329,6 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -409,8 +344,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.3_@types+node@18.14.1
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
@@ -421,8 +354,6 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -431,8 +362,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.3
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
@@ -441,15 +370,11 @@ importers:
     specifiers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       tsconfig: workspace:*
       typescript: ^4.9.5
     devDependencies:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
 
@@ -463,8 +388,6 @@ importers:
       jest: ^29.4.3
       jest-presets: workspace:*
       kysely: ^0.23.4
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -478,8 +401,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.3
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
@@ -489,8 +410,6 @@ importers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
       kysely: ^0.23.4
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       tsconfig: workspace:*
       typescript: ^4.9.5
     dependencies:
@@ -498,8 +417,6 @@ importers:
     devDependencies:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
 
@@ -511,8 +428,6 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -524,8 +439,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.3
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
@@ -534,15 +447,11 @@ importers:
     specifiers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       tsconfig: workspace:*
       typescript: ^4.9.5
     devDependencies:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
 
@@ -555,8 +464,6 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      prettier: ^2.8.4
-      prettier-config: workspace:*
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -569,8 +476,6 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.4.3
       jest-presets: link:../../config/jest-presets
-      prettier: 2.8.4
-      prettier-config: link:../../config/prettier-config
       ts-jest: 29.0.5_kv2fdk7yz6jlbcjfldgcwh5vp4
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5

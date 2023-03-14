@@ -9,7 +9,6 @@
     "lint": "next lint",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
-  "prettier": "prettier-config",
   "dependencies": {
     "next": "latest",
     "react": "^18.2.0",
@@ -23,9 +22,6 @@
     "autoprefixer": "^10.4.13",
     "eslint-config-custom-react": "workspace:*",
     "postcss": "^8.4.21",
-    "prettier": "^2.8.4",
-    "prettier-config": "workspace:*",
-    "prettier-plugin-tailwindcss": "^0.2.3",
     "tailwind-config": "workspace:*",
     "tailwindcss": "^3.2.7",
     "tsconfig": "workspace:*",

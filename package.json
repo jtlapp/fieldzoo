@@ -6,13 +6,14 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "clean": "turbo run clean && rm -rf node_modules",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "format": "prettier --write \"**/*.{js,ts,tsx,md}\"",
     "list-packages": "npx syncpack list",
     "list-mismatches": "npx syncpack list-mismatches",
     "fix-mismatches": "npx syncpack fix-mismatches && pnpm install"
   },
   "devDependencies": {
     "prettier": "^2.8.4",
+    "prettier-plugin-tailwindcss": "^0.2.3",
     "syncpack": "^8.5.14",
     "turbo": "latest"
   },

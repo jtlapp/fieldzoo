@@ -3,15 +3,11 @@
   "version": "0.0.0",
   "main": "index.js",
   "license": "MIT",
-  "prettier": "prettier-config",
   "dependencies": {
     "eslint-config-next": "latest",
     "eslint-config-prettier": "^8.6.0",
     "eslint-config-turbo": "latest",
     "eslint-plugin-react": "7.28.0"
-  },
-  "devDependencies": {
-    "prettier-config": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

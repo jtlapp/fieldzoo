@@ -2,9 +2,5 @@
   "name": "jest-presets",
   "version": "0.0.0",
   "license": "MIT",
-  "private": true,
-  "prettier": "prettier-config",
-  "devDependencies": {
-    "prettier-config": "workspace:*"
-  }
+  "private": true
 }
