@@ -2,18 +2,18 @@
  * Tests KyselyFacet.selectMany(), KyselyFacet.selectOne(), and query filters.
  */
 
-import { Kysely, Selectable } from "kysely";
+import { Kysely } from "kysely";
 
-import { KyselyFacet } from "..";
+import { KyselyFacet, StandardFacet } from "..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
-import { Database, Users } from "./utils/test-tables";
+import { Database } from "./utils/test-tables";
 import { StdUserFacetReturningID } from "./utils/test-facets";
-import { USERS } from "./utils/test-objects";
+import { POSTS, USERS } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
 import { allOf, anyOf } from "../filters/CompoundFilter";
 
 let db: Kysely<Database>;
-let plainUserFacet: KyselyFacet<Database, "users", Partial<Selectable<Users>>>;
+let plainUserFacet: KyselyFacet<Database, "users", object>;
 let stdUserFacet: StdUserFacetReturningID;
 
 beforeAll(async () => {
@@ -98,6 +98,37 @@ describe("subselectMany()", () => {
     ]);
   });
 
+  it("subselects from a multi-table query", async () => {
+    const stdPostFacet = new StandardFacet(db, "posts");
+    const insertReturns = await stdUserFacet.insertReturning(USERS);
+    const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
+    const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
+    const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[1].id });
+    await stdPostFacet.insertReturning([post0, post1, post2]);
+
+    const joinedFacet = new KyselyFacet(
+      db,
+      db
+        .selectFrom("users")
+        .innerJoin("posts", "users.id", "posts.userId")
+        .orderBy("title")
+    );
+
+    const userPosts1 = await joinedFacet.subselectMany({}, [
+      "handle",
+      "posts.title",
+    ]);
+    expect(userPosts1).toEqual([
+      { handle: USERS[0].handle, title: POSTS[0].title },
+      { handle: USERS[1].handle, title: POSTS[1].title },
+      { handle: USERS[1].handle, title: POSTS[2].title },
+    ]);
+
+    // const userPosts2 = await joinedFacet.subselectMany({
+    //   handle: USERS[1].handle,
+    // });
+  });
+
   ignore("detects subselectMany() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expression filters
     plainUserFacet.subselectMany("name = 'John Doe'", []);
@@ -174,6 +205,32 @@ describe("subselectOne()", () => {
       "email",
     ]);
     expect(user).toEqual({ handle: USERS[0].handle, email: USERS[0].email });
+  });
+
+  it("subselects from a multi-table query", async () => {
+    const stdPostFacet = new StandardFacet(db, "posts");
+    const insertReturns = await stdUserFacet.insertReturning(USERS);
+    const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
+    const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
+    const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[1].id });
+    await stdPostFacet.insertReturning([post0, post1, post2]);
+
+    const joinedFacet = new KyselyFacet(
+      db,
+      db
+        .selectFrom("users")
+        .innerJoin("posts", "users.id", "posts.userId")
+        .orderBy("title", "desc")
+    );
+
+    const userPosts1 = await joinedFacet.subselectOne({}, [
+      "handle",
+      "posts.title",
+    ]);
+    expect(userPosts1).toEqual({
+      handle: USERS[1].handle,
+      title: POSTS[2].title,
+    });
   });
 
   ignore("detects subselectOne() type errors", async () => {
