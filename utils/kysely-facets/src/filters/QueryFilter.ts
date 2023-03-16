@@ -6,9 +6,10 @@
 import {
   ComparisonOperatorExpression,
   Expression,
+  ExtractTypeFromStringReference,
   OperandValueExpressionOrList,
   ReferenceExpression,
-  Updateable,
+  SelectType,
   WhereInterface,
 } from "kysely";
 
@@ -29,7 +30,7 @@ export type QueryFilter<
   RE extends ReferenceExpression<DB, TableName>
 > =
   | BinaryOperationFilter<DB, TableName, RE>
-  | FieldMatchingFilter<DB, TableName>
+  | FieldMatchingFilter<DB, TableName, RE>
   | QueryBuilderFilter<QB>
   | QueryExpressionFilter
   | AppliedFilter<DB, TableName, QueryOutput, QB>;
@@ -52,8 +53,13 @@ export type BinaryOperationFilter<
  */
 export type FieldMatchingFilter<
   DB,
-  TableName extends keyof DB & string
-> = Updateable<DB[TableName]>;
+  TableName extends keyof DB & string,
+  RE extends ReferenceExpression<DB, TableName>
+> = {
+  [K in RE & string]?: SelectType<
+    ExtractTypeFromStringReference<DB, TableName, K>
+  >;
+};
 
 /**
  * A filter that is a function that takes a query builder and returns

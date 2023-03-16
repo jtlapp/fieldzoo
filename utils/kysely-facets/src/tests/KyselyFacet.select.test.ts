@@ -183,7 +183,7 @@ describe("selectMany() with compound filters", () => {
     expect(users[1].handle).toEqual(USERS[2].handle);
   });
 
-  it("selects from a multi-table query", async () => {
+  it("selects many from a multi-table query, unfiltered", async () => {
     const stdPostFacet = new StandardFacet(db, "posts");
     const insertReturns = await stdUserFacet.insertReturning(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
@@ -222,6 +222,56 @@ describe("selectMany() with compound filters", () => {
         userId: insertReturns[1].id,
       }),
     ]);
+  });
+
+  it("selects many from a multi-table query, filtered", async () => {
+    const stdPostFacet = new StandardFacet(db, "posts");
+    const userReturns = await stdUserFacet.insertReturning(USERS);
+    const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
+    const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
+    const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
+    const postReturns = await stdPostFacet.insertReturning([
+      post0,
+      post1,
+      post2,
+    ]);
+
+    const joinedFacet = new KyselyFacet(
+      db,
+      db
+        .selectFrom("users")
+        .innerJoin("posts", "users.id", "posts.userId")
+        .orderBy("title")
+    );
+
+    const userPosts1: any[] = await joinedFacet.selectMany({
+      handle: USERS[1].handle,
+    });
+    for (const userPost of userPosts1) {
+      delete userPost.createdAt;
+    }
+
+    const user1Posts = [
+      Object.assign({}, USERS[1], POSTS[1], {
+        id: postReturns[1].id,
+        userId: userReturns[1].id,
+      }),
+      Object.assign({}, USERS[1], POSTS[2], {
+        id: postReturns[2].id,
+        userId: userReturns[1].id,
+      }),
+    ];
+
+    expect(userPosts1).toEqual(user1Posts);
+
+    const userPosts2: any[] = await joinedFacet.selectMany({
+      "posts.userId": userReturns[1].id,
+    });
+    for (const userPost of userPosts2) {
+      delete userPost.createdAt;
+    }
+
+    expect(userPosts2).toEqual(user1Posts);
   });
 
   ignore("detects selectMany() compound filter type errors", async () => {
@@ -308,7 +358,7 @@ describe("selectOne()", () => {
     );
   });
 
-  it("selects from a multi-table query", async () => {
+  it("selects one from a multi-table query, unfiltered", async () => {
     const stdPostFacet = new StandardFacet(db, "posts");
     const insertReturns = await stdUserFacet.insertReturning(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
@@ -335,6 +385,50 @@ describe("selectOne()", () => {
       Object.assign({}, USERS[1], POSTS[2], {
         id: postReturns[2].id,
         userId: insertReturns[1].id,
+      })
+    );
+  });
+
+  it("selects one from a multi-table query, filtered", async () => {
+    const stdPostFacet = new StandardFacet(db, "posts");
+    const insertReturns = await stdUserFacet.insertReturning(USERS);
+    const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
+    const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
+    const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[1].id });
+    const postReturns = await stdPostFacet.insertReturning([
+      post0,
+      post1,
+      post2,
+    ]);
+
+    const joinedFacet = new KyselyFacet(
+      db,
+      db
+        .selectFrom("users")
+        .innerJoin("posts", "users.id", "posts.userId")
+        .orderBy("title")
+    );
+
+    const userPost: any = await joinedFacet.selectOne({
+      handle: USERS[1].handle,
+    });
+    delete userPost.createdAt;
+
+    expect(userPost).toEqual(
+      Object.assign({}, USERS[1], POSTS[1], {
+        id: postReturns[1].id,
+        userId: insertReturns[1].id,
+      })
+    );
+
+    const userPost3: any = await joinedFacet.subselectOne({
+      "posts.id": postReturns[0].id,
+    });
+    delete userPost3.createdAt;
+    expect(userPost3).toEqual(
+      Object.assign({}, USERS[0], POSTS[0], {
+        id: postReturns[0].id,
+        userId: insertReturns[0].id,
       })
     );
   });

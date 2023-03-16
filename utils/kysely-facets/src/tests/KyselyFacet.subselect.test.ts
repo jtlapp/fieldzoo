@@ -98,7 +98,7 @@ describe("subselectMany()", () => {
     ]);
   });
 
-  it("subselects from a multi-table query", async () => {
+  it("subselects many from a multi-table query, unfiltered", async () => {
     const stdPostFacet = new StandardFacet(db, "posts");
     const insertReturns = await stdUserFacet.insertReturning(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
@@ -123,10 +123,45 @@ describe("subselectMany()", () => {
       { handle: USERS[1].handle, title: POSTS[1].title },
       { handle: USERS[1].handle, title: POSTS[2].title },
     ]);
+  });
 
-    // const userPosts2 = await joinedFacet.subselectMany({
-    //   handle: USERS[1].handle,
-    // });
+  it("subselects many from a multi-table query, filtered", async () => {
+    const stdPostFacet = new StandardFacet(db, "posts");
+    const userReturns = await stdUserFacet.insertReturning(USERS);
+    const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
+    const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
+    const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
+    await stdPostFacet.insertReturning([post0, post1, post2]);
+
+    const joinedFacet = new KyselyFacet(
+      db,
+      db
+        .selectFrom("users")
+        .innerJoin("posts", "users.id", "posts.userId")
+        .orderBy("title")
+    );
+
+    const userPosts1 = await joinedFacet.subselectMany(
+      {
+        handle: USERS[1].handle,
+      },
+      ["handle", "posts.title as t"]
+    );
+    expect(userPosts1).toEqual([
+      { handle: USERS[1].handle, t: POSTS[1].title },
+      { handle: USERS[1].handle, t: POSTS[2].title },
+    ]);
+
+    const userPosts2 = await joinedFacet.subselectMany(
+      {
+        "posts.userId": userReturns[1].id,
+      },
+      ["title"]
+    );
+    expect(userPosts2).toEqual([
+      { title: POSTS[1].title },
+      { title: POSTS[2].title },
+    ]);
   });
 
   ignore("detects subselectMany() type errors", async () => {
@@ -207,7 +242,7 @@ describe("subselectOne()", () => {
     expect(user).toEqual({ handle: USERS[0].handle, email: USERS[0].email });
   });
 
-  it("subselects from a multi-table query", async () => {
+  it("subselects one from a multi-table query, unfiltered", async () => {
     const stdPostFacet = new StandardFacet(db, "posts");
     const insertReturns = await stdUserFacet.insertReturning(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
@@ -231,6 +266,51 @@ describe("subselectOne()", () => {
       handle: USERS[1].handle,
       title: POSTS[2].title,
     });
+  });
+
+  it("subselects one from a multi-table query, filtered", async () => {
+    const stdPostFacet = new StandardFacet(db, "posts");
+    const userReturns = await stdUserFacet.insertReturning(USERS);
+    const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
+    const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
+    const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
+    const postReturns = await stdPostFacet.insertReturning([
+      post0,
+      post1,
+      post2,
+    ]);
+
+    const joinedFacet = new KyselyFacet(
+      db,
+      db
+        .selectFrom("users")
+        .innerJoin("posts", "users.id", "posts.userId")
+        .orderBy("title", "desc")
+    );
+
+    const userPost1 = await joinedFacet.subselectOne(
+      {
+        handle: USERS[1].handle,
+      },
+      ["handle", "posts.title as t"]
+    );
+    expect(userPost1).toEqual({ handle: USERS[1].handle, t: POSTS[2].title });
+
+    const userPost2 = await joinedFacet.subselectOne(
+      {
+        "posts.title": POSTS[0].title,
+      },
+      ["handle"]
+    );
+    expect(userPost2).toEqual({ handle: USERS[0].handle });
+
+    const userPost3 = await joinedFacet.subselectOne(
+      {
+        "posts.id": postReturns[0].id,
+      },
+      ["title"]
+    );
+    expect(userPost3).toEqual({ title: POSTS[0].title });
   });
 
   ignore("detects subselectOne() type errors", async () => {
