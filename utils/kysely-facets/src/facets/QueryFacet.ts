@@ -78,10 +78,6 @@ export class QueryFacet<
     }
   }
 
-  getInitialQBOutput(): InitialQBOutput {
-    return {} as any;
-  }
-
   /**
    * Creates a query builder for selecting rows from this table,
    * returning only the requested columns.
