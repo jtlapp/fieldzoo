@@ -123,69 +123,6 @@ describe("selectMany() with simple filters", () => {
     );
   });
 
-  ignore("detects selectMany() simple filter type errors", async () => {
-    // @ts-expect-error - doesn't allow plain string expressions
-    userQueryFacet.selectMany("name = 'John Doe'");
-    // @ts-expect-error - doesn't allow only two arguments
-    userQueryFacet.selectMany("name", "=");
-    // @ts-expect-error - object filter fields must be valid
-    userQueryFacet.selectMany({ notThere: "xyz" });
-    // @ts-expect-error - binary op filter fields must be valid
-    userQueryFacet.selectMany(["notThere", "=", "foo"]);
-    // @ts-expect-error - binary op filter fields must be valid
-    userQueryFacet.selectMany(["users.notThere", "=", "foo"]);
-    // @ts-expect-error - only table columns are accessible unfiltered
-    (await userQueryFacet.selectMany({}))[0].notThere;
-    // @ts-expect-error - only table columns are accessible w/ object filter
-    (await userQueryFacet.selectMany({ name: "Sue" }))[0].notThere;
-    // @ts-expect-error - only table columns are accessible w/ op filter
-    (await userQueryFacet.selectMany(["name", "=", "Sue"]))[0].notThere;
-    // @ts-expect-error - only table columns are accessible w/ QB filter
-    (await userQueryFacet.selectMany((qb) => qb))[0].notThere;
-    // @ts-expect-error - only table columns are accessible w/ expr filter
-    (await userQueryFacet.selectMany(sql`name = 'Sue'`))[0].notThere;
-  });
-});
-
-describe("selectMany() with compound filters", () => {
-  it("selects with allOf()", async () => {
-    //const allOf = userTableFacet.selectFilterMaker().allOf;
-    const userIDs = await userTableFacet.insertReturning(USERS);
-
-    const users = await userQueryFacet.selectMany(
-      allOf({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
-    );
-    expect(users.length).toEqual(1);
-    expect(users[0].handle).toEqual(USERS[2].handle);
-  });
-
-  it("selects with anyOf()", async () => {
-    await userTableFacet.insert(USERS);
-
-    const users = await userQueryFacet.selectMany(
-      anyOf({ handle: USERS[0].handle }, ["handle", "=", USERS[2].handle])
-    );
-    expect(users.length).toEqual(2);
-    expect(users[0].handle).toEqual(USERS[0].handle);
-    expect(users[1].handle).toEqual(USERS[2].handle);
-  });
-
-  it("selects with anyOf() and a nested allOf()", async () => {
-    const userIDs = await userTableFacet.insertReturning(USERS);
-
-    const users = await userQueryFacet.selectMany(
-      anyOf(
-        { handle: USERS[0].handle },
-        allOf(["id", ">", userIDs[0].id], (qb) =>
-          qb.where("name", "=", USERS[0].name)
-        )
-      )
-    );
-    expect(users.length).toEqual(2);
-    expect(users[0].handle).toEqual(USERS[0].handle);
-    expect(users[1].handle).toEqual(USERS[2].handle);
-  });
-
   it("selects many from a multi-table query, unfiltered", async () => {
     const postTableFacet = new TableFacet(db, "posts");
     const insertReturns = await userTableFacet.insertReturning(USERS);
@@ -275,6 +212,69 @@ describe("selectMany() with compound filters", () => {
     }
 
     expect(userPosts2).toEqual(user1Posts);
+  });
+
+  ignore("detects selectMany() simple filter type errors", async () => {
+    // @ts-expect-error - doesn't allow plain string expressions
+    userQueryFacet.selectMany("name = 'John Doe'");
+    // @ts-expect-error - doesn't allow only two arguments
+    userQueryFacet.selectMany("name", "=");
+    // @ts-expect-error - object filter fields must be valid
+    userQueryFacet.selectMany({ notThere: "xyz" });
+    // @ts-expect-error - binary op filter fields must be valid
+    userQueryFacet.selectMany(["notThere", "=", "foo"]);
+    // @ts-expect-error - binary op filter fields must be valid
+    userQueryFacet.selectMany(["users.notThere", "=", "foo"]);
+    // @ts-expect-error - only table columns are accessible unfiltered
+    (await userQueryFacet.selectMany({}))[0].notThere;
+    // @ts-expect-error - only table columns are accessible w/ object filter
+    (await userQueryFacet.selectMany({ name: "Sue" }))[0].notThere;
+    // @ts-expect-error - only table columns are accessible w/ op filter
+    (await userQueryFacet.selectMany(["name", "=", "Sue"]))[0].notThere;
+    // @ts-expect-error - only table columns are accessible w/ QB filter
+    (await userQueryFacet.selectMany((qb) => qb))[0].notThere;
+    // @ts-expect-error - only table columns are accessible w/ expr filter
+    (await userQueryFacet.selectMany(sql`name = 'Sue'`))[0].notThere;
+  });
+});
+
+describe("selectMany() with compound filters", () => {
+  it("selects with allOf()", async () => {
+    //const allOf = userTableFacet.selectFilterMaker().allOf;
+    const userIDs = await userTableFacet.insertReturning(USERS);
+
+    const users = await userQueryFacet.selectMany(
+      allOf({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
+    );
+    expect(users.length).toEqual(1);
+    expect(users[0].handle).toEqual(USERS[2].handle);
+  });
+
+  it("selects with anyOf()", async () => {
+    await userTableFacet.insert(USERS);
+
+    const users = await userQueryFacet.selectMany(
+      anyOf({ handle: USERS[0].handle }, ["handle", "=", USERS[2].handle])
+    );
+    expect(users.length).toEqual(2);
+    expect(users[0].handle).toEqual(USERS[0].handle);
+    expect(users[1].handle).toEqual(USERS[2].handle);
+  });
+
+  it("selects with anyOf() and a nested allOf()", async () => {
+    const userIDs = await userTableFacet.insertReturning(USERS);
+
+    const users = await userQueryFacet.selectMany(
+      anyOf(
+        { handle: USERS[0].handle },
+        allOf(["id", ">", userIDs[0].id], (qb) =>
+          qb.where("name", "=", USERS[0].name)
+        )
+      )
+    );
+    expect(users.length).toEqual(2);
+    expect(users[0].handle).toEqual(USERS[0].handle);
+    expect(users[1].handle).toEqual(USERS[2].handle);
   });
 
   ignore("detects selectMany() compound filter type errors", async () => {
