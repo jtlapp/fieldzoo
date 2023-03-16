@@ -87,7 +87,6 @@ describe("transforms between inputs and outputs", () => {
       ).toEqual([{ id: 1 }, { id: 2 }]);
     }
   }
-  const testPassThruFacet = new TestPassThruFacet(db);
 
   class TestTransformFacet extends StandardFacet<
     Database,
@@ -201,25 +200,36 @@ describe("transforms between inputs and outputs", () => {
       });
     }
   }
-  const testTransformFacet = new TestTransformFacet(db);
 
   it("transforms insertions", () => {
+    const testPassThruFacet = new TestPassThruFacet(db);
     testPassThruFacet.testTransformInsertion();
+
+    const testTransformFacet = new TestTransformFacet(db);
     testTransformFacet.testTransformInsertion();
   });
 
   it("transforms updates", () => {
+    const testPassThruFacet = new TestPassThruFacet(db);
     testPassThruFacet.testTransformUpdater();
+
+    const testTransformFacet = new TestTransformFacet(db);
     testTransformFacet.testTransformUpdater();
   });
 
   it("transforms insert returns", () => {
+    const testPassThruFacet = new TestPassThruFacet(db);
     testPassThruFacet.testTransformInsertReturn();
+
+    const testTransformFacet = new TestTransformFacet(db);
     testTransformFacet.testTransformInsertReturn();
   });
 
   it("transforms update returns", () => {
+    const testPassThruFacet = new TestPassThruFacet(db);
     testPassThruFacet.testTransformUpdaterReturn();
+
+    const testTransformFacet = new TestTransformFacet(db);
     testTransformFacet.testTransformUpdaterReturn();
   });
 });
