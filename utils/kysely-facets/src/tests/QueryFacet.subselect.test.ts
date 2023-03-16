@@ -133,7 +133,6 @@ describe("subselectMany()", () => {
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
     await postTableFacet.insertReturning([post0, post1, post2]);
-
     const joinedFacet = new QueryFacet(
       db,
       db
@@ -142,6 +141,7 @@ describe("subselectMany()", () => {
         .orderBy("title")
     );
 
+    // test filteringn on a table column
     const userPosts1 = await joinedFacet.subselectMany(
       {
         handle: USERS[1].handle,
@@ -153,6 +153,7 @@ describe("subselectMany()", () => {
       { handle: USERS[1].handle, t: POSTS[2].title },
     ]);
 
+    // test filtering on a joined column
     const userPosts2 = await joinedFacet.subselectMany(
       {
         "posts.userId": userReturns[1].id,
@@ -295,6 +296,7 @@ describe("subselectOne()", () => {
         .orderBy("title", "desc")
     );
 
+    // test filtering on table column
     const userPost1 = await joinedFacet.subselectOne(
       {
         handle: USERS[1].handle,
@@ -303,6 +305,7 @@ describe("subselectOne()", () => {
     );
     expect(userPost1).toEqual({ handle: USERS[1].handle, t: POSTS[2].title });
 
+    // test filtering on joined column
     const userPost2 = await joinedFacet.subselectOne(
       {
         "posts.title": POSTS[0].title,
@@ -311,6 +314,7 @@ describe("subselectOne()", () => {
     );
     expect(userPost2).toEqual({ handle: USERS[0].handle });
 
+    // test filtering on joined generated column
     const userPost3 = await joinedFacet.subselectOne(
       {
         "posts.id": postReturns[0].id,

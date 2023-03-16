@@ -175,7 +175,6 @@ describe("selectMany() with simple filters", () => {
       post1,
       post2,
     ]);
-
     const joinedFacet = new QueryFacet(
       db,
       db
@@ -183,14 +182,6 @@ describe("selectMany() with simple filters", () => {
         .innerJoin("posts", "users.id", "posts.userId")
         .orderBy("title")
     );
-
-    const userPosts1: any[] = await joinedFacet.selectMany({
-      handle: USERS[1].handle,
-    });
-    for (const userPost of userPosts1) {
-      delete userPost.createdAt;
-    }
-
     const user1Posts = [
       Object.assign({}, USERS[1], POSTS[1], {
         id: postReturns[1].id,
@@ -202,15 +193,22 @@ describe("selectMany() with simple filters", () => {
       }),
     ];
 
+    // test filtering on a table column
+    const userPosts1: any[] = await joinedFacet.selectMany({
+      handle: USERS[1].handle,
+    });
+    for (const userPost of userPosts1) {
+      delete userPost.createdAt;
+    }
     expect(userPosts1).toEqual(user1Posts);
 
+    // test filtering on a joined column
     const userPosts2: any[] = await joinedFacet.selectMany({
       "posts.userId": userReturns[1].id,
     });
     for (const userPost of userPosts2) {
       delete userPost.createdAt;
     }
-
     expect(userPosts2).toEqual(user1Posts);
   });
 
@@ -403,7 +401,6 @@ describe("selectOne()", () => {
       post1,
       post2,
     ]);
-
     const joinedFacet = new QueryFacet(
       db,
       db
@@ -412,11 +409,11 @@ describe("selectOne()", () => {
         .orderBy("title")
     );
 
+    // test filtering on a table column
     const userPost: any = await joinedFacet.selectOne({
       handle: USERS[1].handle,
     });
     delete userPost.createdAt;
-
     expect(userPost).toEqual(
       Object.assign({}, USERS[1], POSTS[1], {
         id: postReturns[1].id,
@@ -424,6 +421,7 @@ describe("selectOne()", () => {
       })
     );
 
+    // teset filtering on a joined column
     const userPost3: any = await joinedFacet.subselectOne({
       "posts.id": postReturns[0].id,
     });
