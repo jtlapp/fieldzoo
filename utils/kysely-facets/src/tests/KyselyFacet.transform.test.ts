@@ -1,6 +1,6 @@
 import { Kysely, Selectable } from "kysely";
 
-import { KyselyFacet } from "../..";
+import { KyselyFacet } from "../facets/KyselyFacet";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database, Users } from "./utils/test-tables";
 import {
@@ -21,7 +21,8 @@ export class PlainUserFacet extends KyselyFacet<
   Selectable<Users>
 > {
   constructor(readonly db: Kysely<Database>) {
-    super(db, "users");
+    // TODO: revisit this cast
+    super(db, db.selectFrom("users") as any);
   }
 }
 
@@ -36,9 +37,14 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe("transforms selection objects", () => {
-  class TestPassThruFacet extends KyselyFacet<Database, "users"> {
+  class TestPassThruFacet extends KyselyFacet<
+    Database,
+    "users",
+    Partial<Selectable<Users>>
+  > {
     constructor(db: Kysely<Database>) {
-      super(db, "users");
+      // TODO: revisit this cast
+      super(db, db.selectFrom("users") as any);
     }
 
     testTransformSelection() {
@@ -52,15 +58,15 @@ describe("transforms selection objects", () => {
       ]);
     }
   }
-  const testPassThruFacet = new TestPassThruFacet(db);
 
   class TestTransformFacet extends KyselyFacet<
     Database,
     "users",
+    Partial<Selectable<Users>>,
     SelectedUser
   > {
     constructor(db: Kysely<Database>) {
-      super(db, "users", {
+      super(db, db.selectFrom("users"), {
         selectTransform: (source) =>
           new SelectedUser(
             source.id,
@@ -97,10 +103,12 @@ describe("transforms selection objects", () => {
       });
     }
   }
-  const testTransformFacet = new TestTransformFacet(db);
 
   it("internally transforms selections", () => {
+    const testPassThruFacet = new TestPassThruFacet(db);
     testPassThruFacet.testTransformSelection();
+
+    const testTransformFacet = new TestTransformFacet(db);
     testTransformFacet.testTransformSelection();
   });
 

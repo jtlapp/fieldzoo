@@ -2,23 +2,23 @@
  * Tests KyselyFacet.selectMany(), KyselyFacet.selectOne(), and query filters.
  */
 
-import { Kysely } from "kysely";
+import { Kysely, Selectable } from "kysely";
 
 import { KyselyFacet } from "..";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
-import { Database } from "./utils/test-tables";
+import { Database, Users } from "./utils/test-tables";
 import { StdUserFacetReturningID } from "./utils/test-facets";
 import { USERS } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
 import { allOf, anyOf } from "../filters/CompoundFilter";
 
 let db: Kysely<Database>;
-let plainUserFacet: KyselyFacet<Database, "users">;
+let plainUserFacet: KyselyFacet<Database, "users", Partial<Selectable<Users>>>;
 let stdUserFacet: StdUserFacetReturningID;
 
 beforeAll(async () => {
   db = await createDB();
-  plainUserFacet = new KyselyFacet(db, "users");
+  plainUserFacet = new KyselyFacet(db, db.selectFrom("users"));
   stdUserFacet = new StdUserFacetReturningID(db);
 });
 beforeEach(() => resetDB(db));

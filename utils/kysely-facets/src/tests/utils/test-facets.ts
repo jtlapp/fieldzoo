@@ -1,6 +1,6 @@
 import { Insertable, Kysely, Selectable } from "kysely";
 
-import { StandardFacet } from "../../index";
+import { StandardFacet } from "../../facets/StandardFacet";
 import { Database, Users } from "./test-tables";
 
 export class StdUserFacet extends StandardFacet<

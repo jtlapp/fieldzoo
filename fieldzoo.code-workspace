@@ -84,11 +84,5 @@
       "name": "templates/util-lib-template",
       "path": "templates/util-lib-template"
     }
-  ],
-  "settings": {
-    "jestrunner.jestCommand": "npx jest",
-    "jestrunner.debugOptions": {
-      "program": "../../node_modules/jest/bin/jest.js"
-    }
-  }
+  ]
 }

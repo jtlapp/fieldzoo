@@ -67,7 +67,14 @@ export class StandardFacet<
   ReturnedObject = ReturnColumns extends []
     ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-> extends KyselyFacet<DB, TableName, SelectedObject> {
+> extends KyselyFacet<
+  DB,
+  TableName,
+  Partial<{
+    [K in keyof Selectable<DB[TableName]>]: Selectable<DB[TableName]>[K];
+  }>,
+  SelectedObject
+> {
   /**
    * Columns to return from table upon request, whether returning from an
    * insert or an update. An empty array returns all columns.
@@ -82,7 +89,7 @@ export class StandardFacet<
    */
   constructor(
     db: Kysely<DB>,
-    tableName: TableName,
+    readonly tableName: TableName,
     readonly options: StandardFacetOptions<
       DB,
       TableName,
@@ -93,7 +100,8 @@ export class StandardFacet<
       ReturnedObject
     > = {}
   ) {
-    super(db, tableName, options);
+    // TODO: revisit this cast
+    super(db, db.selectFrom(tableName) as any, options);
     this.returnColumns = options.returnColumns ?? [];
 
     if (options.insertTransform) {
@@ -121,7 +129,13 @@ export class StandardFacet<
    * @returns Returns the number of deleted rows.
    */
   async delete<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, DeleteQB<DB, TableName>, RE>
+    filter: QueryFilter<
+      DB,
+      TableName,
+      Selectable<DB[TableName]>,
+      DeleteQB<DB, TableName>,
+      RE
+    >
   ): Promise<number> {
     const qb = applyQueryFilter(this, filter)(this.deleteQB());
     const result = await qb.executeTakeFirst();
@@ -207,7 +221,13 @@ export class StandardFacet<
    * @returns Returns the number of updated rows.
    */
   async update<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
+    filter: QueryFilter<
+      DB,
+      TableName,
+      Selectable<DB[TableName]>,
+      UpdateQB<DB, TableName>,
+      RE
+    >,
     obj: UpdaterObject
   ): Promise<number> {
     const transformedObj = this.transformUpdater(obj);
@@ -227,7 +247,13 @@ export class StandardFacet<
    * @throws Error if `ReturnedObject` was not assigned.
    */
   async updateReturning<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
+    filter: QueryFilter<
+      DB,
+      TableName,
+      Selectable<DB[TableName]>,
+      UpdateQB<DB, TableName>,
+      RE
+    >,
     obj: UpdaterObject
   ): Promise<ReturnedObject[]> {
     const transformedObj = this.transformUpdater(obj);

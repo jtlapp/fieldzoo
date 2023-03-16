@@ -3,6 +3,7 @@ import {
   ReferenceExpression,
   Selectable,
   SelectExpressionOrList,
+  SelectQueryBuilder,
 } from "kysely";
 import { QueryBuilderWithSelection } from "kysely/dist/cjs/parser/select-parser";
 
@@ -31,7 +32,8 @@ export interface FacetOptions<
 export class KyselyFacet<
   DB,
   TableName extends keyof DB & string,
-  SelectedObject = Selectable<DB[TableName]>
+  QueryOutput,
+  SelectedObject = QueryOutput
 > {
   /**
    * Transforms selected rows into the mapped object type.
@@ -52,7 +54,7 @@ export class KyselyFacet<
    */
   constructor(
     readonly db: Kysely<DB>,
-    readonly tableName: TableName,
+    readonly initialQB: SelectQueryBuilder<DB, TableName, QueryOutput>,
     readonly options: FacetOptions<DB, TableName, SelectedObject> = {}
   ) {
     if (options.selectTransform) {
@@ -70,7 +72,7 @@ export class KyselyFacet<
   selectQB<SE extends SelectExpressionOrList<DB, TableName>>(
     selections: SE
   ): QueryBuilderWithSelection<DB, TableName, object, SE> {
-    return this.db.selectFrom(this.tableName).select(selections as any) as any;
+    return this.initialQB.select(selections as any) as any;
   }
 
   /**
@@ -80,7 +82,7 @@ export class KyselyFacet<
    * returning all columns.
    */
   selectAllQB() {
-    return this.db.selectFrom(this.tableName).selectAll();
+    return this.initialQB.selectAll();
   }
 
   /**
@@ -90,7 +92,13 @@ export class KyselyFacet<
    * @returns An array of objects for the selected rows, possibly empty.
    */
   async selectMany<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>
+    filter: QueryFilter<
+      DB,
+      TableName,
+      QueryOutput,
+      SelectAllQB<DB, TableName>,
+      RE
+    >
   ): Promise<SelectedObject[]> {
     const sqb = this.selectAllQB();
     const fqb = applyQueryFilter(this, filter)(sqb);
@@ -106,7 +114,13 @@ export class KyselyFacet<
    * @returns An object for the selected row, or `null` if no row was found.
    */
   async selectOne<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>
+    filter: QueryFilter<
+      DB,
+      TableName,
+      QueryOutput,
+      SelectAllQB<DB, TableName>,
+      RE
+    >
   ): Promise<SelectedObject | null> {
     const sqb = this.selectAllQB();
     const fqb = applyQueryFilter(this, filter)(sqb);
@@ -125,11 +139,23 @@ export class KyselyFacet<
    *  only containing the requested columns.
    */
   subselectMany<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>
+    filter: QueryFilter<
+      DB,
+      TableName,
+      QueryOutput,
+      SelectAllQB<DB, TableName>,
+      RE
+    >
   ): Promise<Selectable<DB[TableName]>[]>;
 
   subselectMany<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>,
+    filter: QueryFilter<
+      DB,
+      TableName,
+      QueryOutput,
+      SelectAllQB<DB, TableName>,
+      RE
+    >,
     returnColumns: []
   ): Promise<Selectable<DB[TableName]>[]>;
 
@@ -137,7 +163,13 @@ export class KyselyFacet<
     RE extends ReferenceExpression<DB, TableName>,
     RC extends (keyof Selectable<DB[TableName]> & string)[]
   >(
-    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>,
+    filter: QueryFilter<
+      DB,
+      TableName,
+      QueryOutput,
+      SelectAllQB<DB, TableName>,
+      RE
+    >,
     returnColumns: RC
   ): Promise<
     | Selectable<DB[TableName]>[]
@@ -148,7 +180,13 @@ export class KyselyFacet<
     RE extends ReferenceExpression<DB, TableName>,
     RC extends (keyof Selectable<DB[TableName]> & string)[]
   >(
-    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>,
+    filter: QueryFilter<
+      DB,
+      TableName,
+      QueryOutput,
+      SelectAllQB<DB, TableName>,
+      RE
+    >,
     returnColumns?: RC
   ): Promise<
     | Selectable<DB[TableName]>[]
@@ -172,11 +210,23 @@ export class KyselyFacet<
    *  or `null` if no matching row was found.
    */
   subselectOne<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>
+    filter: QueryFilter<
+      DB,
+      TableName,
+      QueryOutput,
+      SelectAllQB<DB, TableName>,
+      RE
+    >
   ): Promise<Selectable<DB[TableName]> | null>;
 
   subselectOne<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>,
+    filter: QueryFilter<
+      DB,
+      TableName,
+      QueryOutput,
+      SelectAllQB<DB, TableName>,
+      RE
+    >,
     returnColumns: []
   ): Promise<Selectable<DB[TableName]> | null>;
 
@@ -184,7 +234,13 @@ export class KyselyFacet<
     RE extends ReferenceExpression<DB, TableName>,
     RC extends (keyof Selectable<DB[TableName]> & string)[]
   >(
-    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>,
+    filter: QueryFilter<
+      DB,
+      TableName,
+      QueryOutput,
+      SelectAllQB<DB, TableName>,
+      RE
+    >,
     returnColumns: RC
   ): Promise<
     | Selectable<DB[TableName]>
@@ -196,7 +252,13 @@ export class KyselyFacet<
     RE extends ReferenceExpression<DB, TableName>,
     RC extends (keyof Selectable<DB[TableName]> & string)[]
   >(
-    filter: QueryFilter<DB, TableName, SelectAllQB<DB, TableName>, RE>,
+    filter: QueryFilter<
+      DB,
+      TableName,
+      QueryOutput,
+      SelectAllQB<DB, TableName>,
+      RE
+    >,
     returnColumns?: RC
   ): Promise<
     | Selectable<DB[TableName]>

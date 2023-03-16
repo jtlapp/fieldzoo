@@ -8,6 +8,7 @@ import { KyselyFacet } from "../facets/KyselyFacet";
 export abstract class AppliedFilter<
   DB,
   TableName extends keyof DB & string,
+  QueryOutput,
   QB extends WhereInterface<any, any>
 > {
   /**
@@ -17,5 +18,5 @@ export abstract class AppliedFilter<
    * @returns A function that takes a query builder and returns a query
    *    builder that is constrained according to this filter.
    */
-  abstract apply(base: KyselyFacet<DB, TableName>): (qb: QB) => QB;
+  abstract apply(base: KyselyFacet<DB, TableName, QueryOutput>): (qb: QB) => QB;
 }
