@@ -132,6 +132,8 @@ describe("selectMany() with simple filters", () => {
     userQueryFacet.selectMany({ notThere: "xyz" });
     // @ts-expect-error - binary op filter fields must be valid
     userQueryFacet.selectMany(["notThere", "=", "foo"]);
+    // @ts-expect-error - binary op filter fields must be valid
+    userQueryFacet.selectMany(["users.notThere", "=", "foo"]);
     // @ts-expect-error - only table columns are accessible unfiltered
     (await userQueryFacet.selectMany({}))[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ object filter
@@ -443,6 +445,8 @@ describe("selectOne()", () => {
     userQueryFacet.selectOne({ notThere: "xyz" });
     // @ts-expect-error - binary op filter fields must be valid
     userQueryFacet.selectOne(["notThere", "=", "foo"]);
+    // @ts-expect-error - binary op filter fields must be valid
+    userQueryFacet.selectOne(["users.notThere", "=", "foo"]);
     // @ts-expect-error - only table columns are accessible unfiltered
     (await userQueryFacet.selectOne({})).notThere;
     // @ts-expect-error - only table columns are accessible w/ object filter

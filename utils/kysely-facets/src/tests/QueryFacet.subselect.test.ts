@@ -174,6 +174,8 @@ describe("subselectMany()", () => {
     userQueryFacet.subselectMany({ notThere: "xyz" }, []);
     // @ts-expect-error - binary op filter fields must be valid
     userQueryFacet.subselectMany(["notThere", "=", "foo"], []);
+    // @ts-expect-error - binary op filter fields must be valid
+    userQueryFacet.subselectMany(["users.notThere", "=", "foo"], []);
     // @ts-expect-error - only table columns are accessible
     (await userQueryFacet.subselectMany({}, []))[0].notThere;
     // @ts-expect-error - only returned columns are accessible
@@ -323,6 +325,8 @@ describe("subselectOne()", () => {
     userQueryFacet.subselectOne({ notThere: "xyz" }, []);
     // @ts-expect-error - binary op filter fields must be valid
     userQueryFacet.subselectOne(["notThere", "=", "foo"], []);
+    // @ts-expect-error - binary op filter fields must be valid
+    userQueryFacet.subselectOne(["users.notThere", "=", "foo"], []);
     // @ts-expect-error - only table columns are accessible
     (await userQueryFacet.subselectOne({}, []))?.notThere;
     // @ts-expect-error - only returned columns are accessible
