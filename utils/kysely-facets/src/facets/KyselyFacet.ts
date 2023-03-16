@@ -43,7 +43,7 @@ export interface FacetOptions<
 export class KyselyFacet<
   DB,
   TableName extends keyof DB & string,
-  QueryOutput,
+  QueryOutput = object,
   SelectedObject = QueryOutput & AllSelection<DB, TableName>
 > {
   /**

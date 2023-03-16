@@ -67,14 +67,7 @@ export class StandardFacet<
   ReturnedObject = ReturnColumns extends []
     ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-> extends KyselyFacet<
-  DB,
-  TableName,
-  Partial<{
-    [K in keyof Selectable<DB[TableName]>]: Selectable<DB[TableName]>[K];
-  }>,
-  SelectedObject
-> {
+> extends KyselyFacet<DB, TableName, object, SelectedObject> {
   /**
    * Columns to return from table upon request, whether returning from an
    * insert or an update. An empty array returns all columns.
