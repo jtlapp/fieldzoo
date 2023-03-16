@@ -23,19 +23,6 @@ import {
 } from "./utils/test-types";
 import { ignore } from "@fieldzoo/testing-utils";
 
-export class PlainUserFacet extends TableFacet<
-  Database,
-  "users",
-  Selectable<Users>,
-  Insertable<Users>,
-  Partial<Insertable<Users>>,
-  ["id"]
-> {
-  constructor(readonly db: Kysely<Database>) {
-    super(db, "users", { returnColumns: ["id"] });
-  }
-}
-
 const userObjectWithID = { id: 1, ...userObject1 };
 const updaterUser1 = UpdaterUser.create(0, userObject1);
 

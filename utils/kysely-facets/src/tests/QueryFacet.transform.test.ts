@@ -15,18 +15,6 @@ import { SelectedUser } from "./utils/test-types";
 import { ignore } from "@fieldzoo/testing-utils";
 import { UserTableFacet } from "./utils/test-facets";
 
-export class PlainUserFacet extends QueryFacet<
-  Database,
-  "users",
-  object,
-  Selectable<Users>
-> {
-  constructor(readonly db: Kysely<Database>) {
-    // TODO: revisit this cast
-    super(db, db.selectFrom("users") as any);
-  }
-}
-
 let db: Kysely<Database>;
 let userTableFacet: UserTableFacet;
 
