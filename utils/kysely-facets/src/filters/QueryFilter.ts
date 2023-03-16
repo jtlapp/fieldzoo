@@ -13,7 +13,7 @@ import {
   WhereInterface,
 } from "kysely";
 
-import { KyselyFacet } from "../facets/KyselyFacet";
+import { QueryFacet } from "../facets/QueryFacet";
 import { AppliedFilter } from "./AppliedFilter";
 
 type AnyWhereInterface = WhereInterface<any, any>;
@@ -87,7 +87,7 @@ export function applyQueryFilter<
   QB extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TableName>
 >(
-  base: KyselyFacet<DB, TableName, any>,
+  base: QueryFacet<DB, TableName, any>,
   filter: QueryFilter<DB, TableName, QueryObject, QB, RE>
 ): (qb: AnyWhereInterface) => QB {
   // Process a query builder filter.

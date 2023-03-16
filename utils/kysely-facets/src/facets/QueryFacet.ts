@@ -15,7 +15,7 @@ import {
 import { applyQueryFilter, QueryFilter } from "../filters/QueryFilter";
 
 type SelectAllQB<DB, TableName extends keyof DB & string> = ReturnType<
-  KyselyFacet<DB, TableName, any>["selectAllQB"]
+  QueryFacet<DB, TableName, any>["selectAllQB"]
 >;
 
 // copied from Kysely
@@ -26,7 +26,7 @@ type AllSelection<DB, TB extends keyof DB> = Selectable<{
 }>;
 
 /**
- * Options governing KyselyFacet behavior.
+ * Options governing QueryFacet behavior.
  */
 export interface FacetOptions<
   DB,
@@ -40,7 +40,7 @@ export interface FacetOptions<
 /**
  * Base class for all Kysely facets.
  */
-export class KyselyFacet<
+export class QueryFacet<
   DB,
   TableName extends keyof DB & string,
   InitialQBOutput,
@@ -58,7 +58,7 @@ export class KyselyFacet<
   > = (row) => row as SelectedObject;
 
   /**
-   * Creates a new Kysely facet.
+   * Creates a new query facet.
    * @param db Kysely database instance.
    * @param tableName Name of the table this facet is for.
    * @param options Options governing facet behavior.

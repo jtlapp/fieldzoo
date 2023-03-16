@@ -1,6 +1,6 @@
 import { Insertable, Kysely, Selectable } from "kysely";
 
-import { StandardFacet } from "../..";
+import { TableFacet } from "../facets/TableFacet";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database, Users } from "./utils/test-tables";
 import {
@@ -23,7 +23,7 @@ import {
 } from "./utils/test-types";
 import { ignore } from "@fieldzoo/testing-utils";
 
-export class PlainUserFacet extends StandardFacet<
+export class PlainUserFacet extends TableFacet<
   Database,
   "users",
   Selectable<Users>,
@@ -48,7 +48,7 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe("transforms between inputs and outputs", () => {
-  class TestPassThruFacet extends StandardFacet<Database, "users"> {
+  class TestPassThruFacet extends TableFacet<Database, "users"> {
     constructor(db: Kysely<Database>) {
       super(db, "users");
     }
@@ -88,7 +88,7 @@ describe("transforms between inputs and outputs", () => {
     }
   }
 
-  class TestTransformFacet extends StandardFacet<
+  class TestTransformFacet extends TableFacet<
     Database,
     "users",
     SelectedUser,
@@ -235,7 +235,7 @@ describe("transforms between inputs and outputs", () => {
 });
 
 ignore("detects invalid return column configurations", () => {
-  new StandardFacet<
+  new TableFacet<
     Database,
     "users",
     Selectable<Users>,
@@ -245,7 +245,7 @@ ignore("detects invalid return column configurations", () => {
     // @ts-expect-error - invalid return column configuration
   >(db, "users", { returnColumns: ["notThere"] });
 
-  new StandardFacet<
+  new TableFacet<
     Database,
     "users",
     Selectable<Users>,
@@ -255,7 +255,7 @@ ignore("detects invalid return column configurations", () => {
     ["notThere"]
   >(db, "users", {});
 
-  new StandardFacet<
+  new TableFacet<
     Database,
     "users",
     Selectable<Users>,
@@ -265,7 +265,7 @@ ignore("detects invalid return column configurations", () => {
     ["name", "notThere"]
   >(db, "users", {});
 
-  new StandardFacet<
+  new TableFacet<
     Database,
     "users",
     Selectable<Users>,
@@ -275,7 +275,7 @@ ignore("detects invalid return column configurations", () => {
     // @ts-expect-error - invalid return column configuration
   >(db, "users", { returnColumns: [""] });
 
-  new StandardFacet<
+  new TableFacet<
     Database,
     "users",
     Selectable<Users>,
@@ -286,9 +286,9 @@ ignore("detects invalid return column configurations", () => {
   >(db, "users", { returnColumns: ["notThere"] });
 
   class TestFacet6<
-    // Be sure the following is the same as in StandardFacet
+    // Be sure the following is the same as in TableFacet
     ReturnColumns extends (keyof Selectable<Users> & string)[] = []
-  > extends StandardFacet<
+  > extends TableFacet<
     Database,
     "users",
     Selectable<Users>,

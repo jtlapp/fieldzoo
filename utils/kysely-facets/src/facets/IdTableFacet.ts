@@ -1,10 +1,10 @@
 import { Insertable, Kysely, Selectable, SelectType } from "kysely";
 import { ObjectWithKeys } from "../lib/type-utils";
 
-import { StandardFacetOptions, StandardFacet } from "./StandardFacet";
+import { TableFacetOptions, TableFacet } from "./TableFacet";
 
 // TODO: generalize to compound keys and rename to KeyFacet
-export class StandardIdFacet<
+export class IdTableFacet<
   DB,
   TableName extends keyof DB & string,
   IdColumnName extends keyof Selectable<DB[TableName]> & string = "id" &
@@ -16,7 +16,7 @@ export class StandardIdFacet<
   ReturnedObject = ReturnColumns extends []
     ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-> extends StandardFacet<
+> extends TableFacet<
   DB,
   TableName,
   SelectedObject,
@@ -29,7 +29,7 @@ export class StandardIdFacet<
     readonly db: Kysely<DB>,
     readonly tableName: TableName,
     readonly idColumnName: IdColumnName = "id" as any,
-    options: StandardFacetOptions<
+    options: TableFacetOptions<
       DB,
       TableName,
       SelectedObject,
@@ -111,7 +111,7 @@ function _prepareOptions<
   ReturnedObject
 >(
   idColumnName: IdColumnName,
-  options: StandardFacetOptions<
+  options: TableFacetOptions<
     DB,
     TableName,
     SelectedObject,

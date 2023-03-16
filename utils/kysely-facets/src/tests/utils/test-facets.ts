@@ -1,9 +1,9 @@
 import { Insertable, Kysely, Selectable } from "kysely";
 
-import { StandardFacet } from "../../facets/StandardFacet";
+import { TableFacet } from "../../facets/TableFacet";
 import { Database, Users } from "./test-tables";
 
-export class StdUserFacet extends StandardFacet<
+export class UserTableFacet extends TableFacet<
   Database,
   "users",
   Selectable<Users>,
@@ -15,7 +15,7 @@ export class StdUserFacet extends StandardFacet<
   }
 }
 
-export class StdUserFacetReturningID extends StandardFacet<
+export class UserTableFacetReturningID extends TableFacet<
   Database,
   "users",
   Selectable<Users>,
@@ -28,7 +28,7 @@ export class StdUserFacetReturningID extends StandardFacet<
   }
 }
 
-export class StdUserFacetReturningIDAndHandle extends StandardFacet<
+export class UserTableFacetReturningIDAndHandle extends TableFacet<
   Database,
   "users",
   Selectable<Users>,
@@ -41,7 +41,7 @@ export class StdUserFacetReturningIDAndHandle extends StandardFacet<
   }
 }
 
-export class StdUserFacetExplicitlyReturningAll extends StandardFacet<
+export class UserTableFacetExplicitlyReturningAll extends TableFacet<
   Database,
   "users",
   Selectable<Users>,

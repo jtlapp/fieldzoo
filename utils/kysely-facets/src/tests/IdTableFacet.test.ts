@@ -8,10 +8,10 @@ import {
   insertedUser1,
   selectedUser1,
 } from "./utils/test-objects";
-import { StandardIdFacet } from "../facets/StandardIdFacet";
+import { IdTableFacet } from "../facets/IdTableFacet";
 import { ReturnedUser, SelectedUser, UpdaterUser } from "./utils/test-types";
 
-class ExplicitIdFacet extends StandardIdFacet<
+class ExplicitIdFacet extends IdTableFacet<
   Database,
   "users",
   "id",
@@ -80,7 +80,7 @@ describe("facet for table with unique ID", () => {
   });
 
   it("updates returning all columns by default with default ID", async () => {
-    const defaultIdFacet = new StandardIdFacet(db, "users");
+    const defaultIdFacet = new IdTableFacet(db, "users");
     const id1 = (await defaultIdFacet.insertReturning(USERS[1])).id;
 
     const NEW_EMAIL = "new@baz.com";
@@ -94,7 +94,7 @@ describe("facet for table with unique ID", () => {
   });
 
   it("updates returning all columns by default with specified ID", async () => {
-    const defaultIdFacet = new StandardIdFacet(db, "users", "id");
+    const defaultIdFacet = new IdTableFacet(db, "users", "id");
     const id1 = (await defaultIdFacet.insertReturning(USERS[1])).id;
 
     const NEW_EMAIL = "new@baz.com";
@@ -120,7 +120,7 @@ describe("facet for table with unique ID", () => {
   });
 
   it("provides a default ID of 'id'", async () => {
-    const defaultIdFacet = new StandardIdFacet(db, "users");
+    const defaultIdFacet = new IdTableFacet(db, "users");
 
     await defaultIdFacet.insert(USERS[0]);
     const id1 = (await defaultIdFacet.insertReturning(USERS[1])).id;
@@ -130,7 +130,7 @@ describe("facet for table with unique ID", () => {
   });
 
   it("allows for returning other columns with the ID", async () => {
-    const idAndHandleFacet = new StandardIdFacet(db, "users", "id", {
+    const idAndHandleFacet = new IdTableFacet(db, "users", "id", {
       returnColumns: ["id", "handle"],
     });
 
@@ -148,7 +148,7 @@ describe("facet for table with unique ID", () => {
   });
 
   it("allows for returning all columns", async () => {
-    const allColumnsFacet = new StandardIdFacet(db, "users", "id");
+    const allColumnsFacet = new IdTableFacet(db, "users", "id");
 
     const insertReturn1 = await allColumnsFacet.insertReturning(USERS[0]);
     expect(insertReturn1).toEqual({
@@ -168,7 +168,7 @@ describe("facet for table with unique ID", () => {
   });
 
   it("transforms inputs and outputs", async () => {
-    const testTransformFacet = new StandardIdFacet(
+    const testTransformFacet = new IdTableFacet(
       db,
       "users",
       "id",
@@ -205,7 +205,7 @@ describe("facet for table with unique ID", () => {
 
   it("errors when ID column is not in 'returnColumns'", async () => {
     expect(() => {
-      new StandardIdFacet(db, "users", "id", {
+      new IdTableFacet(db, "users", "id", {
         returnColumns: ["handle"],
       });
     }).toThrowError("'returnColumns' must include 'idColumnName'");

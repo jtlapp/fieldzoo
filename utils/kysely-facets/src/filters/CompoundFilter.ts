@@ -4,7 +4,7 @@
 
 import { ReferenceExpression, WhereInterface } from "kysely";
 
-import { KyselyFacet } from "../facets/KyselyFacet";
+import { QueryFacet } from "../facets/QueryFacet";
 import { AppliedFilter } from "./AppliedFilter";
 import { QueryFilter, applyQueryFilter } from "./QueryFilter";
 
@@ -47,7 +47,7 @@ export class MatchAllFilter<
   QueryOutput,
   QB extends WhereInterface<any, any>
 > extends CompoundFilter<DB, TableName, QueryOutput, QB> {
-  apply(base: KyselyFacet<DB, TableName, QueryOutput>): (qb: QB) => QB {
+  apply(base: QueryFacet<DB, TableName, QueryOutput>): (qb: QB) => QB {
     return (qb) => {
       for (const filter of this.filters) {
         qb = applyQueryFilter(base, filter)(qb) as QB;
@@ -89,7 +89,7 @@ export class MatchAnyFilter<
   QueryOutput,
   QB extends WhereInterface<any, any>
 > extends CompoundFilter<DB, TableName, QueryOutput, QB> {
-  apply(base: KyselyFacet<DB, TableName, QueryOutput>): (qb: QB) => QB {
+  apply(base: QueryFacet<DB, TableName, QueryOutput>): (qb: QB) => QB {
     return (qb) => {
       for (const filter of this.filters) {
         qb = qb.orWhere((qb) => applyQueryFilter(base, filter)(qb as QB)) as QB;

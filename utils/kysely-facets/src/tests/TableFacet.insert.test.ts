@@ -1,12 +1,12 @@
 import { Insertable, Kysely, Selectable } from "kysely";
 
-import { StandardFacet } from "..";
+import { TableFacet } from "../facets/TableFacet";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database, Posts } from "./utils/test-tables";
 import {
-  StdUserFacet,
-  StdUserFacetReturningID,
-  StdUserFacetExplicitlyReturningAll,
+  UserTableFacet,
+  UserTableFacetReturningID,
+  UserTableFacetExplicitlyReturningAll,
 } from "./utils/test-facets";
 import {
   USERS,
@@ -27,18 +27,18 @@ import { InsertedUser, ReturnedUser } from "./utils/test-types";
 
 let db: Kysely<Database>;
 
-let stdUserFacet: StdUserFacet;
-let stdUserFacetReturningID: StdUserFacetReturningID;
-let stdUserFacetExplicitlyReturningAll: StdUserFacetExplicitlyReturningAll;
+let userTableFacet: UserTableFacet;
+let userTableFacetReturningID: UserTableFacetReturningID;
+let userTableFacetExplicitlyReturningAll: UserTableFacetExplicitlyReturningAll;
 
-let stdPostFacet: StandardFacet<
+let postTableFacet: TableFacet<
   Database,
   "posts",
   Selectable<Posts>,
   Insertable<Posts>,
   Partial<Insertable<Posts>>
 >;
-let stdPostFacetReturningIDAndTitle: StandardFacet<
+let postTableFacetReturningIDAndTitle: TableFacet<
   Database,
   "posts",
   Selectable<Posts>,
@@ -49,13 +49,12 @@ let stdPostFacetReturningIDAndTitle: StandardFacet<
 
 beforeAll(async () => {
   db = await createDB();
-  stdUserFacet = new StdUserFacet(db);
-  stdUserFacetReturningID = new StdUserFacetReturningID(db);
-  stdUserFacetExplicitlyReturningAll = new StdUserFacetExplicitlyReturningAll(
-    db
-  );
-  stdPostFacet = new StandardFacet(db, "posts");
-  stdPostFacetReturningIDAndTitle = new StandardFacet(db, "posts", {
+  userTableFacet = new UserTableFacet(db);
+  userTableFacetReturningID = new UserTableFacetReturningID(db);
+  userTableFacetExplicitlyReturningAll =
+    new UserTableFacetExplicitlyReturningAll(db);
+  postTableFacet = new TableFacet(db, "posts");
+  postTableFacetReturningIDAndTitle = new TableFacet(db, "posts", {
     returnColumns: ["id", "title"],
   });
 });
@@ -63,23 +62,23 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 it("insertQB() allows for inserting rows", async () => {
-  const user0 = (await stdUserFacet
+  const user0 = (await userTableFacet
     .insertQB()
     .values(USERS[0])
     .returningAll()
     .executeTakeFirst())!;
 
-  const readUser0 = await stdUserFacet.selectOne(["id", "=", user0.id]);
+  const readUser0 = await userTableFacet.selectOne(["id", "=", user0.id]);
   expect(readUser0?.handle).toEqual(USERS[0].handle);
   expect(readUser0?.email).toEqual(USERS[0].email);
 });
 
 describe("insert an array of objects without transformation", () => {
   it("inserts rows without returning columns", async () => {
-    const result = await stdUserFacet.insert(USERS);
+    const result = await userTableFacet.insert(USERS);
     expect(result).toBeUndefined();
 
-    const readUsers = await stdUserFacet.selectMany({});
+    const readUsers = await userTableFacet.selectMany({});
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -87,14 +86,16 @@ describe("insert an array of objects without transformation", () => {
   });
 
   it("inserts rows returning configured return columns", async () => {
-    const insertReturns = await stdUserFacetReturningID.insertReturning(USERS);
+    const insertReturns = await userTableFacetReturningID.insertReturning(
+      USERS
+    );
     expect(insertReturns.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(insertReturns[i].id).toBeGreaterThan(0);
       expect(Object.keys(insertReturns[i]).length).toEqual(1);
     }
 
-    const readUsers = await stdUserFacet.selectMany({});
+    const readUsers = await userTableFacet.selectMany({});
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -103,11 +104,12 @@ describe("insert an array of objects without transformation", () => {
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[2].id });
-    const updaterPosts = await stdPostFacetReturningIDAndTitle.insertReturning([
-      post0,
-      post1,
-      post2,
-    ]);
+    const updaterPosts =
+      await postTableFacetReturningIDAndTitle.insertReturning([
+        post0,
+        post1,
+        post2,
+      ]);
     expect(updaterPosts.length).toEqual(3);
     for (let i = 0; i < updaterPosts.length; i++) {
       expect(updaterPosts[i].id).toBeGreaterThan(0);
@@ -117,7 +119,7 @@ describe("insert an array of objects without transformation", () => {
   });
 
   it("inserts rows returning all columns by default", async () => {
-    const insertReturns = await stdUserFacet.insertReturning(USERS);
+    const insertReturns = await userTableFacet.insertReturning(USERS);
     for (let i = 0; i < USERS.length; i++) {
       expect(insertReturns[i].id).toBeGreaterThan(0);
     }
@@ -130,7 +132,7 @@ describe("insert an array of objects without transformation", () => {
 
   it("inserts rows configured to return all columns", async () => {
     const insertReturns =
-      await stdUserFacetExplicitlyReturningAll.insertReturning(USERS);
+      await userTableFacetExplicitlyReturningAll.insertReturning(USERS);
     for (let i = 0; i < USERS.length; i++) {
       expect(insertReturns[i].id).toBeGreaterThan(0);
     }
@@ -143,26 +145,26 @@ describe("insert an array of objects without transformation", () => {
 
   ignore("detects inserting an array of objects type errors", async () => {
     // @ts-expect-error - inserted object must have all required columns
-    stdUserFacet.insert([{}]);
+    userTableFacet.insert([{}]);
     // @ts-expect-error - inserted object must have all required columns
-    stdUserFacet.insertReturning([{}]);
+    userTableFacet.insertReturning([{}]);
     // @ts-expect-error - inserted object must have all required columns
-    stdUserFacet.insert([{ email: "xyz@pdq.xyz" }]);
+    userTableFacet.insert([{ email: "xyz@pdq.xyz" }]);
     // @ts-expect-error - inserted object must have all required columns
-    stdUserFacet.insertReturning([{ email: "xyz@pdq.xyz" }]);
+    userTableFacet.insertReturning([{ email: "xyz@pdq.xyz" }]);
     // @ts-expect-error - only configured columns are returned
-    (await stdUserFacetReturningID.insert([USERS[0]]))[0].handle;
+    (await userTableFacetReturningID.insert([USERS[0]]))[0].handle;
     // @ts-expect-error - only configured columns are returned
-    (await stdUserFacetReturningID.insertReturning([USERS[0]]))[0].handle;
+    (await userTableFacetReturningID.insertReturning([USERS[0]]))[0].handle;
   });
 });
 
 describe("inserting a single object without transformation", () => {
   it("inserts a row without returning columns", async () => {
-    const result = await stdUserFacet.insert(USERS[0]);
+    const result = await userTableFacet.insert(USERS[0]);
     expect(result).toBeUndefined();
 
-    const readUser0 = await stdUserFacet
+    const readUser0 = await userTableFacet
       .selectAllQB()
       .where("email", "=", USERS[0].email)
       .executeTakeFirst();
@@ -170,27 +172,27 @@ describe("inserting a single object without transformation", () => {
   });
 
   it("inserts one returning configured return columns", async () => {
-    const insertReturn = await stdUserFacetReturningID.insertReturning(
+    const insertReturn = await userTableFacetReturningID.insertReturning(
       USERS[0]
     );
     expect(insertReturn.id).toBeGreaterThan(0);
     expect(Object.keys(insertReturn).length).toEqual(1);
 
-    const readUser0 = await stdUserFacet
+    const readUser0 = await userTableFacet
       .selectAllQB()
       .where("id", "=", insertReturn.id)
       .executeTakeFirst();
     expect(readUser0?.email).toEqual(USERS[0].email);
 
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturn.id });
-    const updaterPost = await stdPostFacetReturningIDAndTitle.insertReturning(
+    const updaterPost = await postTableFacetReturningIDAndTitle.insertReturning(
       post0
     );
     expect(updaterPost.id).toBeGreaterThan(0);
     expect(updaterPost.title).toEqual(POSTS[0].title);
     expect(Object.keys(updaterPost).length).toEqual(2);
 
-    const readPost0 = await stdPostFacet
+    const readPost0 = await postTableFacet
       .selectAllQB()
       .where("id", "=", updaterPost.id)
       .where("title", "=", updaterPost.title)
@@ -200,7 +202,7 @@ describe("inserting a single object without transformation", () => {
 
   it("inserts one configured to return all columns", async () => {
     const insertReturn =
-      await stdUserFacetExplicitlyReturningAll.insertReturning(USERS[0]);
+      await userTableFacetExplicitlyReturningAll.insertReturning(USERS[0]);
     expect(insertReturn.id).toBeGreaterThan(0);
     const expectedUser = Object.assign({}, USERS[0], { id: insertReturn.id });
     expect(insertReturn).toEqual(expectedUser);
@@ -208,22 +210,22 @@ describe("inserting a single object without transformation", () => {
 
   ignore("detects type errors inserting a single object", async () => {
     // @ts-expect-error - inserted object must have all required columns
-    stdUserFacet.insert({});
+    userTableFacet.insert({});
     // @ts-expect-error - inserted object must have all required columns
-    stdUserFacet.insertReturning({});
+    userTableFacet.insertReturning({});
     // @ts-expect-error - inserted object must have all required columns
-    stdUserFacet.insert({ email: "xyz@pdq.xyz" });
+    userTableFacet.insert({ email: "xyz@pdq.xyz" });
     // @ts-expect-error - inserted object must have all required columns
-    stdUserFacet.insertReturning({ email: "xyz@pdq.xyz" });
+    userTableFacet.insertReturning({ email: "xyz@pdq.xyz" });
     // @ts-expect-error - only requested columns are returned
-    (await stdUserFacet.insert(USERS[0])).name;
+    (await userTableFacet.insert(USERS[0])).name;
     // @ts-expect-error - only requested columns are returned
-    (await stdUserFacetReturningID.insertReturning(USERS[0])).name;
+    (await userTableFacetReturningID.insertReturning(USERS[0])).name;
   });
 });
 
 describe("insertion transformation", () => {
-  class InsertTransformFacet extends StandardFacet<
+  class InsertTransformFacet extends TableFacet<
     Database,
     "users",
     Selectable<Database["users"]>,
@@ -272,7 +274,7 @@ describe("insertion transformation", () => {
   });
 
   it("transforms insertion return without transforming insertion", async () => {
-    class InsertReturnTransformFacet extends StandardFacet<
+    class InsertReturnTransformFacet extends TableFacet<
       Database,
       "users",
       Selectable<Database["users"]>,
@@ -310,7 +312,7 @@ describe("insertion transformation", () => {
   });
 
   it("transforms insertion and insertion return", async () => {
-    class InsertAndReturnTransformFacet extends StandardFacet<
+    class InsertAndReturnTransformFacet extends TableFacet<
       Database,
       "users",
       Selectable<Database["users"]>,

@@ -1,6 +1,6 @@
 import { Kysely, Selectable } from "kysely";
 
-import { KyselyFacet } from "../facets/KyselyFacet";
+import { QueryFacet } from "../facets/QueryFacet";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database, Users } from "./utils/test-tables";
 import {
@@ -13,9 +13,9 @@ import {
 } from "./utils/test-objects";
 import { SelectedUser } from "./utils/test-types";
 import { ignore } from "@fieldzoo/testing-utils";
-import { StdUserFacet } from "./utils/test-facets";
+import { UserTableFacet } from "./utils/test-facets";
 
-export class PlainUserFacet extends KyselyFacet<
+export class PlainUserFacet extends QueryFacet<
   Database,
   "users",
   object,
@@ -28,17 +28,17 @@ export class PlainUserFacet extends KyselyFacet<
 }
 
 let db: Kysely<Database>;
-let stdUserFacet: StdUserFacet;
+let userTableFacet: UserTableFacet;
 
 beforeAll(async () => {
   db = await createDB();
-  stdUserFacet = new StdUserFacet(db);
+  userTableFacet = new UserTableFacet(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe("transforms selection objects", () => {
-  class TestPassThruFacet extends KyselyFacet<
+  class TestPassThruFacet extends QueryFacet<
     Database,
     "users",
     object,
@@ -61,7 +61,7 @@ describe("transforms selection objects", () => {
     }
   }
 
-  class TestTransformFacet extends KyselyFacet<
+  class TestTransformFacet extends QueryFacet<
     Database,
     "users",
     object,
@@ -117,11 +117,11 @@ describe("transforms selection objects", () => {
   it("transforms selected objects", async () => {
     const testTransformFacet = new TestTransformFacet(db);
 
-    await stdUserFacet.insert(userRow1);
+    await userTableFacet.insert(userRow1);
     const user = await testTransformFacet.selectOne({});
     expect(user).toEqual(selectedUser1);
 
-    await stdUserFacet.insert([userRow2, userRow3]);
+    await userTableFacet.insert([userRow2, userRow3]);
     const users = await testTransformFacet.selectMany((qb) => qb.orderBy("id"));
     expect(users).toEqual([selectedUser1, selectedUser2, selectedUser3]);
   });

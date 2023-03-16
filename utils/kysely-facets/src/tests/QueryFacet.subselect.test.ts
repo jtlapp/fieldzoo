@@ -1,31 +1,32 @@
 /**
- * Tests KyselyFacet.selectMany(), KyselyFacet.selectOne(), and query filters.
+ * Tests QueryFacet.selectMany(), QueryFacet.selectOne(), and query filters.
  */
 
 import { Kysely } from "kysely";
 
-import { KyselyFacet, StandardFacet } from "..";
+import { QueryFacet } from "../facets/QueryFacet";
+import { TableFacet } from "../facets/TableFacet";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
-import { StdUserFacetReturningID } from "./utils/test-facets";
+import { UserTableFacetReturningID } from "./utils/test-facets";
 import { POSTS, USERS } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
 import { allOf, anyOf } from "../filters/CompoundFilter";
 
 let db: Kysely<Database>;
-let plainUserFacet: KyselyFacet<Database, "users", object>;
-let stdUserFacet: StdUserFacetReturningID;
+let plainUserFacet: QueryFacet<Database, "users", object>;
+let userTableFacet: UserTableFacetReturningID;
 
 beforeAll(async () => {
   db = await createDB();
-  plainUserFacet = new KyselyFacet(db, db.selectFrom("users"));
-  stdUserFacet = new StdUserFacetReturningID(db);
+  plainUserFacet = new QueryFacet(db, db.selectFrom("users"));
+  userTableFacet = new UserTableFacetReturningID(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 it("selectQB() allows for selecting rows", async () => {
-  await stdUserFacet.insert(USERS);
+  await userTableFacet.insert(USERS);
   const users1 = await plainUserFacet.selectQB("handle").execute();
   expect(users1).toEqual(USERS.map((u) => ({ handle: u.handle })));
 
@@ -37,7 +38,7 @@ it("selectQB() allows for selecting rows", async () => {
 
 describe("subselectMany()", () => {
   it("returning all, selects nothing when nothing matches filter", async () => {
-    await stdUserFacet.insert(USERS);
+    await userTableFacet.insert(USERS);
     const users = await plainUserFacet.subselectMany(
       { name: "nonexistent" },
       []
@@ -46,7 +47,7 @@ describe("subselectMany()", () => {
   });
 
   it("returning all, selects rows matching filter", async () => {
-    await stdUserFacet.insert(USERS);
+    await userTableFacet.insert(USERS);
     const expectedUsers = [
       Object.assign({}, USERS[0], { id: 1 }),
       Object.assign({}, USERS[2], { id: 3 }),
@@ -62,7 +63,7 @@ describe("subselectMany()", () => {
   });
 
   it("returning all, selects rows matching compound filter", async () => {
-    await stdUserFacet.insert(USERS);
+    await userTableFacet.insert(USERS);
     const users = await plainUserFacet.subselectMany(
       allOf({ name: USERS[0].name }, ["id", ">", 1]),
       []
@@ -71,7 +72,7 @@ describe("subselectMany()", () => {
   });
 
   it("returning some, selects nothing when nothing matches filter", async () => {
-    await stdUserFacet.insert(USERS);
+    await userTableFacet.insert(USERS);
     const users = await plainUserFacet.subselectMany({ name: "nonexistent" }, [
       "handle",
     ]);
@@ -79,7 +80,7 @@ describe("subselectMany()", () => {
   });
 
   it("returning some, selects rows matching filter", async () => {
-    await stdUserFacet.insert(USERS);
+    await userTableFacet.insert(USERS);
     let users = await plainUserFacet.subselectMany({ name: USERS[0].name }, [
       "handle",
     ]);
@@ -99,14 +100,14 @@ describe("subselectMany()", () => {
   });
 
   it("subselects many from a multi-table query, unfiltered", async () => {
-    const stdPostFacet = new StandardFacet(db, "posts");
-    const insertReturns = await stdUserFacet.insertReturning(USERS);
+    const postTableFacet = new TableFacet(db, "posts");
+    const insertReturns = await userTableFacet.insertReturning(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[1].id });
-    await stdPostFacet.insertReturning([post0, post1, post2]);
+    await postTableFacet.insertReturning([post0, post1, post2]);
 
-    const joinedFacet = new KyselyFacet(
+    const joinedFacet = new QueryFacet(
       db,
       db
         .selectFrom("users")
@@ -126,14 +127,14 @@ describe("subselectMany()", () => {
   });
 
   it("subselects many from a multi-table query, filtered", async () => {
-    const stdPostFacet = new StandardFacet(db, "posts");
-    const userReturns = await stdUserFacet.insertReturning(USERS);
+    const postTableFacet = new TableFacet(db, "posts");
+    const userReturns = await userTableFacet.insertReturning(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
-    await stdPostFacet.insertReturning([post0, post1, post2]);
+    await postTableFacet.insertReturning([post0, post1, post2]);
 
-    const joinedFacet = new KyselyFacet(
+    const joinedFacet = new QueryFacet(
       db,
       db
         .selectFrom("users")
@@ -194,13 +195,13 @@ describe("subselectMany()", () => {
 
 describe("subselectOne()", () => {
   it("returning all, selects nothing when nothing matches filter", async () => {
-    await stdUserFacet.insert(USERS);
+    await userTableFacet.insert(USERS);
     const user = await plainUserFacet.subselectOne({ name: "nonexistent" }, []);
     expect(user).toBeNull();
   });
 
   it("returning all, selects row matching filter", async () => {
-    await stdUserFacet.insert(USERS);
+    await userTableFacet.insert(USERS);
 
     let user = await plainUserFacet.subselectOne({
       name: USERS[0].name,
@@ -212,7 +213,7 @@ describe("subselectOne()", () => {
   });
 
   it("returning all, selects row matching compound filter", async () => {
-    await stdUserFacet.insert(USERS);
+    await userTableFacet.insert(USERS);
     const user = await plainUserFacet.subselectOne(
       allOf({ name: USERS[0].name }, ["id", ">", 1]),
       []
@@ -221,7 +222,7 @@ describe("subselectOne()", () => {
   });
 
   it("returning some, selects nothing when nothing matches filter", async () => {
-    await stdUserFacet.insert(USERS);
+    await userTableFacet.insert(USERS);
     const user = await plainUserFacet.subselectOne({ name: "nonexistent" }, [
       "handle",
     ]);
@@ -229,7 +230,7 @@ describe("subselectOne()", () => {
   });
 
   it("returning some, selects row matching filter", async () => {
-    await stdUserFacet.insert(USERS);
+    await userTableFacet.insert(USERS);
     let user = await plainUserFacet.subselectOne({ name: USERS[0].name }, [
       "handle",
     ]);
@@ -243,14 +244,14 @@ describe("subselectOne()", () => {
   });
 
   it("subselects one from a multi-table query, unfiltered", async () => {
-    const stdPostFacet = new StandardFacet(db, "posts");
-    const insertReturns = await stdUserFacet.insertReturning(USERS);
+    const postTableFacet = new TableFacet(db, "posts");
+    const insertReturns = await userTableFacet.insertReturning(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[1].id });
-    await stdPostFacet.insertReturning([post0, post1, post2]);
+    await postTableFacet.insertReturning([post0, post1, post2]);
 
-    const joinedFacet = new KyselyFacet(
+    const joinedFacet = new QueryFacet(
       db,
       db
         .selectFrom("users")
@@ -269,18 +270,18 @@ describe("subselectOne()", () => {
   });
 
   it("subselects one from a multi-table query, filtered", async () => {
-    const stdPostFacet = new StandardFacet(db, "posts");
-    const userReturns = await stdUserFacet.insertReturning(USERS);
+    const postTableFacet = new TableFacet(db, "posts");
+    const userReturns = await userTableFacet.insertReturning(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
-    const postReturns = await stdPostFacet.insertReturning([
+    const postReturns = await postTableFacet.insertReturning([
       post0,
       post1,
       post2,
     ]);
 
-    const joinedFacet = new KyselyFacet(
+    const joinedFacet = new QueryFacet(
       db,
       db
         .selectFrom("users")

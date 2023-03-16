@@ -1,6 +1,6 @@
 import { WhereInterface } from "kysely";
 
-import { KyselyFacet } from "../facets/KyselyFacet";
+import { QueryFacet } from "../facets/QueryFacet";
 
 /**
  * Base class for custom filters that are implemented as objects.
@@ -18,5 +18,5 @@ export abstract class AppliedFilter<
    * @returns A function that takes a query builder and returns a query
    *    builder that is constrained according to this filter.
    */
-  abstract apply(base: KyselyFacet<DB, TableName, QueryOutput>): (qb: QB) => QB;
+  abstract apply(base: QueryFacet<DB, TableName, QueryOutput>): (qb: QB) => QB;
 }

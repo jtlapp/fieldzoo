@@ -8,23 +8,23 @@ import {
   InsertResult,
 } from "kysely";
 
-import { FacetOptions, KyselyFacet } from "./KyselyFacet";
+import { FacetOptions, QueryFacet } from "./QueryFacet";
 import { QueryFilter, applyQueryFilter } from "../filters/QueryFilter";
 import { ObjectWithKeys } from "../lib/type-utils";
 
 // TODO: Configure type of returned counts (e.g. number vs bigint)
 
 type DeleteQB<DB, TableName extends keyof DB & string> = ReturnType<
-  StandardFacet<DB, TableName, any>["deleteQB"]
+  TableFacet<DB, TableName, any>["deleteQB"]
 >;
 type UpdateQB<DB, TableName extends keyof DB & string> = ReturnType<
-  StandardFacet<DB, TableName, any>["updateQB"]
+  TableFacet<DB, TableName, any>["updateQB"]
 >;
 
 /**
- * Options governing StandardFacet behavior.
+ * Options governing TableFacet behavior.
  */
-export interface StandardFacetOptions<
+export interface TableFacetOptions<
   DB,
   TableName extends keyof DB & string,
   SelectedObject,
@@ -57,7 +57,7 @@ export interface StandardFacetOptions<
   ) => ReturnedObject;
 }
 
-export class StandardFacet<
+export class TableFacet<
   DB,
   TableName extends keyof DB & string,
   SelectedObject = Selectable<DB[TableName]>,
@@ -67,7 +67,7 @@ export class StandardFacet<
   ReturnedObject = ReturnColumns extends []
     ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-> extends KyselyFacet<DB, TableName, object, SelectedObject> {
+> extends QueryFacet<DB, TableName, object, SelectedObject> {
   /**
    * Columns to return from table upon request, whether returning from an
    * insert or an update. An empty array returns all columns.
@@ -83,7 +83,7 @@ export class StandardFacet<
   constructor(
     db: Kysely<DB>,
     readonly tableName: TableName,
-    readonly options: StandardFacetOptions<
+    readonly options: TableFacetOptions<
       DB,
       TableName,
       SelectedObject,
@@ -273,7 +273,7 @@ export class StandardFacet<
   // This lengthy type provides better type assistance messages
   // in VSCode than a dedicated TransformInsertion type would.
   protected transformInsertion: NonNullable<
-    StandardFacetOptions<
+    TableFacetOptions<
       DB,
       TableName,
       SelectedObject,
@@ -310,7 +310,7 @@ export class StandardFacet<
   // This lengthy type provides better type assistance messages
   // in VSCode than a dedicated TransformInsertion type would.
   protected transformInsertReturn: NonNullable<
-    StandardFacetOptions<
+    TableFacetOptions<
       DB,
       TableName,
       SelectedObject,
@@ -349,7 +349,7 @@ export class StandardFacet<
   // This lengthy type provides better type assistance messages
   // in VSCode than a dedicated TransformInsertion type would.
   protected transformUpdater: NonNullable<
-    StandardFacetOptions<
+    TableFacetOptions<
       DB,
       TableName,
       SelectedObject,
