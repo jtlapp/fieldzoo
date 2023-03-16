@@ -1,8 +1,6 @@
 import {
-  AnyColumn,
   Kysely,
   ReferenceExpression,
-  Selectable,
   SelectExpressionOrList,
   SelectQueryBuilder,
 } from "kysely";
@@ -12,18 +10,12 @@ import {
   Selection,
 } from "kysely/dist/cjs/parser/select-parser";
 
+import { AllSelection } from "../lib/type-utils";
 import { applyQueryFilter, QueryFilter } from "../filters/QueryFilter";
 
 type SelectAllQB<DB, TableName extends keyof DB & string> = ReturnType<
   QueryFacet<DB, TableName, any>["selectAllQB"]
 >;
-
-// copied from Kysely
-type AllSelection<DB, TB extends keyof DB> = Selectable<{
-  [C in AnyColumn<DB, TB>]: {
-    [T in TB]: C extends keyof DB[T] ? DB[T][C] : never;
-  }[TB];
-}>;
 
 /**
  * Options governing QueryFacet behavior.
@@ -31,10 +23,13 @@ type AllSelection<DB, TB extends keyof DB> = Selectable<{
 export interface FacetOptions<
   DB,
   TableName extends keyof DB & string,
+  InitialQBOutput,
   SelectedObject
 > {
   /** Transformation to apply to selected objects. */
-  readonly selectTransform?: (row: Selectable<DB[TableName]>) => SelectedObject;
+  readonly selectTransform?: (
+    row: AllSelection<DB, TableName> & InitialQBOutput
+  ) => SelectedObject;
 }
 
 /**
@@ -44,7 +39,7 @@ export class QueryFacet<
   DB,
   TableName extends keyof DB & string,
   InitialQBOutput,
-  SelectedObject = InitialQBOutput & AllSelection<DB, TableName>
+  SelectedObject = AllSelection<DB, TableName> & InitialQBOutput
 > {
   /**
    * Transforms selected rows into the mapped object type.
@@ -54,7 +49,12 @@ export class QueryFacet<
   // This lengthy type provides better type assistance messages
   // in VSCode than a dedicated TransformInsertion type would.
   protected transformSelection: NonNullable<
-    FacetOptions<DB, TableName, SelectedObject>["selectTransform"]
+    FacetOptions<
+      DB,
+      TableName,
+      InitialQBOutput,
+      SelectedObject
+    >["selectTransform"]
   > = (row) => row as SelectedObject;
 
   /**
@@ -66,11 +66,20 @@ export class QueryFacet<
   constructor(
     readonly db: Kysely<DB>,
     readonly initialQB: SelectQueryBuilder<DB, TableName, InitialQBOutput>,
-    readonly options: FacetOptions<DB, TableName, SelectedObject> = {}
+    readonly options: FacetOptions<
+      DB,
+      TableName,
+      InitialQBOutput,
+      SelectedObject
+    > = {}
   ) {
     if (options.selectTransform) {
       this.transformSelection = options.selectTransform;
     }
+  }
+
+  getInitialQBOutput(): InitialQBOutput {
+    return {} as any;
   }
 
   /**
@@ -115,7 +124,7 @@ export class QueryFacet<
     const fqb = applyQueryFilter(this, filter)(sqb);
     const selections = await fqb.execute();
     return this.transformSelectionArray(
-      selections as Selectable<DB[TableName]>[]
+      selections as (AllSelection<DB, TableName> & InitialQBOutput)[]
     );
   }
 
@@ -137,7 +146,9 @@ export class QueryFacet<
     const fqb = applyQueryFilter(this, filter)(sqb);
     const selection = await fqb.executeTakeFirst();
     if (!selection) return null;
-    return this.transformSelection(selection as Selectable<DB[TableName]>);
+    return this.transformSelection(
+      selection as AllSelection<DB, TableName> & InitialQBOutput
+    );
   }
 
   /**
@@ -157,7 +168,7 @@ export class QueryFacet<
       SelectAllQB<DB, TableName>,
       RE
     >
-  ): Promise<(InitialQBOutput & AllSelection<DB, TableName>)[]>;
+  ): Promise<(AllSelection<DB, TableName> & InitialQBOutput)[]>;
 
   subselectMany<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<
@@ -168,7 +179,7 @@ export class QueryFacet<
       RE
     >,
     selections: []
-  ): Promise<(InitialQBOutput & AllSelection<DB, TableName>)[]>;
+  ): Promise<(AllSelection<DB, TableName> & InitialQBOutput)[]>;
 
   subselectMany<
     RE extends ReferenceExpression<DB, TableName>,
@@ -183,8 +194,8 @@ export class QueryFacet<
     >,
     selections: ReadonlyArray<SE>
   ): Promise<
-    | (InitialQBOutput & AllSelection<DB, TableName>)[]
-    | (InitialQBOutput & Selection<DB, TableName, SE>)[]
+    | (AllSelection<DB, TableName> & InitialQBOutput)[]
+    | (Selection<DB, TableName, SE> & InitialQBOutput)[]
   >;
 
   async subselectMany<
@@ -200,8 +211,8 @@ export class QueryFacet<
     >,
     selections?: ReadonlyArray<SE>
   ): Promise<
-    | (InitialQBOutput & AllSelection<DB, TableName>)[]
-    | (InitialQBOutput & Selection<DB, TableName, SE>)[]
+    | (AllSelection<DB, TableName> & InitialQBOutput)[]
+    | (Selection<DB, TableName, SE> & InitialQBOutput)[]
   > {
     const sqb =
       !selections || selections.length === 0
@@ -228,7 +239,7 @@ export class QueryFacet<
       SelectAllQB<DB, TableName>,
       RE
     >
-  ): Promise<(InitialQBOutput & AllSelection<DB, TableName>) | null>;
+  ): Promise<(AllSelection<DB, TableName> & InitialQBOutput) | null>;
 
   subselectOne<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<
@@ -239,7 +250,7 @@ export class QueryFacet<
       RE
     >,
     selections: []
-  ): Promise<(InitialQBOutput & AllSelection<DB, TableName>) | null>;
+  ): Promise<(AllSelection<DB, TableName> & InitialQBOutput) | null>;
 
   subselectOne<
     RE extends ReferenceExpression<DB, TableName>,
@@ -254,8 +265,8 @@ export class QueryFacet<
     >,
     selections: ReadonlyArray<SE>
   ): Promise<
-    | (InitialQBOutput & AllSelection<DB, TableName>)
-    | (InitialQBOutput & Selection<DB, TableName, SE>)
+    | (AllSelection<DB, TableName> & InitialQBOutput)
+    | (Selection<DB, TableName, SE> & InitialQBOutput)
     | null
   >;
 
@@ -272,8 +283,8 @@ export class QueryFacet<
     >,
     selections?: ReadonlyArray<SE>
   ): Promise<
-    | (InitialQBOutput & AllSelection<DB, TableName>)
-    | (InitialQBOutput & Selection<DB, TableName, SE>)
+    | (AllSelection<DB, TableName> & InitialQBOutput)
+    | (Selection<DB, TableName, SE> & InitialQBOutput)
     | null
   > {
     const sqb =
@@ -299,7 +310,7 @@ export class QueryFacet<
    *  A utility for keeping transform code simple and performant.
    */
   protected transformSelectionArray(
-    source: Selectable<DB[TableName]>[]
+    source: (AllSelection<DB, TableName> & InitialQBOutput)[]
   ): SelectedObject[] {
     if (this.options.selectTransform) {
       return source.map((obj) => this.transformSelection(obj));

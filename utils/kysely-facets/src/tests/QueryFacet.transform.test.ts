@@ -10,6 +10,7 @@ import {
   selectedUser2,
   userRow3,
   selectedUser3,
+  POSTS,
 } from "./utils/test-objects";
 import { SelectedUser } from "./utils/test-types";
 import { ignore } from "@fieldzoo/testing-utils";
@@ -49,7 +50,7 @@ describe("transforms selection objects", () => {
     }
   }
 
-  class TestTransformFacet extends QueryFacet<
+  class TestTransformSingleTableFacet extends QueryFacet<
     Database,
     "users",
     object,
@@ -98,12 +99,12 @@ describe("transforms selection objects", () => {
     const testPassThruFacet = new TestPassThruFacet(db);
     testPassThruFacet.testTransformSelection();
 
-    const testTransformFacet = new TestTransformFacet(db);
+    const testTransformFacet = new TestTransformSingleTableFacet(db);
     testTransformFacet.testTransformSelection();
   });
 
-  it("transforms selected objects", async () => {
-    const testTransformFacet = new TestTransformFacet(db);
+  it("transforms selected single-table objects", async () => {
+    const testTransformFacet = new TestTransformSingleTableFacet(db);
 
     await userTableFacet.insert(userRow1);
     const user = await testTransformFacet.selectOne({});
@@ -114,8 +115,53 @@ describe("transforms selection objects", () => {
     expect(users).toEqual([selectedUser1, selectedUser2, selectedUser3]);
   });
 
+  it("transforms selected multi-table objects", async () => {
+    class SelectedUserPost {
+      constructor(
+        public postId: number,
+        public title: string,
+        public userId: number,
+        public handle: string
+      ) {}
+    }
+    const testTransformFacet = new QueryFacet(
+      db,
+      db
+        .selectFrom("users")
+        .innerJoin("posts", "users.id", "posts.userId")
+        .select("posts.id as postId"),
+      {
+        selectTransform: (source) =>
+          new SelectedUserPost(
+            source.postId,
+            source.title,
+            source.userId,
+            source.handle
+          ),
+      }
+    );
+
+    const insertReturn = await userTableFacet.insertReturning(userRow1);
+    const post0 = Object.assign({}, POSTS[0], { userId: insertReturn.id });
+    const postId = (await db
+      .insertInto("posts")
+      .values(post0)
+      .returning("id")
+      .executeTakeFirst())!;
+    const userPost = await testTransformFacet.selectOne({});
+
+    expect(userPost).toEqual(
+      new SelectedUserPost(
+        postId.id,
+        post0.title,
+        insertReturn.id,
+        userRow1.handle
+      )
+    );
+  });
+
   ignore("detects selected object type errors", async () => {
-    const testTransformFacet = new TestTransformFacet(db);
+    const testTransformFacet = new TestTransformSingleTableFacet(db);
 
     // @ts-expect-error - only returns transformed selection
     (await testTransformFacet.selectOne({})).name;

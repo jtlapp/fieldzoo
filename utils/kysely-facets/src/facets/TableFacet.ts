@@ -32,7 +32,7 @@ export interface TableFacetOptions<
   UpdaterObject,
   ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[],
   ReturnedObject
-> extends FacetOptions<DB, TableName, SelectedObject> {
+> extends FacetOptions<DB, TableName, object, SelectedObject> {
   /** Transformation to apply to inserted objects before insertion. */
   readonly insertTransform?: (obj: InsertedObject) => Insertable<DB[TableName]>;
 
