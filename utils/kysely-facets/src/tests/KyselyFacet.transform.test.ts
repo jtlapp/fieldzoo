@@ -18,6 +18,7 @@ import { StdUserFacet } from "./utils/test-facets";
 export class PlainUserFacet extends KyselyFacet<
   Database,
   "users",
+  object,
   Selectable<Users>
 > {
   constructor(readonly db: Kysely<Database>) {
@@ -40,6 +41,7 @@ describe("transforms selection objects", () => {
   class TestPassThruFacet extends KyselyFacet<
     Database,
     "users",
+    object,
     Partial<Selectable<Users>>
   > {
     constructor(db: Kysely<Database>) {
@@ -62,7 +64,7 @@ describe("transforms selection objects", () => {
   class TestTransformFacet extends KyselyFacet<
     Database,
     "users",
-    Partial<Selectable<Users>>,
+    object,
     SelectedUser
   > {
     constructor(db: Kysely<Database>) {

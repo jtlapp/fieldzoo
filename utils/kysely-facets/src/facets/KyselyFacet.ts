@@ -43,8 +43,8 @@ export interface FacetOptions<
 export class KyselyFacet<
   DB,
   TableName extends keyof DB & string,
-  QueryOutput = object,
-  SelectedObject = QueryOutput & AllSelection<DB, TableName>
+  InitialQBOutput = object,
+  SelectedObject = InitialQBOutput & AllSelection<DB, TableName>
 > {
   /**
    * Transforms selected rows into the mapped object type.
@@ -65,7 +65,7 @@ export class KyselyFacet<
    */
   constructor(
     readonly db: Kysely<DB>,
-    readonly initialQB: SelectQueryBuilder<DB, TableName, QueryOutput>,
+    readonly initialQB: SelectQueryBuilder<DB, TableName, InitialQBOutput>,
     readonly options: FacetOptions<DB, TableName, SelectedObject> = {}
   ) {
     if (options.selectTransform) {
@@ -82,7 +82,7 @@ export class KyselyFacet<
    */
   selectQB<SE extends SelectExpressionOrList<DB, TableName>>(
     selections: SE
-  ): QueryBuilderWithSelection<DB, TableName, QueryOutput, SE> {
+  ): QueryBuilderWithSelection<DB, TableName, InitialQBOutput, SE> {
     return this.initialQB.select(selections as any);
   }
 
@@ -106,7 +106,7 @@ export class KyselyFacet<
     filter: QueryFilter<
       DB,
       TableName,
-      QueryOutput,
+      InitialQBOutput,
       SelectAllQB<DB, TableName>,
       RE
     >
@@ -128,7 +128,7 @@ export class KyselyFacet<
     filter: QueryFilter<
       DB,
       TableName,
-      QueryOutput,
+      InitialQBOutput,
       SelectAllQB<DB, TableName>,
       RE
     >
@@ -153,22 +153,22 @@ export class KyselyFacet<
     filter: QueryFilter<
       DB,
       TableName,
-      QueryOutput,
+      InitialQBOutput,
       SelectAllQB<DB, TableName>,
       RE
     >
-  ): Promise<(QueryOutput & AllSelection<DB, TableName>)[]>;
+  ): Promise<(InitialQBOutput & AllSelection<DB, TableName>)[]>;
 
   subselectMany<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<
       DB,
       TableName,
-      QueryOutput,
+      InitialQBOutput,
       SelectAllQB<DB, TableName>,
       RE
     >,
     selections: []
-  ): Promise<(QueryOutput & AllSelection<DB, TableName>)[]>;
+  ): Promise<(InitialQBOutput & AllSelection<DB, TableName>)[]>;
 
   subselectMany<
     RE extends ReferenceExpression<DB, TableName>,
@@ -177,14 +177,14 @@ export class KyselyFacet<
     filter: QueryFilter<
       DB,
       TableName,
-      QueryOutput,
+      InitialQBOutput,
       SelectAllQB<DB, TableName>,
       RE
     >,
     selections: ReadonlyArray<SE>
   ): Promise<
-    | (QueryOutput & AllSelection<DB, TableName>)[]
-    | (QueryOutput & Selection<DB, TableName, SE>)[]
+    | (InitialQBOutput & AllSelection<DB, TableName>)[]
+    | (InitialQBOutput & Selection<DB, TableName, SE>)[]
   >;
 
   async subselectMany<
@@ -194,14 +194,14 @@ export class KyselyFacet<
     filter: QueryFilter<
       DB,
       TableName,
-      QueryOutput,
+      InitialQBOutput,
       SelectAllQB<DB, TableName>,
       RE
     >,
     selections?: ReadonlyArray<SE>
   ): Promise<
-    | (QueryOutput & AllSelection<DB, TableName>)[]
-    | (QueryOutput & Selection<DB, TableName, SE>)[]
+    | (InitialQBOutput & AllSelection<DB, TableName>)[]
+    | (InitialQBOutput & Selection<DB, TableName, SE>)[]
   > {
     const sqb =
       !selections || selections.length === 0
@@ -224,22 +224,22 @@ export class KyselyFacet<
     filter: QueryFilter<
       DB,
       TableName,
-      QueryOutput,
+      InitialQBOutput,
       SelectAllQB<DB, TableName>,
       RE
     >
-  ): Promise<(QueryOutput & AllSelection<DB, TableName>) | null>;
+  ): Promise<(InitialQBOutput & AllSelection<DB, TableName>) | null>;
 
   subselectOne<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<
       DB,
       TableName,
-      QueryOutput,
+      InitialQBOutput,
       SelectAllQB<DB, TableName>,
       RE
     >,
     selections: []
-  ): Promise<(QueryOutput & AllSelection<DB, TableName>) | null>;
+  ): Promise<(InitialQBOutput & AllSelection<DB, TableName>) | null>;
 
   subselectOne<
     RE extends ReferenceExpression<DB, TableName>,
@@ -248,14 +248,14 @@ export class KyselyFacet<
     filter: QueryFilter<
       DB,
       TableName,
-      QueryOutput,
+      InitialQBOutput,
       SelectAllQB<DB, TableName>,
       RE
     >,
     selections: ReadonlyArray<SE>
   ): Promise<
-    | (QueryOutput & AllSelection<DB, TableName>)
-    | (QueryOutput & Selection<DB, TableName, SE>)
+    | (InitialQBOutput & AllSelection<DB, TableName>)
+    | (InitialQBOutput & Selection<DB, TableName, SE>)
     | null
   >;
 
@@ -266,14 +266,14 @@ export class KyselyFacet<
     filter: QueryFilter<
       DB,
       TableName,
-      QueryOutput,
+      InitialQBOutput,
       SelectAllQB<DB, TableName>,
       RE
     >,
     selections?: ReadonlyArray<SE>
   ): Promise<
-    | (QueryOutput & AllSelection<DB, TableName>)
-    | (QueryOutput & Selection<DB, TableName, SE>)
+    | (InitialQBOutput & AllSelection<DB, TableName>)
+    | (InitialQBOutput & Selection<DB, TableName, SE>)
     | null
   > {
     const sqb =
