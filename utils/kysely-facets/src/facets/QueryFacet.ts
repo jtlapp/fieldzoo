@@ -1,95 +1,17 @@
 import {
-  AnyColumn,
   Kysely,
   ReferenceExpression,
   SelectExpressionOrList,
   SelectQueryBuilder,
-  SelectType,
 } from "kysely";
 import {
   QueryBuilderWithSelection,
   SelectExpression,
   Selection,
 } from "kysely/dist/cjs/parser/select-parser";
-import { ExtractColumnType } from "kysely/dist/cjs/util/type-utils";
 
-import { AllSelection, ColumnAlias, EmptyObject } from "../lib/type-utils";
+import { AllColumns, ColumnAlias, EmptyObject } from "../lib/type-utils";
 import { applyQueryFilter, QueryFilter } from "../filters/QueryFilter";
-
-// copied from Kysely
-type ExtractTypeFromStringSelectExpression<
-  DB,
-  TB extends keyof DB,
-  SE extends string,
-  A extends keyof any
-> = SE extends `${infer SC}.${infer T}.${infer C} as ${infer RA}`
-  ? RA extends A
-    ? `${SC}.${T}` extends TB
-      ? C extends keyof DB[`${SC}.${T}`]
-        ? DB[`${SC}.${T}`][C]
-        : never
-      : never
-    : never
-  : SE extends `${infer T}.${infer C} as ${infer RA}`
-  ? RA extends A
-    ? T extends TB
-      ? C extends keyof DB[T]
-        ? DB[T][C]
-        : never
-      : never
-    : never
-  : SE extends `${infer C} as ${infer RA}`
-  ? RA extends A
-    ? C extends AnyColumn<DB, TB>
-      ? ExtractColumnType<DB, TB, C>
-      : never
-    : never
-  : SE extends `${infer SC}.${infer T}.${infer C}`
-  ? C extends A
-    ? `${SC}.${T}` extends TB
-      ? C extends keyof DB[`${SC}.${T}`]
-        ? DB[`${SC}.${T}`][C]
-        : never
-      : never
-    : never
-  : SE extends `${infer T}.${infer C}`
-  ? C extends A
-    ? T extends TB
-      ? C extends keyof DB[T]
-        ? DB[T][C]
-        : never
-      : never
-    : never
-  : SE extends A
-  ? SE extends AnyColumn<DB, TB>
-    ? ExtractColumnType<DB, TB, SE>
-    : never
-  : never;
-
-export type AliasedSubset<
-  DB,
-  TableName extends keyof DB & string,
-  ColumnAliases extends string[]
-> = ColumnAliases extends []
-  ? object
-  : {
-      [A in ColumnAliases[number] extends `${string} as ${infer A}`
-        ? A
-        : never]: SelectType<
-        ExtractTypeFromStringSelectExpression<
-          DB,
-          TableName,
-          ColumnAliases[number],
-          A
-        >
-      >;
-    };
-
-type AllColumns<
-  DB,
-  TableName extends keyof DB & string,
-  ColumnAliases extends string[]
-> = AllSelection<DB, TableName> & AliasedSubset<DB, TableName, ColumnAliases>;
 
 /**
  * Query result row type returning all possible columns, unless
