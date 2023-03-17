@@ -2,7 +2,7 @@
  * Type utilities.
  */
 
-import { AnyColumn, Selectable } from "kysely";
+import { AnyColumn, Selectable, SelectExpression } from "kysely";
 
 // import {
 //   ExtractTypeFromStringReference,
@@ -25,6 +25,20 @@ export type AllSelection<DB, TB extends keyof DB> = Selectable<{
     [T in TB]: C extends keyof DB[T] ? DB[T][C] : never;
   }[TB];
 }>;
+
+/**
+ * String representing a column alias in the form
+ * "column-or-column-reference as alias".
+ */
+export type ColumnAlias<
+  DB,
+  TableName extends keyof DB & string
+> = SelectExpression<DB, TableName> & `${string} as ${string}`;
+
+/**
+ * Type representing an empty object. Use for clarity.
+ */
+export type EmptyObject = Record<string, never>;
 
 /**
  * Evaluates to the subset of a the given object having the keys in

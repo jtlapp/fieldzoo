@@ -10,7 +10,7 @@ import {
 
 import { FacetOptions, QueryFacet } from "./QueryFacet";
 import { QueryFilter, applyQueryFilter } from "../filters/QueryFilter";
-import { ObjectWithKeys } from "../lib/type-utils";
+import { EmptyObject, ObjectWithKeys } from "../lib/type-utils";
 
 // TODO: Configure type of returned counts (e.g. number vs bigint)
 
@@ -32,7 +32,7 @@ export interface TableFacetOptions<
   UpdaterObject,
   ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[],
   ReturnedObject
-> extends FacetOptions<DB, TableName, object, SelectedObject> {
+> extends FacetOptions<DB, TableName, EmptyObject, [], SelectedObject> {
   /** Transformation to apply to inserted objects before insertion. */
   readonly insertTransform?: (obj: InsertedObject) => Insertable<DB[TableName]>;
 
@@ -67,7 +67,7 @@ export class TableFacet<
   ReturnedObject = ReturnColumns extends []
     ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-> extends QueryFacet<DB, TableName, object, SelectedObject> {
+> extends QueryFacet<DB, TableName, EmptyObject, [], SelectedObject> {
   /**
    * Columns to return from table upon request, whether returning from an
    * insert or an update. An empty array returns all columns.
@@ -122,13 +122,7 @@ export class TableFacet<
    * @returns Returns the number of deleted rows.
    */
   async delete<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<
-      DB,
-      TableName,
-      Selectable<DB[TableName]>,
-      DeleteQB<DB, TableName>,
-      RE
-    >
+    filter: QueryFilter<DB, TableName, DeleteQB<DB, TableName>, RE>
   ): Promise<number> {
     const qb = applyQueryFilter(this, filter)(this.deleteQB());
     const result = await qb.executeTakeFirst();
@@ -214,13 +208,7 @@ export class TableFacet<
    * @returns Returns the number of updated rows.
    */
   async update<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<
-      DB,
-      TableName,
-      Selectable<DB[TableName]>,
-      UpdateQB<DB, TableName>,
-      RE
-    >,
+    filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
     obj: UpdaterObject
   ): Promise<number> {
     const transformedObj = this.transformUpdater(obj);
@@ -240,13 +228,7 @@ export class TableFacet<
    * @throws Error if `ReturnedObject` was not assigned.
    */
   async updateReturning<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<
-      DB,
-      TableName,
-      Selectable<DB[TableName]>,
-      UpdateQB<DB, TableName>,
-      RE
-    >,
+    filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
     obj: UpdaterObject
   ): Promise<ReturnedObject[]> {
     const transformedObj = this.transformUpdater(obj);

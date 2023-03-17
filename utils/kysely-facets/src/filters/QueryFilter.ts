@@ -25,7 +25,6 @@ type AnyWhereInterface = WhereInterface<any, any>;
 export type QueryFilter<
   DB,
   TableName extends keyof DB & string,
-  QueryOutput,
   QB extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TableName>
 > =
@@ -33,7 +32,7 @@ export type QueryFilter<
   | FieldMatchingFilter<DB, TableName, RE>
   | QueryBuilderFilter<QB>
   | QueryExpressionFilter
-  | AppliedFilter<DB, TableName, QueryOutput, QB>;
+  | AppliedFilter<DB, TableName, QB>;
 
 /**
  * A filter that is a binary operation, such as `eq` or `gt`.
@@ -83,12 +82,11 @@ export type QueryExpressionFilter = Expression<any>;
 export function applyQueryFilter<
   DB,
   TableName extends keyof DB & string,
-  QueryObject,
   QB extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TableName>
 >(
-  base: QueryFacet<DB, TableName, any>,
-  filter: QueryFilter<DB, TableName, QueryObject, QB, RE>
+  base: QueryFacet<DB, TableName, any, any>,
+  filter: QueryFilter<DB, TableName, QB, RE>
 ): (qb: AnyWhereInterface) => QB {
   // Process a query builder filter.
   if (typeof filter === "function") {

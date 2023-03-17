@@ -392,10 +392,10 @@ describe("selectOne()", () => {
 
   it("selects one from a multi-table query, filtered", async () => {
     const postTableFacet = new TableFacet(db, "posts");
-    const insertReturns = await userTableFacet.insertReturning(USERS);
-    const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
-    const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
-    const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[1].id });
+    const userReturns = await userTableFacet.insertReturning(USERS);
+    const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
+    const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
+    const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
     const postReturns = await postTableFacet.insertReturning([
       post0,
       post1,
@@ -406,6 +406,7 @@ describe("selectOne()", () => {
       db
         .selectFrom("users")
         .innerJoin("posts", "users.id", "posts.userId")
+        .select("posts.id as postId")
         .orderBy("title")
     );
 
@@ -417,11 +418,12 @@ describe("selectOne()", () => {
     expect(userPost).toEqual(
       Object.assign({}, USERS[1], POSTS[1], {
         id: postReturns[1].id,
-        userId: insertReturns[1].id,
+        postId: postReturns[1].id,
+        userId: userReturns[1].id,
       })
     );
 
-    // teset filtering on a joined column
+    // test filtering on a joined column
     const userPost3: any = await joinedFacet.subselectOne({
       "posts.id": postReturns[0].id,
     });
@@ -429,7 +431,8 @@ describe("selectOne()", () => {
     expect(userPost3).toEqual(
       Object.assign({}, USERS[0], POSTS[0], {
         id: postReturns[0].id,
-        userId: insertReturns[0].id,
+        postId: postReturns[0].id,
+        userId: userReturns[0].id,
       })
     );
   });

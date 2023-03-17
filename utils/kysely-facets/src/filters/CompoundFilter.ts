@@ -14,27 +14,20 @@ import { QueryFilter, applyQueryFilter } from "./QueryFilter";
 export abstract class CompoundFilter<
   DB,
   TableName extends keyof DB & string,
-  QueryOutput,
   QB extends WhereInterface<any, any>
-> extends AppliedFilter<DB, TableName, QueryOutput, QB> {
-  filters: QueryFilter<
-    DB,
-    TableName,
-    QueryOutput,
-    QB,
-    ReferenceExpression<DB, TableName>
-  >[];
+> extends AppliedFilter<DB, TableName, QB> {
+  filters: QueryFilter<DB, TableName, QB, ReferenceExpression<DB, TableName>>[];
 
   /**
    * Constructs a compound filter.
    * @param filters The filters to combine.
    */
-  constructor(filters: QueryFilter<any, any, any, any, any>[]) {
+  constructor(filters: QueryFilter<any, any, any, any>[]) {
     super();
     if (filters.length == 0) {
       throw Error("No filters provided");
     }
-    this.filters = filters;
+    this.filters = filters as any;
   }
 }
 
@@ -44,10 +37,9 @@ export abstract class CompoundFilter<
 export class MatchAllFilter<
   DB,
   TableName extends keyof DB & string,
-  QueryOutput,
   QB extends WhereInterface<any, any>
-> extends CompoundFilter<DB, TableName, QueryOutput, QB> {
-  apply(base: QueryFacet<DB, TableName, QueryOutput>): (qb: QB) => QB {
+> extends CompoundFilter<DB, TableName, QB> {
+  apply(base: QueryFacet<DB, TableName, any>): (qb: QB) => QB {
     return (qb) => {
       for (const filter of this.filters) {
         qb = applyQueryFilter(base, filter)(qb) as QB;
@@ -65,18 +57,16 @@ export class MatchAllFilter<
 export function allOf<
   DB,
   TableName extends keyof DB & string,
-  QueryOutput,
   QB extends WhereInterface<any, any>
 >(
   ...filters: QueryFilter<
     DB,
     TableName,
-    QueryOutput,
     QB,
     ReferenceExpression<DB, TableName>
   >[]
 ) {
-  return new MatchAllFilter<DB, TableName, QueryOutput, QB>(filters);
+  return new MatchAllFilter<DB, TableName, QB>(filters);
 }
 
 /**
@@ -86,10 +76,9 @@ export function allOf<
 export class MatchAnyFilter<
   DB,
   TableName extends keyof DB & string,
-  QueryOutput,
   QB extends WhereInterface<any, any>
-> extends CompoundFilter<DB, TableName, QueryOutput, QB> {
-  apply(base: QueryFacet<DB, TableName, QueryOutput>): (qb: QB) => QB {
+> extends CompoundFilter<DB, TableName, QB> {
+  apply(base: QueryFacet<DB, TableName, any>): (qb: QB) => QB {
     return (qb) => {
       for (const filter of this.filters) {
         qb = qb.orWhere((qb) => applyQueryFilter(base, filter)(qb as QB)) as QB;
@@ -107,16 +96,14 @@ export class MatchAnyFilter<
 export function anyOf<
   DB,
   TableName extends keyof DB & string,
-  QueryOutput,
   QB extends WhereInterface<any, any>
 >(
   ...filters: QueryFilter<
     DB,
     TableName,
-    QueryOutput,
     QB,
     ReferenceExpression<DB, TableName>
   >[]
 ) {
-  return new MatchAnyFilter<DB, TableName, QueryOutput, QB>(filters);
+  return new MatchAnyFilter<DB, TableName, QB>(filters);
 }

@@ -15,6 +15,7 @@ import {
 import { SelectedUser } from "./utils/test-types";
 import { ignore } from "@fieldzoo/testing-utils";
 import { UserTableFacet } from "./utils/test-facets";
+import { EmptyObject } from "../lib/type-utils";
 
 let db: Kysely<Database>;
 let userTableFacet: UserTableFacet;
@@ -30,7 +31,8 @@ describe("transforms selection objects", () => {
   class TestPassThruFacet extends QueryFacet<
     Database,
     "users",
-    object,
+    EmptyObject,
+    [],
     Partial<Selectable<Users>>
   > {
     constructor(db: Kysely<Database>) {
@@ -53,7 +55,8 @@ describe("transforms selection objects", () => {
   class TestTransformSingleTableFacet extends QueryFacet<
     Database,
     "users",
-    object,
+    EmptyObject,
+    [],
     SelectedUser
   > {
     constructor(db: Kysely<Database>) {
@@ -126,11 +129,9 @@ describe("transforms selection objects", () => {
     }
     const testTransformFacet = new QueryFacet(
       db,
-      db
-        .selectFrom("users")
-        .innerJoin("posts", "users.id", "posts.userId")
-        .select("posts.id as postId"),
+      db.selectFrom("users").innerJoin("posts", "users.id", "posts.userId"),
       {
+        columnAliases: ["posts.id as postId"],
         selectTransform: (source) =>
           new SelectedUserPost(
             source.postId,
