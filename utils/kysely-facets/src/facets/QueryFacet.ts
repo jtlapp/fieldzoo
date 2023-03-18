@@ -18,10 +18,11 @@ import {
 import { applyQueryFilter, QueryFilter } from "../filters/QueryFilter";
 
 /**
- * Query result row type returning all possible columns, unless
- * `InitialQBOutput` is specified, in which case it returns that type.
+ * Query result row type returning all possible columns, including
+ * configured column aliases, unless `InitialQBOutput` is specified,
+ * in which case it returns that type.
  */
-export type InitialQBOutputOrAll<
+type InitialQBOutputOrAll<
   DB,
   TableName extends keyof DB & string,
   InitialQBOutput,
@@ -30,6 +31,11 @@ export type InitialQBOutputOrAll<
   ? AllColumns<DB, TableName, SelectColumnAliases>
   : InitialQBOutput;
 
+/**
+ * Query builder type that selects all possible columns, including
+ * configured column aliases, unless `InitialQBOutput` is specified,
+ * it selects just that type.
+ */
 type SelectAllQB<
   DB,
   TableName extends keyof DB & string,
