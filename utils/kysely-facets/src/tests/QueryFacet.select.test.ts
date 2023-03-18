@@ -117,10 +117,17 @@ describe("selectMany() with simple filters", () => {
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
 
-  it("throws on unrecognized filter", async () => {
-    expect(userTableFacet.selectMany("" as any)).rejects.toThrow(
-      "Unrecognized query filter"
-    );
+  it("selects many using a pre-configured aliased column", async () => {
+    const ids = await userTableFacet.insertReturning(USERS);
+    const facet = new QueryFacet(db, db.selectFrom("users"), {
+      columnAliases: ["handle as h"],
+    });
+
+    const users = await facet.selectMany({ name: USERS[0].name });
+    expect(users).toEqual([
+      Object.assign({}, USERS[0], { id: ids[0].id, h: USERS[0].handle }),
+      Object.assign({}, USERS[2], { id: ids[2].id, h: USERS[2].handle }),
+    ]);
   });
 
   it("selects many from a multi-table query, unfiltered", async () => {
@@ -210,6 +217,65 @@ describe("selectMany() with simple filters", () => {
       delete userPost.createdAt;
     }
     expect(userPosts2).toEqual(user1Posts);
+  });
+
+  it("selects many from a pre-selected multi-table query", async () => {
+    const postTableFacet = new TableFacet(db, "posts");
+    const userReturns = await userTableFacet.insertReturning(USERS);
+    const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
+    const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
+    const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
+    const postReturns = await postTableFacet.insertReturning([
+      post0,
+      post1,
+      post2,
+    ]);
+
+    const joinedFacet = new QueryFacet(
+      db,
+      db
+        .selectFrom("users")
+        .innerJoin("posts", "users.id", "posts.userId")
+        .select(["posts.id as postId", "posts.title", "users.handle"])
+        .orderBy("title")
+    );
+
+    // test returning all columns
+    const userPosts1 = await joinedFacet.selectMany({
+      "posts.userId": userReturns[1].id,
+    });
+    expect(userPosts1).toEqual([
+      {
+        postId: postReturns[1].id,
+        title: POSTS[1].title,
+        handle: USERS[1].handle,
+      },
+      {
+        postId: postReturns[2].id,
+        title: POSTS[2].title,
+        handle: USERS[1].handle,
+      },
+    ]);
+
+    ignore("detects type errors", async () => {
+      // prettier-ignore
+      (await joinedFacet.selectMany(
+        { "posts.userId": userReturns[1].id }
+        // @ts-expect-error - columns not originally selected are not accessible
+      ))[0].name;
+
+      // prettier-ignore
+      (await joinedFacet.selectMany(
+        { "posts.userId": userReturns[1].id }
+        // @ts-expect-error - columns not originally selected are not accessible
+      ))[0].userId;
+    });
+  });
+
+  it("throws on unrecognized filter", async () => {
+    expect(userTableFacet.selectMany("" as any)).rejects.toThrow(
+      "Unrecognized query filter"
+    );
   });
 
   ignore("detects selectMany() simple filter type errors", async () => {
@@ -353,9 +419,15 @@ describe("selectOne()", () => {
     expect(user?.handle).toEqual(USERS[2].handle);
   });
 
-  it("throws on unrecognized filter", async () => {
-    expect(userTableFacet.selectOne("" as any)).rejects.toThrow(
-      "Unrecognized query filter"
+  it("selects one using a pre-configured aliased column", async () => {
+    const ids = await userTableFacet.insertReturning(USERS);
+    const facet = new QueryFacet(db, db.selectFrom("users"), {
+      columnAliases: ["handle as h"],
+    });
+
+    const user = await facet.selectOne({ handle: USERS[0].handle });
+    expect(user).toEqual(
+      Object.assign({}, USERS[0], { id: ids[0].id, h: USERS[0].handle })
     );
   });
 
@@ -406,7 +478,6 @@ describe("selectOne()", () => {
       db
         .selectFrom("users")
         .innerJoin("posts", "users.id", "posts.userId")
-        .select("posts.id as postId")
         .orderBy("title")
     );
 
@@ -418,7 +489,6 @@ describe("selectOne()", () => {
     expect(userPost).toEqual(
       Object.assign({}, USERS[1], POSTS[1], {
         id: postReturns[1].id,
-        postId: postReturns[1].id,
         userId: userReturns[1].id,
       })
     );
@@ -431,9 +501,60 @@ describe("selectOne()", () => {
     expect(userPost3).toEqual(
       Object.assign({}, USERS[0], POSTS[0], {
         id: postReturns[0].id,
-        postId: postReturns[0].id,
         userId: userReturns[0].id,
       })
+    );
+  });
+
+  it("selects one from a pre-selected multi-table query", async () => {
+    const postTableFacet = new TableFacet(db, "posts");
+    const userReturns = await userTableFacet.insertReturning(USERS);
+    const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
+    const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
+    const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
+    const postReturns = await postTableFacet.insertReturning([
+      post0,
+      post1,
+      post2,
+    ]);
+
+    const joinedFacet = new QueryFacet(
+      db,
+      db
+        .selectFrom("users")
+        .innerJoin("posts", "users.id", "posts.userId")
+        .select(["posts.id as postId", "posts.title", "users.handle"])
+        .orderBy("title", "desc")
+    );
+
+    // test returning all columns
+    const userPosts1 = await joinedFacet.selectOne({
+      "posts.userId": userReturns[1].id,
+    });
+    expect(userPosts1).toEqual({
+      postId: postReturns[2].id,
+      title: POSTS[2].title,
+      handle: USERS[1].handle,
+    });
+
+    ignore("detects type errors", async () => {
+      // prettier-ignore
+      (await joinedFacet.selectOne(
+        { "posts.userId": userReturns[1].id }
+        // @ts-expect-error - columns not originally selected are not accessible
+      ))!.name;
+
+      // prettier-ignore
+      (await joinedFacet.selectOne(
+        { "posts.userId": userReturns[1].id }
+        // @ts-expect-error - columns not originally selected are not accessible
+      ))!.userId;
+    });
+  });
+
+  it("throws on unrecognized filter", async () => {
+    expect(userTableFacet.selectOne("" as any)).rejects.toThrow(
+      "Unrecognized query filter"
     );
   });
 

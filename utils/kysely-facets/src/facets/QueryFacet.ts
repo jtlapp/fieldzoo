@@ -5,12 +5,16 @@ import {
   SelectQueryBuilder,
 } from "kysely";
 import {
-  QueryBuilderWithSelection,
   SelectExpression,
   Selection,
 } from "kysely/dist/cjs/parser/select-parser";
 
-import { AllColumns, ColumnAlias, EmptyObject } from "../lib/type-utils";
+import {
+  AliasNames,
+  AllColumns,
+  ColumnAlias,
+  EmptyObject,
+} from "../lib/type-utils";
 import { applyQueryFilter, QueryFilter } from "../filters/QueryFilter";
 
 /**
@@ -102,6 +106,12 @@ export class QueryFacet<
     >["selectTransform"]
   > = (row) => row as SelectedObject;
 
+  // Maps alias names to the alias expressions that define them.
+  readonly #aliasMap: Record<string, string> = {};
+
+  // Whether initial query builder includes selections.
+  readonly #hasInitialSelections: boolean;
+
   /**
    * Creates a new query facet.
    * @param db Kysely database instance.
@@ -120,6 +130,13 @@ export class QueryFacet<
     > = {}
   ) {
     this.columnAliases = options.columnAliases || ([] as any);
+    for (const alias of this.columnAliases) {
+      const [_, name] = alias.split(" as ");
+      this.#aliasMap[name] = alias;
+    }
+
+    this.#hasInitialSelections = !!initialQB.toOperationNode().selections;
+
     if (options.selectTransform) {
       this.transformSelection = options.selectTransform;
     }
@@ -127,15 +144,15 @@ export class QueryFacet<
 
   /**
    * Creates a query builder for selecting rows from this table,
-   * returning only the requested columns.
+   * returning only the requested columns. Disregardes any columns
+   * originally selected.
    * @param selections Column to return or array of columns to return.
    * @returns A query builder for selecting rows from this table,
    *  returning only the requested column or columns.
    */
-  selectQB<SE extends SelectExpressionOrList<DB, TableName>>(
-    selections: SE
-  ): QueryBuilderWithSelection<DB, TableName, InitialQBOutput, SE> {
-    return this.initialQB.select(selections as any);
+  selectQB<SEL extends SelectExpressionOrList<DB, TableName>>(selections: SEL) {
+    // clearSelect() clears a clone of the query builder
+    return this.initialQB.clearSelect().select(selections as any);
   }
 
   /**
@@ -144,7 +161,9 @@ export class QueryFacet<
    * @returns A query builder for selecting rows from this table.
    */
   selectAllQB() {
-    return this.columnAliases.length == 0
+    return this.#hasInitialSelections
+      ? this.initialQB
+      : this.columnAliases.length == 0
       ? this.initialQB.selectAll()
       : this.initialQB.selectAll().select(this.columnAliases);
   }
@@ -225,7 +244,10 @@ export class QueryFacet<
 
   subselectMany<
     RE extends ReferenceExpression<DB, TableName>,
-    SE extends SelectExpression<DB, TableName>
+    SE extends
+      | (keyof InitialQBOutput & string)
+      | SelectExpression<DB, TableName>
+      | AliasNames<ColumnAliases>
   >(
     filter: QueryFilter<
       DB,
@@ -238,7 +260,10 @@ export class QueryFacet<
 
   async subselectMany<
     RE extends ReferenceExpression<DB, TableName>,
-    SE extends SelectExpression<DB, TableName>
+    SE extends
+      | (keyof InitialQBOutput & string)
+      | SelectExpression<DB, TableName>
+      | AliasNames<ColumnAliases>
   >(
     filter: QueryFilter<
       DB,
@@ -251,10 +276,7 @@ export class QueryFacet<
     | InitialQBOutputOrAll<DB, TableName, InitialQBOutput, ColumnAliases>[]
     | Selection<DB, TableName, SE>[]
   > {
-    const sqb =
-      !selections || selections.length === 0
-        ? this.selectAllQB()
-        : this.selectQB(selections as any);
+    const sqb = this.createSubselectQB(selections);
     const fqb = applyQueryFilter(this, filter)(sqb);
     return fqb.execute() as any;
   }
@@ -299,7 +321,10 @@ export class QueryFacet<
 
   subselectOne<
     RE extends ReferenceExpression<DB, TableName>,
-    SE extends SelectExpression<DB, TableName>
+    SE extends
+      | (keyof InitialQBOutput & string)
+      | SelectExpression<DB, TableName>
+      | AliasNames<ColumnAliases>
   >(
     filter: QueryFilter<
       DB,
@@ -312,7 +337,10 @@ export class QueryFacet<
 
   async subselectOne<
     RE extends ReferenceExpression<DB, TableName>,
-    SE extends SelectExpression<DB, TableName>
+    SE extends
+      | (keyof InitialQBOutput & string)
+      | SelectExpression<DB, TableName>
+      | AliasNames<ColumnAliases>
   >(
     filter: QueryFilter<
       DB,
@@ -326,10 +354,7 @@ export class QueryFacet<
     | Selection<DB, TableName, SE>
     | null
   > {
-    const sqb =
-      !selections || selections.length === 0
-        ? this.selectAllQB()
-        : this.selectQB(selections as any);
+    const sqb = this.createSubselectQB(selections);
     const fqb = applyQueryFilter(this, filter)(sqb);
     const result = await fqb.executeTakeFirst();
     return result ? (result as any) : null;
@@ -360,5 +385,21 @@ export class QueryFacet<
       return source.map((obj) => this.transformSelection(obj));
     }
     return source as any;
+  }
+
+  /**
+   * Returns a subselect query builder that uses the provided selections.
+   */
+  protected createSubselectQB<
+    SE extends
+      | (keyof InitialQBOutput & string)
+      | SelectExpression<DB, TableName>
+      | AliasNames<ColumnAliases>
+  >(selections?: ReadonlyArray<SE>) {
+    return !selections || selections.length === 0
+      ? this.selectAllQB()
+      : this.selectQB(
+          selections.map((s) => this.#aliasMap[s as string] || s) as any
+        );
   }
 }

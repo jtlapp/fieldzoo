@@ -99,6 +99,38 @@ describe("subselectMany()", () => {
     ]);
   });
 
+  it("subselects many using a pre-configured aliased column", async () => {
+    const ids = await userTableFacet.insertReturning(USERS);
+    const facet = new QueryFacet(db, db.selectFrom("users"), {
+      columnAliases: ["handle as h"],
+    });
+
+    // subselects all columns, including pre-configured aliases
+    const users = await facet.subselectMany({ name: USERS[0].name });
+    expect(users).toEqual([
+      Object.assign({}, USERS[0], { id: ids[0].id, h: USERS[0].handle }),
+      Object.assign({}, USERS[2], { id: ids[2].id, h: USERS[2].handle }),
+    ]);
+
+    // subselects selected columns, including pre-configured aliases
+    const users2 = await facet.subselectMany({ name: USERS[0].name }, [
+      "id",
+      "h",
+    ]);
+    expect(users2).toEqual([
+      { id: ids[0].id, h: USERS[0].handle },
+      { id: ids[2].id, h: USERS[2].handle },
+    ]);
+
+    ignore("detects type errors", async () => {
+      // @ts-expect-error - columns not originally selected are not accessible
+      (await facet.subselectMany({}, []))[0].notThere;
+
+      // @ts-expect-error - columns not originally selected are not accessible
+      (await joinedFacet.subselectMany({}, ["handle"]))[0].name;
+    });
+  });
+
   it("subselects many from a multi-table query, unfiltered", async () => {
     const postTableFacet = new TableFacet(db, "posts");
     const insertReturns = await userTableFacet.insertReturning(USERS);
@@ -164,6 +196,70 @@ describe("subselectMany()", () => {
       { title: POSTS[1].title },
       { title: POSTS[2].title },
     ]);
+  });
+
+  it("subselects many from a pre-selected multi-table query", async () => {
+    const postTableFacet = new TableFacet(db, "posts");
+    const userReturns = await userTableFacet.insertReturning(USERS);
+    const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
+    const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
+    const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
+    const postReturns = await postTableFacet.insertReturning([
+      post0,
+      post1,
+      post2,
+    ]);
+
+    const joinedFacet = new QueryFacet(
+      db,
+      db
+        .selectFrom("users")
+        .innerJoin("posts", "users.id", "posts.userId")
+        .select(["posts.id as postId", "posts.title", "users.handle"])
+        .orderBy("title")
+    );
+
+    // test returning all columns
+    const userPosts1 = await joinedFacet.subselectMany(
+      { "posts.userId": userReturns[1].id },
+      []
+    );
+    expect(userPosts1).toEqual([
+      {
+        postId: postReturns[1].id,
+        title: POSTS[1].title,
+        handle: USERS[1].handle,
+      },
+      {
+        postId: postReturns[2].id,
+        title: POSTS[2].title,
+        handle: USERS[1].handle,
+      },
+    ]);
+
+    // test returning specific columns
+    const userPosts2 = await joinedFacet.subselectMany(
+      { "posts.userId": userReturns[1].id },
+      ["handle", "posts.id as postId"]
+    );
+    expect(userPosts2).toEqual([
+      { postId: postReturns[1].id, handle: USERS[1].handle },
+      { postId: postReturns[2].id, handle: USERS[1].handle },
+    ]);
+
+    ignore("detects type errors", async () => {
+      // prettier-ignore
+      (await joinedFacet.subselectMany(
+        { "posts.userId": userReturns[1].id }, []
+        // @ts-expect-error - columns not originally selected are not accessible
+      ))[0].name;
+
+      // prettier-ignore
+      (await joinedFacet.subselectMany(
+        { "posts.userId": userReturns[1].id }, ["handle"]
+        // @ts-expect-error - columns not originally selected are not accessible
+      ))[0].title;
+    });
   });
 
   ignore("detects subselectMany() type errors", async () => {
@@ -250,6 +346,34 @@ describe("subselectOne()", () => {
     expect(user).toEqual({ handle: USERS[0].handle, email: USERS[0].email });
   });
 
+  it("subselects one using a pre-configured aliased column", async () => {
+    const ids = await userTableFacet.insertReturning(USERS);
+    const facet = new QueryFacet(db, db.selectFrom("users"), {
+      columnAliases: ["handle as h"],
+    });
+
+    // subselects all columns, including pre-configured aliases
+    const user1 = await facet.subselectOne({ name: USERS[1].name });
+    expect(user1).toEqual(
+      Object.assign({}, USERS[1], { id: ids[1].id, h: USERS[1].handle })
+    );
+
+    // subselects selected columns, including pre-configured aliases
+    const user2 = await facet.subselectOne({ name: USERS[1].name }, [
+      "id",
+      "h",
+    ]);
+    expect(user2).toEqual({ id: ids[1].id, h: USERS[1].handle });
+
+    ignore("detects type errors", async () => {
+      // @ts-expect-error - columns not originally selected are not accessible
+      (await facet.subselectOne({}, []))!.notThere;
+
+      // @ts-expect-error - columns not originally selected are not accessible
+      (await joinedFacet.subselectOne({}, ["handle"]))!.name;
+    });
+  });
+
   it("subselects one from a multi-table query, unfiltered", async () => {
     const postTableFacet = new TableFacet(db, "posts");
     const insertReturns = await userTableFacet.insertReturning(USERS);
@@ -322,6 +446,60 @@ describe("subselectOne()", () => {
       ["title"]
     );
     expect(userPost3).toEqual({ title: POSTS[0].title });
+  });
+
+  it("subselects one from a pre-selected multi-table query", async () => {
+    const postTableFacet = new TableFacet(db, "posts");
+    const userReturns = await userTableFacet.insertReturning(USERS);
+    const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
+    const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
+    const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
+    const postReturns = await postTableFacet.insertReturning([
+      post0,
+      post1,
+      post2,
+    ]);
+
+    const joinedFacet = new QueryFacet(
+      db,
+      db
+        .selectFrom("users")
+        .innerJoin("posts", "users.id", "posts.userId")
+        .select(["posts.id as postId", "posts.title", "users.handle"])
+        .orderBy("title", "desc")
+    );
+
+    // test returning all columns
+    const userPost1 = await joinedFacet.subselectOne({}, []);
+    expect(userPost1).toEqual({
+      handle: USERS[1].handle,
+      postId: postReturns[2].id,
+      title: POSTS[2].title,
+    });
+
+    // test returning specific columns
+    const userPost2 = await joinedFacet.subselectOne({}, [
+      "handle",
+      "posts.id as postId",
+    ]);
+    expect(userPost2).toEqual({
+      postId: postReturns[2].id,
+      handle: USERS[1].handle,
+    });
+
+    ignore("detects type errors", async () => {
+      // prettier-ignore
+      (await joinedFacet.subselectOne(
+        { "posts.userId": userReturns[1].id }, []
+        // @ts-expect-error - columns not originally selected are not accessible
+      ))!.name;
+
+      // prettier-ignore
+      (await joinedFacet.subselectOne(
+        { "posts.userId": userReturns[1].id }, ["handle"]
+        // @ts-expect-error - columns not originally selected are not accessible
+      ))!.title;
+    });
   });
 
   ignore("detects subselectOne() type errors", async () => {

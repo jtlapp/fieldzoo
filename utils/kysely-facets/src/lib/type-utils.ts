@@ -20,6 +20,16 @@ export type AllColumns<
 > = AllSelection<DB, TableName> & AliasedSubset<DB, TableName, ColumnAliases>;
 
 /**
+ * Evaluates to a union of all provided alias names.
+ */
+export type AliasNames<ColumnAliases extends string[]> =
+  ColumnAliases extends []
+    ? never
+    : ColumnAliases[number] extends `${string} as ${infer A}`
+    ? A
+    : never;
+
+/**
  * String representing a column alias in the form
  * "column-or-column-reference as alias".
  */
