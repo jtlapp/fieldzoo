@@ -25,20 +25,20 @@ export type InitialQBOutputOrAll<
   DB,
   TableName extends keyof DB & string,
   InitialQBOutput,
-  ColumnAliases extends string[]
+  SelectColumnAliases extends string[]
 > = InitialQBOutput extends EmptyObject
-  ? AllColumns<DB, TableName, ColumnAliases>
+  ? AllColumns<DB, TableName, SelectColumnAliases>
   : InitialQBOutput;
 
 type SelectAllQB<
   DB,
   TableName extends keyof DB & string,
   InitialQBOutput,
-  ColumnAliases extends string[]
+  SelectColumnAliases extends string[]
 > = SelectQueryBuilder<
   DB,
   TableName,
-  InitialQBOutputOrAll<DB, TableName, InitialQBOutput, ColumnAliases>
+  InitialQBOutputOrAll<DB, TableName, InitialQBOutput, SelectColumnAliases>
 >;
 
 /**
@@ -48,12 +48,12 @@ export interface FacetOptions<
   DB,
   TableName extends keyof DB & string,
   InitialQBOutput,
-  ColumnAliases extends ColumnAlias<DB, TableName>[] = [],
+  SelectColumnAliases extends ColumnAlias<DB, TableName>[] = [],
   SelectedObject = InitialQBOutputOrAll<
     DB,
     TableName,
     InitialQBOutput,
-    ColumnAliases
+    SelectColumnAliases
   >
 > {
   /**
@@ -61,11 +61,16 @@ export interface FacetOptions<
    * specifies selections via subselect. Each alias is a string of the form
    * `column-or-column-reference as alias`.
    */
-  readonly columnAliases?: ColumnAliases;
+  readonly columnAliases?: SelectColumnAliases;
 
   /** Transformation to apply to selected objects. */
   readonly selectTransform?: (
-    row: InitialQBOutputOrAll<DB, TableName, InitialQBOutput, ColumnAliases>
+    row: InitialQBOutputOrAll<
+      DB,
+      TableName,
+      InitialQBOutput,
+      SelectColumnAliases
+    >
   ) => SelectedObject;
 }
 
@@ -76,18 +81,18 @@ export class QueryFacet<
   DB,
   TableName extends keyof DB & string,
   InitialQBOutput,
-  ColumnAliases extends ColumnAlias<DB, TableName>[] = [],
+  SelectColumnAliases extends ColumnAlias<DB, TableName>[] = [],
   SelectedObject = InitialQBOutputOrAll<
     DB,
     TableName,
     InitialQBOutput,
-    ColumnAliases
+    SelectColumnAliases
   >
 > {
   /**
    * Column aliases to use with `selectOne()` and `selectMany()`.
    */
-  protected readonly columnAliases: ColumnAliases;
+  protected readonly columnAliases: SelectColumnAliases;
 
   /**
    * Transforms selected rows into the mapped object type.
@@ -101,7 +106,7 @@ export class QueryFacet<
       DB,
       TableName,
       InitialQBOutput,
-      ColumnAliases,
+      SelectColumnAliases,
       SelectedObject
     >["selectTransform"]
   > = (row) => row as SelectedObject;
@@ -125,7 +130,7 @@ export class QueryFacet<
       DB,
       TableName,
       InitialQBOutput,
-      ColumnAliases,
+      SelectColumnAliases,
       SelectedObject
     > = {}
   ) {
@@ -157,7 +162,7 @@ export class QueryFacet<
 
   /**
    * Creates a query builder for selecting rows from this table, returning
-   * all columns, including the aliases of `ColumnAliases`.
+   * all columns, including the aliases of `SelectColumnAliases`.
    * @returns A query builder for selecting rows from this table.
    */
   selectAllQB() {
@@ -171,7 +176,7 @@ export class QueryFacet<
   /**
    * Selects zero or more rows from this table, selecting rows according
    * to the provided filter. The rows include all columns, including the
-   * aliases of `ColumnAliases`.
+   * aliases of `SelectColumnAliases`.
    * @param filter Filter that constrains the selected rows.
    * @returns An array of objects for the selected rows, possibly empty.
    */
@@ -179,7 +184,7 @@ export class QueryFacet<
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, ColumnAliases>,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
       RE
     >
   ): Promise<SelectedObject[]> {
@@ -191,7 +196,7 @@ export class QueryFacet<
 
   /**
    * Selects the first row from this table matching the provided filter.
-   * The row includes all columns, including the aliases of `ColumnAliases`.
+   * The row includes all columns, including the aliases of `SelectColumnAliases`.
    * @param filter Filter that constrains the selection.
    * @returns An object for the selected row, or `null` if no row was found.
    */
@@ -199,7 +204,7 @@ export class QueryFacet<
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, ColumnAliases>,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
       RE
     >
   ): Promise<SelectedObject | null> {
@@ -215,7 +220,7 @@ export class QueryFacet<
    * the provided filter, returning the given columns.
    * @param filter Filter that constrains the selected rows.
    * @param returnColumns Columns to return. `[]` returns all columns,
-   *  including the aliases of `ColumnAliases`, as does omitting the argument.
+   *  including the aliases of `SelectColumnAliases`, as does omitting the argument.
    * @returns An array of the selected rows, possibly empty,
    *  only containing the requested columns.
    */
@@ -223,23 +228,23 @@ export class QueryFacet<
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, ColumnAliases>,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
       RE
     >
   ): Promise<
-    InitialQBOutputOrAll<DB, TableName, InitialQBOutput, ColumnAliases>[]
+    InitialQBOutputOrAll<DB, TableName, InitialQBOutput, SelectColumnAliases>[]
   >;
 
   subselectMany<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, ColumnAliases>,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
       RE
     >,
     selections: []
   ): Promise<
-    InitialQBOutputOrAll<DB, TableName, InitialQBOutput, ColumnAliases>[]
+    InitialQBOutputOrAll<DB, TableName, InitialQBOutput, SelectColumnAliases>[]
   >;
 
   subselectMany<
@@ -247,12 +252,12 @@ export class QueryFacet<
     SE extends
       | (keyof InitialQBOutput & string)
       | SelectExpression<DB, TableName>
-      | AliasNames<ColumnAliases>
+      | AliasNames<SelectColumnAliases>
   >(
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, ColumnAliases>,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
       RE
     >,
     selections: ReadonlyArray<SE>
@@ -263,17 +268,22 @@ export class QueryFacet<
     SE extends
       | (keyof InitialQBOutput & string)
       | SelectExpression<DB, TableName>
-      | AliasNames<ColumnAliases>
+      | AliasNames<SelectColumnAliases>
   >(
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, ColumnAliases>,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
       RE
     >,
     selections?: ReadonlyArray<SE>
   ): Promise<
-    | InitialQBOutputOrAll<DB, TableName, InitialQBOutput, ColumnAliases>[]
+    | InitialQBOutputOrAll<
+        DB,
+        TableName,
+        InitialQBOutput,
+        SelectColumnAliases
+      >[]
     | Selection<DB, TableName, SE>[]
   > {
     const sqb = this.createSubselectQB(selections);
@@ -286,7 +296,7 @@ export class QueryFacet<
    * returning the given columns.
    * @param filter Filter that constrains the selection.
    * @param returnColumns Columns to return. `[]` returns all columns,
-   *  including the aliases of `ColumnAliases`, as does omitting the argument.
+   *  including the aliases of `SelectColumnAliases`, as does omitting the argument.
    * @returns The selected row, only containing the requested columns,
    *  or `null` if no matching row was found.
    */
@@ -294,21 +304,21 @@ export class QueryFacet<
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, ColumnAliases>,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
       RE
     >
   ): Promise<InitialQBOutputOrAll<
     DB,
     TableName,
     InitialQBOutput,
-    ColumnAliases
+    SelectColumnAliases
   > | null>;
 
   subselectOne<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, ColumnAliases>,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
       RE
     >,
     selections: []
@@ -316,7 +326,7 @@ export class QueryFacet<
     DB,
     TableName,
     InitialQBOutput,
-    ColumnAliases
+    SelectColumnAliases
   > | null>;
 
   subselectOne<
@@ -324,12 +334,12 @@ export class QueryFacet<
     SE extends
       | (keyof InitialQBOutput & string)
       | SelectExpression<DB, TableName>
-      | AliasNames<ColumnAliases>
+      | AliasNames<SelectColumnAliases>
   >(
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, ColumnAliases>,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
       RE
     >,
     selections: ReadonlyArray<SE>
@@ -340,17 +350,17 @@ export class QueryFacet<
     SE extends
       | (keyof InitialQBOutput & string)
       | SelectExpression<DB, TableName>
-      | AliasNames<ColumnAliases>
+      | AliasNames<SelectColumnAliases>
   >(
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, ColumnAliases>,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
       RE
     >,
     selections?: ReadonlyArray<SE>
   ): Promise<
-    | InitialQBOutputOrAll<DB, TableName, InitialQBOutput, ColumnAliases>
+    | InitialQBOutputOrAll<DB, TableName, InitialQBOutput, SelectColumnAliases>
     | Selection<DB, TableName, SE>
     | null
   > {
@@ -378,7 +388,7 @@ export class QueryFacet<
       DB,
       TableName,
       InitialQBOutput,
-      ColumnAliases
+      SelectColumnAliases
     >[]
   ): SelectedObject[] {
     if (this.options.selectTransform) {
@@ -394,7 +404,7 @@ export class QueryFacet<
     SE extends
       | (keyof InitialQBOutput & string)
       | SelectExpression<DB, TableName>
-      | AliasNames<ColumnAliases>
+      | AliasNames<SelectColumnAliases>
   >(selections?: ReadonlyArray<SE>) {
     return !selections || selections.length === 0
       ? this.selectAllQB()
