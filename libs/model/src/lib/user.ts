@@ -2,15 +2,11 @@ import { Type } from "@sinclair/typebox";
 
 import { FieldsOf } from "@fieldzoo/generic-types";
 import { SafeValidator } from "@fieldzoo/safe-validator";
-import {
-  NonEmptyString,
-  EmailString,
-  UserNameUniString,
-} from "@fieldzoo/typebox-types";
+import { EmailString, UserNameUniString } from "@fieldzoo/typebox-types";
 import { freezeField } from "@fieldzoo/freeze-field";
 
 /** Database ID of a user record */
-export type UserID = string & { readonly __typeID: unique symbol };
+export type UserID = number & { readonly __typeID: unique symbol };
 
 /**
  * Class representing a user entity
@@ -21,7 +17,7 @@ export class User {
   email: string;
 
   static schema = Type.Object({
-    id: NonEmptyString(),
+    id: Type.Integer({ minimum: 0 }),
     name: UserNameUniString({
       minLength: 2,
       maxLength: 50,

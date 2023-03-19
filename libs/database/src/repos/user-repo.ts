@@ -1,12 +1,40 @@
 import { Kysely } from "kysely";
 
+import { User, UserID } from "@fieldzoo/model";
 import { IdTableFacet } from "@fieldzoo/kysely-facets";
 
 import { Database } from "../tables/current-tables";
 
-// TODO: aggregate, don't extend TableFacet
-export class UserRepo extends IdTableFacet<Database, "users", "id"> {
+export class UserRepo {
+  readonly #tableFacet: IdTableFacet<
+    Database,
+    "users",
+    "id",
+    User,
+    User,
+    User,
+    ["id"],
+    User
+  >;
   constructor(readonly db: Kysely<Database>) {
-    super(db, "users", "id");
+    this.#tableFacet = new IdTableFacet(db, "users", "id", {
+      insertReturnTransform: (user, returns) =>
+        new User({ ...user, id: returns.id as UserID }, true),
+      selectTransform: (row) =>
+        new User({ ...row, id: row.id as UserID }, true),
+    });
+  }
+
+  async getByID(id: UserID): Promise<User | null> {
+    return this.#tableFacet.selectById(id);
+  }
+
+  async store(user: User): Promise<User> {
+    if (user.id === 0) {
+      await this.#tableFacet.insert(user);
+    } else {
+      await this.#tableFacet.updateById(user);
+    }
+    return user;
   }
 }

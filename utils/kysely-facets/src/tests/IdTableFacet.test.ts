@@ -10,6 +10,7 @@ import {
 } from "./utils/test-objects";
 import { IdTableFacet } from "../facets/IdTableFacet";
 import { ReturnedUser, SelectedUser, UpdaterUser } from "./utils/test-types";
+import { ignore } from "@fieldzoo/testing-utils";
 
 class ExplicitIdFacet extends IdTableFacet<
   Database,
@@ -36,6 +37,17 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe("facet for table with unique ID", () => {
+  ignore("requires return columns to include ID field", () => {
+    new IdTableFacet<Database, "users", "id">(db, "users", "id", {
+      // @ts-expect-error - actual and declared return types must match
+      returnColumns: ["name"],
+    });
+    new IdTableFacet<Database, "users", "id">(db, "users", "id", {
+      // @ts-expect-error - actual and declared return types must match
+      returnColumns: ["id", "name"],
+    });
+  });
+
   it("selects, updates, and deletes nothing when no rows match", async () => {
     const readUser = await explicitIdFacet.selectById(1);
     expect(readUser).toBeNull();

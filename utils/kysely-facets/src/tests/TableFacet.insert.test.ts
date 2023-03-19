@@ -62,6 +62,27 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
+ignore("requires return columns to have a consistent type", () => {
+  new TableFacet<Database, "users">(db, "users", {
+    // @ts-expect-error - actual and declared return types must match
+    returnColumns: ["id", "name"],
+  });
+  new TableFacet<Database, "users", any, any, any, ["id"]>(db, "users", {
+    // @ts-expect-error - actual and declared return types must match
+    returnColumns: ["id", "name"],
+  });
+  new TableFacet<Database, "users", any, any, any, ["id", "name"]>(
+    db,
+    "users",
+    {
+      // @ts-expect-error - actual and declared return types must match
+      returnColumns: ["id"],
+    }
+  );
+  // TODO: not sure how to get this to error
+  new TableFacet<Database, "users", any, any, any, ["id", "name"]>(db, "users");
+});
+
 it("insertQB() allows for inserting rows", async () => {
   const user0 = (await userFacet
     .insertQB()

@@ -1,11 +1,11 @@
 import { Generated } from "kysely";
 
-export interface UserTable {
+export interface Users {
   id: Generated<number>;
   name: string;
   email: string;
 }
 
 export interface Database {
-  users: UserTable;
+  users: Users;
 }
