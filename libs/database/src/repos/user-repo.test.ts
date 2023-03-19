@@ -29,14 +29,22 @@ afterAll(() => db.destroy());
 it("inserts, updates, and deletes users", async () => {
   await resetTestDB(db);
   const userRepo = new UserRepo(db);
-
-  // test inserting a user
   const insertedUser = new User({
     id: 0 as UserID,
     name: "John Doe",
     email: "jdoe@xyz.pdq",
   });
-  const insertReturn = await userRepo.store(insertedUser);
+
+  // test updating a non-existent user
+  const updateReturn1 = await userRepo.store({
+    ...insertedUser,
+    id: 1 as UserID,
+  });
+  expect(updateReturn1).toEqual(null);
+
+  // test inserting a user
+  const insertReturn = (await userRepo.store(insertedUser))!;
+  expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).toBeGreaterThan(0);
 
   // test getting a user by ID

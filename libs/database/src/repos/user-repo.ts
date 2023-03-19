@@ -5,6 +5,9 @@ import { IdTableFacet } from "@fieldzoo/kysely-facets";
 
 import { Database } from "../tables/current-tables";
 
+/**
+ * Repository for persisting users.
+ */
 export class UserRepo {
   readonly #tableFacet: IdTableFacet<
     Database,
@@ -32,19 +35,37 @@ export class UserRepo {
     });
   }
 
+  /**
+   * Delete a user by ID.
+   * @param id ID of the user to delete.
+   * @returns true if the user was deleted, false if the user was not found.
+   */
   async deleteById(id: UserID): Promise<boolean> {
     return this.#tableFacet.deleteById(id);
   }
 
+  /**
+   * Get a user by ID.
+   * @param id ID of the user to get.
+   * @returns the user, or null if the user was not found.
+   */
   async getByID(id: UserID): Promise<User | null> {
     return this.#tableFacet.selectById(id);
   }
 
-  async store(user: User): Promise<User> {
+  /**
+   * Insert or update a user. Users with ID 0 are inserted;
+   * users with non-zero IDs are updated.
+   * @param user User to insert or update.
+   * @returns the user, or null if the user-to-update was not found.
+   */
+  async store(user: User): Promise<User | null> {
     if (user.id === 0) {
       return await this.#tableFacet.insert(user);
     }
-    await this.#tableFacet.updateById(user);
-    return user;
+    if (await this.#tableFacet.updateById(user)) {
+      return user;
+    }
+    return null;
   }
 }
