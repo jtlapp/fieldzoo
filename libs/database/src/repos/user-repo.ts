@@ -18,11 +18,22 @@ export class UserRepo {
   >;
   constructor(readonly db: Kysely<Database>) {
     this.#tableFacet = new IdTableFacet(db, "users", "id", {
-      insertReturnTransform: (user, returns) =>
-        new User({ ...user, id: returns.id as UserID }, true),
+      insertTransform: (user) => {
+        if (user.id !== 0) {
+          throw Error("Inserted users must have id 0");
+        }
+        return { ...user, id: undefined };
+      },
+      insertReturnTransform: (user, returns) => {
+        return new User({ ...user, id: returns.id as UserID }, true);
+      },
       selectTransform: (row) =>
         new User({ ...row, id: row.id as UserID }, true),
     });
+  }
+
+  async deleteById(id: UserID): Promise<boolean> {
+    return this.#tableFacet.deleteById(id);
   }
 
   async getByID(id: UserID): Promise<User | null> {
@@ -31,10 +42,9 @@ export class UserRepo {
 
   async store(user: User): Promise<User> {
     if (user.id === 0) {
-      await this.#tableFacet.insert(user);
-    } else {
-      await this.#tableFacet.updateById(user);
+      return await this.#tableFacet.insertReturning(user);
     }
+    await this.#tableFacet.updateById(user);
     return user;
   }
 }

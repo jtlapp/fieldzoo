@@ -1,16 +1,12 @@
 import * as path from "path";
 import { Pool } from "pg";
-import {
-  Kysely,
-  PostgresDialect,
-  // Selectable,
-  // Insertable,
-  // Updateable,
-} from "kysely";
+import { Kysely, PostgresDialect } from "kysely";
 import * as dotenv from "dotenv";
 
 import { DB_ENVVAR_PREFIX, TEST_ENV } from "@fieldzoo/app-config";
 import { DatabaseConfig } from "@fieldzoo/database-config";
+import { User, UserID } from "@fieldzoo/model";
+
 import { resetTestDB } from "../index";
 import { Database } from "../tables/current-tables";
 import { UserRepo } from "./user-repo";
@@ -30,87 +26,37 @@ beforeAll(() => {
 
 afterAll(() => db.destroy());
 
-const USER1 = {
-  name: "Jennifer",
-  email: "jenn@xyz.com",
-};
+it("inserts, updates, and deletes users", async () => {
+  await resetTestDB(db);
+  const userRepo = new UserRepo(db);
 
-describe("user repo", () => {
-  it("should work", async () => {
-    await resetTestDB(db);
-    const userRepo = new UserRepo(db);
-
-    // DONE
-    // Add a user
-    const insertReturn = await userRepo.insertReturning(USER1);
-
-    // DONE
-    // Verify that the user was added
-    let user = await userRepo.selectById(insertReturn.id);
-    expect(user?.name).toEqual(USER1.name);
-    expect(user?.email).toEqual(USER1.email);
-
-    // Verify find expression
-    user = await userRepo.selectOne(["id", "=", insertReturn.id]);
-    expect(user?.name).toEqual(USER1.name);
-    expect(user?.email).toEqual(USER1.email);
-
-    user = await userRepo.selectOne((qb) =>
-      qb.where("id", "=", insertReturn.id)
-    );
-
-    let users = await userRepo.selectMany({});
-    expect(users?.length).toEqual(1);
-    expect(user?.name).toEqual(USER1.name);
-    expect(user?.email).toEqual(USER1.email);
-
-    users = await userRepo.selectMany((qb) =>
-      qb.where("id", "=", insertReturn.id)
-    );
-    expect(users?.length).toEqual(1);
-    expect(users![0].name).toEqual(USER1.name);
-    expect(users![0].email).toEqual(USER1.email);
-
-    users = await userRepo.selectMany((qb) =>
-      qb.offset(0).limit(1).where("id", "=", insertReturn.id)
-    );
-    expect(users?.length).toEqual(1);
-    expect(users![0].name).toEqual(USER1.name);
-    expect(users![0].email).toEqual(USER1.email);
-
-    users = await userRepo.selectMany((qb) =>
-      qb.where("id", "=", insertReturn.id)
-    );
-    expect(users?.length).toEqual(1);
-    expect(users![0].name).toEqual(USER1.name);
-    expect(users![0].email).toEqual(USER1.email);
-
-    // DONE
-    // Delete the user
-    const deleted = await userRepo.deleteById(insertReturn.id);
-    expect(deleted).toEqual(true);
-
-    // DONE
-    // Verify that the user was deleted
-    user = await userRepo.selectById(insertReturn.id);
-    expect(user).toBeNull();
+  // test inserting a user
+  const insertedUser = new User({
+    id: 0 as UserID,
+    name: "John Doe",
+    email: "jdoe@xyz.pdq",
   });
-});
+  const insertReturn = await userRepo.store(insertedUser);
+  expect(insertReturn.id).toBeGreaterThan(0);
 
-// interface notes
-//
-// const selectableUser: Selectable<UserTable> = {
-//   id: 99,
-//   name: "foo",
-//   email: "br",
-// };
-// const insertableUser: Insertable<UserTable> = {
-//   id: undefined,
-//   name: "foo",
-//   email: "br",
-// };
-// const updateableUser: Updateable<UserTable> = {
-//   id: undefined,
-//   name: "foo",
-//   email: "br",
-// };
+  // test getting a user by ID
+  const selectedUser1 = await userRepo.getByID(insertReturn.id);
+  expect(selectedUser1).toEqual(insertReturn);
+  expect(selectedUser1?.id).toEqual(insertReturn.id);
+
+  // test updating a user
+  const updaterUser = new User({
+    ...selectedUser1!,
+    name: "Jon Doe",
+  });
+  const updateReturn = await userRepo.store(updaterUser);
+  expect(updateReturn).toEqual(updaterUser);
+  const selectedUser2 = await userRepo.getByID(insertReturn.id);
+  expect(selectedUser2).toEqual(updateReturn);
+
+  // test deleting a user
+  const deleted = await userRepo.deleteById(insertReturn.id);
+  expect(deleted).toEqual(true);
+  const selectedUser3 = await userRepo.getByID(insertReturn.id);
+  expect(selectedUser3).toEqual(null);
+});
