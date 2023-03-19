@@ -151,6 +151,7 @@ importers:
       '@fieldzoo/kysely-facets': workspace:*
       '@fieldzoo/model': workspace:*
       '@fieldzoo/postgres-utils': workspace:*
+      '@fieldzoo/safe-validator': workspace:*
       '@types/jest': ^29.4.0
       '@types/node': ^18.14.1
       '@types/pg': ^8.6.6
@@ -173,6 +174,7 @@ importers:
       kysely: 0.23.4
       pg: 8.9.0
     devDependencies:
+      '@fieldzoo/safe-validator': link:../../utils/safe-validator
       '@types/jest': 29.4.0
       '@types/node': 18.14.1
       '@types/pg': 8.6.6
