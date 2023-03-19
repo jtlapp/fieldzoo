@@ -7,6 +7,7 @@ const EMAIL = "x@yz.com";
 
 describe("User entity", () => {
   it("accepts valid user names", () => {
+    expect(() => createUser(0, "Mo", EMAIL)).not.toThrow();
     expect(() => createUser(ID, "Mo", EMAIL)).not.toThrow();
     expect(() => createUser(ID, "Jimmy", EMAIL)).not.toThrow();
     expect(() => createUser(ID, "Mary Q.", EMAIL)).not.toThrow();
