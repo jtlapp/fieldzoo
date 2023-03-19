@@ -227,7 +227,6 @@ export class TableFacet<
    * @param obj The object whose field values are to be assigned to the row.
    * @returns Returns an array of `ReturnedObject` objects, one for each
    *  updated row.
-   * @throws Error if `ReturnedObject` was not assigned.
    */
   async updateReturning<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
