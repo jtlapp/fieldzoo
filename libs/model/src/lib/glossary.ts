@@ -26,7 +26,7 @@ export class Glossary {
 
   static schema = Type.Object({
     id: NonEmptyString(),
-    ownerID: NonEmptyString(),
+    ownerID: Type.Number({ minimum: 1 }),
     name: SingleLineUniString({
       minLength: 1,
       maxLength: 100,
