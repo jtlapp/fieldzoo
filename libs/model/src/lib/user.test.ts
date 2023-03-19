@@ -2,7 +2,7 @@ import { User, UserID } from "./user";
 
 const maxNameLength = User.schema.properties.name.maxLength!;
 
-const ID = "abc" as UserID;
+const ID = 1 as UserID;
 const EMAIL = "x@yz.com";
 
 describe("User entity", () => {
@@ -17,7 +17,7 @@ describe("User entity", () => {
   });
 
   it("rejects invalid IDs", () => {
-    expect(() => createUser("", "Foo", EMAIL)).toThrow("Invalid user");
+    expect(() => createUser(-1, "Foo", EMAIL)).toThrow("Invalid user");
   });
 
   it("rejects invalid user names", () => {
@@ -44,6 +44,6 @@ describe("User entity", () => {
   });
 });
 
-function createUser(id: string, name: string, email: string) {
+function createUser(id: number, name: string, email: string) {
   return new User({ id: id as UserID, name, email });
 }
