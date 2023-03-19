@@ -9,7 +9,7 @@ import { freezeField } from "@fieldzoo/freeze-field";
 export type UserID = number & { readonly __typeID: unique symbol };
 
 /**
- * Class representing a user entity
+ * Class representing a valid user.
  */
 export class User {
   readonly id: UserID;
