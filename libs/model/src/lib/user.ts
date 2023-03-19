@@ -26,6 +26,11 @@ export class User {
   });
   static #validator = new SafeValidator(this.schema);
 
+  /**
+   * Create a new user.
+   * @param fields The user's properties. `id` is optional, but
+   *  must be 0 for users not yet in the database.
+   */
   constructor(
     fields: SelectivePartial<FieldsOf<User>, "id">,
     assumeValid = false
