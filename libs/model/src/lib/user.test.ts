@@ -7,6 +7,7 @@ const EMAIL = "x@yz.com";
 
 describe("User entity", () => {
   it("accepts valid user names", () => {
+    expect(() => createUser(undefined, "Mo", EMAIL)).not.toThrow();
     expect(() => createUser(0, "Mo", EMAIL)).not.toThrow();
     expect(() => createUser(ID, "Mo", EMAIL)).not.toThrow();
     expect(() => createUser(ID, "Jimmy", EMAIL)).not.toThrow();
@@ -45,6 +46,6 @@ describe("User entity", () => {
   });
 });
 
-function createUser(id: number, name: string, email: string) {
+function createUser(id: number | undefined, name: string, email: string) {
   return new User({ id: id as UserID, name, email });
 }
