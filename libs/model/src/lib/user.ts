@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 
-import { FieldsOf } from "@fieldzoo/generic-types";
+import { FieldsOf, SelectivePartial } from "@fieldzoo/generic-types";
 import { SafeValidator } from "@fieldzoo/safe-validator";
 import { EmailString, UserNameUniString } from "@fieldzoo/typebox-types";
 import { freezeField } from "@fieldzoo/freeze-field";
@@ -26,8 +26,11 @@ export class User {
   });
   static #validator = new SafeValidator(this.schema);
 
-  constructor(fields: FieldsOf<User>, assumeValid = false) {
-    this.id = fields.id;
+  constructor(
+    fields: SelectivePartial<FieldsOf<User>, "id">,
+    assumeValid = false
+  ) {
+    this.id = fields.id ?? (0 as UserID);
     this.name = fields.name;
     this.email = fields.email;
 

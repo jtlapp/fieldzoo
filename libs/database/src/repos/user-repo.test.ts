@@ -30,7 +30,6 @@ it("inserts, updates, and deletes users", async () => {
   await resetTestDB(db);
   const userRepo = new UserRepo(db);
   const insertedUser = new User({
-    id: 0 as UserID,
     name: "John Doe",
     email: "jdoe@xyz.pdq",
   });
