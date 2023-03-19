@@ -1,9 +1,8 @@
 import { Type } from "@sinclair/typebox";
 
-import { FieldsOf } from "@fieldzoo/generic-types";
+import { FieldsOf, SelectivePartial } from "@fieldzoo/generic-types";
 import { SafeValidator } from "@fieldzoo/safe-validator";
 import {
-  NonEmptyString,
   Nullable,
   SingleLineUniString,
   MultiLineUniString,
@@ -16,16 +15,16 @@ import { UserID } from "./user";
 export type GlossaryID = string & { readonly __typeID: unique symbol };
 
 /**
- * Class representing a valid glossary
+ * Class representing a valid glossary.
  */
 export class Glossary {
-  readonly id: GlossaryID;
+  readonly uuid: GlossaryID;
   ownerID: UserID;
   name: string;
   description: string | null;
 
   static schema = Type.Object({
-    id: NonEmptyString(),
+    uuid: Type.String(),
     ownerID: Type.Number({ minimum: 1 }),
     name: SingleLineUniString({
       minLength: 1,
@@ -35,8 +34,16 @@ export class Glossary {
   });
   static #validator = new SafeValidator(this.schema);
 
-  constructor(fields: FieldsOf<Glossary>, assumeValid = false) {
-    this.id = fields.id;
+  /**
+   * Creates a new glossary.
+   * @param fields - Fields of the glossary. `uuid` is optional, but
+   *  must be an empty string for users not yet in the database.
+   */
+  constructor(
+    fields: SelectivePartial<FieldsOf<Glossary>, "uuid">,
+    assumeValid = false
+  ) {
+    this.uuid = fields.uuid ?? ("" as GlossaryID);
     this.ownerID = fields.ownerID;
     this.name = fields.name;
     this.description = fields.description;
@@ -44,7 +51,7 @@ export class Glossary {
     if (!assumeValid) {
       Glossary.#validator.safeValidate(this, "Invalid glossary");
     }
-    freezeField(this, "id");
+    freezeField(this, "uuid");
   }
 }
 export interface Glossary {

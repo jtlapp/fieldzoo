@@ -10,7 +10,6 @@ describe("Glossary entity", () => {
     expect(
       () =>
         new Glossary({
-          id: "abc" as GlossaryID,
           ownerID: 1 as UserID,
           name: "X",
           description: null,
@@ -19,7 +18,7 @@ describe("Glossary entity", () => {
     expect(
       () =>
         new Glossary({
-          id: "abc" as GlossaryID,
+          uuid: "" as GlossaryID,
           ownerID: 1 as UserID,
           name: "Good Name",
           description: "This\nis\nfine.",
@@ -28,7 +27,7 @@ describe("Glossary entity", () => {
     expect(
       () =>
         new Glossary({
-          id: "abc" as GlossaryID,
+          uuid: "abc" as GlossaryID,
           ownerID: 1 as UserID,
           name: "A".repeat(maxNameLength),
           description: "A".repeat(maxDescriptionLength),
@@ -40,7 +39,7 @@ describe("Glossary entity", () => {
     expect(
       () =>
         new Glossary({
-          id: "abc" as GlossaryID,
+          uuid: "abc" as GlossaryID,
           ownerID: 1 as UserID,
           name: "",
           description: "This\nis\nfine.",
@@ -49,7 +48,7 @@ describe("Glossary entity", () => {
     expect(
       () =>
         new Glossary({
-          id: "abc" as GlossaryID,
+          uuid: "abc" as GlossaryID,
           ownerID: 1 as UserID,
           name: "X  Y",
           description: "This\nis\nfine.",
@@ -58,7 +57,7 @@ describe("Glossary entity", () => {
     expect(
       () =>
         new Glossary({
-          id: "abc" as GlossaryID,
+          uuid: "abc" as GlossaryID,
           ownerID: 1 as UserID,
           name: "A".repeat(maxNameLength + 1),
           description: "This\nis\nfine.",
@@ -70,7 +69,7 @@ describe("Glossary entity", () => {
     expect(
       () =>
         new Glossary({
-          id: "abc" as GlossaryID,
+          uuid: "abc" as GlossaryID,
           ownerID: 1 as UserID,
           name: "Good Name",
           description: "",
@@ -79,7 +78,7 @@ describe("Glossary entity", () => {
     expect(
       () =>
         new Glossary({
-          id: "abc" as GlossaryID,
+          uuid: "abc" as GlossaryID,
           ownerID: 1 as UserID,
           name: "Good Name",
           description: "\n\n",
@@ -88,7 +87,7 @@ describe("Glossary entity", () => {
     expect(
       () =>
         new Glossary({
-          id: "abc" as GlossaryID,
+          uuid: "abc" as GlossaryID,
           ownerID: 1 as UserID,
           name: "Good Name",
           description: "A".repeat(maxDescriptionLength + 1),
@@ -101,7 +100,7 @@ describe("Glossary entity", () => {
       () =>
         new Glossary(
           {
-            id: "abc" as GlossaryID,
+            uuid: "abc" as GlossaryID,
             ownerID: 1 as UserID,
             name: "",
             description: "",
@@ -113,11 +112,11 @@ describe("Glossary entity", () => {
 
   it("cannot change id", () => {
     const glossary = new Glossary({
-      id: "abc" as GlossaryID,
+      uuid: "abc" as GlossaryID,
       ownerID: 1 as UserID,
       name: "X",
       description: null,
     });
-    expect(() => ((glossary as any).id = "XX")).toThrow("read only");
+    expect(() => ((glossary as any).uuid = "XX")).toThrow("read only");
   });
 });
