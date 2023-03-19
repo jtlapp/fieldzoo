@@ -100,7 +100,7 @@ describe("subselectMany()", () => {
   });
 
   it("subselects many using a pre-configured aliased column", async () => {
-    const ids = await userTableFacet.insertReturning(USERS);
+    const ids = await userTableFacet.insert(USERS);
     const facet = new QueryFacet(db, db.selectFrom("users"), {
       columnAliases: ["handle as h"],
     });
@@ -133,11 +133,11 @@ describe("subselectMany()", () => {
 
   it("subselects many from a multi-table query, unfiltered", async () => {
     const postTableFacet = new TableFacet(db, "posts");
-    const insertReturns = await userTableFacet.insertReturning(USERS);
+    const insertReturns = await userTableFacet.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[1].id });
-    await postTableFacet.insertReturning([post0, post1, post2]);
+    await postTableFacet.insert([post0, post1, post2]);
 
     const joinedFacet = new QueryFacet(
       db,
@@ -160,11 +160,11 @@ describe("subselectMany()", () => {
 
   it("subselects many from a multi-table query, filtered", async () => {
     const postTableFacet = new TableFacet(db, "posts");
-    const userReturns = await userTableFacet.insertReturning(USERS);
+    const userReturns = await userTableFacet.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
-    await postTableFacet.insertReturning([post0, post1, post2]);
+    await postTableFacet.insert([post0, post1, post2]);
     const joinedFacet = new QueryFacet(
       db,
       db
@@ -200,15 +200,11 @@ describe("subselectMany()", () => {
 
   it("subselects many from a pre-selected multi-table query", async () => {
     const postTableFacet = new TableFacet(db, "posts");
-    const userReturns = await userTableFacet.insertReturning(USERS);
+    const userReturns = await userTableFacet.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
-    const postReturns = await postTableFacet.insertReturning([
-      post0,
-      post1,
-      post2,
-    ]);
+    const postReturns = await postTableFacet.insert([post0, post1, post2]);
 
     const joinedFacet = new QueryFacet(
       db,
@@ -347,7 +343,7 @@ describe("subselectOne()", () => {
   });
 
   it("subselects one using a pre-configured aliased column", async () => {
-    const ids = await userTableFacet.insertReturning(USERS);
+    const ids = await userTableFacet.insert(USERS);
     const facet = new QueryFacet(db, db.selectFrom("users"), {
       columnAliases: ["handle as h"],
     });
@@ -376,11 +372,11 @@ describe("subselectOne()", () => {
 
   it("subselects one from a multi-table query, unfiltered", async () => {
     const postTableFacet = new TableFacet(db, "posts");
-    const insertReturns = await userTableFacet.insertReturning(USERS);
+    const insertReturns = await userTableFacet.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[1].id });
-    await postTableFacet.insertReturning([post0, post1, post2]);
+    await postTableFacet.insert([post0, post1, post2]);
 
     const joinedFacet = new QueryFacet(
       db,
@@ -402,15 +398,11 @@ describe("subselectOne()", () => {
 
   it("subselects one from a multi-table query, filtered", async () => {
     const postTableFacet = new TableFacet(db, "posts");
-    const userReturns = await userTableFacet.insertReturning(USERS);
+    const userReturns = await userTableFacet.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
-    const postReturns = await postTableFacet.insertReturning([
-      post0,
-      post1,
-      post2,
-    ]);
+    const postReturns = await postTableFacet.insert([post0, post1, post2]);
 
     const joinedFacet = new QueryFacet(
       db,
@@ -450,15 +442,11 @@ describe("subselectOne()", () => {
 
   it("subselects one from a pre-selected multi-table query", async () => {
     const postTableFacet = new TableFacet(db, "posts");
-    const userReturns = await userTableFacet.insertReturning(USERS);
+    const userReturns = await userTableFacet.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
-    const postReturns = await postTableFacet.insertReturning([
-      post0,
-      post1,
-      post2,
-    ]);
+    const postReturns = await postTableFacet.insert([post0, post1, post2]);
 
     const joinedFacet = new QueryFacet(
       db,

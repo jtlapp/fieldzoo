@@ -64,8 +64,8 @@ describe("facet for table with unique ID", () => {
 
   it("inserts, selects, updates, and deletes objects by ID", async () => {
     // Add users
-    const id0 = (await explicitIdFacet.insertReturning(USERS[0])).id;
-    const id1 = (await explicitIdFacet.insertReturning(USERS[1])).id;
+    const id0 = (await explicitIdFacet.insert(USERS[0])).id;
+    const id1 = (await explicitIdFacet.insert(USERS[1])).id;
 
     // Update a user without returning columns
     const NEW_EMAIL = "new@baz.com";
@@ -93,7 +93,7 @@ describe("facet for table with unique ID", () => {
 
   it("updates returning all columns by default with default ID", async () => {
     const defaultIdFacet = new IdTableFacet(db, "users");
-    const id1 = (await defaultIdFacet.insertReturning(USERS[1])).id;
+    const id1 = (await defaultIdFacet.insert(USERS[1])).id;
 
     const NEW_EMAIL = "new@baz.com";
     const updated = await defaultIdFacet.updateByIdReturning({
@@ -107,7 +107,7 @@ describe("facet for table with unique ID", () => {
 
   it("updates returning all columns by default with specified ID", async () => {
     const defaultIdFacet = new IdTableFacet(db, "users", "id");
-    const id1 = (await defaultIdFacet.insertReturning(USERS[1])).id;
+    const id1 = (await defaultIdFacet.insert(USERS[1])).id;
 
     const NEW_EMAIL = "new@baz.com";
     const updated = await defaultIdFacet.updateByIdReturning({
@@ -120,7 +120,7 @@ describe("facet for table with unique ID", () => {
   });
 
   it("updates returning expected columns", async () => {
-    const id1 = (await explicitIdFacet.insertReturning(USERS[1])).id;
+    const id1 = (await explicitIdFacet.insert(USERS[1])).id;
 
     const NEW_EMAIL = "new@baz.com";
     const updated = await explicitIdFacet.updateByIdReturning({
@@ -135,7 +135,7 @@ describe("facet for table with unique ID", () => {
     const defaultIdFacet = new IdTableFacet(db, "users");
 
     await defaultIdFacet.insert(USERS[0]);
-    const id1 = (await defaultIdFacet.insertReturning(USERS[1])).id;
+    const id1 = (await defaultIdFacet.insert(USERS[1])).id;
 
     const readUser1 = await explicitIdFacet.selectById(id1);
     expect(readUser1?.handle).toEqual(USERS[1].handle);
@@ -146,13 +146,13 @@ describe("facet for table with unique ID", () => {
       returnColumns: ["id", "handle"],
     });
 
-    const insertReturn1 = await idAndHandleFacet.insertReturning(USERS[0]);
+    const insertReturn1 = await idAndHandleFacet.insert(USERS[0]);
     expect(insertReturn1).toEqual({
       id: 1,
       handle: USERS[0].handle,
     });
 
-    const insertReturn2 = await idAndHandleFacet.insertReturning(USERS[1]);
+    const insertReturn2 = await idAndHandleFacet.insert(USERS[1]);
     expect(insertReturn2).toEqual({
       id: 2,
       handle: USERS[1].handle,
@@ -162,7 +162,7 @@ describe("facet for table with unique ID", () => {
   it("allows for returning all columns", async () => {
     const allColumnsFacet = new IdTableFacet(db, "users", "id");
 
-    const insertReturn1 = await allColumnsFacet.insertReturning(USERS[0]);
+    const insertReturn1 = await allColumnsFacet.insert(USERS[0]);
     expect(insertReturn1).toEqual({
       id: 1,
       handle: USERS[0].handle,
@@ -170,7 +170,7 @@ describe("facet for table with unique ID", () => {
       email: USERS[0].email,
     });
 
-    const insertReturn2 = await allColumnsFacet.insertReturning(USERS[1]);
+    const insertReturn2 = await allColumnsFacet.insert(USERS[1]);
     expect(insertReturn2).toEqual({
       id: 2,
       handle: USERS[1].handle,
@@ -187,9 +187,7 @@ describe("facet for table with unique ID", () => {
       STANDARD_OPTIONS
     );
 
-    const insertReturn1 = await testTransformFacet.insertReturning(
-      insertedUser1
-    );
+    const insertReturn1 = await testTransformFacet.insert(insertedUser1);
     expect(insertReturn1).toEqual(ReturnedUser.create(1, insertedUser1));
 
     const readUser1 = await testTransformFacet.selectById(1);

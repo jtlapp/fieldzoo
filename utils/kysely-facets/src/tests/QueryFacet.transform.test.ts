@@ -142,7 +142,7 @@ describe("transforms selection objects", () => {
       }
     );
 
-    const insertReturn = await userTableFacet.insertReturning(userRow1);
+    const insertReturn = await userTableFacet.insert(userRow1);
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturn.id });
     const postId = (await db
       .insertInto("posts")

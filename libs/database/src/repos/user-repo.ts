@@ -42,7 +42,7 @@ export class UserRepo {
 
   async store(user: User): Promise<User> {
     if (user.id === 0) {
-      return await this.#tableFacet.insertReturning(user);
+      return await this.#tableFacet.insert(user);
     }
     await this.#tableFacet.updateById(user);
     return user;

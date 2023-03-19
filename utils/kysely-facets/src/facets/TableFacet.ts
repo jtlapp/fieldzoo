@@ -138,31 +138,17 @@ export class TableFacet<
   }
 
   /**
-   * Inserts one or more rows into this table, without returning any columns.
-   * @param objOrObjs The object or objects to insert as a row.
-   */
-  insert(obj: InsertedObject): Promise<void>;
-
-  insert(objs: InsertedObject[]): Promise<void>;
-
-  async insert(objOrObjs: InsertedObject | InsertedObject[]): Promise<void> {
-    const transformedObjOrObjs = this.transformInsertion(objOrObjs as any);
-    const qb = this.insertQB().values(transformedObjOrObjs);
-    await qb.execute();
-  }
-
-  /**
    * Inserts one or more rows into this table, returning the columns
    * specified in the `returnColumns` for each row inserted.
    * @param objOrObjs The object or objects to insert as a row.
    * @returns Returns a `ReturnedObject` for each inserted object. An
    *  array when `objOrObjs` is an array, and a single object otherwise.
    */
-  insertReturning(obj: InsertedObject): Promise<ReturnedObject>;
+  insert(obj: InsertedObject): Promise<ReturnedObject>;
 
-  insertReturning(objs: InsertedObject[]): Promise<ReturnedObject[]>;
+  insert(objs: InsertedObject[]): Promise<ReturnedObject[]>;
 
-  async insertReturning(
+  async insert(
     objOrObjs: InsertedObject | InsertedObject[]
   ): Promise<ReturnedObject | ReturnedObject[]> {
     const insertedAnArray = Array.isArray(objOrObjs); // expensive operation
@@ -190,6 +176,22 @@ export class TableFacet<
       return this.transformInsertReturnArray(objOrObjs, returns as any);
     }
     return this.transformInsertReturn(objOrObjs, returns[0] as any);
+  }
+
+  /**
+   * Inserts one or more rows into this table, without returning any columns.
+   * @param objOrObjs The object or objects to insert as a row.
+   */
+  insertNoReturns(obj: InsertedObject): Promise<void>;
+
+  insertNoReturns(objs: InsertedObject[]): Promise<void>;
+
+  async insertNoReturns(
+    objOrObjs: InsertedObject | InsertedObject[]
+  ): Promise<void> {
+    const transformedObjOrObjs = this.transformInsertion(objOrObjs as any);
+    const qb = this.insertQB().values(transformedObjOrObjs);
+    await qb.execute();
   }
 
   /**
