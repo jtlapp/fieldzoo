@@ -62,7 +62,7 @@ describe("deleting rows via TableFacet", () => {
     expect(count2).toEqual(1);
   });
 
-  ignore("detects update() and updateReturning() type errors", async () => {
+  ignore("detects delete() type errors", async () => {
     // @ts-expect-error - table must have all filter fields
     userFacet.delete({ notThere: "xyz" });
     // @ts-expect-error - table must have all filter fields

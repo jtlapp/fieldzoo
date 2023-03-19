@@ -203,8 +203,8 @@ export class TableFacet<
   }
 
   /**
-   * Updates rows in this table matching the provided filter, without returning
-   * any columns
+   * Updates rows in this table matching the provided filter, returning
+   * the number of updated rows.
    * @param filter Filter specifying the rows to update.
    * @param obj The object whose field values are to be assigned to the row.
    * @returns Returns the number of updated rows.
