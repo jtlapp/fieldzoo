@@ -113,30 +113,24 @@ export const STANDARD_OPTIONS = {
   insertReturnTransform: (
     source: InsertedUser,
     returns: Partial<Selectable<Users>>
-  ) => {
-    const returnedUser = new ReturnedUser(
-      source.id,
+  ) =>
+    new ReturnedUser(
+      returns.id!,
       source.firstName,
       source.lastName,
       source.handle,
       source.email
-    );
-    returnedUser.id = returns.id!;
-    return returnedUser;
-  },
+    ),
   updateReturnTransform: (
     source: UpdaterUser,
     returns: Partial<Selectable<Users>>
-  ) => {
-    const returnedUser = new ReturnedUser(
-      source.id,
+  ) =>
+    new ReturnedUser(
+      returns.id!,
       source.firstName,
       source.lastName,
       source.handle,
       source.email
-    );
-    returnedUser.id = returns.id!;
-    return returnedUser;
-  },
-  returnColumns: ["id"] as ["id"] & (keyof Users)[],
+    ),
+  returnColumns: ["id"] as ["id"],
 };
