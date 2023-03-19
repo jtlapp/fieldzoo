@@ -24,9 +24,9 @@ export type FieldsOf<T> = Pick<
 export type IsFunction<T> = T extends (...args: any[]) => any ? T : never;
 
 /**
- * Make a single property of an object optional.
+ * Make selective properties of an object optional.
  */
-export type PartialPartial<T, K extends keyof T> = Omit<T, K> &
+export type SelectivePartial<T, K extends keyof T> = Omit<T, K> &
   Partial<Pick<T, K>>;
 
 /**
