@@ -1,7 +1,7 @@
-import { Insertable, Kysely, Selectable } from "kysely";
+import { Kysely } from "kysely";
 
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
-import { Database, Users } from "./utils/test-tables";
+import { Database } from "./utils/test-tables";
 import {
   USERS,
   STANDARD_OPTIONS,
@@ -12,15 +12,7 @@ import { IdTableFacet } from "../facets/IdTableFacet";
 import { ReturnedUser, SelectedUser, UpdaterUser } from "./utils/test-types";
 import { ignore } from "@fieldzoo/testing-utils";
 
-class ExplicitIdFacet extends IdTableFacet<
-  Database,
-  "users",
-  "id",
-  Selectable<Users>,
-  Insertable<Users>,
-  Partial<Insertable<Users>>,
-  ["id"]
-> {
+class ExplicitIdFacet extends IdTableFacet<Database, "users", "id"> {
   constructor(readonly db: Kysely<Database>) {
     super(db, "users", "id", { returnColumns: ["id"] });
   }
