@@ -12,7 +12,9 @@ export class IdTableFacet<
   SelectedObject = Selectable<DB[TableName]>,
   InsertedObject = Insertable<DB[TableName]>,
   UpdaterObject = Partial<Insertable<DB[TableName]>>,
-  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] = [],
+  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] = [
+    IdColumnName
+  ],
   ReturnedObject = ReturnColumns extends []
     ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
@@ -26,8 +28,8 @@ export class IdTableFacet<
   ReturnedObject
 > {
   constructor(
-    readonly db: Kysely<DB>,
-    readonly tableName: TableName,
+    db: Kysely<DB>,
+    tableName: TableName,
     readonly idColumnName: IdColumnName = "id" as any,
     options: TableFacetOptions<
       DB,
