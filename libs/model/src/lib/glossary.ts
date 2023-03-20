@@ -19,13 +19,15 @@ export type GlossaryID = string & { readonly __typeID: unique symbol };
  */
 export class Glossary {
   readonly uuid: GlossaryID;
-  ownerID: UserID;
+  ownerId: UserID;
+  updatedBy: UserID;
   name: string;
   description: string | null;
 
   static schema = Type.Object({
     uuid: Type.String(),
-    ownerID: Type.Number({ minimum: 1 }),
+    ownerId: Type.Number({ minimum: 1 }),
+    updatedBy: Type.Number({ minimum: 1 }),
     name: SingleLineUniString({
       minLength: 1,
       maxLength: 100,
@@ -44,7 +46,8 @@ export class Glossary {
     assumeValid = false
   ) {
     this.uuid = fields.uuid ?? ("" as GlossaryID);
-    this.ownerID = fields.ownerID;
+    this.ownerId = fields.ownerId;
+    this.updatedBy = fields.updatedBy;
     this.name = fields.name;
     this.description = fields.description;
 

@@ -14,7 +14,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await createCollaborativeTable(db, "glossaries")
     .addColumn("uuid", "text", (col) => col.primaryKey())
-    .addColumn("ownerID", "integer", (col) =>
+    .addColumn("ownerId", "integer", (col) =>
       col.references("users.id").onDelete("cascade").notNull()
     )
     .addColumn("name", "text", (col) => col.notNull().unique())
@@ -23,7 +23,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await createCollaborativeTable(db, "terms")
     .addColumn("uuid", "text", (col) => col.primaryKey())
-    .addColumn("glossaryID", "text", (col) =>
+    .addColumn("glossaryId", "text", (col) =>
       col.references("glossaries.uuid").onDelete("cascade").notNull()
     )
     .addColumn("name", "text", (col) => col.notNull().unique())
@@ -31,9 +31,9 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute();
 
   await db.schema
-    .createIndex("terms_glossaryID_index")
+    .createIndex("terms_glossaryId_index")
     .on("terms")
-    .column("glossaryID")
+    .column("glossaryId")
     .execute();
 }
 

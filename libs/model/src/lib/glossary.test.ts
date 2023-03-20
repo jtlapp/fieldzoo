@@ -10,7 +10,8 @@ describe("Glossary entity", () => {
     expect(
       () =>
         new Glossary({
-          ownerID: 1 as UserID,
+          ownerId: 1 as UserID,
+          updatedBy: 1 as UserID,
           name: "X",
           description: null,
         })
@@ -19,7 +20,8 @@ describe("Glossary entity", () => {
       () =>
         new Glossary({
           uuid: "" as GlossaryID,
-          ownerID: 1 as UserID,
+          ownerId: 1 as UserID,
+          updatedBy: 1 as UserID,
           name: "Good Name",
           description: "This\nis\nfine.",
         })
@@ -28,7 +30,8 @@ describe("Glossary entity", () => {
       () =>
         new Glossary({
           uuid: "abc" as GlossaryID,
-          ownerID: 1 as UserID,
+          ownerId: 1 as UserID,
+          updatedBy: 1 as UserID,
           name: "A".repeat(maxNameLength),
           description: "A".repeat(maxDescriptionLength),
         })
@@ -40,7 +43,8 @@ describe("Glossary entity", () => {
       () =>
         new Glossary({
           uuid: "abc" as GlossaryID,
-          ownerID: 1 as UserID,
+          ownerId: 1 as UserID,
+          updatedBy: 1 as UserID,
           name: "",
           description: "This\nis\nfine.",
         })
@@ -49,7 +53,8 @@ describe("Glossary entity", () => {
       () =>
         new Glossary({
           uuid: "abc" as GlossaryID,
-          ownerID: 1 as UserID,
+          ownerId: 1 as UserID,
+          updatedBy: 1 as UserID,
           name: "X  Y",
           description: "This\nis\nfine.",
         })
@@ -58,7 +63,8 @@ describe("Glossary entity", () => {
       () =>
         new Glossary({
           uuid: "abc" as GlossaryID,
-          ownerID: 1 as UserID,
+          ownerId: 1 as UserID,
+          updatedBy: 1 as UserID,
           name: "A".repeat(maxNameLength + 1),
           description: "This\nis\nfine.",
         })
@@ -70,7 +76,8 @@ describe("Glossary entity", () => {
       () =>
         new Glossary({
           uuid: "abc" as GlossaryID,
-          ownerID: 1 as UserID,
+          ownerId: 1 as UserID,
+          updatedBy: 1 as UserID,
           name: "Good Name",
           description: "",
         })
@@ -79,7 +86,8 @@ describe("Glossary entity", () => {
       () =>
         new Glossary({
           uuid: "abc" as GlossaryID,
-          ownerID: 1 as UserID,
+          ownerId: 1 as UserID,
+          updatedBy: 1 as UserID,
           name: "Good Name",
           description: "\n\n",
         })
@@ -88,7 +96,8 @@ describe("Glossary entity", () => {
       () =>
         new Glossary({
           uuid: "abc" as GlossaryID,
-          ownerID: 1 as UserID,
+          ownerId: 1 as UserID,
+          updatedBy: 1 as UserID,
           name: "Good Name",
           description: "A".repeat(maxDescriptionLength + 1),
         })
@@ -101,7 +110,8 @@ describe("Glossary entity", () => {
         new Glossary(
           {
             uuid: "abc" as GlossaryID,
-            ownerID: 1 as UserID,
+            ownerId: 1 as UserID,
+            updatedBy: 1 as UserID,
             name: "",
             description: "",
           },
@@ -113,7 +123,8 @@ describe("Glossary entity", () => {
   it("cannot change id", () => {
     const glossary = new Glossary({
       uuid: "abc" as GlossaryID,
-      ownerID: 1 as UserID,
+      ownerId: 1 as UserID,
+      updatedBy: 1 as UserID,
       name: "X",
       description: null,
     });
