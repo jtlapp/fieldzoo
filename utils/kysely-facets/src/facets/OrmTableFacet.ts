@@ -7,9 +7,9 @@ import { IdTableFacet } from "./IdTableFacet";
 
 /**
  * A table facet that maps the rows of a table to and from a single object
- * type. The table has a single primary key referred to as the ID column
- * that must be either a number or a string. The ID column defaults to "id".
- * Only objects with falsy IDs can be inserted into the table.
+ * type. The table has a single primary key referred to as the ID column,
+ * and it defaults to the name "id". Only objects with falsy IDs can be
+ * inserted into the table.
  * @typeparam DB The database type.
  * @typeparam TableName The name of the table.
  * @typeparam IdColumnName The name of the ID column.
