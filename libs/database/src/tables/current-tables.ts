@@ -10,7 +10,8 @@ export interface Users {
 
 export interface Glossaries {
   uuid: string;
-  ownerID: number;
+  ownerId: number;
+  updatedBy: number;
   name: string;
   description: string | null;
 }
