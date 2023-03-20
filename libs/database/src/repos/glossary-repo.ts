@@ -1,32 +1,22 @@
 import { Kysely } from "kysely";
 
 import { Glossary, GlossaryID, UserID } from "@fieldzoo/model";
-import { IdTableFacet } from "@fieldzoo/kysely-facets";
+import { OrmTableFacet } from "@fieldzoo/kysely-facets";
 
 import { Database } from "../tables/current-tables";
+import { randomUUID } from "crypto";
 
 /**
  * Repository for persisting glossaries.
  */
 export class GlossaryRepo {
-  readonly #tableFacet: IdTableFacet<
-    Database,
-    "glossaries",
-    "uuid",
-    Glossary,
-    Glossary,
-    Glossary,
-    ["uuid"],
-    Glossary
-  >;
+  readonly #tableFacet: OrmTableFacet<Database, "glossaries", "uuid", Glossary>;
   constructor(readonly db: Kysely<Database>) {
-    this.#tableFacet = new IdTableFacet(db, "glossaries", "uuid", {
-      insertTransform: (glossary) => {
-        if (glossary.uuid !== "") {
-          throw Error("Inserted glossaries must have an empty string uuid");
-        }
-        return { ...glossary, id: undefined };
-      },
+    this.#tableFacet = new OrmTableFacet(db, "glossaries", "uuid", {
+      insertTransform: (glossary) => ({
+        ...glossary,
+        uuid: randomUUID(),
+      }),
       insertReturnTransform: (glossary, returns) => {
         return new Glossary(
           { ...glossary, uuid: returns.uuid as GlossaryID },
@@ -38,7 +28,8 @@ export class GlossaryRepo {
           {
             ...row,
             uuid: row.uuid as GlossaryID,
-            ownerID: row.ownerID as UserID,
+            ownerId: row.ownerId as UserID,
+            updatedBy: row.updatedBy as UserID,
           },
           true
         ),
@@ -71,12 +62,6 @@ export class GlossaryRepo {
    * @returns the glossary, or null if the glossary-to-update was not found.
    */
   async store(glossary: Glossary): Promise<Glossary | null> {
-    if (glossary.uuid === "") {
-      return await this.#tableFacet.insert(glossary);
-    }
-    if (await this.#tableFacet.updateById(glossary)) {
-      return glossary;
-    }
-    return null;
+    return this.#tableFacet.upsert(glossary);
   }
 }

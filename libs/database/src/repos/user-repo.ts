@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { User, UserID } from "@fieldzoo/model";
-import { IdTableFacet } from "@fieldzoo/kysely-facets";
+import { OrmTableFacet } from "@fieldzoo/kysely-facets";
 
 import { Database } from "../tables/current-tables";
 
@@ -9,24 +9,10 @@ import { Database } from "../tables/current-tables";
  * Repository for persisting users.
  */
 export class UserRepo {
-  readonly #tableFacet: IdTableFacet<
-    Database,
-    "users",
-    "id",
-    User,
-    User,
-    User,
-    ["id"],
-    User
-  >;
+  readonly #tableFacet: OrmTableFacet<Database, "users", "id", User>;
+
   constructor(readonly db: Kysely<Database>) {
-    this.#tableFacet = new IdTableFacet(db, "users", "id", {
-      insertTransform: (user) => {
-        if (user.id !== 0) {
-          throw Error("Inserted users must have id 0");
-        }
-        return { ...user, id: undefined };
-      },
+    this.#tableFacet = new OrmTableFacet(db, "users", "id", {
       insertReturnTransform: (user, returns) => {
         return new User({ ...user, id: returns.id as UserID }, true);
       },
@@ -60,12 +46,6 @@ export class UserRepo {
    * @returns the user, or null if the user-to-update was not found.
    */
   async store(user: User): Promise<User | null> {
-    if (user.id === 0) {
-      return await this.#tableFacet.insert(user);
-    }
-    if (await this.#tableFacet.updateById(user)) {
-      return user;
-    }
-    return null;
+    return this.#tableFacet.upsert(user);
   }
 }
