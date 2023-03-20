@@ -378,6 +378,7 @@ importers:
 
   utils/kysely-facets:
     specifiers:
+      '@fieldzoo/generic-types': workspace:*
       '@fieldzoo/testing-utils': workspace:*
       '@types/better-sqlite3': ^7.6.3
       '@types/jest': ^29.4.0
@@ -392,6 +393,7 @@ importers:
     dependencies:
       kysely: 0.23.4
     devDependencies:
+      '@fieldzoo/generic-types': link:../generic-types
       '@fieldzoo/testing-utils': link:../testing-utils
       '@types/better-sqlite3': 7.6.3
       '@types/jest': 29.4.0
