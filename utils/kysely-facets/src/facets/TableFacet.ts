@@ -23,6 +23,15 @@ type UpdateQB<DB, TableName extends keyof DB & string> = ReturnType<
 
 /**
  * Options governing TableFacet behavior.
+ * @typeparam DB Interface whose fields are table names defining tables.
+ * @typeparam TableName Name of the table.
+ * @typeparam SelectedObject Type of objects returned by select queries.
+ * @typeparam InsertedObject Type of objects inserted into the table.
+ * @typeparam UpdaterObject Type of objects used to update rows of the table.
+ * @typeparam ReturnColumns Columns to return from table upon request, whether
+ *  returning from an insert or an update. An empty array returns all columns.
+ * @typeparam ReturnedObject Type of objects returned from inserts and updates,
+ *  when returning objects.
  */
 export interface TableFacetOptions<
   DB,
@@ -57,6 +66,18 @@ export interface TableFacetOptions<
   ) => ReturnedObject;
 }
 
+/**
+ * A facet providing access to a single table.
+ * @typeparam DB Interface whose fields are table names defining tables.
+ * @typeparam TableName Name of the table.
+ * @typeparam SelectedObject Type of objects returned by select queries.
+ * @typeparam InsertedObject Type of objects inserted into the table.
+ * @typeparam UpdaterObject Type of objects used to update rows of the table.
+ * @typeparam ReturnColumns Columns to return from table upon request, whether
+ *  returning from an insert or an update. An empty array returns all columns.
+ * @typeparam ReturnedObject Type of objects returned from inserts and updates,
+ *  when returning objects.
+ */
 export class TableFacet<
   DB,
   TableName extends keyof DB & string,
