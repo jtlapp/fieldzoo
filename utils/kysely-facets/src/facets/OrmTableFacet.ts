@@ -1,7 +1,5 @@
 import { Kysely, Selectable } from "kysely";
 
-import { SelectivePartial } from "@fieldzoo/generic-types";
-
 import { TableFacetOptions } from "./TableFacet";
 import { IdTableFacet } from "./IdTableFacet";
 
@@ -36,7 +34,7 @@ export class OrmTableFacet<
   TableName,
   IdColumnName,
   MappedObject,
-  SelectivePartial<MappedObject, IdColumnName>,
+  MappedObject,
   MappedObject,
   ReturnColumns,
   MappedObject
@@ -56,7 +54,7 @@ export class OrmTableFacet<
       DB,
       TableName,
       MappedObject,
-      SelectivePartial<MappedObject, IdColumnName>,
+      MappedObject,
       MappedObject,
       ReturnColumns,
       MappedObject

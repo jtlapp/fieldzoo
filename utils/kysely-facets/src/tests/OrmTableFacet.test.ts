@@ -1,218 +1,141 @@
 import { Kysely } from "kysely";
 
-// TODO: rewrite this for OrmTableFacet
-
-import { ignore } from "@fieldzoo/testing-utils";
-
-import { IdTableFacet } from "../facets/IdTableFacet";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
-import {
-  USERS,
-  STANDARD_OPTIONS,
-  insertedUser1,
-  selectedUser1,
-} from "./utils/test-objects";
-import { ReturnedUser, SelectedUser, UpdaterUser } from "./utils/test-types";
-
-class ExplicitIdFacet extends IdTableFacet<Database, "users", "id"> {
-  constructor(readonly db: Kysely<Database>) {
-    super(db, "users", "id", { returnColumns: ["id"] });
-  }
-}
+import { USERS, insertedUser1 } from "./utils/test-objects";
+import { User } from "./utils/test-types";
+import { OrmTableFacet } from "../facets/OrmTableFacet";
 
 let db: Kysely<Database>;
-let explicitIdFacet: ExplicitIdFacet;
 
 beforeAll(async () => {
   db = await createDB();
-  explicitIdFacet = new ExplicitIdFacet(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe("facet for table with unique ID", () => {
-  ignore("requires return columns to include ID field", () => {
-    new IdTableFacet<Database, "users", "id">(db, "users", "id", {
-      // @ts-expect-error - actual and declared return types must match
-      returnColumns: ["name"],
-    });
-    new IdTableFacet<Database, "users", "id">(db, "users", "id", {
-      // @ts-expect-error - actual and declared return types must match
-      returnColumns: ["id", "name"],
-    });
+it("inserts/updates/deletes a mapped object w/ default transforms", async () => {
+  // TODO: rearrange type params so can assign User and infer the rest
+  const ormTableFacet = new OrmTableFacet<Database, "users">(
+    db,
+    "users",
+    "id",
+    {
+      // TODO: make this the default insertReturnTransform
+      insertReturnTransform: (user, returns) => {
+        return { ...user, id: returns.id };
+      },
+    }
+  );
+
+  // test updating a non-existent user
+  const updateReturn1 = await ormTableFacet.upsert({
+    ...USERS[0],
+    id: 1,
+  });
+  expect(updateReturn1).toEqual(null);
+
+  // test inserting a user
+  const insertReturn = (await ormTableFacet.upsert({ ...USERS[0], id: 0 }))!;
+  expect(insertReturn).not.toBeNull();
+  expect(insertReturn.id).toBeGreaterThan(0);
+
+  // test getting a user by ID
+  const selectedUser1 = await ormTableFacet.selectById(insertReturn.id);
+  expect(selectedUser1).toEqual(insertReturn);
+  expect(selectedUser1?.id).toEqual(insertReturn.id);
+
+  // test updating a user
+  const updaterUser = { ...selectedUser1!, name: "Xana" };
+  const updateReturn = await ormTableFacet.upsert(updaterUser);
+  expect(updateReturn).toEqual(updaterUser);
+  const selectedUser2 = await ormTableFacet.selectById(insertReturn.id);
+  expect(selectedUser2).toEqual(updateReturn);
+
+  // test deleting a user
+  const deleted = await ormTableFacet.deleteById(insertReturn.id);
+  expect(deleted).toEqual(true);
+  const selectedUser3 = await ormTableFacet.selectById(insertReturn.id);
+  expect(selectedUser3).toEqual(null);
+
+  // inserting user with a truthy ID should fail
+  await expect(
+    ormTableFacet.insert({ ...USERS[1], id: 1 })
+  ).rejects.toThrowError("must be falsy");
+});
+
+it("inserts/updates/deletes a mapped object class w/ custom transforms", async () => {
+  // TODO: rearrange type params so can assign User and infer the rest
+  const insertTransform = (user: User) => {
+    return {
+      name: `${user.firstName} ${user.lastName}`,
+      handle: user.handle,
+      email: user.email,
+    };
+  };
+
+  const ormTableFacet = new OrmTableFacet<
+    Database,
+    "users",
+    "id",
+    User,
+    ["id"]
+  >(db, "users", "id", {
+    insertTransform,
+    insertReturnTransform: (user, returns) => {
+      return new User(
+        returns.id,
+        user.firstName,
+        user.lastName,
+        user.handle,
+        user.email
+      );
+    },
+    updaterTransform: insertTransform,
+    selectTransform: (row) => {
+      const names = row.name.split(" ");
+      return new User(row.id, names[0], names[1], row.handle, row.email);
+    },
   });
 
-  it("selects, updates, and deletes nothing when no rows match", async () => {
-    const readUser = await explicitIdFacet.selectById(1);
-    expect(readUser).toBeNull();
-
-    const updated = await explicitIdFacet.updateById({
-      id: 1,
-      email: "new@baz.com",
-    });
-    expect(updated).toEqual(false);
-
-    const deleted = await explicitIdFacet.deleteById(1);
-    expect(deleted).toEqual(false);
+  // test updating a non-existent user
+  const updateReturn1 = await ormTableFacet.upsert({
+    ...insertedUser1,
+    id: 1,
   });
+  expect(updateReturn1).toEqual(null);
 
-  it("inserts, selects, updates, and deletes objects by ID", async () => {
-    // Add users
-    const id0 = (await explicitIdFacet.insert(USERS[0])).id;
-    const id1 = (await explicitIdFacet.insert(USERS[1])).id;
+  // test inserting a user
+  const insertReturn = (await ormTableFacet.upsert(insertedUser1))!;
+  expect(insertReturn).not.toBeNull();
+  expect(insertReturn.id).toBeGreaterThan(0);
 
-    // Update a user without returning columns
-    const NEW_EMAIL = "new@baz.com";
-    const updated = await explicitIdFacet.updateById({
-      id: id1,
-      email: NEW_EMAIL,
-    });
-    expect(updated).toEqual(true);
+  // test getting a user by ID
+  const selectedUser1 = await ormTableFacet.selectById(insertReturn.id);
+  expect(selectedUser1).toEqual(insertReturn);
+  expect(selectedUser1?.id).toEqual(insertReturn.id);
 
-    // Retrieves a user by ID
-    const readUser1 = await explicitIdFacet.selectById(id1);
-    expect(readUser1?.handle).toEqual(USERS[1].handle);
-    expect(readUser1?.email).toEqual(NEW_EMAIL);
+  // test updating a user
+  const updaterUser = new User(
+    selectedUser1!.id,
+    selectedUser1!.firstName,
+    "Xana",
+    selectedUser1!.handle,
+    selectedUser1!.email
+  );
+  const updateReturn = await ormTableFacet.upsert(updaterUser);
+  expect(updateReturn).toEqual(updaterUser);
+  const selectedUser2 = await ormTableFacet.selectById(insertReturn.id);
+  expect(selectedUser2).toEqual(updateReturn);
 
-    // Delete a user
-    const deleted = await explicitIdFacet.deleteById(id1);
-    expect(deleted).toEqual(true);
+  // test deleting a user
+  const deleted = await ormTableFacet.deleteById(insertReturn.id);
+  expect(deleted).toEqual(true);
+  const selectedUser3 = await ormTableFacet.selectById(insertReturn.id);
+  expect(selectedUser3).toEqual(null);
 
-    // Verify correct user was deleted
-    const readUser0 = await explicitIdFacet.selectById(id0);
-    expect(readUser0?.handle).toEqual(USERS[0].handle);
-    const noUser = await explicitIdFacet.selectById(id1);
-    expect(noUser).toBeNull();
-  });
-
-  it("updates returning all columns by default with default ID", async () => {
-    const defaultIdFacet = new IdTableFacet(db, "users");
-    const id1 = (await defaultIdFacet.insert(USERS[1])).id;
-
-    const NEW_EMAIL = "new@baz.com";
-    const updated = await defaultIdFacet.updateByIdReturning({
-      id: id1,
-      email: NEW_EMAIL,
-    });
-    expect(updated).toEqual(
-      Object.assign({}, USERS[1], { id: id1, email: NEW_EMAIL })
-    );
-  });
-
-  it("updates returning all columns by default with specified ID", async () => {
-    const defaultIdFacet = new IdTableFacet(db, "users", "id");
-    const id1 = (await defaultIdFacet.insert(USERS[1])).id;
-
-    const NEW_EMAIL = "new@baz.com";
-    const updated = await defaultIdFacet.updateByIdReturning({
-      id: id1,
-      email: NEW_EMAIL,
-    });
-    expect(updated).toEqual(
-      Object.assign({}, USERS[1], { id: id1, email: NEW_EMAIL })
-    );
-  });
-
-  it("updates returning expected columns", async () => {
-    const id1 = (await explicitIdFacet.insert(USERS[1])).id;
-
-    const NEW_EMAIL = "new@baz.com";
-    const updated = await explicitIdFacet.updateByIdReturning({
-      id: id1,
-      email: NEW_EMAIL,
-    });
-    // prettier-ignore
-    expect(updated).toEqual({ id: id1 });
-  });
-
-  it("provides a default ID of 'id'", async () => {
-    const defaultIdFacet = new IdTableFacet(db, "users");
-
-    await defaultIdFacet.insert(USERS[0]);
-    const id1 = (await defaultIdFacet.insert(USERS[1])).id;
-
-    const readUser1 = await explicitIdFacet.selectById(id1);
-    expect(readUser1?.handle).toEqual(USERS[1].handle);
-  });
-
-  it("allows for returning other columns with the ID", async () => {
-    const idAndHandleFacet = new IdTableFacet(db, "users", "id", {
-      returnColumns: ["id", "handle"],
-    });
-
-    const insertReturn1 = await idAndHandleFacet.insert(USERS[0]);
-    expect(insertReturn1).toEqual({
-      id: 1,
-      handle: USERS[0].handle,
-    });
-
-    const insertReturn2 = await idAndHandleFacet.insert(USERS[1]);
-    expect(insertReturn2).toEqual({
-      id: 2,
-      handle: USERS[1].handle,
-    });
-  });
-
-  it("allows for returning all columns", async () => {
-    const allColumnsFacet = new IdTableFacet(db, "users", "id");
-
-    const insertReturn1 = await allColumnsFacet.insert(USERS[0]);
-    expect(insertReturn1).toEqual({
-      id: 1,
-      handle: USERS[0].handle,
-      name: USERS[0].name,
-      email: USERS[0].email,
-    });
-
-    const insertReturn2 = await allColumnsFacet.insert(USERS[1]);
-    expect(insertReturn2).toEqual({
-      id: 2,
-      handle: USERS[1].handle,
-      name: USERS[1].name,
-      email: USERS[1].email,
-    });
-  });
-
-  it("transforms inputs and outputs", async () => {
-    const testTransformFacet = new IdTableFacet(
-      db,
-      "users",
-      "id",
-      STANDARD_OPTIONS
-    );
-
-    const insertReturn1 = await testTransformFacet.insert(insertedUser1);
-    expect(insertReturn1).toEqual(ReturnedUser.create(1, insertedUser1));
-
-    const readUser1 = await testTransformFacet.selectById(1);
-    expect(readUser1).toEqual(selectedUser1);
-
-    const updaterUser = new UpdaterUser(
-      1,
-      "Jimmy",
-      "James",
-      "jjames",
-      "jjames@abc.def"
-    );
-    const updated = await testTransformFacet.updateById(updaterUser);
-    expect(updated).toEqual(true);
-
-    const readUser2 = await testTransformFacet.selectById(1);
-    expect(readUser2).toEqual(SelectedUser.create(1, updaterUser));
-
-    const deleted = await testTransformFacet.deleteById(1);
-    expect(deleted).toEqual(true);
-
-    const readUser3 = await testTransformFacet.selectById(1);
-    expect(readUser3).toBeNull();
-  });
-
-  it("errors when ID column is not in 'returnColumns'", async () => {
-    expect(() => {
-      new IdTableFacet(db, "users", "id", {
-        returnColumns: ["handle"],
-      });
-    }).toThrowError("'returnColumns' must include 'idColumnName'");
-  });
+  // inserting user with a truthy ID should fail
+  await expect(
+    ormTableFacet.insert(new User(5, "Xana", "Xana", "xana", "xana@abc.def"))
+  ).rejects.toThrowError("must be falsy");
 });
