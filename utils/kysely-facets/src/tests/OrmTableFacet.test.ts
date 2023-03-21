@@ -62,29 +62,23 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
     };
   };
 
-  // TODO: rearrange type params so can assign User and infer the rest
-  const ormTableFacet = new OrmTableFacet<Database, "users", "id", User>(
-    db,
-    "users",
-    "id",
-    {
-      insertTransform,
-      insertReturnTransform: (user, returns) => {
-        return new User(
-          returns.id,
-          user.firstName,
-          user.lastName,
-          user.handle,
-          user.email
-        );
-      },
-      updaterTransform: insertTransform,
-      selectTransform: (row) => {
-        const names = row.name.split(" ");
-        return new User(row.id, names[0], names[1], row.handle, row.email);
-      },
-    }
-  );
+  const ormTableFacet = new OrmTableFacet(db, "users", "id", {
+    insertTransform,
+    insertReturnTransform: (user, returns) => {
+      return new User(
+        returns.id,
+        user.firstName,
+        user.lastName,
+        user.handle,
+        user.email
+      );
+    },
+    updaterTransform: insertTransform,
+    selectTransform: (row) => {
+      const names = row.name.split(" ");
+      return new User(row.id, names[0], names[1], row.handle, row.email);
+    },
+  });
 
   // test updating a non-existent user
   const updateReturn1 = await ormTableFacet.upsert({
