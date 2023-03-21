@@ -2,6 +2,7 @@ import { Kysely, Selectable } from "kysely";
 
 import { TableFacetOptions } from "./TableFacet";
 import { IdTableFacet } from "./IdTableFacet";
+import { ObjectWithKeys } from "../lib/type-utils";
 
 /**
  * A table facet that maps the rows of a table to and from a single object
@@ -112,6 +113,12 @@ function _prepareOptions<
   }
 
   return {
+    insertReturnTransform: (
+      obj: MappedObject,
+      returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
+    ) => {
+      return { ...obj, id: returns[idColumnName] };
+    },
     ...options,
     insertTransform: (obj: MappedObject) => {
       if (obj[idColumnName]) {

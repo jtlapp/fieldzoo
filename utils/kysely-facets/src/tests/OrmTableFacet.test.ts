@@ -15,18 +15,7 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 it("inserts/updates/deletes a mapped object w/ default transforms", async () => {
-  // TODO: rearrange type params so can assign User and infer the rest
-  const ormTableFacet = new OrmTableFacet<Database, "users">(
-    db,
-    "users",
-    "id",
-    {
-      // TODO: make this the default insertReturnTransform
-      insertReturnTransform: (user, returns) => {
-        return { ...user, id: returns.id };
-      },
-    }
-  );
+  const ormTableFacet = new OrmTableFacet<Database, "users">(db, "users", "id");
 
   // test updating a non-existent user
   const updateReturn1 = await ormTableFacet.upsert({
@@ -65,7 +54,6 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
 });
 
 it("inserts/updates/deletes a mapped object class w/ custom transforms", async () => {
-  // TODO: rearrange type params so can assign User and infer the rest
   const insertTransform = (user: User) => {
     return {
       name: `${user.firstName} ${user.lastName}`,
@@ -74,6 +62,7 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
     };
   };
 
+  // TODO: rearrange type params so can assign User and infer the rest
   const ormTableFacet = new OrmTableFacet<
     Database,
     "users",
