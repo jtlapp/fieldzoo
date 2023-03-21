@@ -11,6 +11,7 @@ import { randomUUID } from "crypto";
  */
 export class GlossaryRepo {
   readonly #tableFacet: OrmTableFacet<Database, "glossaries", "uuid", Glossary>;
+
   constructor(readonly db: Kysely<Database>) {
     this.#tableFacet = new OrmTableFacet(db, "glossaries", "uuid", {
       insertTransform: (glossary) => ({
