@@ -45,10 +45,12 @@ it("inserts, updates, and deletes glossaries", async () => {
   });
 
   // test updating a non-existent glossary
-  const updateReturn1 = await glossaryRepo.store({
-    ...insertedGlossary,
-    uuid: "abc" as GlossaryID,
-  });
+  const updateReturn1 = await glossaryRepo.store(
+    new Glossary({
+      ...insertedGlossary,
+      uuid: "abc" as GlossaryID,
+    })
+  );
   expect(updateReturn1).toEqual(null);
 
   // test inserting a glossary

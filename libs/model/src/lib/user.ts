@@ -1,6 +1,7 @@
 import { Type } from "@sinclair/typebox";
 
 import { FieldsOf, SelectivePartial } from "@fieldzoo/generic-types";
+import { OrmObject } from "@fieldzoo/kysely-facets";
 import { SafeValidator } from "@fieldzoo/safe-validator";
 import { EmailString, UserNameUniString } from "@fieldzoo/typebox-types";
 import { freezeField } from "@fieldzoo/freeze-field";
@@ -11,7 +12,7 @@ export type UserID = number & { readonly __typeID: unique symbol };
 /**
  * Class representing a valid user.
  */
-export class User {
+export class User implements OrmObject<UserID> {
   readonly id: UserID;
   name: string;
   email: string;
@@ -43,6 +44,14 @@ export class User {
       User.#validator.safeValidate(this, "Invalid user");
     }
     freezeField(this, "id");
+  }
+
+  /**
+   * Returns the user's ID.
+   * @returns the user's ID.
+   */
+  getId(): UserID {
+    return this.id;
   }
 }
 export interface User {

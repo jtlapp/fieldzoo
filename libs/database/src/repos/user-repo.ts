@@ -9,13 +9,16 @@ import { Database } from "../tables/current-tables";
  * Repository for persisting users.
  */
 export class UserRepo {
-  readonly #tableFacet: OrmTableFacet<Database, "users", "id", User>;
+  readonly #tableFacet: OrmTableFacet<Database, "users", User>;
+
+  static #returnTransform = (user: User, returns: any) => {
+    return new User({ ...user, id: returns.id as UserID }, true);
+  };
 
   constructor(readonly db: Kysely<Database>) {
     this.#tableFacet = new OrmTableFacet(db, "users", "id", {
-      insertReturnTransform: (user, returns) => {
-        return new User({ ...user, id: returns.id as UserID }, true);
-      },
+      insertReturnTransform: UserRepo.#returnTransform,
+      updateReturnTransform: UserRepo.#returnTransform,
       selectTransform: (row) =>
         new User({ ...row, id: row.id as UserID }, true),
     });

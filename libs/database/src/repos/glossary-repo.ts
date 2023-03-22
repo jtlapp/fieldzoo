@@ -10,7 +10,14 @@ import { randomUUID } from "crypto";
  * Repository for persisting glossaries.
  */
 export class GlossaryRepo {
-  readonly #tableFacet: OrmTableFacet<Database, "glossaries", "uuid", Glossary>;
+  readonly #tableFacet: OrmTableFacet<Database, "glossaries", Glossary, "uuid">;
+
+  static #returnTransform = (glossary: Glossary, returns: any) => {
+    return new Glossary(
+      { ...glossary, uuid: returns.uuid as GlossaryID },
+      true
+    );
+  };
 
   constructor(readonly db: Kysely<Database>) {
     this.#tableFacet = new OrmTableFacet(db, "glossaries", "uuid", {
@@ -18,12 +25,8 @@ export class GlossaryRepo {
         ...glossary,
         uuid: randomUUID(),
       }),
-      insertReturnTransform: (glossary, returns) => {
-        return new Glossary(
-          { ...glossary, uuid: returns.uuid as GlossaryID },
-          true
-        );
-      },
+      insertReturnTransform: GlossaryRepo.#returnTransform,
+      updateReturnTransform: GlossaryRepo.#returnTransform,
       selectTransform: (row) =>
         new Glossary(
           {

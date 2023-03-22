@@ -35,10 +35,12 @@ it("inserts, updates, and deletes users", async () => {
   });
 
   // test updating a non-existent user
-  const updateReturn1 = await userRepo.store({
-    ...insertedUser,
-    id: 1 as UserID,
-  });
+  const updateReturn1 = await userRepo.store(
+    new User({
+      ...insertedUser,
+      id: 1 as UserID,
+    })
+  );
   expect(updateReturn1).toEqual(null);
 
   // test inserting a user

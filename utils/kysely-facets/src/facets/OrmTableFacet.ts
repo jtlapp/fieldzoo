@@ -1,8 +1,15 @@
-import { Kysely, Selectable } from "kysely";
+import { Kysely, Selectable, SelectType } from "kysely";
 
 import { TableFacetOptions } from "./TableFacet";
 import { IdTableFacet } from "./IdTableFacet";
 import { ObjectWithKeys } from "../lib/type-utils";
+
+/**
+ * Interface for ORM objects.
+ */
+export interface OrmObject<IdType> {
+  getId(): IdType;
+}
 
 /**
  * A table facet that maps the rows of a table to and from a single object
@@ -21,12 +28,9 @@ import { ObjectWithKeys } from "../lib/type-utils";
 export class OrmTableFacet<
   DB,
   TableName extends keyof DB & string,
+  MappedObject extends OrmObject<SelectType<DB[TableName][IdColumnName]>>,
   IdColumnName extends keyof Selectable<DB[TableName]> & string = "id" &
     keyof Selectable<DB[TableName]>,
-  MappedObject extends Pick<
-    Selectable<DB[TableName]>,
-    IdColumnName
-  > = Selectable<DB[TableName]>,
   ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] = [
     IdColumnName
   ]
@@ -76,11 +80,8 @@ export class OrmTableFacet<
    * @returns the object, or null if the object-to-update was not found.
    */
   async upsert(obj: MappedObject): Promise<MappedObject | null> {
-    return !obj[this.idColumnName]
-      ? this.insert(obj)
-      : (await this.updateById(obj))
-      ? obj
-      : null;
+    const id = obj.getId();
+    return !id ? this.insert(obj) : await this.updateByIdReturning(id, obj);
   }
 }
 
@@ -90,9 +91,9 @@ export class OrmTableFacet<
 function _prepareOptions<
   DB,
   TableName extends keyof DB & string,
+  MappedObject extends OrmObject<SelectType<DB[TableName][IdColumnName]>>,
   IdColumnName extends keyof Selectable<DB[TableName]> & string,
-  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[],
-  MappedObject extends Pick<Selectable<DB[TableName]>, IdColumnName>
+  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[]
 >(
   idColumnName: IdColumnName,
   options: TableFacetOptions<
@@ -121,7 +122,7 @@ function _prepareOptions<
     },
     ...options,
     insertTransform: (obj: MappedObject) => {
-      if (obj[idColumnName]) {
+      if (obj.getId()) {
         throw Error("The ID column of an inserted object must be falsy");
       }
       return insertTransform!(obj);
