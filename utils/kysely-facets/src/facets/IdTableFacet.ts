@@ -81,13 +81,16 @@ export class IdTableFacet<
 
   /**
    * Update the row having the given ID, without returning any columns.
-   * @param obj Object containing the fields to update. The ID of the row
-   *  to update is taken from this object.
+   * @param id The ID of the row to update.
+   * @param obj Object containing the fields to update.
    * @returns True if a row was updated, false otherwise.
    */
-  async updateById(obj: UpdaterObject): Promise<boolean> {
+  async updateById(
+    id: SelectType<DB[TableName][IdColumnName]>,
+    obj: UpdaterObject
+  ): Promise<boolean> {
     const updateCount = await this.update(
-      [this.ref(this.idColumnName), "=", (obj as any)[this.idColumnName]],
+      [this.ref(this.idColumnName), "=", id],
       obj as any
     );
     return updateCount == 1;
@@ -96,15 +99,16 @@ export class IdTableFacet<
   /**
    * Update the row having the given ID, returning the columns specified in
    * the `returnColumns` option from the row or rows.
-   * @param obj Object containing the fields to update. The ID of the row
-   * to update is taken from this object.
+   * @param id The ID of the row to update.
+   * @param obj Object containing the fields to update.
    * @returns An object for the row, or null if no row was found.
    */
   async updateByIdReturning(
+    id: SelectType<DB[TableName][IdColumnName]>,
     obj: UpdaterObject
   ): Promise<ReturnedObject | null> {
     const updates = await this.updateReturning(
-      [this.ref(this.idColumnName), "=", (obj as any)[this.idColumnName]],
+      [this.ref(this.idColumnName), "=", id],
       obj as any
     );
     return updates.length == 0 ? null : updates[0];

@@ -44,8 +44,7 @@ describe("facet for table with unique ID", () => {
     const readUser = await explicitIdFacet.selectById(1);
     expect(readUser).toBeNull();
 
-    const updated = await explicitIdFacet.updateById({
-      id: 1,
+    const updated = await explicitIdFacet.updateById(1, {
       email: "new@baz.com",
     });
     expect(updated).toEqual(false);
@@ -61,8 +60,7 @@ describe("facet for table with unique ID", () => {
 
     // Update a user without returning columns
     const NEW_EMAIL = "new@baz.com";
-    const updated = await explicitIdFacet.updateById({
-      id: id1,
+    const updated = await explicitIdFacet.updateById(id1, {
       email: NEW_EMAIL,
     });
     expect(updated).toEqual(true);
@@ -88,8 +86,7 @@ describe("facet for table with unique ID", () => {
     const id1 = (await defaultIdFacet.insert(USERS[1])).id;
 
     const NEW_EMAIL = "new@baz.com";
-    const updated = await defaultIdFacet.updateByIdReturning({
-      id: id1,
+    const updated = await defaultIdFacet.updateByIdReturning(id1, {
       email: NEW_EMAIL,
     });
     expect(updated).toEqual(
@@ -102,8 +99,7 @@ describe("facet for table with unique ID", () => {
     const id1 = (await defaultIdFacet.insert(USERS[1])).id;
 
     const NEW_EMAIL = "new@baz.com";
-    const updated = await defaultIdFacet.updateByIdReturning({
-      id: id1,
+    const updated = await defaultIdFacet.updateByIdReturning(id1, {
       email: NEW_EMAIL,
     });
     expect(updated).toEqual(
@@ -115,8 +111,7 @@ describe("facet for table with unique ID", () => {
     const id1 = (await explicitIdFacet.insert(USERS[1])).id;
 
     const NEW_EMAIL = "new@baz.com";
-    const updated = await explicitIdFacet.updateByIdReturning({
-      id: id1,
+    const updated = await explicitIdFacet.updateByIdReturning(id1, {
       email: NEW_EMAIL,
     });
     // prettier-ignore
@@ -192,7 +187,10 @@ describe("facet for table with unique ID", () => {
       "jjames",
       "jjames@abc.def"
     );
-    const updated = await testTransformFacet.updateById(updaterUser);
+    const updated = await testTransformFacet.updateById(
+      updaterUser.id,
+      updaterUser
+    );
     expect(updated).toEqual(true);
 
     const readUser2 = await testTransformFacet.selectById(1);
