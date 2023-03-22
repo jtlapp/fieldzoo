@@ -243,7 +243,8 @@ export class TableFacet<
 
   /**
    * Updates rows in this table matching the provided filter, returning the
-   * columns specified in the `returnColumns` option for each row.
+   * columns specified in the `returnColumns` option for each row, which
+   * the `updateReturnTransform` option can transform.
    * @param filter Filter specifying the rows to update.
    * @param obj The object whose field values are to be assigned to the row.
    * @returns Returns an array of `ReturnedObject` objects, one for each
