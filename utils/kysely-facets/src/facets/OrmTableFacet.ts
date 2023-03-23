@@ -55,7 +55,7 @@ export class OrmTableFacet<
     db: Kysely<DB>,
     tableName: TableName,
     idColumnName: IdColumnName,
-    readonly options: TableFacetOptions<
+    options: TableFacetOptions<
       DB,
       TableName,
       MappedObject,
@@ -106,16 +106,19 @@ function _prepareOptions<
     MappedObject
   >
 ) {
+  const returnTransform = (
+    obj: MappedObject,
+    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
+  ) => {
+    return { ...obj, ...returns };
+  };
+
   return {
     insertTransform: (obj: MappedObject) => {
       return { ...obj, [idColumnName]: undefined } as any;
     },
-    insertReturnTransform: (
-      obj: MappedObject,
-      returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-    ) => {
-      return { ...obj, id: returns[idColumnName] };
-    },
+    insertReturnTransform: returnTransform,
+    updateReturnTransform: returnTransform,
     ...options,
   };
 }
