@@ -53,7 +53,7 @@ describe("keyed table facet using a single-element tuple key", () => {
     expect(deleted).toEqual(false);
   });
 
-  it("inserts, selects, updates, and deletes objects by ID", async () => {
+  it("inserts, selects, updates, and deletes objects by key", async () => {
     // Add users
     const id0 = (await explicitKeyedFacet.insert(USERS[0])).id;
     const id1 = (await explicitKeyedFacet.insert(USERS[1])).id;
@@ -65,7 +65,7 @@ describe("keyed table facet using a single-element tuple key", () => {
     });
     expect(updated).toEqual(true);
 
-    // Retrieves a user by ID
+    // Retrieves a user by key
     const readUser1 = await explicitKeyedFacet.selectByKey([id1]);
     expect(readUser1?.handle).toEqual(USERS[1].handle);
     expect(readUser1?.email).toEqual(NEW_EMAIL);
@@ -81,12 +81,12 @@ describe("keyed table facet using a single-element tuple key", () => {
     expect(noUser).toBeNull();
   });
 
-  it("updates returning all columns by default with default ID", async () => {
-    const defaultIdFacet = new KeyedTableFacet(db, "users");
-    const id1 = (await defaultIdFacet.insert(USERS[1])).id;
+  it("updates returning all columns by default with default key", async () => {
+    const defaultKeyFacet = new KeyedTableFacet(db, "users");
+    const id1 = (await defaultKeyFacet.insert(USERS[1])).id;
 
     const NEW_EMAIL = "new@baz.com";
-    const updated = await defaultIdFacet.updateByKeyReturning([id1], {
+    const updated = await defaultKeyFacet.updateByKeyReturning([id1], {
       email: NEW_EMAIL,
     });
     expect(updated).toEqual(
@@ -94,12 +94,12 @@ describe("keyed table facet using a single-element tuple key", () => {
     );
   });
 
-  it("updates returning all columns by default with specified ID", async () => {
-    const defaultIdFacet = new KeyedTableFacet(db, "users", ["id"]);
-    const id1 = (await defaultIdFacet.insert(USERS[1])).id;
+  it("updates returning all columns by default with specified key", async () => {
+    const defaultKeyFacet = new KeyedTableFacet(db, "users", ["id"]);
+    const id1 = (await defaultKeyFacet.insert(USERS[1])).id;
 
     const NEW_EMAIL = "new@baz.com";
-    const updated = await defaultIdFacet.updateByKeyReturning([id1], {
+    const updated = await defaultKeyFacet.updateByKeyReturning([id1], {
       email: NEW_EMAIL,
     });
     expect(updated).toEqual(
@@ -118,7 +118,7 @@ describe("keyed table facet using a single-element tuple key", () => {
     expect(updated).toEqual({ id: id1 });
   });
 
-  it("provides a default ID of 'id'", async () => {
+  it("provides a default key of 'id'", async () => {
     const defaultIdFacet = new KeyedTableFacet(db, "users");
 
     await defaultIdFacet.insert(USERS[0]);
@@ -128,7 +128,7 @@ describe("keyed table facet using a single-element tuple key", () => {
     expect(readUser1?.handle).toEqual(USERS[1].handle);
   });
 
-  it("allows for returning other columns with the ID", async () => {
+  it("allows for returning other columns with the key", async () => {
     const idAndHandleFacet = new KeyedTableFacet(db, "users", ["id"], {
       returnColumns: ["id", "handle"],
     });
@@ -203,7 +203,7 @@ describe("keyed table facet using a single-element tuple key", () => {
     expect(readUser3).toBeNull();
   });
 
-  it("errors when ID column is not in 'returnColumns'", async () => {
+  it("errors when key column is not in 'returnColumns'", async () => {
     expect(() => {
       new KeyedTableFacet(db, "users", ["id"], {
         returnColumns: ["handle"],
