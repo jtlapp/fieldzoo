@@ -96,10 +96,11 @@ export class TableFacet<
   protected returnColumns: (keyof Selectable<DB[TableName]> & string)[] = [];
 
   /**
-   * Constructs a new Kysely table.
+   * Constructs a new table facet.
    * @param db The Kysely database.
    * @param tableName The name of the table.
-   * @param options Options governing facet behavior.
+   * @param options Options governing facet behavior. `returnColumns`
+   *  defaults to returning all columns.
    */
   constructor(
     db: Kysely<DB>,
