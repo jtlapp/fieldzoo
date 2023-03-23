@@ -85,7 +85,7 @@ export class KeyedTableFacet<
       ReturnedObject
     > = {}
   ) {
-    super(db, tableName, _prepareOptions(primaryKeyColumns, options) as any);
+    super(db, tableName, _prepareOptions(options) as any);
   }
 
   /**
@@ -171,14 +171,12 @@ export class KeyedTableFacet<
 function _prepareOptions<
   DB,
   TableName extends keyof DB & string,
-  PrimaryKeyColumns extends (keyof Selectable<DB[TableName]> & string)[],
   SelectedObject,
   InsertedObject,
   UpdaterObject,
   ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[],
   ReturnedObject
 >(
-  primaryKeyColumns: PrimaryKeyColumns,
   options: TableFacetOptions<
     DB,
     TableName,
@@ -189,17 +187,5 @@ function _prepareOptions<
     ReturnedObject
   >
 ) {
-  const returnColumns: (keyof Selectable<DB[TableName]> & string)[] =
-    options.returnColumns ?? [];
-  if (returnColumns.length != 0) {
-    for (const columName of primaryKeyColumns) {
-      if (!returnColumns.includes(columName)) {
-        throw Error(
-          `'returnColumns' must include primary key column '${columName}'` +
-            ` (e.g. [] includes all columns)`
-        );
-      }
-    }
-  }
-  return { ...options, returnColumns };
+  return { ...options, returnColumns: options.returnColumns ?? [] };
 }

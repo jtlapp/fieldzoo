@@ -53,7 +53,7 @@ export class IdTableFacet<
       ReturnedObject
     > = {}
   ) {
-    super(db, tableName, _prepareOptions(idColumnName, options) as any);
+    super(db, tableName, _prepareOptions(options) as any);
   }
 
   /**
@@ -121,14 +121,12 @@ export class IdTableFacet<
 function _prepareOptions<
   DB,
   TableName extends keyof DB & string,
-  IdColumnName extends keyof Selectable<DB[TableName]> & string,
   SelectedObject,
   InsertedObject,
   UpdaterObject,
   ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[],
   ReturnedObject
 >(
-  idColumnName: IdColumnName,
   options: TableFacetOptions<
     DB,
     TableName,
@@ -139,12 +137,5 @@ function _prepareOptions<
     ReturnedObject
   >
 ) {
-  const returnColumns: (keyof Selectable<DB[TableName]> & string)[] =
-    options.returnColumns ?? [];
-  if (returnColumns.length !== 0 && !returnColumns.includes(idColumnName)) {
-    throw Error(
-      "'returnColumns' must include 'idColumnName' (e.g. [] includes all columns)"
-    );
-  }
-  return { ...options, returnColumns };
+  return { ...options, returnColumns: options.returnColumns ?? [] };
 }

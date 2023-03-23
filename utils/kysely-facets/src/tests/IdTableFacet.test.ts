@@ -202,12 +202,4 @@ describe("facet for table with unique ID", () => {
     const readUser3 = await testTransformFacet.selectById(1);
     expect(readUser3).toBeNull();
   });
-
-  it("errors when ID column is not in 'returnColumns'", async () => {
-    expect(() => {
-      new IdTableFacet(db, "users", "id", {
-        returnColumns: ["handle"],
-      });
-    }).toThrowError("'returnColumns' must include 'idColumnName'");
-  });
 });

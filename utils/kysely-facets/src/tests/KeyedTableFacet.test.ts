@@ -28,8 +28,8 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe("keyed table facet using a single-element tuple key", () => {
-  ignore("requires return columns to include ID field", () => {
+describe("keyed table facet using a single-column key", () => {
+  ignore("requires return columns to include the key column", () => {
     new KeyedTableFacet<Database, "users", ["id"]>(db, "users", ["id"], {
       // @ts-expect-error - actual and declared return types must match
       returnColumns: ["name"],
@@ -201,13 +201,5 @@ describe("keyed table facet using a single-element tuple key", () => {
 
     const readUser3 = await testTransformFacet.selectByKey([1]);
     expect(readUser3).toBeNull();
-  });
-
-  it("errors when key column is not in 'returnColumns'", async () => {
-    expect(() => {
-      new KeyedTableFacet(db, "users", ["id"], {
-        returnColumns: ["handle"],
-      });
-    }).toThrowError("'returnColumns' must include");
   });
 });
