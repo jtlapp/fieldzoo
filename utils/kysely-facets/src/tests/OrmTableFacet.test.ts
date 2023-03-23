@@ -76,11 +76,6 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
   expect(deleted).toEqual(true);
   const selectedUser3 = await ormTableFacet.selectById(insertReturn.id);
   expect(selectedUser3).toEqual(null);
-
-  // inserting user with a truthy ID should fail
-  await expect(ormTableFacet.insert(userWithID)).rejects.toThrowError(
-    "must be falsy"
-  );
 });
 
 it("inserts/updates/deletes a mapped object class w/ custom transforms", async () => {
@@ -180,9 +175,4 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
   expect(deleted).toEqual(true);
   const selectedUser3 = await ormTableFacet.selectById(insertReturn.serialNo);
   expect(selectedUser3).toEqual(null);
-
-  // inserting user with a truthy ID should fail
-  await expect(
-    ormTableFacet.insert(new OrmUser(5, "Xana", "Xana", "xana", "xana@abc.def"))
-  ).rejects.toThrowError("must be falsy");
 });

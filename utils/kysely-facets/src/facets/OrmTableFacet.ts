@@ -14,8 +14,7 @@ export interface OrmObject<IdType> {
 /**
  * A table facet that maps the rows of a table to and from a single object
  * type. The table has a single primary key referred to as the ID column,
- * and it defaults to the name "id". Only objects with falsy IDs can be
- * inserted into the table.
+ * and it defaults to the name "id".
  * @typeparam DB The database type.
  * @typeparam TableName The name of the table.
  * @typeparam IdColumnName The name of the ID column.
@@ -49,7 +48,8 @@ export class OrmTableFacet<
    * @param db The Kysely database instance.
    * @param tableName The name of the table.
    * @param idColumnName The name of the ID column.
-   * @param options Options governing OrmTableFacet behavior.
+   * @param options Options governing OrmTableFacet behavior. By default, the
+   *  ID columns is removed from insertions and added to insertion returns.
    */
   constructor(
     db: Kysely<DB>,
@@ -106,14 +106,10 @@ function _prepareOptions<
     MappedObject
   >
 ) {
-  let insertTransform = options.insertTransform;
-  if (!insertTransform) {
-    insertTransform = (obj) => {
-      return { ...obj, [idColumnName]: undefined } as any;
-    };
-  }
-
   return {
+    insertTransform: (obj: MappedObject) => {
+      return { ...obj, [idColumnName]: undefined } as any;
+    },
     insertReturnTransform: (
       obj: MappedObject,
       returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
@@ -121,11 +117,5 @@ function _prepareOptions<
       return { ...obj, id: returns[idColumnName] };
     },
     ...options,
-    insertTransform: (obj: MappedObject) => {
-      if (obj.getId()) {
-        throw Error("The ID column of an inserted object must be falsy");
-      }
-      return insertTransform!(obj);
-    },
   };
 }
