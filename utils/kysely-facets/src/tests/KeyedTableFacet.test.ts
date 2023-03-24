@@ -1,7 +1,7 @@
-import { Kysely } from "kysely";
+import { Kysely, Selectable } from "kysely";
 
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
-import { Database } from "./utils/test-tables";
+import { Database, Users } from "./utils/test-tables";
 import {
   USERS,
   STANDARD_OPTIONS,
@@ -18,6 +18,8 @@ class ExplicitKeyedFacet extends KeyedTableFacet<Database, "users", ["id"]> {
   }
 }
 
+// TODO: test compound keys
+
 let db: Kysely<Database>;
 let explicitKeyedFacet: ExplicitKeyedFacet;
 
@@ -28,7 +30,7 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-describe("keyed table facet using a single-column key", () => {
+describe("keyed table facet using a single-column tuple key", () => {
   ignore("requires return columns to include the key column", () => {
     new KeyedTableFacet<Database, "users", ["id"]>(db, "users", ["id"], {
       // @ts-expect-error - actual and declared return types must match
@@ -85,28 +87,54 @@ describe("keyed table facet using a single-column key", () => {
     const defaultKeyFacet = new KeyedTableFacet(db, "users");
     const id1 = (await defaultKeyFacet.insert(USERS[1])).id;
 
-    const NEW_EMAIL = "new@baz.com";
-    const updated = await defaultKeyFacet.updateByKey([id1], {
-      email: NEW_EMAIL,
+    const NEW_EMAIL1 = "new1@baz.com";
+    const updated1 = await defaultKeyFacet.updateByKey([id1], {
+      email: NEW_EMAIL1,
     });
-    expect(updated).toEqual({ id: id1 });
+    expect(updated1).toEqual({ id: id1 });
 
     const readUser1 = await defaultKeyFacet.selectByKey([id1]);
-    expect(readUser1?.email).toEqual(NEW_EMAIL);
+    expect(readUser1?.email).toEqual(NEW_EMAIL1);
+
+    // Test with const key, which TypeScript treats as a tuple.
+    const key = [id1] as const;
+    const NEW_EMAIL2 = "new2@baz.com";
+    const updated2 = await defaultKeyFacet.updateByKey(key, {
+      email: NEW_EMAIL2,
+    });
+    expect(updated2).toEqual({ id: id1 });
+
+    const readUser2 = await defaultKeyFacet.selectByKey(key);
+    expect(readUser2?.email).toEqual(NEW_EMAIL2);
   });
 
   it("updates returning key by default with specified key", async () => {
-    const defaultKeyFacet = new KeyedTableFacet(db, "users", ["id"]);
+    // Make sure KeyedTableFacet will take readonly key columns.
+    const keyColumns = [
+      "id" as keyof Selectable<Users>,
+    ] as (keyof Selectable<Users> & "id")[];
+    const defaultKeyFacet = new KeyedTableFacet(db, "users", keyColumns);
     const id1 = (await defaultKeyFacet.insert(USERS[1])).id;
 
-    const NEW_EMAIL = "new@baz.com";
-    const updated = await defaultKeyFacet.updateByKey([id1], {
-      email: NEW_EMAIL,
+    const NEW_EMAIL1 = "new1@baz.com";
+    const updated1 = await defaultKeyFacet.updateByKey([id1], {
+      email: NEW_EMAIL1,
     });
-    expect(updated).toEqual({ id: id1 });
+    expect(updated1).toEqual({ id: id1 });
 
     const readUser1 = await defaultKeyFacet.selectByKey([id1]);
-    expect(readUser1?.email).toEqual(NEW_EMAIL);
+    expect(readUser1?.email).toEqual(NEW_EMAIL1);
+
+    // Test with const key, which TypeScript treats as a tuple.
+    const key = [id1] as const;
+    const NEW_EMAIL2 = "new2@baz.com";
+    const updated2 = await defaultKeyFacet.updateByKey(key, {
+      email: NEW_EMAIL2,
+    });
+    expect(updated2).toEqual({ id: id1 });
+
+    const readUser2 = await defaultKeyFacet.selectByKey(key);
+    expect(readUser2?.email).toEqual(NEW_EMAIL2);
   });
 
   it("updates returning expected columns", async () => {
@@ -206,4 +234,58 @@ describe("keyed table facet using a single-column key", () => {
     const readUser3 = await testTransformFacet.selectByKey([1]);
     expect(readUser3).toBeNull();
   });
+});
+
+describe("keyed table facet using a single-column value key", () => {
+  it("inserts, selects, updates, and deletes objects by value key", async () => {
+    // Add users
+    const id0 = (await explicitKeyedFacet.insert(USERS[0])).id;
+    const id1 = (await explicitKeyedFacet.insert(USERS[1])).id;
+
+    // Update a user without returning columns
+    const NEW_EMAIL1 = "new1@baz.com";
+    const updated1 = await explicitKeyedFacet.updateByKeyNoReturns(id1, {
+      email: NEW_EMAIL1,
+    });
+    expect(updated1).toEqual(true);
+
+    // Retrieves a user by key
+    const readUser1 = await explicitKeyedFacet.selectByKey(id1);
+    expect(readUser1?.handle).toEqual(USERS[1].handle);
+    expect(readUser1?.email).toEqual(NEW_EMAIL1);
+
+    // Update a user returning columns
+    const NEW_EMAIL2 = "new2w@baz.com";
+    const updated2 = await explicitKeyedFacet.updateByKey(id1, {
+      email: NEW_EMAIL2,
+    });
+    expect(updated2).toEqual({ id: id1 });
+
+    // Retrieves updated user by key
+    const readUser2 = await explicitKeyedFacet.selectByKey(id1);
+    expect(readUser2?.handle).toEqual(USERS[1].handle);
+    expect(readUser2?.email).toEqual(NEW_EMAIL2);
+
+    // Delete a user
+    const deleted = await explicitKeyedFacet.deleteByKey(id1);
+    expect(deleted).toEqual(true);
+
+    // Verify correct user was deleted
+    const readUser0 = await explicitKeyedFacet.selectByKey(id0);
+    expect(readUser0?.handle).toEqual(USERS[0].handle);
+    const noUser = await explicitKeyedFacet.selectByKey(id1);
+    expect(noUser).toBeNull();
+  });
+});
+
+ignore("keyed table facet type errors", () => {
+  // @ts-expect-error - key tuple element types must match column types
+  new KeyedTableFacet(db, "users", ["id"]).selectByKey("str");
+  // @ts-expect-error - key tuple element types must match column types
+  new KeyedTableFacet(db, "users", ["id"]).selectByKey(["str"]);
+  // @ts-expect-error - key tuple element types must have correct size
+  new KeyedTableFacet(db, "users", ["id"]).selectByKey([1, 2]);
+  // @ts-expect-error - key tuple element types must have correct size
+  new KeyedTableFacet(db, "users", ["id"]).selectByKey([1, "str"]);
+  // TODO: cannot use single value key on compound key table
 });

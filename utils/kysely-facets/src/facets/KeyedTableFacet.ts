@@ -3,7 +3,6 @@ import {
   Kysely,
   ReferenceExpression,
   Selectable,
-  SelectType,
   WhereInterface,
 } from "kysely";
 import { allOf } from "../filters/CompoundFilter";
@@ -15,23 +14,48 @@ import { TableFacetOptions, TableFacet } from "./TableFacet";
 /** Default key columns */
 const DEFAULT_KEY = ["id"] as const;
 
+// TODO: Make all modifiable structures readonly when possible.
+
 /**
- * Type of the primary key tuple whose column names are given by `S`
- * and are found in the table interface `T`.
+ * Type of the primary key, when there is only one primary key.
  * @typeparam T Table interface.
- * @typeparam S Array of the primary key column names.
+ * @typeparam KA Array of the primary key column names.
  */
-export type KeyTuple<T, KA extends (keyof Selectable<T>)[]> = [
-  SelectType<T[KA[number]]>,
-  ...SelectType<T[KA[number]]>[]
-];
+export type SingleKeyValue<
+  T,
+  KA extends (keyof Selectable<T> & string)[]
+> = KA extends [any] ? Selectable<T>[KA[0]] : never;
+
+/**
+ * Type of the primary key tuple whose column names are given by `KA` and are
+ * found in the table interface `T`. Supports up to 4 columns.
+ * @typeparam T Table interface.
+ * @typeparam KA Array of the primary key column names.
+ */
+export type KeyTuple<
+  T,
+  KA extends (keyof Selectable<T> & string)[]
+> = Selectable<T>[KA[3]] extends string
+  ? [
+      Selectable<T>[KA[0]],
+      Selectable<T>[KA[1]],
+      Selectable<T>[KA[2]],
+      Selectable<T>[KA[3]]
+    ]
+  : Selectable<T>[KA[2]] extends string
+  ? [Selectable<T>[KA[0]], Selectable<T>[KA[1]], Selectable<T>[KA[2]]]
+  : Selectable<T>[KA[1]] extends string
+  ? [Selectable<T>[KA[0]], Selectable<T>[KA[1]]]
+  : [Selectable<T>[KA[0]]];
 
 /**
  * Interface that updater objects must implement to provide a key, if
  * the key is not to be taken directly from the object's properties.
+ * @typeparam T Table interface.
+ * @typeparam KA Array of the primary key column names.
  */
-export interface KeyedObject<T, S extends (keyof Selectable<T>)[]> {
-  getKey?: () => KeyTuple<T, S>;
+export interface KeyedObject<T, KA extends (keyof Selectable<T> & string)[]> {
+  getKey?: () => KeyTuple<T, KA>;
 }
 
 /**
@@ -88,7 +112,7 @@ export class KeyedTableFacet<
   constructor(
     db: Kysely<DB>,
     tableName: TableName,
-    readonly primaryKeyColumns: PrimaryKeyColumns = DEFAULT_KEY as any,
+    readonly primaryKeyColumns: Readonly<PrimaryKeyColumns> = DEFAULT_KEY as any,
     options: TableFacetOptions<
       DB,
       TableName,
@@ -104,11 +128,15 @@ export class KeyedTableFacet<
 
   /**
    * Delete the row having the given key.
-   * @param key The key of the row to delete.
+   * @param key The key of the row to delete. If there is only one primary
+   *  key column, this can be the value of the key. Otherwise, this must be
+   * a tuple of the key values.
    * @returns True if a row was deleted, false otherwise.
    */
   async deleteByKey(
-    key: KeyTuple<DB[TableName], PrimaryKeyColumns>
+    key:
+      | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
+      | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>
   ): Promise<boolean> {
     const count = await this.delete(this.filterForKey(key));
     return count == 1;
@@ -116,11 +144,15 @@ export class KeyedTableFacet<
 
   /**
    * Select the row having the given key.
-   * @param key The key of the row to select.
+   * @param key The key of the row to select. If there is only one primary
+   *  key column, this can be the value of the key. Otherwise, this must be
+   *  a tuple of the key values.
    * @returns An object for the row, or null if no row was found.
    */
   selectByKey(
-    key: KeyTuple<DB[TableName], PrimaryKeyColumns>
+    key:
+      | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
+      | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>
   ): Promise<SelectedObject | null> {
     return this.selectOne(this.filterForKey(key));
   }
@@ -130,12 +162,17 @@ export class KeyedTableFacet<
    * the `returnColumns` option, returning them unless `updateReturnTransform`
    * transforms them into `ReturnedObject`. If `returnColumns` is empty,
    * returns nothing.
+   * @param key The key of the row to update. If there is only one primary
+   *  key column, this can be the value of the key. Otherwise, this must be
+   *  a tuple of the key values.
    * @param obj Object containing the fields to update. The key of the row
-   * to update is taken from this object.
+   *  to update is taken from this object.
    * @returns An object for the row, or null if no row was found.
    */
   async updateByKey(
-    key: KeyTuple<DB[TableName], PrimaryKeyColumns>,
+    key:
+      | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
+      | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>,
     obj: UpdaterObject
   ): Promise<ReturnedObject | null> {
     const updates = await this.update(this.filterForKey(key), obj as any);
@@ -144,12 +181,17 @@ export class KeyedTableFacet<
 
   /**
    * Update the row having the given key, without returning any columns.
+   * @param key The key of the row to update. If there is only one primary
+   *  key column, this can be the value of the key. Otherwise, this must be
+   *  a tuple of the key values.
    * @param obj Object containing the fields to update. The key of the row
    *  to update is taken from this object.
    * @returns True if a row was updated, false otherwise.
    */
   async updateByKeyNoReturns(
-    key: KeyTuple<DB[TableName], PrimaryKeyColumns>,
+    key:
+      | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
+      | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>,
     obj: UpdaterObject
   ): Promise<boolean> {
     const updateCount = await this.updateGetCount(
@@ -160,12 +202,14 @@ export class KeyedTableFacet<
   }
 
   /**
-   * Returns a filter that restricts a query to the provided compound key.
-   * @param key The compound key to filter by.
-   * @returns A filter that restricts a query to the provided compound key.
+   * Returns a filter that restricts a query to the provided key.
+   * @param key The key to filter by.
+   * @returns A filter that restricts a query to the provided key.
    */
   protected filterForKey<QB extends WhereInterface<any, any>>(
-    key: KeyTuple<DB[TableName], PrimaryKeyColumns>
+    key:
+      | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
+      | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>
   ) {
     const filter: QueryFilter<
       DB,
@@ -173,9 +217,17 @@ export class KeyedTableFacet<
       QB,
       ReferenceExpression<DB, TableName>
     >[] = [];
-    for (let i = 0; i < this.primaryKeyColumns.length; i++) {
-      const columnName = this.primaryKeyColumns[i];
-      filter.push([this.ref(columnName), "=", key[i]]);
+    if (Array.isArray(key)) {
+      for (let i = 0; i < this.primaryKeyColumns.length; i++) {
+        const columnName = this.primaryKeyColumns[i];
+        filter.push([
+          this.ref(columnName),
+          "=",
+          (key as KeyTuple<DB[TableName], PrimaryKeyColumns>)[i],
+        ]);
+      }
+    } else {
+      filter.push([this.ref(this.primaryKeyColumns[0]), "=", key]);
     }
     return allOf(...filter);
   }
@@ -187,7 +239,9 @@ export class KeyedTableFacet<
 function _prepareOptions<
   DB,
   TableName extends keyof DB & string,
-  PrimaryKeyColumns extends (keyof Selectable<DB[TableName]> & string)[],
+  PrimaryKeyColumns extends Readonly<
+    (keyof Selectable<DB[TableName]> & string)[]
+  >,
   SelectedObject,
   InsertedObject,
   UpdaterObject,
