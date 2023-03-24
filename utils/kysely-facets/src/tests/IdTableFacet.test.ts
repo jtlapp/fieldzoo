@@ -148,29 +148,27 @@ describe("facet for table with unique ID", () => {
     });
   });
 
-  // TODO: get this working
-  //
-  // it("allows for returning all columns", async () => {
-  //   const allColumnsFacet = new IdTableFacet(db, "users", "id", {
-  //     returnColumns: ["*"] as const,
-  //   });
+  it("allows for returning all columns", async () => {
+    const allColumnsFacet = new IdTableFacet(db, "users", "id", {
+      returnColumns: ["*"],
+    });
 
-  //   const insertReturn1 = await allColumnsFacet.insert(USERS[0]);
-  //   expect(insertReturn1).toEqual({
-  //     id: 1,
-  //     handle: USERS[0].handle,
-  //     name: USERS[0].name,
-  //     email: USERS[0].email,
-  //   });
+    const insertReturn1 = await allColumnsFacet.insert(USERS[0]);
+    expect(insertReturn1).toEqual({
+      id: 1,
+      handle: USERS[0].handle,
+      name: USERS[0].name,
+      email: USERS[0].email,
+    });
 
-  //   const insertReturn2 = await allColumnsFacet.insert(USERS[1]);
-  //   expect(insertReturn2).toEqual({
-  //     id: 2,
-  //     handle: USERS[1].handle,
-  //     name: USERS[1].name,
-  //     email: USERS[1].email,
-  //   });
-  // });
+    const insertReturn2 = await allColumnsFacet.insert(USERS[1]);
+    expect(insertReturn2).toEqual({
+      id: 2,
+      handle: USERS[1].handle,
+      name: USERS[1].name,
+      email: USERS[1].email,
+    });
+  });
 
   it("transforms inputs and outputs", async () => {
     const testTransformFacet = new IdTableFacet(

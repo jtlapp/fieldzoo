@@ -59,9 +59,10 @@ export class KeyedTableFacet<
     Partial<KeyedObject<DB[TableName], PrimaryKeyColumns>> = Partial<
     Insertable<DB[TableName]>
   >,
-  ReturnColumns extends (keyof Selectable<DB[TableName]> &
-    string)[] = PrimaryKeyColumns,
-  ReturnedObject = ReturnColumns extends []
+  ReturnColumns extends
+    | (keyof Selectable<DB[TableName]> & string)[]
+    | ["*"] = PrimaryKeyColumns,
+  ReturnedObject = ReturnColumns extends ["*"]
     ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
 > extends TableFacet<
@@ -188,7 +189,7 @@ function _prepareOptions<
   SelectedObject,
   InsertedObject,
   UpdaterObject,
-  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[],
+  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"],
   ReturnedObject
 >(
   options: TableFacetOptions<

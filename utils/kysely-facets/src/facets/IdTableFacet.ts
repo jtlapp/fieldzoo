@@ -27,10 +27,10 @@ export class IdTableFacet<
   SelectedObject = Selectable<DB[TableName]>,
   InsertedObject = Insertable<DB[TableName]>,
   UpdaterObject = Partial<Insertable<DB[TableName]>>,
-  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] = [
+  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"] = [
     IdColumnName
   ],
-  ReturnedObject = ReturnColumns extends []
+  ReturnedObject = ReturnColumns extends ["*"]
     ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
 > extends TableFacet<
@@ -136,7 +136,7 @@ function _prepareOptions<
   SelectedObject,
   InsertedObject,
   UpdaterObject,
-  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[],
+  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"],
   ReturnedObject
 >(
   options: TableFacetOptions<
