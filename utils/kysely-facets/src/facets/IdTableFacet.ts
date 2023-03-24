@@ -3,8 +3,6 @@ import { ObjectWithKeys } from "../lib/type-utils";
 
 import { TableFacetOptions, TableFacet } from "./TableFacet";
 
-// TODO: drop ID column from return columns on update
-
 /** Default ID column name */
 const DEFAULT_ID = "id";
 

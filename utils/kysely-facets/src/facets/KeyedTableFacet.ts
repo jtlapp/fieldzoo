@@ -12,8 +12,6 @@ import { ObjectWithKeys } from "../lib/type-utils";
 
 import { TableFacetOptions, TableFacet } from "./TableFacet";
 
-// TODO: drop key columns from return columns on update
-
 /** Default key columns */
 const DEFAULT_KEY = ["id"] as const;
 
