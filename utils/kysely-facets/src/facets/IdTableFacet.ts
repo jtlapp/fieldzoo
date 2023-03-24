@@ -3,6 +3,8 @@ import { ObjectWithKeys } from "../lib/type-utils";
 
 import { TableFacetOptions, TableFacet } from "./TableFacet";
 
+// TODO: drop ID column from return columns on update
+
 /** Default ID column name */
 const DEFAULT_ID = "id";
 
@@ -91,30 +93,15 @@ export class IdTableFacet<
   }
 
   /**
-   * Update the row having the given ID, without returning any columns.
-   * @param id The ID of the row to update.
-   * @param obj Object containing the fields to update.
-   * @returns True if a row was updated, false otherwise.
-   */
-  async updateById(
-    id: SelectType<DB[TableName][IdColumnName]>,
-    obj: UpdaterObject
-  ): Promise<boolean> {
-    const updateCount = await this.updateGetCount(
-      [this.ref(this.idColumnName), "=", id],
-      obj as any
-    );
-    return updateCount == 1;
-  }
-
-  /**
-   * Update the row having the given ID, returning the columns specified in
-   * the `returnColumns` option from the row or rows.
+   * Update the row having the given ID. Retrieves the columns specified in
+   * the `returnColumns` option, returning them unless `updateReturnTransform`
+   * transforms them into `ReturnedObject`. If `returnColumns` is empty,
+   * returns nothing.
    * @param id The ID of the row to update.
    * @param obj Object containing the fields to update.
    * @returns An object for the row, or null if no row was found.
    */
-  async updateByIdReturning(
+  async updateById(
     id: SelectType<DB[TableName][IdColumnName]>,
     obj: UpdaterObject
   ): Promise<ReturnedObject | null> {
@@ -123,6 +110,23 @@ export class IdTableFacet<
       obj as any
     );
     return updates.length == 0 ? null : updates[0];
+  }
+
+  /**
+   * Update the row having the given ID, without returning any columns.
+   * @param id The ID of the row to update.
+   * @param obj Object containing the fields to update.
+   * @returns True if a row was updated, false otherwise.
+   */
+  async updateByIdNoReturns(
+    id: SelectType<DB[TableName][IdColumnName]>,
+    obj: UpdaterObject
+  ): Promise<boolean> {
+    const updateCount = await this.updateGetCount(
+      [this.ref(this.idColumnName), "=", id],
+      obj as any
+    );
+    return updateCount == 1;
   }
 }
 

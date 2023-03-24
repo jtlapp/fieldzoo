@@ -44,7 +44,7 @@ describe("keyed table facet using a single-column key", () => {
     const readUser = await explicitKeyedFacet.selectByKey([1]);
     expect(readUser).toBeNull();
 
-    const updated = await explicitKeyedFacet.updateByKey([1], {
+    const updated = await explicitKeyedFacet.updateByKeyNoReturns([1], {
       email: "new@baz.com",
     });
     expect(updated).toEqual(false);
@@ -60,7 +60,7 @@ describe("keyed table facet using a single-column key", () => {
 
     // Update a user without returning columns
     const NEW_EMAIL = "new@baz.com";
-    const updated = await explicitKeyedFacet.updateByKey([id1], {
+    const updated = await explicitKeyedFacet.updateByKeyNoReturns([id1], {
       email: NEW_EMAIL,
     });
     expect(updated).toEqual(true);
@@ -86,7 +86,7 @@ describe("keyed table facet using a single-column key", () => {
     const id1 = (await defaultKeyFacet.insert(USERS[1])).id;
 
     const NEW_EMAIL = "new@baz.com";
-    const updated = await defaultKeyFacet.updateByKeyReturning([id1], {
+    const updated = await defaultKeyFacet.updateByKey([id1], {
       email: NEW_EMAIL,
     });
     expect(updated).toEqual({ id: id1 });
@@ -100,7 +100,7 @@ describe("keyed table facet using a single-column key", () => {
     const id1 = (await defaultKeyFacet.insert(USERS[1])).id;
 
     const NEW_EMAIL = "new@baz.com";
-    const updated = await defaultKeyFacet.updateByKeyReturning([id1], {
+    const updated = await defaultKeyFacet.updateByKey([id1], {
       email: NEW_EMAIL,
     });
     expect(updated).toEqual({ id: id1 });
@@ -113,7 +113,7 @@ describe("keyed table facet using a single-column key", () => {
     const id1 = (await explicitKeyedFacet.insert(USERS[1])).id;
 
     const NEW_EMAIL = "new@baz.com";
-    const updated = await explicitKeyedFacet.updateByKeyReturning([id1], {
+    const updated = await explicitKeyedFacet.updateByKey([id1], {
       email: NEW_EMAIL,
     });
     // prettier-ignore
@@ -191,7 +191,7 @@ describe("keyed table facet using a single-column key", () => {
       "jjames",
       "jjames@abc.def"
     );
-    const updated = await testTransformFacet.updateByKey(
+    const updated = await testTransformFacet.updateByKeyNoReturns(
       [updaterUser.id],
       updaterUser
     );

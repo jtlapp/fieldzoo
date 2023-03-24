@@ -12,6 +12,8 @@ import { ObjectWithKeys } from "../lib/type-utils";
 
 import { TableFacetOptions, TableFacet } from "./TableFacet";
 
+// TODO: drop key columns from return columns on update
+
 /** Default key columns */
 const DEFAULT_KEY = ["id"] as const;
 
@@ -126,12 +128,29 @@ export class KeyedTableFacet<
   }
 
   /**
-   * Update the row having the object's key, without returning any columns.
+   * Update the row having the given key. Retrieves the columns specified in
+   * the `returnColumns` option, returning them unless `updateReturnTransform`
+   * transforms them into `ReturnedObject`. If `returnColumns` is empty,
+   * returns nothing.
+   * @param obj Object containing the fields to update. The key of the row
+   * to update is taken from this object.
+   * @returns An object for the row, or null if no row was found.
+   */
+  async updateByKey(
+    key: KeyTuple<DB[TableName], PrimaryKeyColumns>,
+    obj: UpdaterObject
+  ): Promise<ReturnedObject | null> {
+    const updates = await this.update(this.filterForKey(key), obj as any);
+    return updates.length == 0 ? null : updates[0];
+  }
+
+  /**
+   * Update the row having the given key, without returning any columns.
    * @param obj Object containing the fields to update. The key of the row
    *  to update is taken from this object.
    * @returns True if a row was updated, false otherwise.
    */
-  async updateByKey(
+  async updateByKeyNoReturns(
     key: KeyTuple<DB[TableName], PrimaryKeyColumns>,
     obj: UpdaterObject
   ): Promise<boolean> {
@@ -140,21 +159,6 @@ export class KeyedTableFacet<
       obj as any
     );
     return updateCount == 1;
-  }
-
-  /**
-   * Update the row having the object's key, returning the columns specified
-   * in the `returnColumns` option from the row or rows.
-   * @param obj Object containing the fields to update. The key of the row
-   * to update is taken from this object.
-   * @returns An object for the row, or null if no row was found.
-   */
-  async updateByKeyReturning(
-    key: KeyTuple<DB[TableName], PrimaryKeyColumns>,
-    obj: UpdaterObject
-  ): Promise<ReturnedObject | null> {
-    const updates = await this.update(this.filterForKey(key), obj as any);
-    return updates.length == 0 ? null : updates[0];
   }
 
   /**

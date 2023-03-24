@@ -81,7 +81,7 @@ export class OrmTableFacet<
    */
   async upsert(obj: MappedObject): Promise<MappedObject | null> {
     const id = obj.getId();
-    return !id ? this.insert(obj) : await this.updateByIdReturning(id, obj);
+    return !id ? this.insert(obj) : await this.updateById(id, obj);
   }
 }
 
