@@ -4,9 +4,10 @@ import { TableFacet } from "../facets/TableFacet";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database, Posts } from "./utils/test-tables";
 import {
-  UserTableFacet,
+  UserTableFacetReturningDefault,
   UserTableFacetReturningID,
-  UserTableFacetExplicitlyReturningAll,
+  UserTableFacetReturningAll,
+  UserTableFacetReturningNothing,
 } from "./utils/test-facets";
 import {
   USERS,
@@ -27,9 +28,10 @@ import { InsertedUser, ReturnedUser } from "./utils/test-types";
 
 let db: Kysely<Database>;
 
-let userFacet: UserTableFacet;
+let userFacetReturningDefault: UserTableFacetReturningDefault;
+let userFacetReturningNothing: UserTableFacetReturningNothing;
 let userFacetReturningID: UserTableFacetReturningID;
-let userFacetExplicitlyReturningAll: UserTableFacetExplicitlyReturningAll;
+let userFacetReturningAll: UserTableFacetReturningAll;
 
 let postTableFacet: TableFacet<
   Database,
@@ -49,11 +51,10 @@ let postTableFacetReturningIDAndTitle: TableFacet<
 
 beforeAll(async () => {
   db = await createDB();
-  userFacet = new UserTableFacet(db);
+  userFacetReturningDefault = new UserTableFacetReturningDefault(db);
+  userFacetReturningNothing = new UserTableFacetReturningNothing(db);
   userFacetReturningID = new UserTableFacetReturningID(db);
-  userFacetExplicitlyReturningAll = new UserTableFacetExplicitlyReturningAll(
-    db
-  );
+  userFacetReturningAll = new UserTableFacetReturningAll(db);
   postTableFacet = new TableFacet(db, "posts");
   postTableFacetReturningIDAndTitle = new TableFacet(db, "posts", {
     returnColumns: ["id", "title"],
@@ -61,6 +62,8 @@ beforeAll(async () => {
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
+
+// TODO: add insert test returning all columns
 
 ignore("requires return columns to have a consistent type", () => {
   new TableFacet<Database, "users">(db, "users", {
@@ -79,35 +82,47 @@ ignore("requires return columns to have a consistent type", () => {
       returnColumns: ["id"],
     }
   );
+  new TableFacet<Database, "users", any, any, any, ["*"]>(db, "users", {
+    // @ts-expect-error - actual and declared return types must match
+    returnColumns: ["id"],
+  });
+  new TableFacet<Database, "users", any, any, any, []>(db, "users", {
+    // @ts-expect-error - actual and declared return types must match
+    returnColumns: ["id"],
+  });
   // TODO: not sure how to get this to error
   new TableFacet<Database, "users", any, any, any, ["id", "name"]>(db, "users");
 });
 
 it("insertQB() allows for inserting rows", async () => {
-  const user0 = (await userFacet
+  const user0 = (await userFacetReturningID
     .insertQB()
     .values(USERS[0])
     .returningAll()
     .executeTakeFirst())!;
 
-  const readUser0 = await userFacet.selectOne(["id", "=", user0.id]);
+  const readUser0 = await userFacetReturningAll.selectOne([
+    "id",
+    "=",
+    user0.id,
+  ]);
   expect(readUser0?.handle).toEqual(USERS[0].handle);
   expect(readUser0?.email).toEqual(USERS[0].email);
 });
 
 describe("insert an array of objects without transformation", () => {
-  it("inserts rows without returning columns", async () => {
-    const result = await userFacet.insertNoReturns(USERS);
+  it("inserts multiple without returning columns", async () => {
+    const result = await userFacetReturningDefault.insertNoReturns(USERS);
     expect(result).toBeUndefined();
 
-    const readUsers = await userFacet.selectMany({});
+    const readUsers = await userFacetReturningAll.selectMany({});
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
     }
   });
 
-  it("inserts rows returning configured return columns", async () => {
+  it("inserts multiple returning configured return columns", async () => {
     const insertReturns = await userFacetReturningID.insert(USERS);
     expect(insertReturns.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
@@ -115,7 +130,7 @@ describe("insert an array of objects without transformation", () => {
       expect(Object.keys(insertReturns[i]).length).toEqual(1);
     }
 
-    const readUsers = await userFacet.selectMany({});
+    const readUsers = await userFacetReturningAll.selectMany({});
     expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
       expect(readUsers[i].handle).toEqual(USERS[i].handle);
@@ -137,20 +152,30 @@ describe("insert an array of objects without transformation", () => {
     }
   });
 
-  it("inserts rows returning all columns by default", async () => {
-    const insertReturns = await userFacet.insert(USERS);
+  it("inserts multiple returning no columns by default", async () => {
+    const insertReturns = await userFacetReturningDefault.insert(USERS);
+    expect(insertReturns).toBeUndefined();
+
+    const readUsers = await userFacetReturningAll.selectMany({});
+    expect(readUsers.length).toEqual(3);
     for (let i = 0; i < USERS.length; i++) {
-      expect(insertReturns[i].id).toBeGreaterThan(0);
+      expect(readUsers[i].handle).toEqual(USERS[i].handle);
     }
-    expect(insertReturns).toEqual(
-      USERS.map((user, i) =>
-        Object.assign({}, user, { id: insertReturns[i].id })
-      )
-    );
   });
 
-  it("inserts rows configured to return all columns", async () => {
-    const insertReturns = await userFacetExplicitlyReturningAll.insert(USERS);
+  it("inserts multiple explicitly returning no columns", async () => {
+    const insertReturns = await userFacetReturningNothing.insert(USERS);
+    expect(insertReturns).toBeUndefined();
+
+    const readUsers = await userFacetReturningAll.selectMany({});
+    expect(readUsers.length).toEqual(3);
+    for (let i = 0; i < USERS.length; i++) {
+      expect(readUsers[i].handle).toEqual(USERS[i].handle);
+    }
+  });
+
+  it("inserts multiple configured to return all columns", async () => {
+    const insertReturns = await userFacetReturningAll.insert(USERS);
     for (let i = 0; i < USERS.length; i++) {
       expect(insertReturns[i].id).toBeGreaterThan(0);
     }
@@ -163,13 +188,13 @@ describe("insert an array of objects without transformation", () => {
 
   ignore("detects inserting an array of objects type errors", async () => {
     // @ts-expect-error - inserted object must have all required columns
-    userFacet.insert([{}]);
+    userFacetReturningAll.insert([{}]);
     // @ts-expect-error - inserted object must have all required columns
-    userFacet.insertNoReturns([{}]);
+    userFacetReturningAll.insertNoReturns([{}]);
     // @ts-expect-error - inserted object must have all required columns
-    userFacet.insert([{ email: "xyz@pdq.xyz" }]);
+    userFacetReturningAll.insert([{ email: "xyz@pdq.xyz" }]);
     // @ts-expect-error - inserted object must have all required columns
-    userFacet.insertNoReturns([{ email: "xyz@pdq.xyz" }]);
+    userFacetReturningAll.insertNoReturns([{ email: "xyz@pdq.xyz" }]);
     // @ts-expect-error - only configured columns are returned
     (await userFacetReturningID.insert([USERS[0]]))[0].handle;
     // @ts-expect-error - only configured columns are returned
@@ -178,11 +203,22 @@ describe("insert an array of objects without transformation", () => {
 });
 
 describe("inserting a single object without transformation", () => {
-  it("inserts a row without returning columns", async () => {
-    const result = await userFacet.insertNoReturns(USERS[0]);
+  it("inserts one returning no columns by default", async () => {
+    const result = await userFacetReturningDefault.insertNoReturns(USERS[0]);
     expect(result).toBeUndefined();
 
-    const readUser0 = await userFacet
+    const readUser0 = await userFacetReturningAll
+      .selectAllQB()
+      .where("email", "=", USERS[0].email)
+      .executeTakeFirst();
+    expect(readUser0?.email).toEqual(USERS[0].email);
+  });
+
+  it("inserts one explicitly returning no columns", async () => {
+    const result = await userFacetReturningNothing.insertNoReturns(USERS[0]);
+    expect(result).toBeUndefined();
+
+    const readUser0 = await userFacetReturningAll
       .selectAllQB()
       .where("email", "=", USERS[0].email)
       .executeTakeFirst();
@@ -194,7 +230,7 @@ describe("inserting a single object without transformation", () => {
     expect(insertReturn.id).toBeGreaterThan(0);
     expect(Object.keys(insertReturn).length).toEqual(1);
 
-    const readUser0 = await userFacet
+    const readUser0 = await userFacetReturningAll
       .selectAllQB()
       .where("id", "=", insertReturn.id)
       .executeTakeFirst();
@@ -215,7 +251,7 @@ describe("inserting a single object without transformation", () => {
   });
 
   it("inserts one configured to return all columns", async () => {
-    const insertReturn = await userFacetExplicitlyReturningAll.insert(USERS[0]);
+    const insertReturn = await userFacetReturningAll.insert(USERS[0]);
     expect(insertReturn.id).toBeGreaterThan(0);
     const expectedUser = Object.assign({}, USERS[0], { id: insertReturn.id });
     expect(insertReturn).toEqual(expectedUser);
@@ -223,17 +259,17 @@ describe("inserting a single object without transformation", () => {
 
   ignore("detects type errors inserting a single object", async () => {
     // @ts-expect-error - inserted object must have all required columns
-    userFacet.insert({});
+    userFacetReturningAll.insert({});
     // @ts-expect-error - inserted object must have all required columns
-    userFacet.insertNoReturns({});
+    userFacetReturningAll.insertNoReturns({});
     // @ts-expect-error - inserted object must have all required columns
-    userFacet.insert({ email: "xyz@pdq.xyz" });
+    userFacetReturningAll.insert({ email: "xyz@pdq.xyz" });
     // @ts-expect-error - inserted object must have all required columns
-    userFacet.insertNoReturns({ email: "xyz@pdq.xyz" });
+    userFacetReturningAll.insertNoReturns({ email: "xyz@pdq.xyz" });
     // @ts-expect-error - only requested columns are returned
     (await userFacetReturningID.insert(USERS[0])).name;
     // @ts-expect-error - only requested columns are returned
-    (await userFacet.insertNoReturns(USERS[0])).name;
+    (await userFacetReturningDefault.insertNoReturns(USERS[0])).name;
   });
 });
 

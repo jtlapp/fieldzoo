@@ -132,7 +132,9 @@ describe("subselectMany()", () => {
   });
 
   it("subselects many from a multi-table query, unfiltered", async () => {
-    const postTableFacet = new TableFacet(db, "posts");
+    const postTableFacet = new TableFacet(db, "posts", {
+      returnColumns: ["id"],
+    });
     const insertReturns = await userTableFacet.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
@@ -159,7 +161,9 @@ describe("subselectMany()", () => {
   });
 
   it("subselects many from a multi-table query, filtered", async () => {
-    const postTableFacet = new TableFacet(db, "posts");
+    const postTableFacet = new TableFacet(db, "posts", {
+      returnColumns: ["id"],
+    });
     const userReturns = await userTableFacet.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
@@ -199,7 +203,9 @@ describe("subselectMany()", () => {
   });
 
   it("subselects many from a pre-selected multi-table query", async () => {
-    const postTableFacet = new TableFacet(db, "posts");
+    const postTableFacet = new TableFacet(db, "posts", {
+      returnColumns: ["id"],
+    });
     const userReturns = await userTableFacet.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
@@ -371,7 +377,9 @@ describe("subselectOne()", () => {
   });
 
   it("subselects one from a multi-table query, unfiltered", async () => {
-    const postTableFacet = new TableFacet(db, "posts");
+    const postTableFacet = new TableFacet(db, "posts", {
+      returnColumns: ["id"],
+    });
     const insertReturns = await userTableFacet.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
@@ -397,7 +405,9 @@ describe("subselectOne()", () => {
   });
 
   it("subselects one from a multi-table query, filtered", async () => {
-    const postTableFacet = new TableFacet(db, "posts");
+    const postTableFacet = new TableFacet(db, "posts", {
+      returnColumns: ["id"],
+    });
     const userReturns = await userTableFacet.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
@@ -441,7 +451,9 @@ describe("subselectOne()", () => {
   });
 
   it("subselects one from a pre-selected multi-table query", async () => {
-    const postTableFacet = new TableFacet(db, "posts");
+    const postTableFacet = new TableFacet(db, "posts", {
+      returnColumns: ["id"],
+    });
     const userReturns = await userTableFacet.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });

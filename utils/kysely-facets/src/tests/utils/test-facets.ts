@@ -3,7 +3,7 @@ import { Insertable, Kysely, Selectable } from "kysely";
 import { TableFacet } from "../../facets/TableFacet";
 import { Database, Users } from "./test-tables";
 
-export class UserTableFacet extends TableFacet<
+export class UserTableFacetReturningDefault extends TableFacet<
   Database,
   "users",
   Selectable<Users>,
@@ -12,6 +12,19 @@ export class UserTableFacet extends TableFacet<
 > {
   constructor(readonly db: Kysely<Database>) {
     super(db, "users");
+  }
+}
+
+export class UserTableFacetReturningNothing extends TableFacet<
+  Database,
+  "users",
+  Selectable<Users>,
+  Insertable<Users>,
+  Partial<Insertable<Users>>,
+  []
+> {
+  constructor(readonly db: Kysely<Database>) {
+    super(db, "users", { returnColumns: [] });
   }
 }
 
@@ -41,15 +54,15 @@ export class UserTableFacetReturningIDAndHandle extends TableFacet<
   }
 }
 
-export class UserTableFacetExplicitlyReturningAll extends TableFacet<
+export class UserTableFacetReturningAll extends TableFacet<
   Database,
   "users",
   Selectable<Users>,
   Insertable<Users>,
   Partial<Insertable<Users>>,
-  []
+  ["*"]
 > {
   constructor(readonly db: Kysely<Database>) {
-    super(db, "users");
+    super(db, "users", { returnColumns: ["*"] });
   }
 }

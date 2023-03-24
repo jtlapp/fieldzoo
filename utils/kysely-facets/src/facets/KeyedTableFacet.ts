@@ -12,6 +12,9 @@ import { ObjectWithKeys } from "../lib/type-utils";
 
 import { TableFacetOptions, TableFacet } from "./TableFacet";
 
+/** Default key columns */
+const DEFAULT_KEY = ["id"] as const;
+
 /**
  * Type of the primary key tuple whose column names are given by `S`
  * and are found in the table interface `T`.
@@ -71,10 +74,20 @@ export class KeyedTableFacet<
   ReturnedObject
 > {
   // TODO: have options.returnColumns default to ["id"]
+
+  /**
+   * Constructs a new keyed table facet.
+   * @param db The Kysely database.
+   * @param tableName The name of the table.
+   * @param primaryKeyColumns The names of the primary key columns,
+   *  expressed as a tuplet. Defaults to `["id"]`.
+   * @param options Options governing facet behavior. `returnColumns`
+   *  defaults to returning the key columns.
+   */
   constructor(
     db: Kysely<DB>,
     tableName: TableName,
-    readonly primaryKeyColumns: PrimaryKeyColumns = ["id"] as any,
+    readonly primaryKeyColumns: PrimaryKeyColumns = DEFAULT_KEY as any,
     options: TableFacetOptions<
       DB,
       TableName,
@@ -85,7 +98,7 @@ export class KeyedTableFacet<
       ReturnedObject
     > = {}
   ) {
-    super(db, tableName, _prepareOptions(options) as any);
+    super(db, tableName, _prepareOptions(options, primaryKeyColumns) as any);
   }
 
   /**
@@ -166,11 +179,12 @@ export class KeyedTableFacet<
 }
 
 /**
- * Ensure that returnColumns includes the primary keys.
+ * Default `returnColumns` to the primary keys.
  */
 function _prepareOptions<
   DB,
   TableName extends keyof DB & string,
+  PrimaryKeyColumns extends (keyof Selectable<DB[TableName]> & string)[],
   SelectedObject,
   InsertedObject,
   UpdaterObject,
@@ -185,7 +199,11 @@ function _prepareOptions<
     UpdaterObject,
     ReturnColumns,
     ReturnedObject
-  >
+  >,
+  primaryKeyColumns: PrimaryKeyColumns
 ) {
-  return { ...options, returnColumns: options.returnColumns ?? [] };
+  return {
+    returnColumns: primaryKeyColumns,
+    ...options,
+  };
 }

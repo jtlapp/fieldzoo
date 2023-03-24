@@ -2,17 +2,17 @@ import { Kysely } from "kysely";
 
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
-import { UserTableFacet } from "./utils/test-facets";
+import { UserTableFacetReturningAll } from "./utils/test-facets";
 import { USERS } from "./utils/test-objects";
 import { ignore } from "@fieldzoo/testing-utils";
 import { allOf, anyOf } from "../filters/CompoundFilter";
 
 let db: Kysely<Database>;
-let userFacet: UserTableFacet;
+let userFacet: UserTableFacetReturningAll;
 
 beforeAll(async () => {
   db = await createDB();
-  userFacet = new UserTableFacet(db);
+  userFacet = new UserTableFacetReturningAll(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));

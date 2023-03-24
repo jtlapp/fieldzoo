@@ -14,15 +14,15 @@ import {
 } from "./utils/test-objects";
 import { SelectedUser } from "./utils/test-types";
 import { ignore } from "@fieldzoo/testing-utils";
-import { UserTableFacet } from "./utils/test-facets";
+import { UserTableFacetReturningID } from "./utils/test-facets";
 import { EmptyObject } from "../lib/type-utils";
 
 let db: Kysely<Database>;
-let userTableFacet: UserTableFacet;
+let userTableFacet: UserTableFacetReturningID;
 
 beforeAll(async () => {
   db = await createDB();
-  userTableFacet = new UserTableFacet(db);
+  userTableFacet = new UserTableFacetReturningID(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));

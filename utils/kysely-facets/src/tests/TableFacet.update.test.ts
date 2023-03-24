@@ -5,10 +5,11 @@ import { allOf, anyOf } from "../filters/CompoundFilter";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
 import {
-  UserTableFacet,
+  UserTableFacetReturningDefault,
   UserTableFacetReturningID,
   UserTableFacetReturningIDAndHandle,
-  UserTableFacetExplicitlyReturningAll,
+  UserTableFacetReturningAll,
+  UserTableFacetReturningNothing,
 } from "./utils/test-facets";
 import {
   userObject1,
@@ -21,30 +22,36 @@ import { ignore } from "@fieldzoo/testing-utils";
 import { ReturnedUser, UpdaterUser } from "./utils/test-types";
 
 let db: Kysely<Database>;
-let userFacet: UserTableFacet;
+let userFacetReturningDefault: UserTableFacetReturningDefault;
+let userFacetReturningNothing: UserTableFacetReturningNothing;
 let userFacetReturningID: UserTableFacetReturningID;
 let userFacetReturningIDAndHandle: UserTableFacetReturningIDAndHandle;
-let userFacetExplicitlyReturningAll: UserTableFacetExplicitlyReturningAll;
+let userFacetReturningAll: UserTableFacetReturningAll;
 
 beforeAll(async () => {
   db = await createDB();
-  userFacet = new UserTableFacet(db);
+  userFacetReturningDefault = new UserTableFacetReturningDefault(db);
+  userFacetReturningNothing = new UserTableFacetReturningNothing(db);
   userFacetReturningID = new UserTableFacetReturningID(db);
   userFacetReturningIDAndHandle = new UserTableFacetReturningIDAndHandle(db);
-  userFacetExplicitlyReturningAll = new UserTableFacetExplicitlyReturningAll(
-    db
-  );
+  userFacetReturningAll = new UserTableFacetReturningAll(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
+
+// TODO: add update test returning all columns
 
 it("updateQB() allows for updating rows", async () => {
   const user1 = await userFacetReturningID.insert(USERS[1]);
   const updater = { email: "new@baz.com" };
 
-  await userFacet.updateQB().set(updater).where("id", "=", user1.id).execute();
+  await userFacetReturningAll
+    .updateQB()
+    .set(updater)
+    .where("id", "=", user1.id)
+    .execute();
 
-  const readUser1 = await userFacet.selectOne({ id: user1.id });
+  const readUser1 = await userFacetReturningAll.selectOne({ id: user1.id });
   expect(readUser1?.handle).toEqual(USERS[1].handle);
   expect(readUser1?.email).toEqual(updater.email);
 });
@@ -52,7 +59,10 @@ it("updateQB() allows for updating rows", async () => {
 describe("updating rows via TableFacet", () => {
   it("updates returning zero update count", async () => {
     const updateValues = { email: "new.email@xyz.pdq" };
-    const updateCount = await userFacet.update({ id: 1 }, updateValues);
+    const updateCount = await userFacetReturningAll.update(
+      { id: 1 },
+      updateValues
+    );
     expect(updateCount).toEqual(0);
 
     const updates = await userFacetReturningID.updateReturning(
@@ -68,7 +78,7 @@ describe("updating rows via TableFacet", () => {
     await userFacetReturningID.insert(USERS[1]);
     await userFacetReturningID.insert(USERS[2]);
 
-    const updateCount1 = await userFacet.update(
+    const updateCount1 = await userFacetReturningAll.update(
       { id: insertReturn0.id },
       updateValues
     );
@@ -81,7 +91,10 @@ describe("updating rows via TableFacet", () => {
     ]);
     expect(readUser?.email).toEqual(updateValues.email);
 
-    const updateCount2 = await userFacet.update({ name: "Sue" }, updateValues);
+    const updateCount2 = await userFacetReturningAll.update(
+      { name: "Sue" },
+      updateValues
+    );
     expect(updateCount2).toEqual(2);
 
     const readUsers = await userFacetReturningID.selectMany([
@@ -156,34 +169,39 @@ describe("updating rows via TableFacet", () => {
     expect(readUsers.length).toEqual(3);
   });
 
-  it("updates returning all columns by default", async () => {
-    const insertReturns = await userFacetReturningID.insert(USERS);
+  it("errors when update returning with no return columns", async () => {
+    await userFacetReturningID.insert(USERS);
 
-    const updateValues = { email: "new.email@xyz.pdq" };
-    const updateReturns = await userFacet.updateReturning(
-      { name: "Sue" },
-      updateValues
-    );
+    expect(() =>
+      userFacetReturningDefault.updateReturning(
+        { name: "Sue" },
+        { email: "new.email@xyz.pdq" }
+      )
+    ).rejects.toThrowError("no return columns");
 
-    const expectedUsers = [
-      Object.assign({}, USERS[0], updateValues, { id: insertReturns[0].id }),
-      Object.assign({}, USERS[2], updateValues, { id: insertReturns[2].id }),
-    ];
-    expect(updateReturns).toEqual(expectedUsers);
+    const readUsers1 = await userFacetReturningID.selectMany({
+      email: "new.email@xyz.pdq",
+    });
+    expect(readUsers1.length).toEqual(0);
 
-    const readUsers = await userFacetReturningID.selectMany([
-      "name",
-      "=",
-      "Sue",
-    ]);
-    expect(readUsers).toEqual(expectedUsers);
+    expect(() =>
+      userFacetReturningNothing.updateReturning(
+        { name: "Sue" },
+        { email: "new.email@xyz.pdq" }
+      )
+    ).rejects.toThrowError("no return columns");
+
+    const readUsers2 = await userFacetReturningID.selectMany({
+      email: "new.email@xyz.pdq",
+    });
+    expect(readUsers2.length).toEqual(0);
   });
 
   it("updates configured to return all columns", async () => {
     const insertReturns = await userFacetReturningID.insert(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
-    const updateReturns = await userFacetExplicitlyReturningAll.updateReturning(
+    const updateReturns = await userFacetReturningAll.updateReturning(
       { name: "Sue" },
       updateValues
     );
@@ -220,7 +238,7 @@ describe("updating rows via TableFacet", () => {
     const insertReturns = await userFacetReturningID.insert(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
-    const updateCount = await userFacet.update(
+    const updateCount = await userFacetReturningAll.update(
       ["id", ">", insertReturns[0].id],
       updateValues
     );
@@ -241,7 +259,7 @@ describe("updating rows via TableFacet", () => {
     const insertReturns = await userFacetReturningID.insert(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
-    const updateCount = await userFacet.update(
+    const updateCount = await userFacetReturningDefault.update(
       sql`id > ${insertReturns[0].id}`,
       updateValues
     );
@@ -262,7 +280,7 @@ describe("updating rows via TableFacet", () => {
     const insertReturns = await userFacetReturningID.insert(USERS);
 
     const updateValues1 = { email: "foo@xyz.pdq" };
-    const updateCount = await userFacet.update(
+    const updateCount = await userFacetReturningAll.update(
       anyOf(["id", "=", insertReturns[0].id], ["id", "=", insertReturns[2].id]),
       updateValues1
     );
@@ -283,7 +301,7 @@ describe("updating rows via TableFacet", () => {
     const insertReturns = await userFacetReturningID.insert(USERS);
 
     const updateValues1 = { email: "foo@xyz.pdq" };
-    const updateCount = await userFacet.update(
+    const updateCount = await userFacetReturningDefault.update(
       allOf(["id", "=", insertReturns[0].id], ["name", "=", "Sue"]),
       updateValues1
     );

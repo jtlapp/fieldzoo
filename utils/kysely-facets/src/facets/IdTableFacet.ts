@@ -3,6 +3,9 @@ import { ObjectWithKeys } from "../lib/type-utils";
 
 import { TableFacetOptions, TableFacet } from "./TableFacet";
 
+/** Default ID column name */
+const DEFAULT_ID = "id";
+
 /**
  * Table facet whose primary key is a single ID columns of some type.
  * @typeparam DB Interface whose fields are table names defining tables.
@@ -39,10 +42,18 @@ export class IdTableFacet<
   ReturnColumns,
   ReturnedObject
 > {
+  /**
+   * Constructs a new ID table facet.
+   * @param db The Kysely database.
+   * @param tableName The name of the table.
+   * @param idColumnName The name of the ID column. Defaults to "id".
+   * @param options Options governing facet behavior. `returnColumns`
+   *  defaults to returning the ID column.
+   */
   constructor(
     db: Kysely<DB>,
     tableName: TableName,
-    readonly idColumnName: IdColumnName = "id" as any,
+    readonly idColumnName: IdColumnName = DEFAULT_ID as any,
     options: TableFacetOptions<
       DB,
       TableName,
@@ -53,7 +64,7 @@ export class IdTableFacet<
       ReturnedObject
     > = {}
   ) {
-    super(db, tableName, _prepareOptions(options) as any);
+    super(db, tableName, _prepareOptions(options, idColumnName) as any);
   }
 
   /**
@@ -116,11 +127,12 @@ export class IdTableFacet<
 }
 
 /**
- * Ensure that returnColumns includes idColumnName.
+ * Default `returnColumns` to the ID column.
  */
 function _prepareOptions<
   DB,
   TableName extends keyof DB & string,
+  IdColumnName extends keyof Selectable<DB[TableName]> & string,
   SelectedObject,
   InsertedObject,
   UpdaterObject,
@@ -135,7 +147,8 @@ function _prepareOptions<
     UpdaterObject,
     ReturnColumns,
     ReturnedObject
-  >
+  >,
+  idColumnName: IdColumnName
 ) {
-  return { ...options, returnColumns: options.returnColumns ?? [] };
+  return { returnColumns: [idColumnName], ...options };
 }

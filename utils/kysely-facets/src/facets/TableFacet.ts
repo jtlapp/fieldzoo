@@ -12,6 +12,9 @@ import { FacetOptions, QueryFacet } from "./QueryFacet";
 import { QueryFilter, applyQueryFilter } from "../filters/QueryFilter";
 import { EmptyObject, ObjectWithKeys } from "../lib/type-utils";
 
+// TODO: don't store options in facet, instead extracting needed
+//  values; otherwise I'd have to store a separate copy of each kind of
+//  options object for access without stepping on one another.
 // TODO: Configure type of returned counts (e.g. number vs bigint)
 
 type DeleteQB<DB, TableName extends keyof DB & string> = ReturnType<
@@ -39,7 +42,7 @@ export interface TableFacetOptions<
   SelectedObject,
   InsertedObject,
   UpdaterObject,
-  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[],
+  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"],
   ReturnedObject
 > extends FacetOptions<DB, TableName, EmptyObject, [], SelectedObject> {
   /** Transformation to apply to inserted objects before insertion. */
@@ -50,7 +53,10 @@ export interface TableFacetOptions<
     update: UpdaterObject
   ) => Updateable<DB[TableName]>;
 
-  /** Columns to return from table upon insertion or update. */
+  /**
+   * Columns to return from the table on insert or update, unless explicitly
+   * requesting no columns. `["*"]` returns all columns; `[]` returns none.
+   */
   readonly returnColumns?: ReturnColumns;
 
   /** Transformation to apply to column values returned from inserts. */
@@ -73,8 +79,9 @@ export interface TableFacetOptions<
  * @typeparam SelectedObject Type of objects returned by select queries.
  * @typeparam InsertedObject Type of objects inserted into the table.
  * @typeparam UpdaterObject Type of objects used to update rows of the table.
- * @typeparam ReturnColumns Columns to return from table upon request, whether
- *  returning from an insert or an update. An empty array returns all columns.
+ * @typeparam ReturnColumns Columns to return from the table on insert or
+ *  update, unless explicitly requesting no columns. `["*"]` returns all
+ *  columns. An empty array returns no columns and is the default.
  * @typeparam ReturnedObject Type of objects returned from inserts and updates,
  *  when returning objects.
  */
@@ -84,23 +91,22 @@ export class TableFacet<
   SelectedObject = Selectable<DB[TableName]>,
   InsertedObject = Insertable<DB[TableName]>,
   UpdaterObject = Partial<Insertable<DB[TableName]>>,
-  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] = [],
-  ReturnedObject = ReturnColumns extends []
+  ReturnColumns extends
+    | (keyof Selectable<DB[TableName]> & string)[]
+    | ["*"] = [],
+  ReturnedObject = ReturnColumns extends ["*"]
     ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
 > extends QueryFacet<DB, TableName, EmptyObject, [], SelectedObject> {
-  /**
-   * Columns to return from table upon request, whether returning from an
-   * insert or an update. An empty array returns all columns.
-   */
-  protected returnColumns: (keyof Selectable<DB[TableName]> & string)[] = [];
+  /** Columns to return from the table on insert or update. */
+  protected returnColumns: (keyof Selectable<DB[TableName]> & string)[] | ["*"];
 
   /**
    * Constructs a new table facet.
    * @param db The Kysely database.
    * @param tableName The name of the table.
    * @param options Options governing facet behavior. `returnColumns`
-   *  defaults to returning all columns.
+   *  defaults to returning no columns.
    */
   constructor(
     db: Kysely<DB>,
@@ -161,18 +167,24 @@ export class TableFacet<
 
   /**
    * Inserts one or more rows into this table, returning the columns
-   * specified in the `returnColumns` for each row inserted.
+   * specified in the `returnColumns` option for each row inserted,
+   * which `insertReturnTransform` may transform into `ReturnedObject`.
    * @param objOrObjs The object or objects to insert as a row.
-   * @returns Returns a `ReturnedObject` for each inserted object. An
-   *  array when `objOrObjs` is an array, and a single object otherwise.
+   * @returns Returns a `ReturnedObject` for each inserted object. Will
+   *  be an array when `objOrObjs` is an array, will be a single object
+   *  otherwise. Returns nothing (void) when `returnColumns` is empty.
    */
-  insert(obj: InsertedObject): Promise<ReturnedObject>;
+  insert(
+    obj: InsertedObject
+  ): Promise<ReturnColumns extends [] ? void : ReturnedObject>;
 
-  insert(objs: InsertedObject[]): Promise<ReturnedObject[]>;
+  insert(
+    objs: InsertedObject[]
+  ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]>;
 
   async insert(
     objOrObjs: InsertedObject | InsertedObject[]
-  ): Promise<ReturnedObject | ReturnedObject[]> {
+  ): Promise<ReturnedObject | ReturnedObject[] | void> {
     const insertedAnArray = Array.isArray(objOrObjs); // expensive operation
     let qb: InsertQueryBuilder<DB, TableName, InsertResult>;
     if (insertedAnArray) {
@@ -185,12 +197,20 @@ export class TableFacet<
       qb = this.insertQB().values(transformedObj);
     }
 
+    if (this.returnColumns.length == 0) {
+      await qb.execute();
+      return;
+    }
+
     // Assign `returns` all at once to capture its complex type. Can't place
     // this in a shared method because the types are not compatible.
     const returns =
-      this.returnColumns.length == 0
+      this.returnColumns[0] == "*"
         ? await qb.returningAll().execute()
-        : await qb.returning(this.returnColumns).execute();
+        : // prettier-ignore
+          await qb.returning(
+            this.returnColumns as (keyof Selectable<DB[TableName]> & string)[]
+          ).execute();
     if (returns === undefined) {
       throw Error("No rows returned from insert expecting returned columns");
     }
@@ -245,16 +265,20 @@ export class TableFacet<
   /**
    * Updates rows in this table matching the provided filter, returning the
    * columns specified in the `returnColumns` option for each row, which
-   * the `updateReturnTransform` option can transform.
+   * `updateReturnTransform` may transform into `ReturnedObject`.
    * @param filter Filter specifying the rows to update.
    * @param obj The object whose field values are to be assigned to the row.
    * @returns Returns an array of `ReturnedObject` objects, one for each
-   *  updated row.
+   *  updated row, or `[]` if `returnColumns` is empty.
    */
   async updateReturning<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
     obj: UpdaterObject
   ): Promise<ReturnedObject[]> {
+    if (this.returnColumns.length == 0) {
+      throw Error("updateReturning() called with no return columns assigned");
+    }
+
     const transformedObj = this.transformUpdater(obj);
     const uqb = this.updateQB().set(transformedObj as any);
     const fqb = applyQueryFilter(this, filter)(uqb);
@@ -262,7 +286,7 @@ export class TableFacet<
     // Assign `returns` all at once to capture its complex type. Can't place
     // this in a shared method because the types are not compatible.
     const returns =
-      this.returnColumns.length == 0
+      this.returnColumns[0] == "*"
         ? await fqb.returningAll().execute()
         : await fqb.returning(this.returnColumns as any).execute();
     if (returns === undefined) {
