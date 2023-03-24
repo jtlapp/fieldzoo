@@ -135,7 +135,10 @@ export class KeyedTableFacet<
     key: KeyTuple<DB[TableName], PrimaryKeyColumns>,
     obj: UpdaterObject
   ): Promise<boolean> {
-    const updateCount = await this.update(this.filterForKey(key), obj as any);
+    const updateCount = await this.updateGetCount(
+      this.filterForKey(key),
+      obj as any
+    );
     return updateCount == 1;
   }
 
@@ -150,10 +153,7 @@ export class KeyedTableFacet<
     key: KeyTuple<DB[TableName], PrimaryKeyColumns>,
     obj: UpdaterObject
   ): Promise<ReturnedObject | null> {
-    const updates = await this.updateReturning(
-      this.filterForKey(key),
-      obj as any
-    );
+    const updates = await this.update(this.filterForKey(key), obj as any);
     return updates.length == 0 ? null : updates[0];
   }
 

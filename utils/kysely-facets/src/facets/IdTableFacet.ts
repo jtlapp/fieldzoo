@@ -100,7 +100,7 @@ export class IdTableFacet<
     id: SelectType<DB[TableName][IdColumnName]>,
     obj: UpdaterObject
   ): Promise<boolean> {
-    const updateCount = await this.update(
+    const updateCount = await this.updateGetCount(
       [this.ref(this.idColumnName), "=", id],
       obj as any
     );
@@ -118,7 +118,7 @@ export class IdTableFacet<
     id: SelectType<DB[TableName][IdColumnName]>,
     obj: UpdaterObject
   ): Promise<ReturnedObject | null> {
-    const updates = await this.updateReturning(
+    const updates = await this.update(
       [this.ref(this.idColumnName), "=", id],
       obj as any
     );
