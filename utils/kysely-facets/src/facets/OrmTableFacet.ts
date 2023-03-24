@@ -20,9 +20,9 @@ export interface OrmObject<IdType> {
  * @typeparam IdColumnName The name of the ID column.
  * @typeparam MappedObject The type of the objects that are mapped to and from
  *  the table rows on inserts, updates, and selects.
- * @typeparam ReturnColumns The columns that are returned by when selecting
- *  or updating rows, for use when created the mapped objects. An empty array
- *  returns all columns.
+ * @typeparam ReturnColumns The columns that are returned from the database
+ *  when selecting or updating rows, for use when creating the mapped objects.
+ *  `["*"]` returns all columns; `[]` returns none. Defaults to `[IdColumnName]`.
  */
 export class OrmTableFacet<
   DB,
