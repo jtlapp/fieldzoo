@@ -281,11 +281,13 @@ describe("keyed table facet using a multi-column tuple key", () => {
     });
 
     // Add users
-    await multiKeyFacet.insert({
-      name: "Jon",
-      handle: "jon",
-      email: "jon@abc.def",
-    });
+    const id0 = (
+      await multiKeyFacet.insert({
+        name: "Jon",
+        handle: "jon",
+        email: "jon@abc.def",
+      })
+    ).id;
     const id1 = (
       await multiKeyFacet.insert({
         name: "Jon",
@@ -325,14 +327,18 @@ describe("keyed table facet using a multi-column tuple key", () => {
     const readUser2 = await multiKeyFacet.selectByKey(["Jon", "jonny"]);
     expect(readUser2?.id).toEqual(id1);
     expect(readUser2?.email).toEqual(NEW_EMAIL2);
+    const readUser2b = await multiKeyFacet.selectByKey(["Jon", "jon"]);
+    expect(readUser2b?.id).toEqual(id0);
 
     // Delete a user
     const deleted = await multiKeyFacet.deleteByKey(["Jon", "jonny"]);
     expect(deleted).toEqual(true);
 
     // Verify correct user was deleted
-    const readUser0 = await multiKeyFacet.selectByKey(["Jon", "jonny"]);
-    expect(readUser0).toBeNull();
+    const readUser3 = await multiKeyFacet.selectByKey(["Jon", "jonny"]);
+    expect(readUser3).toBeNull();
+    const readUser3b = await multiKeyFacet.selectByKey(["Jon", "jon"]);
+    expect(readUser3b?.id).toEqual(id0);
   });
 });
 
