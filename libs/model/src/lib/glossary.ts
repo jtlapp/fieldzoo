@@ -18,7 +18,7 @@ export type GlossaryID = string & { readonly __typeID: unique symbol };
 /**
  * Class representing a valid glossary.
  */
-export class Glossary implements OrmObject<GlossaryID> {
+export class Glossary implements OrmObject<Glossary, ["uuid"]> {
   readonly uuid: GlossaryID;
   ownerId: UserID;
   updatedBy: UserID;
@@ -62,8 +62,8 @@ export class Glossary implements OrmObject<GlossaryID> {
    * Returns the glossary's UUID.
    * @returns the glossary's UUID.
    */
-  getId(): GlossaryID {
-    return this.uuid;
+  getKey(): [GlossaryID] {
+    return [this.uuid];
   }
 }
 export interface Glossary {

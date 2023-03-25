@@ -16,7 +16,7 @@ export class UserRepo {
   };
 
   constructor(readonly db: Kysely<Database>) {
-    this.#tableFacet = new OrmTableFacet(db, "users", "id", {
+    this.#tableFacet = new OrmTableFacet(db, "users", ["id"], {
       insertReturnTransform: UserRepo.#returnTransform,
       updateReturnTransform: UserRepo.#returnTransform,
       selectTransform: (row) =>
@@ -30,7 +30,7 @@ export class UserRepo {
    * @returns true if the user was deleted, false if the user was not found.
    */
   async deleteById(id: UserID): Promise<boolean> {
-    return this.#tableFacet.deleteById(id);
+    return this.#tableFacet.deleteByKey(id);
   }
 
   /**
@@ -39,7 +39,7 @@ export class UserRepo {
    * @returns the user, or null if the user was not found.
    */
   async getByID(id: UserID): Promise<User | null> {
-    return this.#tableFacet.selectById(id);
+    return this.#tableFacet.selectByKey(id);
   }
 
   /**

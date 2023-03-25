@@ -10,7 +10,12 @@ import { randomUUID } from "crypto";
  * Repository for persisting glossaries.
  */
 export class GlossaryRepo {
-  readonly #tableFacet: OrmTableFacet<Database, "glossaries", Glossary, "uuid">;
+  readonly #tableFacet: OrmTableFacet<
+    Database,
+    "glossaries",
+    Glossary,
+    ["uuid"]
+  >;
 
   static #returnTransform = (glossary: Glossary, returns: any) => {
     return new Glossary(
@@ -20,7 +25,7 @@ export class GlossaryRepo {
   };
 
   constructor(readonly db: Kysely<Database>) {
-    this.#tableFacet = new OrmTableFacet(db, "glossaries", "uuid", {
+    this.#tableFacet = new OrmTableFacet(db, "glossaries", ["uuid"], {
       insertTransform: (glossary) => ({
         ...glossary,
         uuid: randomUUID(),
@@ -47,7 +52,7 @@ export class GlossaryRepo {
    *  was not found.
    */
   async deleteById(id: GlossaryID): Promise<boolean> {
-    return this.#tableFacet.deleteById(id);
+    return this.#tableFacet.deleteByKey(id);
   }
 
   /**
@@ -56,7 +61,7 @@ export class GlossaryRepo {
    * @returns the glossary, or null if the glossary was not found.
    */
   async getByID(id: GlossaryID): Promise<Glossary | null> {
-    return this.#tableFacet.selectById(id);
+    return this.#tableFacet.selectByKey(id);
   }
 
   /**

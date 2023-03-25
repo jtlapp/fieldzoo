@@ -1,42 +1,53 @@
-import { Kysely, Selectable, SelectType } from "kysely";
+import { Kysely, Selectable } from "kysely";
 
 import { TableFacetOptions } from "./TableFacet";
-import { IdTableFacet } from "./IdTableFacet";
-import { ObjectWithKeys } from "../lib/type-utils";
+import { KeyedTableFacet } from "./KeyedTableFacet";
+import {
+  KeyTuple,
+  ObjectWithKeys,
+  SelectableColumn,
+  SelectableColumnTuple,
+} from "../lib/type-utils";
+
+/** Default key columns */
+const DEFAULT_KEY = ["id"] as const;
 
 /**
  * Interface for ORM objects.
  */
-export interface OrmObject<IdType> {
-  getId(): IdType;
+export interface OrmObject<
+  T,
+  PrimaryKeyColumns extends SelectableColumnTuple<T>
+> {
+  getKey(): KeyTuple<T, PrimaryKeyColumns>;
 }
 
 /**
  * A table facet that maps the rows of a table to and from a single object
- * type. The table has a single primary key referred to as the ID column,
- * and it defaults to the name "id".
+ * type. The table has a one or more primary key columns.
  * @typeparam DB The database type.
  * @typeparam TableName The name of the table.
- * @typeparam IdColumnName The name of the ID column.
  * @typeparam MappedObject The type of the objects that are mapped to and from
  *  the table rows on inserts, updates, and selects.
+ * @typeparam PrimaryKeyColumns Tuple of the names of the primary key columns.
  * @typeparam ReturnColumns The columns that are returned from the database
  *  when selecting or updating rows, for use when creating the mapped objects.
- *  `["*"]` returns all columns; `[]` returns none. Defaults to `[IdColumnName]`.
+ *  `["*"]` returns all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
  */
 export class OrmTableFacet<
   DB,
   TableName extends keyof DB & string,
-  MappedObject extends OrmObject<SelectType<DB[TableName][IdColumnName]>>,
-  IdColumnName extends keyof Selectable<DB[TableName]> & string = "id" &
-    keyof Selectable<DB[TableName]>,
-  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] = [
-    IdColumnName
-  ]
-> extends IdTableFacet<
+  MappedObject extends OrmObject<DB[TableName], PrimaryKeyColumns>,
+  PrimaryKeyColumns extends SelectableColumnTuple<DB[TableName]> = [
+    "id" & SelectableColumn<DB[TableName]>
+  ],
+  ReturnColumns extends
+    | (keyof Selectable<DB[TableName]> & string)[]
+    | ["*"] = PrimaryKeyColumns
+> extends KeyedTableFacet<
   DB,
   TableName,
-  IdColumnName,
+  PrimaryKeyColumns,
   MappedObject,
   MappedObject,
   MappedObject,
@@ -47,14 +58,13 @@ export class OrmTableFacet<
    * Create a new OrmTableFacet.
    * @param db The Kysely database instance.
    * @param tableName The name of the table.
-   * @param idColumnName The name of the ID column.
-   * @param options Options governing OrmTableFacet behavior. By default, the
-   *  ID columns is removed from insertions and added to insertion returns.
+   * @param primaryKeyColumns The names of the primary key columns.
+   * @param options Options governing OrmTableFacet behavior.
    */
   constructor(
     db: Kysely<DB>,
     tableName: TableName,
-    idColumnName: IdColumnName,
+    primaryKeyColumns: Readonly<PrimaryKeyColumns> = DEFAULT_KEY as any,
     options: TableFacetOptions<
       DB,
       TableName,
@@ -68,20 +78,23 @@ export class OrmTableFacet<
     super(
       db,
       tableName,
-      idColumnName,
-      _prepareOptions(idColumnName, options) as any
+      primaryKeyColumns,
+      _prepareOptions(primaryKeyColumns, options) as any
     );
   }
 
   /**
-   * Inserts or updates a row from an object. Objects with ID 0 or the empty
-   * string are inserted; objects with non-zero, non-empty IDs are updated.
+   * Inserts or updates a row from an object. Objects having at least one
+   * falsy primary key (0 or "") are inserted; objects whose primary keys
+   * are all truthy are updated.
    * @param obj Object to insert or update.
    * @returns the object, or null if the object-to-update was not found.
    */
   async upsert(obj: MappedObject): Promise<MappedObject | null> {
-    const id = obj.getId();
-    return !id ? this.insert(obj) : await this.updateById(id, obj);
+    const key = obj.getKey();
+    return !(key as any[]).every((v) => !!v)
+      ? this.insert(obj)
+      : await this.updateByKey(key, obj);
   }
 }
 
@@ -91,11 +104,11 @@ export class OrmTableFacet<
 function _prepareOptions<
   DB,
   TableName extends keyof DB & string,
-  MappedObject extends OrmObject<SelectType<DB[TableName][IdColumnName]>>,
-  IdColumnName extends keyof Selectable<DB[TableName]> & string,
-  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[]
+  MappedObject extends OrmObject<DB[TableName], PrimaryKeyColumns>,
+  PrimaryKeyColumns extends SelectableColumnTuple<DB[TableName]>,
+  ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"]
 >(
-  idColumnName: IdColumnName,
+  primaryKeyColumns: Readonly<PrimaryKeyColumns>,
   options: TableFacetOptions<
     DB,
     TableName,
@@ -115,7 +128,11 @@ function _prepareOptions<
 
   return {
     insertTransform: (obj: MappedObject) => {
-      return { ...obj, [idColumnName]: undefined } as any;
+      const insertion = { ...obj };
+      primaryKeyColumns.forEach(
+        (column) => delete insertion[column as keyof MappedObject]
+      );
+      return insertion;
     },
     insertReturnTransform: returnTransform,
     updateReturnTransform: returnTransform,

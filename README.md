@@ -34,7 +34,7 @@ And if amateurs can learn to do taxonomy, they can also create field guides for 
 
 ## Technologies
 
-[Turborepo](https://turbo.build/repo), a tool for managing monorepos. This platform consists of several apps and tools that need to share code, and monorepos make this possible. I started with Nx but found the file structure too messy and indirection too hard to make work. Turborepo is a simple veneer over familiar package structures.
+[Nx](https://nx.dev/), a tool for managing monorepos. This platform consists of several apps and tools that need to share code, and monorepos make this possible. It will operate on the same monorepos as Turborepo but runs much faster and produces far more readable output.
 
 [pnpm](https://pnpm.io/), a tool for managing packages. I chose pnpm because it vastly faster and more space efficient than npm and yarn for monorepo management.
 

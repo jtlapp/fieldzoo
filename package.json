@@ -2,20 +2,21 @@
   "name": "fieldzoo",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "clean": "turbo run clean && rm -rf node_modules",
-    "format": "prettier --write \"**/*.{js,ts,tsx,md}\"",
+    "build-all": "nx run-many --target=build",
+    "test-all": "nx run-many --target=test",
+    "dev-all": "nx run-many --target=dev",
+    "lint-all": "nx run-many --target=lint",
+    "clean-all": "nx run-many --target=clean && rm -rf node_modules",
+    "format-all": "prettier --write \"**/*.{js,ts,tsx,md}\"",
     "list-packages": "npx syncpack list",
     "list-mismatches": "npx syncpack list-mismatches",
     "fix-mismatches": "npx syncpack fix-mismatches && pnpm install"
   },
   "devDependencies": {
+    "nx": "15.8.9",
     "prettier": "^2.8.4",
     "prettier-plugin-tailwindcss": "^0.2.3",
-    "syncpack": "^8.5.14",
-    "turbo": "latest"
+    "syncpack": "^8.5.14"
   },
   "packageManager": "pnpm@7.15.0"
 }

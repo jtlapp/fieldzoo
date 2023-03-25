@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
-import { Database } from "./utils/test-tables";
+import { Database, Users } from "./utils/test-tables";
 import { USERS, insertedUser1 } from "./utils/test-objects";
 import { OrmObject, OrmTableFacet } from "../facets/OrmTableFacet";
 
@@ -14,7 +14,7 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 it("inserts/updates/deletes a mapped object w/ default transforms", async () => {
-  class OrmUser implements OrmObject<number> {
+  class OrmUser implements OrmObject<Users, ["id"]> {
     constructor(
       public id: number,
       public name: string,
@@ -22,15 +22,15 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
       public email: string
     ) {}
 
-    getId() {
-      return this.id;
+    getKey(): [number] {
+      return [this.id];
     }
   }
 
   const ormTableFacet = new OrmTableFacet<Database, "users", OrmUser>(
     db,
     "users",
-    "id"
+    ["id"]
   );
 
   // test updating a non-existent user
@@ -55,7 +55,7 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
   expect(insertReturn.id).toBeGreaterThan(0);
 
   // test getting a user by ID
-  const selectedUser1 = await ormTableFacet.selectById(insertReturn.id);
+  const selectedUser1 = await ormTableFacet.selectByKey(insertReturn.id);
   expect(selectedUser1).toEqual(insertReturn);
   expect(selectedUser1?.id).toEqual(insertReturn.id);
 
@@ -68,18 +68,18 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
   );
   const updateReturn = await ormTableFacet.upsert(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
-  const selectedUser2 = await ormTableFacet.selectById(insertReturn.id);
+  const selectedUser2 = await ormTableFacet.selectByKey(insertReturn.id);
   expect(selectedUser2).toEqual(updateReturn);
 
   // test deleting a user
-  const deleted = await ormTableFacet.deleteById(insertReturn.id);
+  const deleted = await ormTableFacet.deleteByKey(insertReturn.id);
   expect(deleted).toEqual(true);
-  const selectedUser3 = await ormTableFacet.selectById(insertReturn.id);
+  const selectedUser3 = await ormTableFacet.selectByKey(insertReturn.id);
   expect(selectedUser3).toEqual(null);
 });
 
 it("inserts/updates/deletes a mapped object class w/ custom transforms", async () => {
-  class OrmUser implements OrmObject<number> {
+  class OrmUser implements OrmObject<Users, ["id"]> {
     constructor(
       public serialNo: number,
       public firstName: string,
@@ -88,8 +88,8 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
       public email: string
     ) {}
 
-    getId() {
-      return this.serialNo;
+    getKey(): [number] {
+      return [this.serialNo];
     }
   }
 
@@ -101,7 +101,7 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
     };
   };
 
-  const ormTableFacet = new OrmTableFacet(db, "users", "id", {
+  const ormTableFacet = new OrmTableFacet(db, "users", ["id"], {
     insertTransform,
     insertReturnTransform: (user, returns) => {
       return new OrmUser(
@@ -153,7 +153,7 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
   expect(insertReturn.serialNo).toBeGreaterThan(0);
 
   // test getting a user by ID
-  const selectedUser1 = await ormTableFacet.selectById(insertReturn.serialNo);
+  const selectedUser1 = await ormTableFacet.selectByKey(insertReturn.serialNo);
   expect(selectedUser1).toEqual(insertReturn);
   expect(selectedUser1?.serialNo).toEqual(insertReturn.serialNo);
 
@@ -167,12 +167,12 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
   );
   const updateReturn = await ormTableFacet.upsert(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
-  const selectedUser2 = await ormTableFacet.selectById(insertReturn.serialNo);
+  const selectedUser2 = await ormTableFacet.selectByKey(insertReturn.serialNo);
   expect(selectedUser2).toEqual(updateReturn);
 
   // test deleting a user
-  const deleted = await ormTableFacet.deleteById(insertReturn.serialNo);
+  const deleted = await ormTableFacet.deleteByKey(insertReturn.serialNo);
   expect(deleted).toEqual(true);
-  const selectedUser3 = await ormTableFacet.selectById(insertReturn.serialNo);
+  const selectedUser3 = await ormTableFacet.selectByKey(insertReturn.serialNo);
   expect(selectedUser3).toEqual(null);
 });

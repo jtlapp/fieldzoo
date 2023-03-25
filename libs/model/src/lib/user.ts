@@ -12,7 +12,7 @@ export type UserID = number & { readonly __typeID: unique symbol };
 /**
  * Class representing a valid user.
  */
-export class User implements OrmObject<UserID> {
+export class User implements OrmObject<User, ["id"]> {
   readonly id: UserID;
   name: string;
   email: string;
@@ -50,8 +50,8 @@ export class User implements OrmObject<UserID> {
    * Returns the user's ID.
    * @returns the user's ID.
    */
-  getId(): UserID {
-    return this.id;
+  getKey(): [UserID] {
+    return [this.id];
   }
 }
 export interface User {

@@ -5,19 +5,21 @@ import {
   Selectable,
   WhereInterface,
 } from "kysely";
+
 import { allOf } from "../filters/CompoundFilter";
 import { QueryFilter } from "../filters/QueryFilter";
-import { ObjectWithKeys } from "../lib/type-utils";
-
+import {
+  KeyTuple,
+  ObjectWithKeys,
+  SelectableColumn,
+  SelectableColumnTuple,
+} from "../lib/type-utils";
 import { TableFacetOptions, TableFacet } from "./TableFacet";
 
 /** Default key columns */
 const DEFAULT_KEY = ["id"] as const;
 
 // TODO: Make all modifiable structures readonly when possible.
-
-/** Shorthand type for a key column. */
-type KeyColumn<T> = keyof Selectable<T> & string;
 
 /**
  * Type of the primary key, when there is only one primary key.
@@ -28,28 +30,6 @@ export type SingleKeyValue<
   T,
   KA extends (keyof Selectable<T> & string)[]
 > = KA extends [any] ? Selectable<T>[KA[0]] : never;
-
-/**
- * Type of the primary key tuple whose column names are given by `KA` and are
- * found in the table interface `T`. Supports up to 4 columns.
- * @typeparam T Table interface.
- * @typeparam KA Array of the primary key column names.
- */
-export type KeyTuple<
-  T,
-  KA extends (keyof Selectable<T> & string)[]
-> = Selectable<T>[KA[3]] extends string
-  ? [
-      Selectable<T>[KA[0]],
-      Selectable<T>[KA[1]],
-      Selectable<T>[KA[2]],
-      Selectable<T>[KA[3]]
-    ]
-  : Selectable<T>[KA[2]] extends string
-  ? [Selectable<T>[KA[0]], Selectable<T>[KA[1]], Selectable<T>[KA[2]]]
-  : Selectable<T>[KA[1]] extends string
-  ? [Selectable<T>[KA[0]], Selectable<T>[KA[1]]]
-  : [Selectable<T>[KA[0]]];
 
 /**
  * Interface that updater objects must implement to provide a key, if
@@ -77,20 +57,9 @@ export interface KeyedObject<T, KA extends (keyof Selectable<T> & string)[]> {
 export class KeyedTableFacet<
   DB,
   TableName extends keyof DB & string,
-  PrimaryKeyColumns extends
-    | [KeyColumn<DB[TableName]>]
-    | [KeyColumn<DB[TableName]>, KeyColumn<DB[TableName]>]
-    | [
-        KeyColumn<DB[TableName]>,
-        KeyColumn<DB[TableName]>,
-        KeyColumn<DB[TableName]>
-      ]
-    | [
-        KeyColumn<DB[TableName]>,
-        KeyColumn<DB[TableName]>,
-        KeyColumn<DB[TableName]>,
-        KeyColumn<DB[TableName]>
-      ] = ["id" & KeyColumn<DB[TableName]>],
+  PrimaryKeyColumns extends SelectableColumnTuple<DB[TableName]> = [
+    "id" & SelectableColumn<DB[TableName]>
+  ],
   SelectedObject = Selectable<DB[TableName]>,
   InsertedObject = Insertable<DB[TableName]>,
   UpdaterObject extends object &

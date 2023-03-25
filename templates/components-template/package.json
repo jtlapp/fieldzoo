@@ -14,7 +14,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "check-types": "tsc --noEmit",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+    "clean": "rm -rf node_modules && rm -rf dist"
   },
   "peerDependencies": {
     "react": "^18.2.0"
