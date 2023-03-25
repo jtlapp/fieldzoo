@@ -1,7 +1,7 @@
-import { Kysely, Selectable } from "kysely";
+import { Kysely } from "kysely";
 
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
-import { Database, Users } from "./utils/test-tables";
+import { Database } from "./utils/test-tables";
 import {
   USERS,
   STANDARD_OPTIONS,
@@ -17,8 +17,6 @@ class ExplicitKeyedFacet extends KeyedTableFacet<Database, "users", ["id"]> {
     super(db, "users", ["id"], { returnColumns: ["id"] });
   }
 }
-
-// TODO: test compound keys
 
 let db: Kysely<Database>;
 let explicitKeyedFacet: ExplicitKeyedFacet;
@@ -110,9 +108,7 @@ describe("keyed table facet using a single-column tuple key", () => {
 
   it("updates returning key by default with specified key", async () => {
     // Make sure KeyedTableFacet will take readonly key columns.
-    const keyColumns = [
-      "id" as keyof Selectable<Users>,
-    ] as (keyof Selectable<Users> & "id")[];
+    const keyColumns = ["id"] as const;
     const defaultKeyFacet = new KeyedTableFacet(db, "users", keyColumns);
     const id1 = (await defaultKeyFacet.insert(USERS[1])).id;
 
@@ -278,14 +274,92 @@ describe("keyed table facet using a single-column value key", () => {
   });
 });
 
+describe("keyed table facet using a multi-column tuple key", () => {
+  it("inserts, selects, updates, and deletes objects by tuple key", async () => {
+    const multiKeyFacet = new KeyedTableFacet(db, "users", ["name", "handle"], {
+      returnColumns: ["id"],
+    });
+
+    // Add users
+    await multiKeyFacet.insert({
+      name: "Jon",
+      handle: "jon",
+      email: "jon@abc.def",
+    });
+    const id1 = (
+      await multiKeyFacet.insert({
+        name: "Jon",
+        handle: "jonny",
+        email: "jonny@abc.def",
+      })
+    ).id;
+    await multiKeyFacet.insert({
+      name: "John",
+      handle: "jonny",
+      email: "john@abc.def",
+    });
+
+    // Update a user without returning columns
+    const NEW_EMAIL1 = "johnny1@abc.def";
+    const updated1 = await multiKeyFacet.updateByKeyNoReturns(
+      ["Jon", "jonny"],
+      {
+        email: NEW_EMAIL1,
+      }
+    );
+    expect(updated1).toEqual(true);
+
+    // Retrieves a user by key
+    const readUser1 = await multiKeyFacet.selectByKey(["Jon", "jonny"]);
+    expect(readUser1?.id).toEqual(id1);
+    expect(readUser1?.email).toEqual(NEW_EMAIL1);
+
+    // Update a user returning columns
+    const NEW_EMAIL2 = "johnny2@abc.def";
+    const updated2 = await multiKeyFacet.updateByKey(["Jon", "jonny"], {
+      email: NEW_EMAIL2,
+    });
+    expect(updated2).toEqual({ id: id1 });
+
+    // Retrieves updated user by key
+    const readUser2 = await multiKeyFacet.selectByKey(["Jon", "jonny"]);
+    expect(readUser2?.id).toEqual(id1);
+    expect(readUser2?.email).toEqual(NEW_EMAIL2);
+
+    // Delete a user
+    const deleted = await multiKeyFacet.deleteByKey(["Jon", "jonny"]);
+    expect(deleted).toEqual(true);
+
+    // Verify correct user was deleted
+    const readUser0 = await multiKeyFacet.selectByKey(["Jon", "jonny"]);
+    expect(readUser0).toBeNull();
+  });
+});
+
 ignore("keyed table facet type errors", () => {
+  const strStrKeyFacet = new KeyedTableFacet(db, "users", ["name", "handle"], {
+    returnColumns: ["id"],
+  });
+  const idStrKeyFacet = new KeyedTableFacet(db, "users", ["id", "handle"], {
+    returnColumns: ["id"],
+  });
+
   // @ts-expect-error - key tuple element types must match column types
   new KeyedTableFacet(db, "users", ["id"]).selectByKey("str");
   // @ts-expect-error - key tuple element types must match column types
   new KeyedTableFacet(db, "users", ["id"]).selectByKey(["str"]);
+  // @ts-expect-error - key tuple element types must match column types
+  strStrKeyFacet.selectByKey(["str", 1]);
+  // @ts-expect-error - key tuple element types must match column types
+  idStrKeyFacet.selectByKey(["str", 1]);
   // @ts-expect-error - key tuple element types must have correct size
   new KeyedTableFacet(db, "users", ["id"]).selectByKey([1, 2]);
   // @ts-expect-error - key tuple element types must have correct size
   new KeyedTableFacet(db, "users", ["id"]).selectByKey([1, "str"]);
-  // TODO: cannot use single value key on compound key table
+  // @ts-expect-error - key tuple element types must have correct size
+  strStrKeyFacet.selectByKey(["str"]);
+  // @ts-expect-error - key tuple element types must have correct size
+  strStrKeyFacet.selectByKey(["str", "str", "str"]);
+  // @ts-expect-error - key tuple element types must have correct size
+  idStrKeyFacet.selectByKey([1]);
 });

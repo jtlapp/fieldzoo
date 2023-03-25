@@ -16,6 +16,8 @@ const DEFAULT_KEY = ["id"] as const;
 
 // TODO: Make all modifiable structures readonly when possible.
 
+type KeyColumn<T> = keyof Selectable<T> & string;
+
 /**
  * Type of the primary key, when there is only one primary key.
  * @typeparam T Table interface.
@@ -74,9 +76,20 @@ export interface KeyedObject<T, KA extends (keyof Selectable<T> & string)[]> {
 export class KeyedTableFacet<
   DB,
   TableName extends keyof DB & string,
-  PrimaryKeyColumns extends (keyof Selectable<DB[TableName]> & string)[] = [
-    "id" & keyof Selectable<DB[TableName]>
-  ],
+  PrimaryKeyColumns extends
+    | [KeyColumn<DB[TableName]>]
+    | [KeyColumn<DB[TableName]>, KeyColumn<DB[TableName]>]
+    | [
+        KeyColumn<DB[TableName]>,
+        KeyColumn<DB[TableName]>,
+        KeyColumn<DB[TableName]>
+      ]
+    | [
+        KeyColumn<DB[TableName]>,
+        KeyColumn<DB[TableName]>,
+        KeyColumn<DB[TableName]>,
+        KeyColumn<DB[TableName]>
+      ] = ["id" & KeyColumn<DB[TableName]>],
   SelectedObject = Selectable<DB[TableName]>,
   InsertedObject = Insertable<DB[TableName]>,
   UpdaterObject extends object &
