@@ -16,6 +16,7 @@ const DEFAULT_KEY = ["id"] as const;
 
 // TODO: Make all modifiable structures readonly when possible.
 
+/** Shorthand type for a key column. */
 type KeyColumn<T> = keyof Selectable<T> & string;
 
 /**
