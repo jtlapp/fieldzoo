@@ -224,14 +224,14 @@ export class KeyedTableFacet<
     key:
       | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>
-  ) {
-    const filter: QueryFilter<
-      DB,
-      TableName,
-      QB,
-      ReferenceExpression<DB, TableName>
-    >[] = [];
+  ): QueryFilter<DB, TableName, QB, ReferenceExpression<DB, TableName>> {
     if (Array.isArray(key)) {
+      const filter: QueryFilter<
+        DB,
+        TableName,
+        QB,
+        ReferenceExpression<DB, TableName>
+      >[] = [];
       for (let i = 0; i < this.primaryKeyColumns.length; i++) {
         const columnName = this.primaryKeyColumns[i];
         filter.push([
@@ -240,10 +240,9 @@ export class KeyedTableFacet<
           (key as KeyTuple<DB[TableName], PrimaryKeyColumns>)[i],
         ]);
       }
-    } else {
-      filter.push([this.ref(this.primaryKeyColumns[0]), "=", key]);
+      return allOf(...filter);
     }
-    return allOf(...filter);
+    return [this.ref(this.primaryKeyColumns[0]), "=", key];
   }
 }
 
