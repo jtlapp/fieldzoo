@@ -4,6 +4,6 @@ export * from "./filters/QueryFilter";
 
 export * from "./facets/QueryFacet";
 export * from "./facets/TableFacet";
-export * from "./facets/OrmTableFacet";
+export * from "./facets/KeyedObjectFacet";
 
 export type { EmptyObject } from "./lib/type-utils";

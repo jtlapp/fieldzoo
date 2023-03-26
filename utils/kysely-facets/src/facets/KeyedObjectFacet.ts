@@ -15,7 +15,7 @@ const DEFAULT_KEY = ["id"] as const;
 /**
  * Interface for ORM objects.
  */
-export interface OrmObject<
+export interface KeyedObject<
   T,
   PrimaryKeyColumns extends SelectableColumnTuple<T>
 > {
@@ -23,8 +23,8 @@ export interface OrmObject<
 }
 
 /**
- * A table facet that maps the rows of a table to and from a single object
- * type. The table has a one or more primary key columns.
+ * A table facet that maps the rows of a table to and from a single keyed
+ * object type. The table has a one or more primary key columns.
  * @typeparam DB The database type.
  * @typeparam TableName The name of the table.
  * @typeparam MappedObject The type of the objects that are mapped to and from
@@ -34,10 +34,10 @@ export interface OrmObject<
  *  when selecting or updating rows, for use when creating the mapped objects.
  *  `["*"]` returns all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
  */
-export class OrmTableFacet<
+export class KeyedObjectFacet<
   DB,
   TableName extends keyof DB & string,
-  MappedObject extends OrmObject<DB[TableName], PrimaryKeyColumns>,
+  MappedObject extends KeyedObject<DB[TableName], PrimaryKeyColumns>,
   PrimaryKeyColumns extends SelectableColumnTuple<DB[TableName]> = [
     "id" & SelectableColumn<DB[TableName]>
   ],
@@ -57,11 +57,11 @@ export class OrmTableFacet<
   >;
 
   /**
-   * Create a new OrmTableFacet.
+   * Create a new KeyedObjectFacet.
    * @param db The Kysely database instance.
    * @param tableName The name of the table.
    * @param primaryKeyColumns The names of the primary key columns.
-   * @param options Options governing OrmTableFacet behavior.
+   * @param options Options governing KeyedObjectFacet behavior.
    */
   constructor(
     db: Kysely<DB>,
@@ -135,7 +135,7 @@ export class OrmTableFacet<
 function _prepareOptions<
   DB,
   TableName extends keyof DB & string,
-  MappedObject extends OrmObject<DB[TableName], PrimaryKeyColumns>,
+  MappedObject extends KeyedObject<DB[TableName], PrimaryKeyColumns>,
   PrimaryKeyColumns extends SelectableColumnTuple<DB[TableName]>,
   ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"]
 >(

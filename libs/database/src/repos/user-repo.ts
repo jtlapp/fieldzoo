@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { User, UserID } from "@fieldzoo/model";
-import { OrmTableFacet } from "@fieldzoo/kysely-facets";
+import { KeyedObjectFacet } from "@fieldzoo/kysely-facets";
 
 import { Database } from "../tables/current-tables";
 
@@ -9,14 +9,14 @@ import { Database } from "../tables/current-tables";
  * Repository for persisting users.
  */
 export class UserRepo {
-  readonly #tableFacet: OrmTableFacet<Database, "users", User>;
+  readonly #tableFacet: KeyedObjectFacet<Database, "users", User>;
 
   static #returnTransform = (user: User, returns: any) => {
     return new User({ ...user, id: returns.id as UserID }, true);
   };
 
   constructor(readonly db: Kysely<Database>) {
-    this.#tableFacet = new OrmTableFacet(db, "users", ["id"], {
+    this.#tableFacet = new KeyedObjectFacet(db, "users", ["id"], {
       insertReturnTransform: UserRepo.#returnTransform,
       updateReturnTransform: UserRepo.#returnTransform,
       selectTransform: (row) =>

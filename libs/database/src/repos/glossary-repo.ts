@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { Glossary, GlossaryID, UserID } from "@fieldzoo/model";
-import { OrmTableFacet } from "@fieldzoo/kysely-facets";
+import { KeyedObjectFacet } from "@fieldzoo/kysely-facets";
 
 import { Database } from "../tables/current-tables";
 import { randomUUID } from "crypto";
@@ -10,7 +10,7 @@ import { randomUUID } from "crypto";
  * Repository for persisting glossaries.
  */
 export class GlossaryRepo {
-  readonly #tableFacet: OrmTableFacet<
+  readonly #tableFacet: KeyedObjectFacet<
     Database,
     "glossaries",
     Glossary,
@@ -25,7 +25,7 @@ export class GlossaryRepo {
   };
 
   constructor(readonly db: Kysely<Database>) {
-    this.#tableFacet = new OrmTableFacet(db, "glossaries", ["uuid"], {
+    this.#tableFacet = new KeyedObjectFacet(db, "glossaries", ["uuid"], {
       insertTransform: (glossary) => ({
         ...glossary,
         uuid: randomUUID(),
