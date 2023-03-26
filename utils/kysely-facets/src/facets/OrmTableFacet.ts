@@ -1,7 +1,7 @@
 import { Kysely, Selectable } from "kysely";
 
 import { TableFacetOptions } from "./TableFacet";
-import { KeyedTableFacet } from "./KeyedTableFacet";
+import { KeyedTableFacet, SingleKeyValue } from "./KeyedTableFacet";
 import {
   KeyTuple,
   ObjectWithKeys,
@@ -44,16 +44,18 @@ export class OrmTableFacet<
   ReturnColumns extends
     | (keyof Selectable<DB[TableName]> & string)[]
     | ["*"] = PrimaryKeyColumns
-> extends KeyedTableFacet<
-  DB,
-  TableName,
-  PrimaryKeyColumns,
-  MappedObject,
-  MappedObject,
-  MappedObject,
-  ReturnColumns,
-  MappedObject
 > {
+  protected tableFacet: KeyedTableFacet<
+    DB,
+    TableName,
+    PrimaryKeyColumns,
+    MappedObject,
+    MappedObject,
+    MappedObject,
+    ReturnColumns,
+    MappedObject
+  >;
+
   /**
    * Create a new OrmTableFacet.
    * @param db The Kysely database instance.
@@ -75,12 +77,26 @@ export class OrmTableFacet<
       MappedObject
     > = {}
   ) {
-    super(
+    this.tableFacet = new KeyedTableFacet(
       db,
       tableName,
       primaryKeyColumns,
       _prepareOptions(primaryKeyColumns, options) as any
     );
+  }
+  /**
+   * Delete the row for the object having the given key.
+   * @param key The key of the row to delete. If there is only one primary
+   *  key column, this can be the value of the key. Otherwise, this must be
+   * a tuple of the key values.
+   * @returns True if a row was deleted, false otherwise.
+   */
+  async deleteByKey(
+    key:
+      | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
+      | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>
+  ): Promise<boolean> {
+    return this.tableFacet.deleteByKey(key);
   }
 
   /**
@@ -93,8 +109,23 @@ export class OrmTableFacet<
   async save(obj: MappedObject): Promise<MappedObject | null> {
     const key = obj.getKey();
     return !(key as any[]).every((v) => !!v)
-      ? this.insert(obj)
-      : await this.updateByKey(key, obj);
+      ? this.tableFacet.insert(obj)
+      : await this.tableFacet.updateByKey(key, obj);
+  }
+
+  /**
+   * Select the object for the row having the given key.
+   * @param key The key of the row to select. If there is only one primary
+   *  key column, this can be the value of the key. Otherwise, this must be
+   *  a tuple of the key values.
+   * @returns An object for the row, or null if no row was found.
+   */
+  selectByKey(
+    key:
+      | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
+      | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>
+  ): Promise<MappedObject | null> {
+    return this.tableFacet.selectByKey(key);
   }
 }
 
