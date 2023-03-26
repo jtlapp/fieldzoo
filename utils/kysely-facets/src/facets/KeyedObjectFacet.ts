@@ -13,7 +13,7 @@ import {
 const DEFAULT_KEY = ["id"] as const;
 
 /**
- * Interface for ORM objects.
+ * Interface for keyed objects.
  */
 export interface KeyedObject<
   T,
