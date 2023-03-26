@@ -84,13 +84,13 @@ export class OrmTableFacet<
   }
 
   /**
-   * Inserts or updates a row from an object. Objects having at least one
+   * Saves an object as a row in the table. Objects having at least one
    * falsy primary key (0 or "") are inserted; objects whose primary keys
    * are all truthy are updated.
-   * @param obj Object to insert or update.
+   * @param obj Object to save.
    * @returns the object, or null if the object-to-update was not found.
    */
-  async upsert(obj: MappedObject): Promise<MappedObject | null> {
+  async save(obj: MappedObject): Promise<MappedObject | null> {
     const key = obj.getKey();
     return !(key as any[]).every((v) => !!v)
       ? this.insert(obj)

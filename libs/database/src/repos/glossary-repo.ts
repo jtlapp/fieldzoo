@@ -71,6 +71,6 @@ export class GlossaryRepo {
    * @returns the glossary, or null if the glossary-to-update was not found.
    */
   async store(glossary: Glossary): Promise<Glossary | null> {
-    return this.#tableFacet.upsert(glossary);
+    return this.#tableFacet.save(glossary);
   }
 }

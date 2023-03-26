@@ -40,7 +40,7 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
     USERS[0].handle,
     USERS[0].email
   );
-  const updateReturn1 = await ormTableFacet.upsert(userWithID);
+  const updateReturn1 = await ormTableFacet.save(userWithID);
   expect(updateReturn1).toEqual(null);
 
   // test inserting a user
@@ -50,7 +50,7 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
     USERS[0].handle,
     USERS[0].email
   );
-  const insertReturn = (await ormTableFacet.upsert(insertedUser))!;
+  const insertReturn = (await ormTableFacet.save(insertedUser))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).toBeGreaterThan(0);
 
@@ -66,7 +66,7 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
     selectedUser1!.handle,
     selectedUser1!.email
   );
-  const updateReturn = await ormTableFacet.upsert(updaterUser);
+  const updateReturn = await ormTableFacet.save(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
   const selectedUser2 = await ormTableFacet.selectByKey(insertReturn.id);
   expect(selectedUser2).toEqual(updateReturn);
@@ -129,7 +129,7 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
   });
 
   // test updating a non-existent user
-  const updateReturn1 = await ormTableFacet.upsert(
+  const updateReturn1 = await ormTableFacet.save(
     new OrmUser(
       1,
       insertedUser1.firstName,
@@ -148,7 +148,7 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
     insertedUser1.handle,
     insertedUser1.email
   );
-  const insertReturn = (await ormTableFacet.upsert(insertedUser))!;
+  const insertReturn = (await ormTableFacet.save(insertedUser))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.serialNo).toBeGreaterThan(0);
 
@@ -165,7 +165,7 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
     selectedUser1!.handle,
     selectedUser1!.email
   );
-  const updateReturn = await ormTableFacet.upsert(updaterUser);
+  const updateReturn = await ormTableFacet.save(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
   const selectedUser2 = await ormTableFacet.selectByKey(insertReturn.serialNo);
   expect(selectedUser2).toEqual(updateReturn);

@@ -49,6 +49,6 @@ export class UserRepo {
    * @returns the user, or null if the user-to-update was not found.
    */
   async store(user: User): Promise<User | null> {
-    return this.#tableFacet.upsert(user);
+    return this.#tableFacet.save(user);
   }
 }
