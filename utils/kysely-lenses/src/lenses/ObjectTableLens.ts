@@ -62,6 +62,10 @@ export class ObjectTableLens<
    * @param tableName The name of the table.
    * @param primaryKeyColumns The names of the primary key columns.
    * @param options Options governing ObjectTableLens behavior.
+   *  `insertTransform` defaults to a transform that removes the primary key
+   *  columns. `updaterTransform` defaults to the `insertTransform`.
+   *  `insertReturnTransform` defaults to a transform that adds the return
+   *  columns. `updateReturnTransform` defaults to the `insertReturnTransform`.
    */
   constructor(
     db: Kysely<DB>,
@@ -170,7 +174,7 @@ function _prepareOptions<
 
   return {
     insertTransform,
-    updateTransform: options.insertTransform ?? insertTransform,
+    updaterTransform: options.insertTransform ?? insertTransform,
     insertReturnTransform,
     updateReturnTransform:
       options.insertReturnTransform ?? insertReturnTransform,

@@ -93,16 +93,14 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
     }
   }
 
-  const insertTransform = (user: KeyedUser) => {
-    return {
-      name: `${user.firstName} ${user.lastName}`,
-      handle: user.handle,
-      email: user.email,
-    };
-  };
-
   const keyedUserLens = new ObjectTableLens(db, "users", ["id"], {
-    insertTransform,
+    insertTransform: (user: KeyedUser) => {
+      return {
+        name: `${user.firstName} ${user.lastName}`,
+        handle: user.handle,
+        email: user.email,
+      };
+    },
     insertReturnTransform: (user, returns) => {
       return new KeyedUser(
         returns.id,
@@ -112,7 +110,6 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
         user.email
       );
     },
-    updaterTransform: insertTransform,
     updateReturnTransform: (user, _returns) => {
       return new KeyedUser(
         user.serialNo,

@@ -17,21 +17,18 @@ export class GlossaryRepo {
     ["uuid"]
   >;
 
-  static #returnTransform = (glossary: Glossary, returns: any) => {
-    return new Glossary(
-      { ...glossary, uuid: returns.uuid as GlossaryID },
-      true
-    );
-  };
-
   constructor(readonly db: Kysely<Database>) {
     this.#tableLens = new ObjectTableLens(db, "glossaries", ["uuid"], {
       insertTransform: (glossary) => ({
         ...glossary,
         uuid: randomUUID(),
       }),
-      insertReturnTransform: GlossaryRepo.#returnTransform,
-      updateReturnTransform: GlossaryRepo.#returnTransform,
+      insertReturnTransform: (glossary: Glossary, returns: any) => {
+        return new Glossary(
+          { ...glossary, uuid: returns.uuid as GlossaryID },
+          true
+        );
+      },
       selectTransform: (row) =>
         new Glossary(
           {

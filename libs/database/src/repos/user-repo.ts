@@ -11,14 +11,11 @@ import { Database } from "../tables/current-tables";
 export class UserRepo {
   readonly #tableLens: ObjectTableLens<Database, "users", User>;
 
-  static #returnTransform = (user: User, returns: any) => {
-    return new User({ ...user, id: returns.id as UserID }, true);
-  };
-
   constructor(readonly db: Kysely<Database>) {
     this.#tableLens = new ObjectTableLens(db, "users", ["id"], {
-      insertReturnTransform: UserRepo.#returnTransform,
-      updateReturnTransform: UserRepo.#returnTransform,
+      insertReturnTransform: (user: User, returns: any) => {
+        return new User({ ...user, id: returns.id as UserID }, true);
+      },
       selectTransform: (row) =>
         new User({ ...row, id: row.id as UserID }, true),
     });
