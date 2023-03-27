@@ -1,6 +1,6 @@
 import { Kysely, Selectable } from "kysely";
 
-import { QueryFacet } from "../facets/QueryFacet";
+import { QueryLens } from "../lenses/QueryLens";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database, Users } from "./utils/test-tables";
 import {
@@ -14,21 +14,21 @@ import {
 } from "./utils/test-objects";
 import { SelectedUser } from "./utils/test-types";
 import { ignore } from "./utils/test-utils";
-import { UserTableFacetReturningID } from "./utils/test-facets";
+import { UserTableLensReturningID } from "./utils/test-lenses";
 import { EmptyObject } from "../lib/type-utils";
 
 let db: Kysely<Database>;
-let userTableFacet: UserTableFacetReturningID;
+let userTableLens: UserTableLensReturningID;
 
 beforeAll(async () => {
   db = await createDB();
-  userTableFacet = new UserTableFacetReturningID(db);
+  userTableLens = new UserTableLensReturningID(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe("transforms selection objects", () => {
-  class TestPassThruFacet extends QueryFacet<
+  class TestPassThruLens extends QueryLens<
     Database,
     "users",
     EmptyObject,
@@ -52,7 +52,7 @@ describe("transforms selection objects", () => {
     }
   }
 
-  class TestTransformSingleTableFacet extends QueryFacet<
+  class TestTransformSingleTableLens extends QueryLens<
     Database,
     "users",
     EmptyObject,
@@ -99,22 +99,22 @@ describe("transforms selection objects", () => {
   }
 
   it("internally transforms selections", () => {
-    const testPassThruFacet = new TestPassThruFacet(db);
-    testPassThruFacet.testTransformSelection();
+    const testPassThruLens = new TestPassThruLens(db);
+    testPassThruLens.testTransformSelection();
 
-    const testTransformFacet = new TestTransformSingleTableFacet(db);
-    testTransformFacet.testTransformSelection();
+    const testTransformLens = new TestTransformSingleTableLens(db);
+    testTransformLens.testTransformSelection();
   });
 
   it("transforms selected single-table objects", async () => {
-    const testTransformFacet = new TestTransformSingleTableFacet(db);
+    const testTransformLens = new TestTransformSingleTableLens(db);
 
-    await userTableFacet.insert(userRow1);
-    const user = await testTransformFacet.selectOne({});
+    await userTableLens.insert(userRow1);
+    const user = await testTransformLens.selectOne({});
     expect(user).toEqual(selectedUser1);
 
-    await userTableFacet.insert([userRow2, userRow3]);
-    const users = await testTransformFacet.selectMany((qb) => qb.orderBy("id"));
+    await userTableLens.insert([userRow2, userRow3]);
+    const users = await testTransformLens.selectMany((qb) => qb.orderBy("id"));
     expect(users).toEqual([selectedUser1, selectedUser2, selectedUser3]);
   });
 
@@ -127,7 +127,7 @@ describe("transforms selection objects", () => {
         public handle: string
       ) {}
     }
-    const testTransformFacet = new QueryFacet(
+    const testTransformLens = new QueryLens(
       db,
       db.selectFrom("users").innerJoin("posts", "users.id", "posts.userId"),
       {
@@ -142,14 +142,14 @@ describe("transforms selection objects", () => {
       }
     );
 
-    const insertReturn = await userTableFacet.insert(userRow1);
+    const insertReturn = await userTableLens.insert(userRow1);
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturn.id });
     const postId = (await db
       .insertInto("posts")
       .values(post0)
       .returning("id")
       .executeTakeFirst())!;
-    const userPost = await testTransformFacet.selectOne({});
+    const userPost = await testTransformLens.selectOne({});
 
     expect(userPost).toEqual(
       new SelectedUserPost(
@@ -162,9 +162,9 @@ describe("transforms selection objects", () => {
   });
 
   ignore("detects selected object type errors", async () => {
-    const testTransformFacet = new TestTransformSingleTableFacet(db);
+    const testTransformLens = new TestTransformSingleTableLens(db);
 
     // @ts-expect-error - only returns transformed selection
-    (await testTransformFacet.selectOne({})).name;
+    (await testTransformLens.selectOne({})).name;
   });
 });

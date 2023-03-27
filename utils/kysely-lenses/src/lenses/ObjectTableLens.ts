@@ -1,7 +1,7 @@
 import { Kysely, Selectable } from "kysely";
 
-import { TableFacetOptions } from "./TableFacet";
-import { KeyedTableFacet, SingleKeyValue } from "./KeyedTableFacet";
+import { TableLensOptions } from "./TableLens";
+import { KeyedTableLens, SingleKeyValue } from "./KeyedTableLens";
 import {
   KeyTuple,
   ObjectWithKeys,
@@ -23,7 +23,7 @@ export interface KeyedObject<
 }
 
 /**
- * A table facet that maps the rows of a table to and from a single keyed
+ * A table lens that maps the rows of a table to and from a single keyed
  * object type. The table has a one or more primary key columns.
  * @typeparam DB The database type.
  * @typeparam TableName The name of the table.
@@ -34,7 +34,7 @@ export interface KeyedObject<
  *  when selecting or updating rows, for use when creating the mapped objects.
  *  `["*"]` returns all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
  */
-export class KeyedObjectFacet<
+export class ObjectTableLens<
   DB,
   TableName extends keyof DB & string,
   MappedObject extends KeyedObject<DB[TableName], PrimaryKeyColumns>,
@@ -45,7 +45,7 @@ export class KeyedObjectFacet<
     | (keyof Selectable<DB[TableName]> & string)[]
     | ["*"] = PrimaryKeyColumns
 > {
-  protected tableFacet: KeyedTableFacet<
+  protected tableLens: KeyedTableLens<
     DB,
     TableName,
     PrimaryKeyColumns,
@@ -57,17 +57,17 @@ export class KeyedObjectFacet<
   >;
 
   /**
-   * Create a new KeyedObjectFacet.
+   * Create a new ObjectTableLens.
    * @param db The Kysely database instance.
    * @param tableName The name of the table.
    * @param primaryKeyColumns The names of the primary key columns.
-   * @param options Options governing KeyedObjectFacet behavior.
+   * @param options Options governing ObjectTableLens behavior.
    */
   constructor(
     db: Kysely<DB>,
     tableName: TableName,
     primaryKeyColumns: Readonly<PrimaryKeyColumns> = DEFAULT_KEY as any,
-    options: TableFacetOptions<
+    options: TableLensOptions<
       DB,
       TableName,
       MappedObject,
@@ -77,7 +77,7 @@ export class KeyedObjectFacet<
       MappedObject
     > = {}
   ) {
-    this.tableFacet = new KeyedTableFacet(
+    this.tableLens = new KeyedTableLens(
       db,
       tableName,
       primaryKeyColumns,
@@ -96,7 +96,7 @@ export class KeyedObjectFacet<
       | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>
   ): Promise<boolean> {
-    return this.tableFacet.deleteByKey(key);
+    return this.tableLens.deleteByKey(key);
   }
 
   /**
@@ -109,8 +109,8 @@ export class KeyedObjectFacet<
   async save(obj: MappedObject): Promise<MappedObject | null> {
     const key = obj.getKey();
     return !(key as any[]).every((v) => !!v)
-      ? this.tableFacet.insert(obj)
-      : await this.tableFacet.updateByKey(key, obj);
+      ? this.tableLens.insert(obj)
+      : await this.tableLens.updateByKey(key, obj);
   }
 
   /**
@@ -125,7 +125,7 @@ export class KeyedObjectFacet<
       | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>
   ): Promise<MappedObject | null> {
-    return this.tableFacet.selectByKey(key);
+    return this.tableLens.selectByKey(key);
   }
 }
 
@@ -140,7 +140,7 @@ function _prepareOptions<
   ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"]
 >(
   primaryKeyColumns: Readonly<PrimaryKeyColumns>,
-  options: TableFacetOptions<
+  options: TableLensOptions<
     DB,
     TableName,
     MappedObject,

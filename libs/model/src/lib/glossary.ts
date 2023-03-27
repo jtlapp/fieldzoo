@@ -1,7 +1,7 @@
 import { Type } from "@sinclair/typebox";
 
 import { FieldsOf, SelectivePartial } from "@fieldzoo/generic-types";
-import { KeyedObject } from "@fieldzoo/kysely-facets";
+import { KeyedObject } from "@fieldzoo/kysely-lenses";
 import { SafeValidator } from "@fieldzoo/safe-validator";
 import {
   Nullable,

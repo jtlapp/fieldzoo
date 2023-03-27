@@ -48,9 +48,9 @@ type SelectAllQB<
 >;
 
 /**
- * Options governing QueryFacet behavior.
+ * Options governing QueryLens behavior.
  */
-export interface FacetOptions<
+export interface LensOptions<
   DB,
   TableName extends keyof DB & string,
   InitialQBOutput,
@@ -81,9 +81,9 @@ export interface FacetOptions<
 }
 
 /**
- * Base class for all Kysely facets.
+ * Base class for all Kysely lenses.
  */
-export class QueryFacet<
+export class QueryLens<
   DB,
   TableName extends keyof DB & string,
   InitialQBOutput,
@@ -108,7 +108,7 @@ export class QueryFacet<
   // This lengthy type provides better type assistance messages
   // in VSCode than a dedicated TransformInsertion type would.
   protected readonly transformSelection: NonNullable<
-    FacetOptions<
+    LensOptions<
       DB,
       TableName,
       InitialQBOutput,
@@ -124,15 +124,15 @@ export class QueryFacet<
   readonly #hasInitialSelections: boolean;
 
   /**
-   * Creates a new query facet.
+   * Creates a new query lens.
    * @param db Kysely database instance.
-   * @param tableName Name of the table this facet is for.
-   * @param options Options governing facet behavior.
+   * @param tableName Name of the table this lens is for.
+   * @param options Options governing lens behavior.
    */
   constructor(
     readonly db: Kysely<DB>,
     readonly initialQB: SelectQueryBuilder<DB, TableName, InitialQBOutput>,
-    readonly options: FacetOptions<
+    readonly options: LensOptions<
       DB,
       TableName,
       InitialQBOutput,

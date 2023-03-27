@@ -1,26 +1,26 @@
 /**
- * Tests QueryFacet.selectMany(), QueryFacet.selectOne(), and query filters.
+ * Tests QueryLens.selectMany(), QueryLens.selectOne(), and query filters.
  */
 
 import { Kysely, Selectable, sql } from "kysely";
 
-import { QueryFacet } from "../facets/QueryFacet";
-import { TableFacet } from "../facets/TableFacet";
+import { QueryLens } from "../lenses/QueryLens";
+import { TableLens } from "../lenses/TableLens";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database, Users } from "./utils/test-tables";
-import { UserTableFacetReturningID } from "./utils/test-facets";
+import { UserTableLensReturningID } from "./utils/test-lenses";
 import { POSTS, USERS } from "./utils/test-objects";
 import { ignore } from "./utils/test-utils";
 import { allOf, anyOf } from "../filters/CompoundFilter";
 
 let db: Kysely<Database>;
-let userQueryFacet: QueryFacet<Database, "users", Partial<Selectable<Users>>>;
-let userTableFacet: UserTableFacetReturningID;
+let userQueryLens: QueryLens<Database, "users", Partial<Selectable<Users>>>;
+let userTableLens: UserTableLensReturningID;
 
 beforeAll(async () => {
   db = await createDB();
-  userQueryFacet = new QueryFacet(db, db.selectFrom("users"));
-  userTableFacet = new UserTableFacetReturningID(db);
+  userQueryLens = new QueryLens(db, db.selectFrom("users"));
+  userTableLens = new UserTableLensReturningID(db);
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
@@ -37,7 +37,7 @@ it("selectAllQB() allows for selecting rows", async () => {
     .returningAll()
     .executeTakeFirst())!;
 
-  const readUser1 = await userQueryFacet
+  const readUser1 = await userQueryLens
     .selectAllQB()
     .where("id", "=", user1.id)
     .executeTakeFirst();
@@ -47,17 +47,17 @@ it("selectAllQB() allows for selecting rows", async () => {
 
 describe("selectMany() with simple filters", () => {
   it("selects nothing when nothing matches filter", async () => {
-    await userTableFacet.insert(USERS);
+    await userTableLens.insert(USERS);
 
-    const users = await userQueryFacet.selectMany({ name: "Not There" });
+    const users = await userQueryLens.selectMany({ name: "Not There" });
     expect(users.length).toEqual(0);
   });
 
   it("selects all rows with no filter", async () => {
-    await userTableFacet.insert(USERS);
+    await userTableLens.insert(USERS);
 
     // Test selecting all
-    const users = await userQueryFacet.selectMany({});
+    const users = await userQueryLens.selectMany({});
     expect(users.length).toEqual(USERS.length);
     for (let i = 0; i < USERS.length; i++) {
       expect(users[i].handle).toEqual(USERS[i].handle);
@@ -65,16 +65,16 @@ describe("selectMany() with simple filters", () => {
   });
 
   it("selects with a matching field filter", async () => {
-    await userTableFacet.insert(USERS);
+    await userTableLens.insert(USERS);
 
-    let users = await userQueryFacet.selectMany({
+    let users = await userQueryLens.selectMany({
       name: USERS[0].name,
     });
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
 
-    users = await userQueryFacet.selectMany({
+    users = await userQueryLens.selectMany({
       name: USERS[0].name,
       handle: USERS[2].handle,
     });
@@ -83,23 +83,23 @@ describe("selectMany() with simple filters", () => {
   });
 
   it("selects with a binary operation filter", async () => {
-    await userTableFacet.insert(USERS);
+    await userTableLens.insert(USERS);
 
     // Test selecting by condition (with results)
-    let users = await userQueryFacet.selectMany(["name", "=", USERS[0].name]);
+    let users = await userQueryLens.selectMany(["name", "=", USERS[0].name]);
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[0].handle);
     expect(users[1].handle).toEqual(USERS[2].handle);
 
     // Test selecting by condition (no results)
-    users = await userQueryFacet.selectMany(["name", "=", "nonexistent"]);
+    users = await userQueryLens.selectMany(["name", "=", "nonexistent"]);
     expect(users.length).toEqual(0);
   });
 
   it("selects with a query builder filter", async () => {
-    await userTableFacet.insert(USERS);
+    await userTableLens.insert(USERS);
 
-    const users = await userQueryFacet.selectMany((qb) =>
+    const users = await userQueryLens.selectMany((qb) =>
       qb.where("name", "=", USERS[0].name).orderBy("handle", "desc")
     );
     expect(users.length).toEqual(2);
@@ -108,22 +108,20 @@ describe("selectMany() with simple filters", () => {
   });
 
   it("selects with a query expression filter", async () => {
-    await userTableFacet.insert(USERS);
+    await userTableLens.insert(USERS);
 
-    const users = await userQueryFacet.selectMany(
-      sql`name != ${USERS[0].name}`
-    );
+    const users = await userQueryLens.selectMany(sql`name != ${USERS[0].name}`);
     expect(users.length).toEqual(1);
     expect(users[0].handle).toEqual(USERS[1].handle);
   });
 
   it("selects many using a pre-configured aliased column", async () => {
-    const ids = await userTableFacet.insert(USERS);
-    const facet = new QueryFacet(db, db.selectFrom("users"), {
+    const ids = await userTableLens.insert(USERS);
+    const lens = new QueryLens(db, db.selectFrom("users"), {
       columnAliases: ["handle as h"],
     });
 
-    const users = await facet.selectMany({ name: USERS[0].name });
+    const users = await lens.selectMany({ name: USERS[0].name });
     expect(users).toEqual([
       Object.assign({}, USERS[0], { id: ids[0].id, h: USERS[0].handle }),
       Object.assign({}, USERS[2], { id: ids[2].id, h: USERS[2].handle }),
@@ -131,16 +129,16 @@ describe("selectMany() with simple filters", () => {
   });
 
   it("selects many from a multi-table query, unfiltered", async () => {
-    const postTableFacet = new TableFacet(db, "posts", {
+    const postTableLens = new TableLens(db, "posts", {
       returnColumns: ["id"],
     });
-    const insertReturns = await userTableFacet.insert(USERS);
+    const insertReturns = await userTableLens.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[1].id });
-    const postReturns = await postTableFacet.insert([post0, post1, post2]);
+    const postReturns = await postTableLens.insert([post0, post1, post2]);
 
-    const joinedFacet = new QueryFacet(
+    const joinedLens = new QueryLens(
       db,
       db
         .selectFrom("users")
@@ -148,7 +146,7 @@ describe("selectMany() with simple filters", () => {
         .orderBy("title")
     );
 
-    const userPosts: any[] = await joinedFacet.selectMany({});
+    const userPosts: any[] = await joinedLens.selectMany({});
     for (const userPost of userPosts) {
       delete userPost.createdAt;
     }
@@ -170,15 +168,15 @@ describe("selectMany() with simple filters", () => {
   });
 
   it("selects many from a multi-table query, filtered", async () => {
-    const postTableFacet = new TableFacet(db, "posts", {
+    const postTableLens = new TableLens(db, "posts", {
       returnColumns: ["id"],
     });
-    const userReturns = await userTableFacet.insert(USERS);
+    const userReturns = await userTableLens.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
-    const postReturns = await postTableFacet.insert([post0, post1, post2]);
-    const joinedFacet = new QueryFacet(
+    const postReturns = await postTableLens.insert([post0, post1, post2]);
+    const joinedLens = new QueryLens(
       db,
       db
         .selectFrom("users")
@@ -197,7 +195,7 @@ describe("selectMany() with simple filters", () => {
     ];
 
     // test filtering on a table column
-    const userPosts1: any[] = await joinedFacet.selectMany({
+    const userPosts1: any[] = await joinedLens.selectMany({
       handle: USERS[1].handle,
     });
     for (const userPost of userPosts1) {
@@ -206,7 +204,7 @@ describe("selectMany() with simple filters", () => {
     expect(userPosts1).toEqual(user1Posts);
 
     // test filtering on a joined column
-    const userPosts2: any[] = await joinedFacet.selectMany({
+    const userPosts2: any[] = await joinedLens.selectMany({
       "posts.userId": userReturns[1].id,
     });
     for (const userPost of userPosts2) {
@@ -216,16 +214,16 @@ describe("selectMany() with simple filters", () => {
   });
 
   it("selects many from a pre-selected multi-table query", async () => {
-    const postTableFacet = new TableFacet(db, "posts", {
+    const postTableLens = new TableLens(db, "posts", {
       returnColumns: ["id"],
     });
-    const userReturns = await userTableFacet.insert(USERS);
+    const userReturns = await userTableLens.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
-    const postReturns = await postTableFacet.insert([post0, post1, post2]);
+    const postReturns = await postTableLens.insert([post0, post1, post2]);
 
-    const joinedFacet = new QueryFacet(
+    const joinedLens = new QueryLens(
       db,
       db
         .selectFrom("users")
@@ -235,7 +233,7 @@ describe("selectMany() with simple filters", () => {
     );
 
     // test returning all columns
-    const userPosts1 = await joinedFacet.selectMany({
+    const userPosts1 = await joinedLens.selectMany({
       "posts.userId": userReturns[1].id,
     });
     expect(userPosts1).toEqual([
@@ -253,13 +251,13 @@ describe("selectMany() with simple filters", () => {
 
     ignore("detects type errors", async () => {
       // prettier-ignore
-      (await joinedFacet.selectMany(
+      (await joinedLens.selectMany(
         { "posts.userId": userReturns[1].id }
         // @ts-expect-error - columns not originally selected are not accessible
       ))[0].name;
 
       // prettier-ignore
-      (await joinedFacet.selectMany(
+      (await joinedLens.selectMany(
         { "posts.userId": userReturns[1].id }
         // @ts-expect-error - columns not originally selected are not accessible
       ))[0].userId;
@@ -267,41 +265,41 @@ describe("selectMany() with simple filters", () => {
   });
 
   it("throws on unrecognized filter", async () => {
-    expect(userTableFacet.selectMany("" as any)).rejects.toThrow(
+    expect(userTableLens.selectMany("" as any)).rejects.toThrow(
       "Unrecognized query filter"
     );
   });
 
   ignore("detects selectMany() simple filter type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expressions
-    userQueryFacet.selectMany("name = 'John Doe'");
+    userQueryLens.selectMany("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments
-    userQueryFacet.selectMany("name", "=");
+    userQueryLens.selectMany("name", "=");
     // @ts-expect-error - object filter fields must be valid
-    userQueryFacet.selectMany({ notThere: "xyz" });
+    userQueryLens.selectMany({ notThere: "xyz" });
     // @ts-expect-error - binary op filter fields must be valid
-    userQueryFacet.selectMany(["notThere", "=", "foo"]);
+    userQueryLens.selectMany(["notThere", "=", "foo"]);
     // @ts-expect-error - binary op filter fields must be valid
-    userQueryFacet.selectMany(["users.notThere", "=", "foo"]);
+    userQueryLens.selectMany(["users.notThere", "=", "foo"]);
     // @ts-expect-error - only table columns are accessible unfiltered
-    (await userQueryFacet.selectMany({}))[0].notThere;
+    (await userQueryLens.selectMany({}))[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ object filter
-    (await userQueryFacet.selectMany({ name: "Sue" }))[0].notThere;
+    (await userQueryLens.selectMany({ name: "Sue" }))[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ op filter
-    (await userQueryFacet.selectMany(["name", "=", "Sue"]))[0].notThere;
+    (await userQueryLens.selectMany(["name", "=", "Sue"]))[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ QB filter
-    (await userQueryFacet.selectMany((qb) => qb))[0].notThere;
+    (await userQueryLens.selectMany((qb) => qb))[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ expr filter
-    (await userQueryFacet.selectMany(sql`name = 'Sue'`))[0].notThere;
+    (await userQueryLens.selectMany(sql`name = 'Sue'`))[0].notThere;
   });
 });
 
 describe("selectMany() with compound filters", () => {
   it("selects with allOf()", async () => {
-    //const allOf = userTableFacet.selectFilterMaker().allOf;
-    const userIDs = await userTableFacet.insert(USERS);
+    //const allOf = userTableLens.selectFilterMaker().allOf;
+    const userIDs = await userTableLens.insert(USERS);
 
-    const users = await userQueryFacet.selectMany(
+    const users = await userQueryLens.selectMany(
       allOf({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
     );
     expect(users.length).toEqual(1);
@@ -309,9 +307,9 @@ describe("selectMany() with compound filters", () => {
   });
 
   it("selects with anyOf()", async () => {
-    await userTableFacet.insert(USERS);
+    await userTableLens.insert(USERS);
 
-    const users = await userQueryFacet.selectMany(
+    const users = await userQueryLens.selectMany(
       anyOf({ handle: USERS[0].handle }, ["handle", "=", USERS[2].handle])
     );
     expect(users.length).toEqual(2);
@@ -320,9 +318,9 @@ describe("selectMany() with compound filters", () => {
   });
 
   it("selects with anyOf() and a nested allOf()", async () => {
-    const userIDs = await userTableFacet.insert(USERS);
+    const userIDs = await userTableLens.insert(USERS);
 
-    const users = await userQueryFacet.selectMany(
+    const users = await userQueryLens.selectMany(
       anyOf(
         { handle: USERS[0].handle },
         allOf(["id", ">", userIDs[0].id], (qb) =>
@@ -336,19 +334,19 @@ describe("selectMany() with compound filters", () => {
   });
 
   ignore("detects selectMany() compound filter type errors", async () => {
-    await userQueryFacet.selectMany(
+    await userQueryLens.selectMany(
       // @ts-expect-error - only table columns are accessible via anyOf()
       anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
     );
-    await userQueryFacet.selectMany(
+    await userQueryLens.selectMany(
       // @ts-expect-error - only table columns are accessible via allOf()
       allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
     );
-    await userQueryFacet.selectMany(
+    await userQueryLens.selectMany(
       // @ts-expect-error - only table columns are accessible via anyOf()
       anyOf({ name: "xyz" }, allOf(["notThere", "=", "Sue"]))
     );
-    await userQueryFacet.selectMany(
+    await userQueryLens.selectMany(
       // @ts-expect-error - only table columns are accessible via anyOf()
       allOf({ name: "xyz" }, anyOf(["notThere", "=", "Sue"]))
     );
@@ -357,19 +355,19 @@ describe("selectMany() with compound filters", () => {
 
 describe("selectOne()", () => {
   it("selects the first row with no filter", async () => {
-    await userTableFacet.insert(USERS);
+    await userTableLens.insert(USERS);
 
-    const user = await userQueryFacet.selectOne({});
+    const user = await userQueryLens.selectOne({});
     expect(user?.handle).toEqual(USERS[0].handle);
   });
 
   it("selects the first row with a matching field filter", async () => {
-    await userTableFacet.insert(USERS);
+    await userTableLens.insert(USERS);
 
-    let user = await userQueryFacet.selectOne({ name: USERS[0].name });
+    let user = await userQueryLens.selectOne({ name: USERS[0].name });
     expect(user?.handle).toEqual(USERS[0].handle);
 
-    user = await userQueryFacet.selectOne({
+    user = await userQueryLens.selectOne({
       name: USERS[0].name,
       handle: USERS[2].handle,
     });
@@ -377,65 +375,65 @@ describe("selectOne()", () => {
   });
 
   it("selects the first row with a binary operation filter", async () => {
-    await userTableFacet.insert(USERS);
+    await userTableLens.insert(USERS);
 
     // Test selecting by condition (with result)
-    let user = await userQueryFacet.selectOne(["name", "=", USERS[0].name]);
+    let user = await userQueryLens.selectOne(["name", "=", USERS[0].name]);
     expect(user?.handle).toEqual(USERS[0].handle);
 
     // Test selecting by condition (no result)
-    user = await userQueryFacet.selectOne(["name", "=", "nonexistent"]);
+    user = await userQueryLens.selectOne(["name", "=", "nonexistent"]);
     expect(user).toBeNull();
   });
 
   it("selects the first row with a query builder filter", async () => {
-    await userTableFacet.insert(USERS);
+    await userTableLens.insert(USERS);
 
-    const user = await userQueryFacet.selectOne((qb) =>
+    const user = await userQueryLens.selectOne((qb) =>
       qb.where("name", "=", USERS[0].name).orderBy("handle", "desc")
     );
     expect(user?.handle).toEqual(USERS[2].handle);
   });
 
   it("selects the first row with a query expression filter", async () => {
-    await userTableFacet.insert(USERS);
+    await userTableLens.insert(USERS);
 
-    const user = await userQueryFacet.selectOne(sql`name != ${USERS[0].name}`);
+    const user = await userQueryLens.selectOne(sql`name != ${USERS[0].name}`);
     expect(user?.handle).toEqual(USERS[1].handle);
   });
 
   it("selects the first row with a compound filter", async () => {
-    const userIDs = await userTableFacet.insert(USERS);
+    const userIDs = await userTableLens.insert(USERS);
 
-    const user = await userQueryFacet.selectOne(
+    const user = await userQueryLens.selectOne(
       allOf({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
     );
     expect(user?.handle).toEqual(USERS[2].handle);
   });
 
   it("selects one using a pre-configured aliased column", async () => {
-    const ids = await userTableFacet.insert(USERS);
-    const facet = new QueryFacet(db, db.selectFrom("users"), {
+    const ids = await userTableLens.insert(USERS);
+    const lens = new QueryLens(db, db.selectFrom("users"), {
       columnAliases: ["handle as h"],
     });
 
-    const user = await facet.selectOne({ handle: USERS[0].handle });
+    const user = await lens.selectOne({ handle: USERS[0].handle });
     expect(user).toEqual(
       Object.assign({}, USERS[0], { id: ids[0].id, h: USERS[0].handle })
     );
   });
 
   it("selects one from a multi-table query, unfiltered", async () => {
-    const postTableFacet = new TableFacet(db, "posts", {
+    const postTableLens = new TableLens(db, "posts", {
       returnColumns: ["id"],
     });
-    const insertReturns = await userTableFacet.insert(USERS);
+    const insertReturns = await userTableLens.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: insertReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: insertReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: insertReturns[1].id });
-    const postReturns = await postTableFacet.insert([post0, post1, post2]);
+    const postReturns = await postTableLens.insert([post0, post1, post2]);
 
-    const joinedFacet = new QueryFacet(
+    const joinedLens = new QueryLens(
       db,
       db
         .selectFrom("users")
@@ -443,7 +441,7 @@ describe("selectOne()", () => {
         .orderBy("title", "desc")
     );
 
-    const userPost: any = await joinedFacet.selectOne({});
+    const userPost: any = await joinedLens.selectOne({});
     delete userPost.createdAt;
 
     expect(userPost).toEqual(
@@ -455,15 +453,15 @@ describe("selectOne()", () => {
   });
 
   it("selects one from a multi-table query, filtered", async () => {
-    const postTableFacet = new TableFacet(db, "posts", {
+    const postTableLens = new TableLens(db, "posts", {
       returnColumns: ["id"],
     });
-    const userReturns = await userTableFacet.insert(USERS);
+    const userReturns = await userTableLens.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
-    const postReturns = await postTableFacet.insert([post0, post1, post2]);
-    const joinedFacet = new QueryFacet(
+    const postReturns = await postTableLens.insert([post0, post1, post2]);
+    const joinedLens = new QueryLens(
       db,
       db
         .selectFrom("users")
@@ -472,7 +470,7 @@ describe("selectOne()", () => {
     );
 
     // test filtering on a table column
-    const userPost: any = await joinedFacet.selectOne({
+    const userPost: any = await joinedLens.selectOne({
       handle: USERS[1].handle,
     });
     delete userPost.createdAt;
@@ -484,7 +482,7 @@ describe("selectOne()", () => {
     );
 
     // test filtering on a joined column
-    const userPost3: any = await joinedFacet.subselectOne({
+    const userPost3: any = await joinedLens.subselectOne({
       "posts.id": postReturns[0].id,
     });
     delete userPost3.createdAt;
@@ -497,16 +495,16 @@ describe("selectOne()", () => {
   });
 
   it("selects one from a pre-selected multi-table query", async () => {
-    const postTableFacet = new TableFacet(db, "posts", {
+    const postTableLens = new TableLens(db, "posts", {
       returnColumns: ["id"],
     });
-    const userReturns = await userTableFacet.insert(USERS);
+    const userReturns = await userTableLens.insert(USERS);
     const post0 = Object.assign({}, POSTS[0], { userId: userReturns[0].id });
     const post1 = Object.assign({}, POSTS[1], { userId: userReturns[1].id });
     const post2 = Object.assign({}, POSTS[2], { userId: userReturns[1].id });
-    const postReturns = await postTableFacet.insert([post0, post1, post2]);
+    const postReturns = await postTableLens.insert([post0, post1, post2]);
 
-    const joinedFacet = new QueryFacet(
+    const joinedLens = new QueryLens(
       db,
       db
         .selectFrom("users")
@@ -516,7 +514,7 @@ describe("selectOne()", () => {
     );
 
     // test returning all columns
-    const userPosts1 = await joinedFacet.selectOne({
+    const userPosts1 = await joinedLens.selectOne({
       "posts.userId": userReturns[1].id,
     });
     expect(userPosts1).toEqual({
@@ -527,13 +525,13 @@ describe("selectOne()", () => {
 
     ignore("detects type errors", async () => {
       // prettier-ignore
-      (await joinedFacet.selectOne(
+      (await joinedLens.selectOne(
         { "posts.userId": userReturns[1].id }
         // @ts-expect-error - columns not originally selected are not accessible
       ))!.name;
 
       // prettier-ignore
-      (await joinedFacet.selectOne(
+      (await joinedLens.selectOne(
         { "posts.userId": userReturns[1].id }
         // @ts-expect-error - columns not originally selected are not accessible
       ))!.userId;
@@ -541,45 +539,45 @@ describe("selectOne()", () => {
   });
 
   it("throws on unrecognized filter", async () => {
-    expect(userTableFacet.selectOne("" as any)).rejects.toThrow(
+    expect(userTableLens.selectOne("" as any)).rejects.toThrow(
       "Unrecognized query filter"
     );
   });
 
   ignore("detects selectOne() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expression filters
-    userQueryFacet.selectOne("name = 'John Doe'");
+    userQueryLens.selectOne("name = 'John Doe'");
     // @ts-expect-error - doesn't allow only two arguments of a binary op
-    userQueryFacet.selectOne(["name", "="]);
+    userQueryLens.selectOne(["name", "="]);
     // @ts-expect-error - object filter fields must be valid
-    userQueryFacet.selectOne({ notThere: "xyz" });
+    userQueryLens.selectOne({ notThere: "xyz" });
     // @ts-expect-error - binary op filter fields must be valid
-    userQueryFacet.selectOne(["notThere", "=", "foo"]);
+    userQueryLens.selectOne(["notThere", "=", "foo"]);
     // @ts-expect-error - binary op filter fields must be valid
-    userQueryFacet.selectOne(["users.notThere", "=", "foo"]);
+    userQueryLens.selectOne(["users.notThere", "=", "foo"]);
     // @ts-expect-error - only table columns are accessible unfiltered
-    (await userQueryFacet.selectOne({})).notThere;
+    (await userQueryLens.selectOne({})).notThere;
     // @ts-expect-error - only table columns are accessible w/ object filter
-    (await userQueryFacet.selectOne({ name: "Sue" })).notThere;
+    (await userQueryLens.selectOne({ name: "Sue" })).notThere;
     // @ts-expect-error - only table columns are accessible w/ op filter
-    (await userQueryFacet.selectOne(["name", "=", "Sue"])).notThere;
+    (await userQueryLens.selectOne(["name", "=", "Sue"])).notThere;
     // @ts-expect-error - only table columns are accessible w/ QB filter
-    (await userQueryFacet.selectOne((qb) => qb)).notThere;
+    (await userQueryLens.selectOne((qb) => qb)).notThere;
     // @ts-expect-error - only table columns are accessible w/ expr filter
-    (await userQueryFacet.selectOne(sql`name = 'Sue'`)).notThere;
-    await userQueryFacet.selectOne(
+    (await userQueryLens.selectOne(sql`name = 'Sue'`)).notThere;
+    await userQueryLens.selectOne(
       // @ts-expect-error - only table columns are accessible via anyOf()
       anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
     );
-    await userQueryFacet.selectOne(
+    await userQueryLens.selectOne(
       // @ts-expect-error - only table columns are accessible via allOf()
       allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
     );
-    await userQueryFacet.selectOne(
+    await userQueryLens.selectOne(
       // @ts-expect-error - only table columns are accessible via anyOf()
       anyOf({ name: "xyz" }, allOf(["notThere", "=", "Sue"]))
     );
-    await userQueryFacet.selectOne(
+    await userQueryLens.selectOne(
       // @ts-expect-error - only table columns are accessible via anyOf()
       allOf({ name: "xyz" }, anyOf(["notThere", "=", "Sue"]))
     );

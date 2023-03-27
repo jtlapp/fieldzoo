@@ -1,6 +1,6 @@
 import { Insertable, Kysely, Selectable } from "kysely";
 
-import { TableFacet } from "../facets/TableFacet";
+import { TableLens } from "../lenses/TableLens";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database, Users } from "./utils/test-tables";
 import {
@@ -35,7 +35,7 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 describe("transforms between inputs and outputs", () => {
-  class TestPassThruFacet extends TableFacet<Database, "users"> {
+  class TestPassThruLens extends TableLens<Database, "users"> {
     constructor(db: Kysely<Database>) {
       super(db, "users");
     }
@@ -75,7 +75,7 @@ describe("transforms between inputs and outputs", () => {
     }
   }
 
-  class TestTransformFacet extends TableFacet<
+  class TestTransformLens extends TableLens<
     Database,
     "users",
     SelectedUser,
@@ -189,40 +189,40 @@ describe("transforms between inputs and outputs", () => {
   }
 
   it("transforms insertions", () => {
-    const testPassThruFacet = new TestPassThruFacet(db);
-    testPassThruFacet.testTransformInsertion();
+    const testPassThruLens = new TestPassThruLens(db);
+    testPassThruLens.testTransformInsertion();
 
-    const testTransformFacet = new TestTransformFacet(db);
-    testTransformFacet.testTransformInsertion();
+    const testTransformLens = new TestTransformLens(db);
+    testTransformLens.testTransformInsertion();
   });
 
   it("transforms updates", () => {
-    const testPassThruFacet = new TestPassThruFacet(db);
-    testPassThruFacet.testTransformUpdater();
+    const testPassThruLens = new TestPassThruLens(db);
+    testPassThruLens.testTransformUpdater();
 
-    const testTransformFacet = new TestTransformFacet(db);
-    testTransformFacet.testTransformUpdater();
+    const testTransformLens = new TestTransformLens(db);
+    testTransformLens.testTransformUpdater();
   });
 
   it("transforms insert returns", () => {
-    const testPassThruFacet = new TestPassThruFacet(db);
-    testPassThruFacet.testTransformInsertReturn();
+    const testPassThruLens = new TestPassThruLens(db);
+    testPassThruLens.testTransformInsertReturn();
 
-    const testTransformFacet = new TestTransformFacet(db);
-    testTransformFacet.testTransformInsertReturn();
+    const testTransformLens = new TestTransformLens(db);
+    testTransformLens.testTransformInsertReturn();
   });
 
   it("transforms update returns", () => {
-    const testPassThruFacet = new TestPassThruFacet(db);
-    testPassThruFacet.testTransformUpdaterReturn();
+    const testPassThruLens = new TestPassThruLens(db);
+    testPassThruLens.testTransformUpdaterReturn();
 
-    const testTransformFacet = new TestTransformFacet(db);
-    testTransformFacet.testTransformUpdaterReturn();
+    const testTransformLens = new TestTransformLens(db);
+    testTransformLens.testTransformUpdaterReturn();
   });
 });
 
 ignore("detects invalid return column configurations", () => {
-  new TableFacet<
+  new TableLens<
     Database,
     "users",
     Selectable<Users>,
@@ -232,7 +232,7 @@ ignore("detects invalid return column configurations", () => {
     // @ts-expect-error - invalid return column configuration
   >(db, "users", { returnColumns: ["notThere"] });
 
-  new TableFacet<
+  new TableLens<
     Database,
     "users",
     Selectable<Users>,
@@ -242,7 +242,7 @@ ignore("detects invalid return column configurations", () => {
     ["notThere"]
   >(db, "users", {});
 
-  new TableFacet<
+  new TableLens<
     Database,
     "users",
     Selectable<Users>,
@@ -252,7 +252,7 @@ ignore("detects invalid return column configurations", () => {
     ["name", "notThere"]
   >(db, "users", {});
 
-  new TableFacet<
+  new TableLens<
     Database,
     "users",
     Selectable<Users>,
@@ -262,7 +262,7 @@ ignore("detects invalid return column configurations", () => {
     // @ts-expect-error - invalid return column configuration
   >(db, "users", { returnColumns: [""] });
 
-  new TableFacet<
+  new TableLens<
     Database,
     "users",
     Selectable<Users>,
@@ -272,10 +272,10 @@ ignore("detects invalid return column configurations", () => {
     // @ts-expect-error - invalid return column configuration
   >(db, "users", { returnColumns: ["notThere"] });
 
-  class TestFacet6<
-    // Be sure the following is the same as in TableFacet
+  class TestLens6<
+    // Be sure the following is the same as in TableLens
     ReturnColumns extends (keyof Selectable<Users> & string)[] = []
-  > extends TableFacet<
+  > extends TableLens<
     Database,
     "users",
     Selectable<Users>,
@@ -284,5 +284,5 @@ ignore("detects invalid return column configurations", () => {
     ReturnColumns
   > {}
   // @ts-expect-error - invalid return column configuration
-  new TestFacet6(db, "users", { returnColumns: ["notThere"] });
+  new TestLens6(db, "users", { returnColumns: ["notThere"] });
 });

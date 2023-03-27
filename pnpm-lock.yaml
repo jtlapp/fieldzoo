@@ -146,7 +146,7 @@ importers:
     specifiers:
       '@fieldzoo/app-config': workspace:*
       '@fieldzoo/database-config': workspace:*
-      '@fieldzoo/kysely-facets': workspace:*
+      '@fieldzoo/kysely-lenses': workspace:*
       '@fieldzoo/model': workspace:*
       '@fieldzoo/postgres-utils': workspace:*
       '@fieldzoo/safe-validator': workspace:*
@@ -165,7 +165,7 @@ importers:
     dependencies:
       '@fieldzoo/app-config': link:../app-config
       '@fieldzoo/database-config': link:../../utils/database-config
-      '@fieldzoo/kysely-facets': link:../../utils/kysely-facets
+      '@fieldzoo/kysely-lenses': link:../../utils/kysely-lenses
       '@fieldzoo/model': link:../model
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
       dotenv: 16.0.3
@@ -187,7 +187,7 @@ importers:
     specifiers:
       '@fieldzoo/freeze-field': workspace:*
       '@fieldzoo/generic-types': workspace:*
-      '@fieldzoo/kysely-facets': workspace:*
+      '@fieldzoo/kysely-lenses': workspace:*
       '@fieldzoo/safe-validator': workspace:*
       '@fieldzoo/typebox-types': workspace:*
       '@sinclair/typebox': ^0.25.24
@@ -206,7 +206,7 @@ importers:
       '@fieldzoo/typebox-types': link:../../utils/typebox-types
       '@sinclair/typebox': 0.25.24
     devDependencies:
-      '@fieldzoo/kysely-facets': link:../../utils/kysely-facets
+      '@fieldzoo/kysely-lenses': link:../../utils/kysely-lenses
       '@types/jest': 29.4.0
       '@types/node': 18.14.1
       eslint-config-custom: link:../../config/eslint-config-custom
@@ -376,7 +376,7 @@ importers:
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
 
-  utils/kysely-facets:
+  utils/kysely-lenses:
     specifiers:
       '@types/better-sqlite3': ^7.6.3
       '@types/jest': ^29.4.0

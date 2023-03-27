@@ -8,24 +8,24 @@ import {
   InsertResult,
 } from "kysely";
 
-import { FacetOptions, QueryFacet } from "./QueryFacet";
+import { LensOptions, QueryLens } from "./QueryLens";
 import { QueryFilter, applyQueryFilter } from "../filters/QueryFilter";
 import { EmptyObject, ObjectWithKeys } from "../lib/type-utils";
 
-// TODO: don't store options in facet, instead extracting needed
+// TODO: don't store options in lens, instead extracting needed
 //  values; otherwise I'd have to store a separate copy of each kind of
 //  options object for access without stepping on one another.
 // TODO: Configure type of returned counts (e.g. number vs bigint)
 
 type DeleteQB<DB, TableName extends keyof DB & string> = ReturnType<
-  TableFacet<DB, TableName, any>["deleteQB"]
+  TableLens<DB, TableName, any>["deleteQB"]
 >;
 type UpdateQB<DB, TableName extends keyof DB & string> = ReturnType<
-  TableFacet<DB, TableName, any>["updateQB"]
+  TableLens<DB, TableName, any>["updateQB"]
 >;
 
 /**
- * Options governing TableFacet behavior.
+ * Options governing TableLens behavior.
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TableName Name of the table.
  * @typeparam SelectedObject Type of objects returned by select queries.
@@ -36,7 +36,7 @@ type UpdateQB<DB, TableName extends keyof DB & string> = ReturnType<
  *  all columns; `[]` returns none and is the default.
  * @typeparam ReturnedObject Objects to return from inserts and updates.
  */
-export interface TableFacetOptions<
+export interface TableLensOptions<
   DB,
   TableName extends keyof DB & string,
   SelectedObject,
@@ -44,7 +44,7 @@ export interface TableFacetOptions<
   UpdaterObject,
   ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"],
   ReturnedObject
-> extends FacetOptions<DB, TableName, EmptyObject, [], SelectedObject> {
+> extends LensOptions<DB, TableName, EmptyObject, [], SelectedObject> {
   /** Transformation to apply to inserted objects before insertion. */
   readonly insertTransform?: (obj: InsertedObject) => Insertable<DB[TableName]>;
 
@@ -73,7 +73,7 @@ export interface TableFacetOptions<
 }
 
 /**
- * A facet providing access to a single table.
+ * A lens providing access to a single table.
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TableName Name of the table.
  * @typeparam SelectedObject Type of objects returned by select queries.
@@ -84,7 +84,7 @@ export interface TableFacetOptions<
  *  all columns; `[]` returns none and is the default.
  * @typeparam ReturnedObject Objects to return from inserts and updates.
  */
-export class TableFacet<
+export class TableLens<
   DB,
   TableName extends keyof DB & string,
   SelectedObject = Selectable<DB[TableName]>,
@@ -96,21 +96,21 @@ export class TableFacet<
   ReturnedObject = ReturnColumns extends ["*"]
     ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-> extends QueryFacet<DB, TableName, EmptyObject, [], SelectedObject> {
+> extends QueryLens<DB, TableName, EmptyObject, [], SelectedObject> {
   /** Columns to return from the table on insert or update. */
   protected returnColumns: (keyof Selectable<DB[TableName]> & string)[] | ["*"];
 
   /**
-   * Constructs a new table facet.
+   * Constructs a new table lens.
    * @param db The Kysely database.
    * @param tableName The name of the table.
-   * @param options Options governing facet behavior. `returnColumns`
+   * @param options Options governing lens behavior. `returnColumns`
    *  defaults to returning no columns.
    */
   constructor(
     db: Kysely<DB>,
     readonly tableName: TableName,
-    readonly options: TableFacetOptions<
+    readonly options: TableLensOptions<
       DB,
       TableName,
       SelectedObject,
@@ -310,7 +310,7 @@ export class TableFacet<
   // This lengthy type provides better type assistance messages
   // in VSCode than a dedicated TransformInsertion type would.
   protected transformInsertion: NonNullable<
-    TableFacetOptions<
+    TableLensOptions<
       DB,
       TableName,
       SelectedObject,
@@ -347,7 +347,7 @@ export class TableFacet<
   // This lengthy type provides better type assistance messages
   // in VSCode than a dedicated TransformInsertion type would.
   protected transformInsertReturn: NonNullable<
-    TableFacetOptions<
+    TableLensOptions<
       DB,
       TableName,
       SelectedObject,
@@ -386,7 +386,7 @@ export class TableFacet<
   // This lengthy type provides better type assistance messages
   // in VSCode than a dedicated TransformInsertion type would.
   protected transformUpdater: NonNullable<
-    TableFacetOptions<
+    TableLensOptions<
       DB,
       TableName,
       SelectedObject,

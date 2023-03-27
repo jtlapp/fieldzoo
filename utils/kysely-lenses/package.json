@@ -1,5 +1,5 @@
 {
-  "name": "@fieldzoo/kysely-facets",
+  "name": "@fieldzoo/kysely-lenses",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",

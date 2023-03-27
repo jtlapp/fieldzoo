@@ -14,7 +14,7 @@ import {
   SelectableColumn,
   SelectableColumnTuple,
 } from "../lib/type-utils";
-import { TableFacetOptions, TableFacet } from "./TableFacet";
+import { TableLensOptions, TableLens } from "./TableLens";
 
 /** Default key columns */
 const DEFAULT_KEY = ["id"] as const;
@@ -42,7 +42,7 @@ export interface KeyedObject<T, KA extends (keyof Selectable<T> & string)[]> {
 }
 
 /**
- * Facet for a table with compound primary key.
+ * Lens for a table with compound primary key.
  * @typeparam DB Interface whose fields are table names defining tables.
  * @typeparam TableName Name of the table.
  * @typeparam PrimaryKeyColumns Arrayof names of the primary key columns.
@@ -54,7 +54,7 @@ export interface KeyedObject<T, KA extends (keyof Selectable<T> & string)[]> {
  *  all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
  * @typeparam ReturnedObject Objects to return from inserts and updates.
  */
-export class KeyedTableFacet<
+export class KeyedTableLens<
   DB,
   TableName extends keyof DB & string,
   PrimaryKeyColumns extends SelectableColumnTuple<DB[TableName]> = [
@@ -72,7 +72,7 @@ export class KeyedTableFacet<
   ReturnedObject = ReturnColumns extends ["*"]
     ? Selectable<DB[TableName]>
     : ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-> extends TableFacet<
+> extends TableLens<
   DB,
   TableName,
   SelectedObject,
@@ -84,19 +84,19 @@ export class KeyedTableFacet<
   // TODO: have options.returnColumns default to ["id"]
 
   /**
-   * Constructs a new keyed table facet.
+   * Constructs a new keyed table lens.
    * @param db The Kysely database.
    * @param tableName The name of the table.
    * @param primaryKeyColumns The names of the primary key columns,
    *  expressed as a tuplet. Defaults to `["id"]`.
-   * @param options Options governing facet behavior. `returnColumns`
+   * @param options Options governing lens behavior. `returnColumns`
    *  defaults to returning the key columns.
    */
   constructor(
     db: Kysely<DB>,
     tableName: TableName,
     readonly primaryKeyColumns: Readonly<PrimaryKeyColumns> = DEFAULT_KEY as any,
-    options: TableFacetOptions<
+    options: TableLensOptions<
       DB,
       TableName,
       SelectedObject,
@@ -230,7 +230,7 @@ function _prepareOptions<
   ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"],
   ReturnedObject
 >(
-  options: TableFacetOptions<
+  options: TableLensOptions<
     DB,
     TableName,
     SelectedObject,

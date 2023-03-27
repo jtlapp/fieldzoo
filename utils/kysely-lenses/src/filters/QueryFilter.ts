@@ -13,7 +13,7 @@ import {
   WhereInterface,
 } from "kysely";
 
-import { QueryFacet } from "../facets/QueryFacet";
+import { QueryLens } from "../lenses/QueryLens";
 import { AppliedFilter } from "./AppliedFilter";
 
 type AnyWhereInterface = WhereInterface<any, any>;
@@ -74,7 +74,7 @@ export type QueryExpressionFilter = Expression<any>;
 /**
  * Returns a query builder that constrains the provided query builder
  * according to the provided query filter.
- * @param base The Kysely facet that is used to create references.
+ * @param base The Kysely lens that is used to create references.
  * @param filter The query filter.
  * @returns A function that takes a query builder and returns a query
  * builder that is constrained according to the provided query filter.
@@ -85,7 +85,7 @@ export function applyQueryFilter<
   QB extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TableName>
 >(
-  base: QueryFacet<DB, TableName, any, any>,
+  base: QueryLens<DB, TableName, any, any>,
   filter: QueryFilter<DB, TableName, QB, RE>
 ): (qb: AnyWhereInterface) => QB {
   // Process a query builder filter.

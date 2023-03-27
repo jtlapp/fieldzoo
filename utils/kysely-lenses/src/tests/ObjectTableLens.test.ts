@@ -3,7 +3,7 @@ import { Kysely } from "kysely";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database, Users } from "./utils/test-tables";
 import { USERS, insertedUser1 } from "./utils/test-objects";
-import { KeyedObject, KeyedObjectFacet } from "../facets/KeyedObjectFacet";
+import { KeyedObject, ObjectTableLens } from "../lenses/ObjectTableLens";
 
 let db: Kysely<Database>;
 
@@ -27,7 +27,7 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
     }
   }
 
-  const keyedUserFacet = new KeyedObjectFacet<Database, "users", KeyedUser>(
+  const keyedUserLens = new ObjectTableLens<Database, "users", KeyedUser>(
     db,
     "users",
     ["id"]
@@ -40,7 +40,7 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
     USERS[0].handle,
     USERS[0].email
   );
-  const updateReturn1 = await keyedUserFacet.save(userWithID);
+  const updateReturn1 = await keyedUserLens.save(userWithID);
   expect(updateReturn1).toEqual(null);
 
   // test inserting a user
@@ -50,12 +50,12 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
     USERS[0].handle,
     USERS[0].email
   );
-  const insertReturn = (await keyedUserFacet.save(insertedUser))!;
+  const insertReturn = (await keyedUserLens.save(insertedUser))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).toBeGreaterThan(0);
 
   // test getting a user by ID
-  const selectedUser1 = await keyedUserFacet.selectByKey(insertReturn.id);
+  const selectedUser1 = await keyedUserLens.selectByKey(insertReturn.id);
   expect(selectedUser1).toEqual(insertReturn);
   expect(selectedUser1?.id).toEqual(insertReturn.id);
 
@@ -66,15 +66,15 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
     selectedUser1!.handle,
     selectedUser1!.email
   );
-  const updateReturn = await keyedUserFacet.save(updaterUser);
+  const updateReturn = await keyedUserLens.save(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
-  const selectedUser2 = await keyedUserFacet.selectByKey(insertReturn.id);
+  const selectedUser2 = await keyedUserLens.selectByKey(insertReturn.id);
   expect(selectedUser2).toEqual(updateReturn);
 
   // test deleting a user
-  const deleted = await keyedUserFacet.deleteByKey(insertReturn.id);
+  const deleted = await keyedUserLens.deleteByKey(insertReturn.id);
   expect(deleted).toEqual(true);
-  const selectedUser3 = await keyedUserFacet.selectByKey(insertReturn.id);
+  const selectedUser3 = await keyedUserLens.selectByKey(insertReturn.id);
   expect(selectedUser3).toEqual(null);
 });
 
@@ -101,7 +101,7 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
     };
   };
 
-  const keyedUserFacet = new KeyedObjectFacet(db, "users", ["id"], {
+  const keyedUserLens = new ObjectTableLens(db, "users", ["id"], {
     insertTransform,
     insertReturnTransform: (user, returns) => {
       return new KeyedUser(
@@ -129,7 +129,7 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
   });
 
   // test updating a non-existent user
-  const updateReturn1 = await keyedUserFacet.save(
+  const updateReturn1 = await keyedUserLens.save(
     new KeyedUser(
       1,
       insertedUser1.firstName,
@@ -148,12 +148,12 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
     insertedUser1.handle,
     insertedUser1.email
   );
-  const insertReturn = (await keyedUserFacet.save(insertedUser))!;
+  const insertReturn = (await keyedUserLens.save(insertedUser))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.serialNo).toBeGreaterThan(0);
 
   // test getting a user by ID
-  const selectedUser1 = await keyedUserFacet.selectByKey(insertReturn.serialNo);
+  const selectedUser1 = await keyedUserLens.selectByKey(insertReturn.serialNo);
   expect(selectedUser1).toEqual(insertReturn);
   expect(selectedUser1?.serialNo).toEqual(insertReturn.serialNo);
 
@@ -165,14 +165,14 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
     selectedUser1!.handle,
     selectedUser1!.email
   );
-  const updateReturn = await keyedUserFacet.save(updaterUser);
+  const updateReturn = await keyedUserLens.save(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
-  const selectedUser2 = await keyedUserFacet.selectByKey(insertReturn.serialNo);
+  const selectedUser2 = await keyedUserLens.selectByKey(insertReturn.serialNo);
   expect(selectedUser2).toEqual(updateReturn);
 
   // test deleting a user
-  const deleted = await keyedUserFacet.deleteByKey(insertReturn.serialNo);
+  const deleted = await keyedUserLens.deleteByKey(insertReturn.serialNo);
   expect(deleted).toEqual(true);
-  const selectedUser3 = await keyedUserFacet.selectByKey(insertReturn.serialNo);
+  const selectedUser3 = await keyedUserLens.selectByKey(insertReturn.serialNo);
   expect(selectedUser3).toEqual(null);
 });

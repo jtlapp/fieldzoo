@@ -1,9 +1,9 @@
 import { Insertable, Kysely, Selectable } from "kysely";
 
-import { TableFacet } from "../../facets/TableFacet";
+import { TableLens } from "../../lenses/TableLens";
 import { Database, Users } from "./test-tables";
 
-export class UserTableFacetReturningDefault extends TableFacet<
+export class UserTableLensReturningDefault extends TableLens<
   Database,
   "users",
   Selectable<Users>,
@@ -15,7 +15,7 @@ export class UserTableFacetReturningDefault extends TableFacet<
   }
 }
 
-export class UserTableFacetReturningNothing extends TableFacet<
+export class UserTableLensReturningNothing extends TableLens<
   Database,
   "users",
   Selectable<Users>,
@@ -28,7 +28,7 @@ export class UserTableFacetReturningNothing extends TableFacet<
   }
 }
 
-export class UserTableFacetReturningID extends TableFacet<
+export class UserTableLensReturningID extends TableLens<
   Database,
   "users",
   Selectable<Users>,
@@ -41,7 +41,7 @@ export class UserTableFacetReturningID extends TableFacet<
   }
 }
 
-export class UserTableFacetReturningIDAndHandle extends TableFacet<
+export class UserTableLensReturningIDAndHandle extends TableLens<
   Database,
   "users",
   Selectable<Users>,
@@ -54,7 +54,7 @@ export class UserTableFacetReturningIDAndHandle extends TableFacet<
   }
 }
 
-export class UserTableFacetReturningAll extends TableFacet<
+export class UserTableLensReturningAll extends TableLens<
   Database,
   "users",
   Selectable<Users>,

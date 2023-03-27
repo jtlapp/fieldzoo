@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { User, UserID } from "@fieldzoo/model";
-import { KeyedObjectFacet } from "@fieldzoo/kysely-facets";
+import { ObjectTableLens } from "@fieldzoo/kysely-lenses";
 
 import { Database } from "../tables/current-tables";
 
@@ -9,14 +9,14 @@ import { Database } from "../tables/current-tables";
  * Repository for persisting users.
  */
 export class UserRepo {
-  readonly #tableFacet: KeyedObjectFacet<Database, "users", User>;
+  readonly #tableLens: ObjectTableLens<Database, "users", User>;
 
   static #returnTransform = (user: User, returns: any) => {
     return new User({ ...user, id: returns.id as UserID }, true);
   };
 
   constructor(readonly db: Kysely<Database>) {
-    this.#tableFacet = new KeyedObjectFacet(db, "users", ["id"], {
+    this.#tableLens = new ObjectTableLens(db, "users", ["id"], {
       insertReturnTransform: UserRepo.#returnTransform,
       updateReturnTransform: UserRepo.#returnTransform,
       selectTransform: (row) =>
@@ -30,7 +30,7 @@ export class UserRepo {
    * @returns true if the user was deleted, false if the user was not found.
    */
   async deleteById(id: UserID): Promise<boolean> {
-    return this.#tableFacet.deleteByKey(id);
+    return this.#tableLens.deleteByKey(id);
   }
 
   /**
@@ -39,7 +39,7 @@ export class UserRepo {
    * @returns the user, or null if the user was not found.
    */
   async getByID(id: UserID): Promise<User | null> {
-    return this.#tableFacet.selectByKey(id);
+    return this.#tableLens.selectByKey(id);
   }
 
   /**
@@ -49,6 +49,6 @@ export class UserRepo {
    * @returns the user, or null if the user-to-update was not found.
    */
   async store(user: User): Promise<User | null> {
-    return this.#tableFacet.save(user);
+    return this.#tableLens.save(user);
   }
 }

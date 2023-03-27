@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { Glossary, GlossaryID, UserID } from "@fieldzoo/model";
-import { KeyedObjectFacet } from "@fieldzoo/kysely-facets";
+import { ObjectTableLens } from "@fieldzoo/kysely-lenses";
 
 import { Database } from "../tables/current-tables";
 import { randomUUID } from "crypto";
@@ -10,7 +10,7 @@ import { randomUUID } from "crypto";
  * Repository for persisting glossaries.
  */
 export class GlossaryRepo {
-  readonly #tableFacet: KeyedObjectFacet<
+  readonly #tableLens: ObjectTableLens<
     Database,
     "glossaries",
     Glossary,
@@ -25,7 +25,7 @@ export class GlossaryRepo {
   };
 
   constructor(readonly db: Kysely<Database>) {
-    this.#tableFacet = new KeyedObjectFacet(db, "glossaries", ["uuid"], {
+    this.#tableLens = new ObjectTableLens(db, "glossaries", ["uuid"], {
       insertTransform: (glossary) => ({
         ...glossary,
         uuid: randomUUID(),
@@ -52,7 +52,7 @@ export class GlossaryRepo {
    *  was not found.
    */
   async deleteById(id: GlossaryID): Promise<boolean> {
-    return this.#tableFacet.deleteByKey(id);
+    return this.#tableLens.deleteByKey(id);
   }
 
   /**
@@ -61,7 +61,7 @@ export class GlossaryRepo {
    * @returns the glossary, or null if the glossary was not found.
    */
   async getByID(id: GlossaryID): Promise<Glossary | null> {
-    return this.#tableFacet.selectByKey(id);
+    return this.#tableLens.selectByKey(id);
   }
 
   /**
@@ -71,6 +71,6 @@ export class GlossaryRepo {
    * @returns the glossary, or null if the glossary-to-update was not found.
    */
   async store(glossary: Glossary): Promise<Glossary | null> {
-    return this.#tableFacet.save(glossary);
+    return this.#tableLens.save(glossary);
   }
 }
