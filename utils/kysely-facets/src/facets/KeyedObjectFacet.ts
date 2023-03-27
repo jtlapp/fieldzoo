@@ -150,23 +150,30 @@ function _prepareOptions<
     MappedObject
   >
 ) {
-  const returnTransform = (
-    obj: MappedObject,
-    returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
-  ) => {
-    return { ...obj, ...returns };
-  };
-
-  return {
-    insertTransform: (obj: MappedObject) => {
+  const insertTransform =
+    options.insertTransform ??
+    ((obj: MappedObject) => {
       const insertion = { ...obj };
       primaryKeyColumns.forEach(
         (column) => delete insertion[column as keyof MappedObject]
       );
       return insertion;
-    },
-    insertReturnTransform: returnTransform,
-    updateReturnTransform: returnTransform,
+    });
+  const insertReturnTransform =
+    options.insertReturnTransform ??
+    ((
+      obj: MappedObject,
+      returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
+    ) => {
+      return { ...obj, ...returns };
+    });
+
+  return {
+    insertTransform,
+    updateTransform: options.insertTransform ?? insertTransform,
+    insertReturnTransform,
+    updateReturnTransform:
+      options.insertReturnTransform ?? insertReturnTransform,
     ...options,
   };
 }
