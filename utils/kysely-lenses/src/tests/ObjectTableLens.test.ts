@@ -78,7 +78,7 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
   expect(selectedUser3).toEqual(null);
 });
 
-it("inserts/updates/deletes a mapped object class w/ custom transforms", async () => {
+it("inserts/updates/deletes a mapped object class w/ all custom transforms", async () => {
   class KeyedUser implements KeyedObject<Users, ["id"]> {
     constructor(
       public serialNo: number,
@@ -109,6 +109,13 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
         user.handle,
         user.email
       );
+    },
+    updaterTransform: (user: KeyedUser) => {
+      return {
+        name: `${user.firstName} ${user.lastName}`,
+        handle: user.handle + "2",
+        email: user.email,
+      };
     },
     updateReturnTransform: (user, _returns) => {
       return new KeyedUser(
@@ -165,11 +172,99 @@ it("inserts/updates/deletes a mapped object class w/ custom transforms", async (
   const updateReturn = await keyedUserLens.save(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
   const selectedUser2 = await keyedUserLens.selectByKey(insertReturn.serialNo);
-  expect(selectedUser2).toEqual(updateReturn);
+  expect(selectedUser2?.serialNo).toEqual(selectedUser1!.serialNo);
+  expect(selectedUser2?.handle).toEqual(selectedUser1!.handle + "2");
 
   // test deleting a user
   const deleted = await keyedUserLens.deleteByKey(insertReturn.serialNo);
   expect(deleted).toEqual(true);
   const selectedUser3 = await keyedUserLens.selectByKey(insertReturn.serialNo);
+  expect(selectedUser3).toEqual(null);
+});
+
+it("inserts/updates/deletes a mapped object class w/ inferred update transforms", async () => {
+  class KeyedUser implements KeyedObject<Users, ["id"]> {
+    constructor(
+      public id: number,
+      public firstName: string,
+      public lastName: string,
+      public handle: string,
+      public email: string
+    ) {}
+
+    getKey(): [number] {
+      return [this.id];
+    }
+  }
+
+  const keyedUserLens = new ObjectTableLens(db, "users", ["id"], {
+    insertTransform: (user: KeyedUser) => {
+      return {
+        name: `${user.firstName} ${user.lastName}`,
+        handle: user.handle,
+        email: user.email,
+      };
+    },
+    insertReturnTransform: (user, returns) => {
+      return new KeyedUser(
+        returns.id,
+        user.firstName,
+        user.lastName,
+        user.handle,
+        user.email
+      );
+    },
+    selectTransform: (row) => {
+      const names = row.name.split(" ");
+      return new KeyedUser(row.id, names[0], names[1], row.handle, row.email);
+    },
+  });
+
+  // test updating a non-existent user
+  const updateReturn1 = await keyedUserLens.save(
+    new KeyedUser(
+      1,
+      insertedUser1.firstName,
+      insertedUser1.lastName,
+      insertedUser1.handle,
+      insertedUser1.email
+    )
+  );
+  expect(updateReturn1).toEqual(null);
+
+  // test inserting a user
+  const insertedUser = new KeyedUser(
+    0,
+    insertedUser1.firstName,
+    insertedUser1.lastName,
+    insertedUser1.handle,
+    insertedUser1.email
+  );
+  const insertReturn = (await keyedUserLens.save(insertedUser))!;
+  expect(insertReturn).not.toBeNull();
+  expect(insertReturn.id).toBeGreaterThan(0);
+
+  // test getting a user by ID
+  const selectedUser1 = await keyedUserLens.selectByKey(insertReturn.id);
+  expect(selectedUser1).toEqual(insertReturn);
+  expect(selectedUser1?.id).toEqual(insertReturn.id);
+
+  // test updating a user
+  const updaterUser = new KeyedUser(
+    selectedUser1!.id,
+    selectedUser1!.firstName,
+    "Xana",
+    selectedUser1!.handle,
+    selectedUser1!.email
+  );
+  const updateReturn = await keyedUserLens.save(updaterUser);
+  expect(updateReturn).toEqual(updaterUser);
+  const selectedUser2 = await keyedUserLens.selectByKey(insertReturn.id);
+  expect(selectedUser2).toEqual(updateReturn);
+
+  // test deleting a user
+  const deleted = await keyedUserLens.deleteByKey(insertReturn.id);
+  expect(deleted).toEqual(true);
+  const selectedUser3 = await keyedUserLens.selectByKey(insertReturn.id);
   expect(selectedUser3).toEqual(null);
 });
