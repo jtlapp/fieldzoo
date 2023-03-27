@@ -10,7 +10,7 @@ import {
 } from "./utils/test-objects";
 import { KeyedTableFacet } from "../facets/KeyedTableFacet";
 import { ReturnedUser, SelectedUser, UpdaterUser } from "./utils/test-types";
-import { ignore } from "@fieldzoo/testing-utils";
+import { ignore } from "./utils/test-utils";
 
 class ExplicitKeyedFacet extends KeyedTableFacet<Database, "users", ["id"]> {
   constructor(readonly db: Kysely<Database>) {

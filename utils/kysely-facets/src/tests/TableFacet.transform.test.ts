@@ -21,7 +21,7 @@ import {
   UpdaterUser,
   ReturnedUser,
 } from "./utils/test-types";
-import { ignore } from "@fieldzoo/testing-utils";
+import { ignore } from "./utils/test-utils";
 
 const userObjectWithID = { id: 1, ...userObject1 };
 const updaterUser1 = UpdaterUser.create(0, userObject1);

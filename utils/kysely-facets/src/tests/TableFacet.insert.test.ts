@@ -23,7 +23,7 @@ import {
   insertReturnedUser3,
   selectedUser1,
 } from "./utils/test-objects";
-import { ignore } from "@fieldzoo/testing-utils";
+import { ignore } from "./utils/test-utils";
 import { InsertedUser, ReturnedUser } from "./utils/test-types";
 
 let db: Kysely<Database>;

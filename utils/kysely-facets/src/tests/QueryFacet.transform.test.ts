@@ -13,7 +13,7 @@ import {
   POSTS,
 } from "./utils/test-objects";
 import { SelectedUser } from "./utils/test-types";
-import { ignore } from "@fieldzoo/testing-utils";
+import { ignore } from "./utils/test-utils";
 import { UserTableFacetReturningID } from "./utils/test-facets";
 import { EmptyObject } from "../lib/type-utils";
 

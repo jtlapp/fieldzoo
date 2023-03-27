@@ -18,7 +18,7 @@ import {
   userRow3,
   USERS,
 } from "./utils/test-objects";
-import { ignore } from "@fieldzoo/testing-utils";
+import { ignore } from "./utils/test-utils";
 import { ReturnedUser, UpdaterUser } from "./utils/test-types";
 
 let db: Kysely<Database>;

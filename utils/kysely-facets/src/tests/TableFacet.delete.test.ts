@@ -4,7 +4,7 @@ import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
 import { UserTableFacetReturningAll } from "./utils/test-facets";
 import { USERS } from "./utils/test-objects";
-import { ignore } from "@fieldzoo/testing-utils";
+import { ignore } from "./utils/test-utils";
 import { allOf, anyOf } from "../filters/CompoundFilter";
 
 let db: Kysely<Database>;
