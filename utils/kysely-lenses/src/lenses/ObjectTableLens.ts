@@ -100,6 +100,7 @@ export class ObjectTableLens<
     );
     this.keyedTableLens = new KeyedTableLens(db, tableName, primaryKeyColumns, {
       ...this.options,
+      // TODO: I'm now thinking this should default to a passthrough
       updaterTransform:
         options.updaterTransform ?? this.options.insertTransform,
       updateReturnTransform:
@@ -199,7 +200,7 @@ function _prepareBaseOptions<
     ) => {
       return { ...obj, ...returns };
     },
-    returnColumns: DEFAULT_KEY,
+    returnColumns: primaryKeyColumns,
     ...options,
   };
   // Base update methods operate on columns, not the mapped object.
