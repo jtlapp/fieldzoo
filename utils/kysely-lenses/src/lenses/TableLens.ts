@@ -173,6 +173,7 @@ export class TableLens<
    * @returns Returns a `ReturnedObject` for each inserted object. Will
    *  be an array when `objOrObjs` is an array, will be a single object
    *  otherwise. Returns nothing (void) if `returnColumns` is empty.
+   * @see this.insertNoReturns
    */
   insert(
     obj: InsertedObject
@@ -223,6 +224,7 @@ export class TableLens<
   /**
    * Inserts one or more rows into this table, without returning any columns.
    * @param objOrObjs The object or objects to insert as a row.
+   * @see this.insert
    */
   insertNoReturns(obj: InsertedObject): Promise<void>;
 
@@ -250,6 +252,7 @@ export class TableLens<
    * @param filter Filter specifying the rows to update.
    * @param obj The object whose field values are to be assigned to the row.
    * @returns Returns the number of updated rows.
+   * @see this.updateWhere
    */
   async updateCount<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
@@ -271,6 +274,7 @@ export class TableLens<
    * @param obj The object whose field values are to be assigned to the row.
    * @returns Returns an array of `ReturnedObject` objects, one for each
    *  updated row, or nothing (void) if `returnColumns` is empty.
+   * @see this.updateCount
    */
   updateWhere<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,

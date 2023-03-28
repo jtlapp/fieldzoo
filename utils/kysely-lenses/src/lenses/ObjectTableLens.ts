@@ -123,21 +123,6 @@ export class ObjectTableLens<
   }
 
   /**
-   * Saves an object as a row in the table. Objects having at least one
-   * falsy primary key (0 or "") are inserted; objects whose primary keys
-   * are all truthy are updated.
-   * @param obj Object to save.
-   * @returns the object, or null if the object-to-update was not found.
-   */
-  // TODO: replace with an update, requiring caller to also call insert
-  async save(obj: MappedObject): Promise<MappedObject | null> {
-    const key = obj.getKey();
-    return !(key as any[]).every((v) => !!v)
-      ? this.keyedTableLens.insert(obj)
-      : this.keyedTableLens.updateByKey(key, obj);
-  }
-
-  /**
    * Select the object for the row having the given key.
    * @param key The key of the row to select. If there is only one primary
    *  key column, this can be the value of the key. Otherwise, this must be
@@ -150,6 +135,32 @@ export class ObjectTableLens<
       | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>
   ): Promise<MappedObject | null> {
     return this.keyedTableLens.selectByKey(key);
+  }
+
+  /**
+   * Updates an existing row from the provided object, identifying the row
+   * by the object's key, returning the object updated for returned columns.
+   * @param obj Object to update.
+   * @returns Returns an object for the row, possibly transformed, or null if
+   *  no row was found; returns nothing (void) if `returnColumns` is empty.
+   *  Use `updateNoReturns` if there are no return columns.
+   */
+  update(
+    obj: MappedObject
+  ): Promise<ReturnColumns extends [] ? void : MappedObject | null>;
+
+  async update(obj: MappedObject): Promise<MappedObject | null | void> {
+    return this.keyedTableLens.updateByKey(obj.getKey(), obj);
+  }
+
+  /**
+   * Updates an existing row from the provided object, identifying the row
+   * by the object's key, without returning an updated object.
+   * @param obj Object to update.
+   * @returns True if a row was updated, false otherwise.
+   */
+  async updateNoReturns(obj: MappedObject): Promise<boolean> {
+    return this.keyedTableLens.updateByKeyNoReturns(obj.getKey(), obj);
   }
 }
 

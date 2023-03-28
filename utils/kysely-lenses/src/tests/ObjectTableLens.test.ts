@@ -40,7 +40,7 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
     USERS[0].handle,
     USERS[0].email
   );
-  const updateReturn1 = await userLens.save(userWithID);
+  const updateReturn1 = await userLens.update(userWithID);
   expect(updateReturn1).toEqual(null);
 
   // test inserting a user
@@ -50,7 +50,7 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
     USERS[0].handle,
     USERS[0].email
   );
-  const insertReturn = (await userLens.save(insertedUser))!;
+  const insertReturn = (await userLens.insert(insertedUser))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).toBeGreaterThan(0);
 
@@ -59,23 +59,35 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
   expect(selectedUser1).toEqual(insertReturn);
   expect(selectedUser1?.id).toEqual(insertReturn.id);
 
-  // test updating a user
+  // test updating a user, with returned object
   const updaterUser = new KeyedUser(
     selectedUser1!.id,
     "Xana",
     selectedUser1!.handle,
     selectedUser1!.email
   );
-  const updateReturn = await userLens.save(updaterUser);
+  const updateReturn = await userLens.update(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
   const selectedUser2 = await userLens.selectByKey(insertReturn.id);
   expect(selectedUser2).toEqual(updateReturn);
 
+  // test updating a user, without returned object
+  const updaterUser2 = new KeyedUser(
+    selectedUser2!.id,
+    "Freddy",
+    selectedUser2!.handle,
+    selectedUser2!.email
+  );
+  const updateReturn2 = await userLens.updateNoReturns(updaterUser2);
+  expect(updateReturn2).toBe(true);
+  const selectedUser3 = await userLens.selectByKey(insertReturn.id);
+  expect(selectedUser3).toEqual(updaterUser2);
+
   // test deleting a user
   const deleted = await userLens.deleteByKey(insertReturn.id);
   expect(deleted).toEqual(true);
-  const selectedUser3 = await userLens.selectByKey(insertReturn.id);
-  expect(selectedUser3).toEqual(null);
+  const selectedUser4 = await userLens.selectByKey(insertReturn.id);
+  expect(selectedUser4).toBeNull();
 });
 
 it("inserts/updates/deletes a mapped object class w/ all custom transforms", async () => {
@@ -133,7 +145,7 @@ it("inserts/updates/deletes a mapped object class w/ all custom transforms", asy
   });
 
   // test updating a non-existent user
-  const updateReturn1 = await userLens.save(
+  const updateReturn1 = await userLens.update(
     new KeyedUser(
       1,
       insertedUser1.firstName,
@@ -152,7 +164,7 @@ it("inserts/updates/deletes a mapped object class w/ all custom transforms", asy
     insertedUser1.handle,
     insertedUser1.email
   );
-  const insertReturn = (await userLens.save(insertedUser))!;
+  const insertReturn = (await userLens.insert(insertedUser))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.serialNo).toBeGreaterThan(0);
 
@@ -161,7 +173,7 @@ it("inserts/updates/deletes a mapped object class w/ all custom transforms", asy
   expect(selectedUser1).toEqual(insertReturn);
   expect(selectedUser1?.serialNo).toEqual(insertReturn.serialNo);
 
-  // test updating a user
+  // test updating a user, with returned object
   const updaterUser = new KeyedUser(
     selectedUser1!.serialNo,
     selectedUser1!.firstName,
@@ -169,7 +181,7 @@ it("inserts/updates/deletes a mapped object class w/ all custom transforms", asy
     selectedUser1!.handle,
     selectedUser1!.email
   );
-  const updateReturn = await userLens.save(updaterUser);
+  const updateReturn = await userLens.update(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
   const selectedUser2 = await userLens.selectByKey(insertReturn.serialNo);
   expect(selectedUser2?.serialNo).toEqual(selectedUser1!.serialNo);
@@ -190,7 +202,7 @@ it("inserts/updates/deletes a mapped object class w/ all custom transforms", asy
   const deleted = await userLens.deleteByKey(insertReturn.serialNo);
   expect(deleted).toEqual(true);
   const selectedUser3 = await userLens.selectByKey(insertReturn.serialNo);
-  expect(selectedUser3).toEqual(null);
+  expect(selectedUser3).toBeNull();
 });
 
 it("inserts/updates/deletes a mapped object class w/ inferred update transforms", async () => {
@@ -232,7 +244,7 @@ it("inserts/updates/deletes a mapped object class w/ inferred update transforms"
   });
 
   // test updating a non-existent user
-  const updateReturn1 = await userLens.save(
+  const updateReturn1 = await userLens.update(
     new KeyedUser(
       1,
       insertedUser1.firstName,
@@ -251,7 +263,7 @@ it("inserts/updates/deletes a mapped object class w/ inferred update transforms"
     insertedUser1.handle,
     insertedUser1.email
   );
-  const insertReturn = (await userLens.save(insertedUser))!;
+  const insertReturn = (await userLens.insert(insertedUser))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).toBeGreaterThan(0);
 
@@ -268,14 +280,27 @@ it("inserts/updates/deletes a mapped object class w/ inferred update transforms"
     selectedUser1!.handle,
     selectedUser1!.email
   );
-  const updateReturn = await userLens.save(updaterUser);
+  const updateReturn = await userLens.update(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
   const selectedUser2 = await userLens.selectByKey(insertReturn.id);
   expect(selectedUser2).toEqual(updateReturn);
 
+  // test updating a user, without returned object
+  const updaterUser2 = new KeyedUser(
+    selectedUser2!.id,
+    "Super",
+    "Man",
+    selectedUser2!.handle,
+    selectedUser2!.email
+  );
+  const updateReturn2 = await userLens.updateNoReturns(updaterUser2);
+  expect(updateReturn2).toBe(true);
+  const selectedUser3 = await userLens.selectByKey(insertReturn.id);
+  expect(selectedUser3).toEqual(updaterUser2);
+
   // test deleting a user
   const deleted = await userLens.deleteByKey(insertReturn.id);
   expect(deleted).toEqual(true);
-  const selectedUser3 = await userLens.selectByKey(insertReturn.id);
-  expect(selectedUser3).toEqual(null);
+  const selectedUser4 = await userLens.selectByKey(insertReturn.id);
+  expect(selectedUser4).toBeNull();
 });

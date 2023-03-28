@@ -150,16 +150,28 @@ export class KeyedTableLens<
    *  a tuple of the key values.
    * @param obj Object containing the fields to update. The key of the row
    *  to update is taken from this object.
-   * @returns An object for the row, or null if no row was found.
+   * @returns Returns an object for the row, possibly transformed, or null if
+   *  no row was found; returns nothing (void) if `returnColumns` is empty.
+   *  Use `updateByKeyNoReturns` if there are no return columns.
+   * @see this.updateByKeyNoReturns
    */
+  updateByKey(
+    key:
+      | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
+      | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>,
+    obj: UpdaterObject
+  ): Promise<ReturnColumns extends [] ? void : ReturnedObject | null>;
+
   async updateByKey(
     key:
       | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>,
     obj: UpdaterObject
-  ): Promise<ReturnedObject | null> {
+  ): Promise<ReturnedObject | null | void> {
     const updates = await this.updateWhere(this.filterForKey(key), obj as any);
-    return updates.length == 0 ? null : updates[0];
+    if (updates !== undefined) {
+      return updates.length == 0 ? null : updates[0];
+    }
   }
 
   /**

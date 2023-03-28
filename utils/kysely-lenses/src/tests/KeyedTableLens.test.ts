@@ -230,6 +230,23 @@ describe("keyed table lens using a single-column tuple key", () => {
     const readUser3 = await testTransformLens.selectByKey([1]);
     expect(readUser3).toBeNull();
   });
+
+  it("returns nothing when there are no return columns", async () => {
+    const noReturnLens = new KeyedTableLens(db, "users", ["id"], {
+      returnColumns: [],
+    });
+
+    const insertReturn1 = await noReturnLens.insert(USERS[0]);
+    expect(insertReturn1).toBeUndefined();
+
+    const update1 = await noReturnLens.updateByKey([1], { name: "Jeff Jack" });
+    expect(update1).toBeUndefined();
+
+    const update2 = await noReturnLens.updateByKeyNoReturns([1], {
+      name: "Jack Jeffrey",
+    });
+    expect(update2).toBe(true);
+  });
 });
 
 describe("keyed table lens using a single-column value key", () => {
