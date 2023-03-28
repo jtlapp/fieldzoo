@@ -175,6 +175,17 @@ it("inserts/updates/deletes a mapped object class w/ all custom transforms", asy
   expect(selectedUser2?.serialNo).toEqual(selectedUser1!.serialNo);
   expect(selectedUser2?.handle).toEqual(selectedUser1!.handle + "2");
 
+  // test updating a column with returns
+  const updateColumnReturns = await keyedUserLens.update(
+    ["id", "=", insertReturn.serialNo],
+    {
+      name: "Foo Foo",
+    }
+  );
+  expect(updateColumnReturns).toEqual([{ id: selectedUser1!.serialNo }]);
+  const selectedUser4 = await keyedUserLens.selectByKey(insertReturn.serialNo);
+  expect(selectedUser4?.firstName).toEqual("Foo");
+
   // test deleting a user
   const deleted = await keyedUserLens.deleteByKey(insertReturn.serialNo);
   expect(deleted).toEqual(true);

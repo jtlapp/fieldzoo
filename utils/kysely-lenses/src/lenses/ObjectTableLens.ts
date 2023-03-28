@@ -1,6 +1,6 @@
-import { Kysely, Selectable } from "kysely";
+import { Insertable, Kysely, Selectable } from "kysely";
 
-import { TableLensOptions } from "./TableLens";
+import { TableLens, TableLensOptions } from "./TableLens";
 import { KeyedTableLens, SingleKeyValue } from "./KeyedTableLens";
 import {
   KeyTuple,
@@ -30,6 +30,7 @@ export interface KeyedObject<
  * @typeparam MappedObject The type of the objects that are mapped to and from
  *  the table rows on inserts, updates, and selects.
  * @typeparam PrimaryKeyColumns Tuple of the names of the primary key columns.
+ *  Defaults to `["id"]`.
  * @typeparam ReturnColumns The columns that are returned from the database
  *  when selecting or updating rows, for use when creating the mapped objects.
  *  `["*"]` returns all columns; `[]` returns none. Defaults to `PrimaryKeyColumns`.
@@ -44,6 +45,14 @@ export class ObjectTableLens<
   ReturnColumns extends
     | (keyof Selectable<DB[TableName]> & string)[]
     | ["*"] = PrimaryKeyColumns
+> extends TableLens<
+  DB,
+  TableName,
+  MappedObject,
+  MappedObject,
+  Partial<Insertable<DB[TableName]>>,
+  ReturnColumns,
+  MappedObject
 > {
   protected tableLens: KeyedTableLens<
     DB,
@@ -63,9 +72,10 @@ export class ObjectTableLens<
    * @param primaryKeyColumns The names of the primary key columns.
    * @param options Options governing ObjectTableLens behavior.
    *  `insertTransform` defaults to a transform that removes the primary key
-   *  columns. `updaterTransform` defaults to the `insertTransform`.
-   *  `insertReturnTransform` defaults to a transform that adds the return
-   *  columns. `updateReturnTransform` defaults to the `insertReturnTransform`.
+   *  columns. `insertReturnTransform` defaults to a transform that adds the
+   *  return columns. `updaterTransform` defaults to the `insertTransform`
+   *  and `updateReturnTransform` defaults to the `insertReturnTransform`,
+   *  but the update transforms only apply to the `save()` method.
    */
   constructor(
     db: Kysely<DB>,
@@ -81,12 +91,18 @@ export class ObjectTableLens<
       MappedObject
     > = {}
   ) {
-    this.tableLens = new KeyedTableLens(
+    super(
       db,
       tableName,
-      primaryKeyColumns,
-      _prepareOptions(primaryKeyColumns, options) as any
+      _prepareBaseOptions(primaryKeyColumns, options) as any
     );
+    this.tableLens = new KeyedTableLens(db, tableName, primaryKeyColumns, {
+      ...this.options,
+      updaterTransform:
+        options.updaterTransform ?? this.options.insertTransform,
+      updateReturnTransform:
+        options.updateReturnTransform ?? this.options.insertReturnTransform,
+    } as any);
   }
 
   /**
@@ -135,9 +151,9 @@ export class ObjectTableLens<
 }
 
 /**
- * Provide default insertTransform.
+ * Provide default transformations for the base TableLens.
  */
-function _prepareOptions<
+function _prepareBaseOptions<
   DB,
   TableName extends keyof DB & string,
   MappedObject extends KeyedObject<DB[TableName], PrimaryKeyColumns>,
@@ -155,30 +171,25 @@ function _prepareOptions<
     MappedObject
   >
 ) {
-  const insertTransform =
-    options.insertTransform ??
-    ((obj: MappedObject) => {
+  const baseOptions = {
+    insertTransform: (obj: MappedObject) => {
       const insertion = { ...obj };
       primaryKeyColumns.forEach(
         (column) => delete insertion[column as keyof MappedObject]
       );
       return insertion;
-    });
-  const insertReturnTransform =
-    options.insertReturnTransform ??
-    ((
+    },
+    insertReturnTransform: (
       obj: MappedObject,
       returns: ObjectWithKeys<Selectable<DB[TableName]>, ReturnColumns>
     ) => {
       return { ...obj, ...returns };
-    });
-
-  return {
-    insertTransform,
-    updaterTransform: options.insertTransform ?? insertTransform,
-    insertReturnTransform,
-    updateReturnTransform:
-      options.insertReturnTransform ?? insertReturnTransform,
+    },
+    returnColumns: DEFAULT_KEY,
     ...options,
   };
+  // Base update methods operate on columns, not the mapped object.
+  delete baseOptions["updaterTransform"];
+  delete baseOptions["updateReturnTransform"];
+  return baseOptions;
 }
