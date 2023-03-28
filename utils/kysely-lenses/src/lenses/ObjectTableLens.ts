@@ -23,8 +23,8 @@ export interface KeyedObject<
 }
 
 /**
- * A table lens that maps the rows of a table to and from a single keyed
- * object type. The table has a one or more primary key columns.
+ * A lens for a table representing a store of objects, where each object has a
+ * unique identifying key given by one or more primary key columns.
  * @typeparam DB The database type.
  * @typeparam TableName The name of the table.
  * @typeparam MappedObject The type of the objects that are mapped to and from
@@ -88,6 +88,7 @@ export class ObjectTableLens<
       _prepareOptions(primaryKeyColumns, options) as any
     );
   }
+
   /**
    * Delete the row for the object having the given key.
    * @param key The key of the row to delete. If there is only one primary
@@ -114,7 +115,7 @@ export class ObjectTableLens<
     const key = obj.getKey();
     return !(key as any[]).every((v) => !!v)
       ? this.tableLens.insert(obj)
-      : await this.tableLens.updateByKey(key, obj);
+      : this.tableLens.updateByKey(key, obj);
   }
 
   /**
