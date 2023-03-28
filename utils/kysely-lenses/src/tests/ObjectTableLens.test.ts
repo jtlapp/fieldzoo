@@ -27,7 +27,7 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
     }
   }
 
-  const keyedUserLens = new ObjectTableLens<Database, "users", KeyedUser>(
+  const userLens = new ObjectTableLens<Database, "users", KeyedUser>(
     db,
     "users",
     ["id"]
@@ -40,7 +40,7 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
     USERS[0].handle,
     USERS[0].email
   );
-  const updateReturn1 = await keyedUserLens.save(userWithID);
+  const updateReturn1 = await userLens.save(userWithID);
   expect(updateReturn1).toEqual(null);
 
   // test inserting a user
@@ -50,12 +50,12 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
     USERS[0].handle,
     USERS[0].email
   );
-  const insertReturn = (await keyedUserLens.save(insertedUser))!;
+  const insertReturn = (await userLens.save(insertedUser))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).toBeGreaterThan(0);
 
   // test getting a user by ID
-  const selectedUser1 = await keyedUserLens.selectByKey(insertReturn.id);
+  const selectedUser1 = await userLens.selectByKey(insertReturn.id);
   expect(selectedUser1).toEqual(insertReturn);
   expect(selectedUser1?.id).toEqual(insertReturn.id);
 
@@ -66,15 +66,15 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
     selectedUser1!.handle,
     selectedUser1!.email
   );
-  const updateReturn = await keyedUserLens.save(updaterUser);
+  const updateReturn = await userLens.save(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
-  const selectedUser2 = await keyedUserLens.selectByKey(insertReturn.id);
+  const selectedUser2 = await userLens.selectByKey(insertReturn.id);
   expect(selectedUser2).toEqual(updateReturn);
 
   // test deleting a user
-  const deleted = await keyedUserLens.deleteByKey(insertReturn.id);
+  const deleted = await userLens.deleteByKey(insertReturn.id);
   expect(deleted).toEqual(true);
-  const selectedUser3 = await keyedUserLens.selectByKey(insertReturn.id);
+  const selectedUser3 = await userLens.selectByKey(insertReturn.id);
   expect(selectedUser3).toEqual(null);
 });
 
@@ -93,7 +93,7 @@ it("inserts/updates/deletes a mapped object class w/ all custom transforms", asy
     }
   }
 
-  const keyedUserLens = new ObjectTableLens(db, "users", ["id"], {
+  const userLens = new ObjectTableLens(db, "users", ["id"], {
     insertTransform: (user: KeyedUser) => {
       return {
         name: `${user.firstName} ${user.lastName}`,
@@ -133,7 +133,7 @@ it("inserts/updates/deletes a mapped object class w/ all custom transforms", asy
   });
 
   // test updating a non-existent user
-  const updateReturn1 = await keyedUserLens.save(
+  const updateReturn1 = await userLens.save(
     new KeyedUser(
       1,
       insertedUser1.firstName,
@@ -152,12 +152,12 @@ it("inserts/updates/deletes a mapped object class w/ all custom transforms", asy
     insertedUser1.handle,
     insertedUser1.email
   );
-  const insertReturn = (await keyedUserLens.save(insertedUser))!;
+  const insertReturn = (await userLens.save(insertedUser))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.serialNo).toBeGreaterThan(0);
 
   // test getting a user by ID
-  const selectedUser1 = await keyedUserLens.selectByKey(insertReturn.serialNo);
+  const selectedUser1 = await userLens.selectByKey(insertReturn.serialNo);
   expect(selectedUser1).toEqual(insertReturn);
   expect(selectedUser1?.serialNo).toEqual(insertReturn.serialNo);
 
@@ -169,27 +169,27 @@ it("inserts/updates/deletes a mapped object class w/ all custom transforms", asy
     selectedUser1!.handle,
     selectedUser1!.email
   );
-  const updateReturn = await keyedUserLens.save(updaterUser);
+  const updateReturn = await userLens.save(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
-  const selectedUser2 = await keyedUserLens.selectByKey(insertReturn.serialNo);
+  const selectedUser2 = await userLens.selectByKey(insertReturn.serialNo);
   expect(selectedUser2?.serialNo).toEqual(selectedUser1!.serialNo);
   expect(selectedUser2?.handle).toEqual(selectedUser1!.handle + "2");
 
   // test updating a column with returns
-  const updateColumnReturns = await keyedUserLens.update(
+  const updateColumnReturns = await userLens.update(
     ["id", "=", insertReturn.serialNo],
     {
       name: "Foo Foo",
     }
   );
   expect(updateColumnReturns).toEqual([{ id: selectedUser1!.serialNo }]);
-  const selectedUser4 = await keyedUserLens.selectByKey(insertReturn.serialNo);
+  const selectedUser4 = await userLens.selectByKey(insertReturn.serialNo);
   expect(selectedUser4?.firstName).toEqual("Foo");
 
   // test deleting a user
-  const deleted = await keyedUserLens.deleteByKey(insertReturn.serialNo);
+  const deleted = await userLens.deleteByKey(insertReturn.serialNo);
   expect(deleted).toEqual(true);
-  const selectedUser3 = await keyedUserLens.selectByKey(insertReturn.serialNo);
+  const selectedUser3 = await userLens.selectByKey(insertReturn.serialNo);
   expect(selectedUser3).toEqual(null);
 });
 
@@ -208,7 +208,7 @@ it("inserts/updates/deletes a mapped object class w/ inferred update transforms"
     }
   }
 
-  const keyedUserLens = new ObjectTableLens(db, "users", ["id"], {
+  const userLens = new ObjectTableLens(db, "users", ["id"], {
     insertTransform: (user: KeyedUser) => {
       return {
         name: `${user.firstName} ${user.lastName}`,
@@ -232,7 +232,7 @@ it("inserts/updates/deletes a mapped object class w/ inferred update transforms"
   });
 
   // test updating a non-existent user
-  const updateReturn1 = await keyedUserLens.save(
+  const updateReturn1 = await userLens.save(
     new KeyedUser(
       1,
       insertedUser1.firstName,
@@ -251,12 +251,12 @@ it("inserts/updates/deletes a mapped object class w/ inferred update transforms"
     insertedUser1.handle,
     insertedUser1.email
   );
-  const insertReturn = (await keyedUserLens.save(insertedUser))!;
+  const insertReturn = (await userLens.save(insertedUser))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).toBeGreaterThan(0);
 
   // test getting a user by ID
-  const selectedUser1 = await keyedUserLens.selectByKey(insertReturn.id);
+  const selectedUser1 = await userLens.selectByKey(insertReturn.id);
   expect(selectedUser1).toEqual(insertReturn);
   expect(selectedUser1?.id).toEqual(insertReturn.id);
 
@@ -268,14 +268,14 @@ it("inserts/updates/deletes a mapped object class w/ inferred update transforms"
     selectedUser1!.handle,
     selectedUser1!.email
   );
-  const updateReturn = await keyedUserLens.save(updaterUser);
+  const updateReturn = await userLens.save(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
-  const selectedUser2 = await keyedUserLens.selectByKey(insertReturn.id);
+  const selectedUser2 = await userLens.selectByKey(insertReturn.id);
   expect(selectedUser2).toEqual(updateReturn);
 
   // test deleting a user
-  const deleted = await keyedUserLens.deleteByKey(insertReturn.id);
+  const deleted = await userLens.deleteByKey(insertReturn.id);
   expect(deleted).toEqual(true);
-  const selectedUser3 = await keyedUserLens.selectByKey(insertReturn.id);
+  const selectedUser3 = await userLens.selectByKey(insertReturn.id);
   expect(selectedUser3).toEqual(null);
 });
