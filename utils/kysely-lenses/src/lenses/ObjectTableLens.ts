@@ -10,11 +10,13 @@ import {
 } from "../lib/type-utils";
 
 /** Default key columns */
+// TODO: get this default from KeyedTableLens
 const DEFAULT_KEY = ["id"] as const;
 
 /**
  * Interface for keyed objects.
  */
+// TODO: maybe rename this to TableObject?
 export interface KeyedObject<
   T,
   PrimaryKeyColumns extends SelectableColumnTuple<T>
@@ -54,7 +56,7 @@ export class ObjectTableLens<
   ReturnColumns,
   MappedObject
 > {
-  protected tableLens: KeyedTableLens<
+  protected keyedTableLens: KeyedTableLens<
     DB,
     TableName,
     PrimaryKeyColumns,
@@ -96,7 +98,7 @@ export class ObjectTableLens<
       tableName,
       _prepareBaseOptions(primaryKeyColumns, options) as any
     );
-    this.tableLens = new KeyedTableLens(db, tableName, primaryKeyColumns, {
+    this.keyedTableLens = new KeyedTableLens(db, tableName, primaryKeyColumns, {
       ...this.options,
       updaterTransform:
         options.updaterTransform ?? this.options.insertTransform,
@@ -117,7 +119,7 @@ export class ObjectTableLens<
       | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>
   ): Promise<boolean> {
-    return this.tableLens.deleteByKey(key);
+    return this.keyedTableLens.deleteByKey(key);
   }
 
   /**
@@ -127,11 +129,12 @@ export class ObjectTableLens<
    * @param obj Object to save.
    * @returns the object, or null if the object-to-update was not found.
    */
+  // TODO: replace with an update, requiring caller to also call insert
   async save(obj: MappedObject): Promise<MappedObject | null> {
     const key = obj.getKey();
     return !(key as any[]).every((v) => !!v)
-      ? this.tableLens.insert(obj)
-      : this.tableLens.updateByKey(key, obj);
+      ? this.keyedTableLens.insert(obj)
+      : this.keyedTableLens.updateByKey(key, obj);
   }
 
   /**
@@ -146,7 +149,7 @@ export class ObjectTableLens<
       | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>
   ): Promise<MappedObject | null> {
-    return this.tableLens.selectByKey(key);
+    return this.keyedTableLens.selectByKey(key);
   }
 }
 
