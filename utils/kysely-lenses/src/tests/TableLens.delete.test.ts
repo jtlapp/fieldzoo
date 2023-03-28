@@ -36,12 +36,12 @@ it("deleteQB() allows for deleting rows", async () => {
 
 describe("deleting rows via TableLens", () => {
   it("deletes rows returning the deletion count", async () => {
-    const count1 = await userLens.delete({ name: USERS[0].name });
+    const count1 = await userLens.deleteWhere({ name: USERS[0].name });
     expect(count1).toEqual(0);
 
     await userLens.insert(USERS);
 
-    const count2 = await userLens.delete({ name: USERS[0].name });
+    const count2 = await userLens.deleteWhere({ name: USERS[0].name });
     expect(count2).toEqual(2);
     const users = await userLens.selectMany({});
     expect(users.length).toEqual(1);
@@ -51,12 +51,12 @@ describe("deleting rows via TableLens", () => {
   it("deletes rows specified via compound filter", async () => {
     await userLens.insert(USERS);
 
-    const count1 = await userLens.delete(
+    const count1 = await userLens.deleteWhere(
       allOf({ name: USERS[0].name }, { handle: USERS[0].handle })
     );
     expect(count1).toEqual(1);
 
-    const count2 = await userLens.delete(
+    const count2 = await userLens.deleteWhere(
       anyOf({ name: USERS[0].name }, { handle: USERS[0].handle })
     );
     expect(count2).toEqual(1);
@@ -64,16 +64,16 @@ describe("deleting rows via TableLens", () => {
 
   ignore("detects delete() type errors", async () => {
     // @ts-expect-error - table must have all filter fields
-    userLens.delete({ notThere: "xyz" });
+    userLens.deleteWhere({ notThere: "xyz" });
     // @ts-expect-error - table must have all filter fields
-    userLens.delete(["notThere", "=", "foo"]);
+    userLens.deleteWhere(["notThere", "=", "foo"]);
     // @ts-expect-error - doesn't allow plain string expression filters
-    userLens.delete("name = 'John Doe'");
-    await userLens.delete(
+    userLens.deleteWhere("name = 'John Doe'");
+    await userLens.deleteWhere(
       // @ts-expect-error - only table columns are accessible via anyOf()
       anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
     );
-    await userLens.delete(
+    await userLens.deleteWhere(
       // @ts-expect-error - only table columns are accessible via allOf()
       allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
     );

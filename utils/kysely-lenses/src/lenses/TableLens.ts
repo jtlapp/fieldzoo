@@ -144,11 +144,11 @@ export class TableLens<
   }
 
   /**
-   * Deletes rows matching the provided filter from this table.
+   * Deletes from this table the rows that match the provided filter.
    * @param filter Filter specifying the rows to delete.
    * @returns Returns the number of deleted rows.
    */
-  async delete<RE extends ReferenceExpression<DB, TableName>>(
+  async deleteWhere<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<DB, TableName, DeleteQB<DB, TableName>, RE>
   ): Promise<number> {
     const qb = applyQueryFilter(this, filter)(this.deleteQB());
@@ -245,6 +245,24 @@ export class TableLens<
   }
 
   /**
+   * Updates rows in this table matching the provided filter, returning
+   * the number of updated rows.
+   * @param filter Filter specifying the rows to update.
+   * @param obj The object whose field values are to be assigned to the row.
+   * @returns Returns the number of updated rows.
+   */
+  async updateCount<RE extends ReferenceExpression<DB, TableName>>(
+    filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
+    obj: UpdaterObject
+  ): Promise<number> {
+    const transformedObj = this.transformUpdater(obj);
+    const uqb = this.updateQB().set(transformedObj as any);
+    const fqb = applyQueryFilter(this, filter)(uqb);
+    const result = await fqb.executeTakeFirst();
+    return Number(result.numUpdatedRows);
+  }
+
+  /**
    * Updates rows in this table matching the provided filter. For each row
    * updated, retrieves the columns specified in the `returnColumns` option,
    * which are returned unless `updateReturnTransform` transforms them
@@ -254,12 +272,12 @@ export class TableLens<
    * @returns Returns an array of `ReturnedObject` objects, one for each
    *  updated row, or nothing (void) if `returnColumns` is empty.
    */
-  update<RE extends ReferenceExpression<DB, TableName>>(
+  updateWhere<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
     obj: UpdaterObject
   ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]>;
 
-  async update<RE extends ReferenceExpression<DB, TableName>>(
+  async updateWhere<RE extends ReferenceExpression<DB, TableName>>(
     filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
     obj: UpdaterObject
   ): Promise<ReturnedObject[] | void> {
@@ -282,24 +300,6 @@ export class TableLens<
       throw Error("No rows returned from update expecting returned columns");
     }
     return this.transformUpdateReturn(obj, returns as any) as any;
-  }
-
-  /**
-   * Updates rows in this table matching the provided filter, returning
-   * the number of updated rows.
-   * @param filter Filter specifying the rows to update.
-   * @param obj The object whose field values are to be assigned to the row.
-   * @returns Returns the number of updated rows.
-   */
-  async updateGetCount<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
-    obj: UpdaterObject
-  ): Promise<number> {
-    const transformedObj = this.transformUpdater(obj);
-    const uqb = this.updateQB().set(transformedObj as any);
-    const fqb = applyQueryFilter(this, filter)(uqb);
-    const result = await fqb.executeTakeFirst();
-    return Number(result.numUpdatedRows);
   }
 
   /**

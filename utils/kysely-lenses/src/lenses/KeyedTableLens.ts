@@ -121,7 +121,7 @@ export class KeyedTableLens<
       | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>
   ): Promise<boolean> {
-    const count = await this.delete(this.filterForKey(key));
+    const count = await this.deleteWhere(this.filterForKey(key));
     return count == 1;
   }
 
@@ -158,7 +158,7 @@ export class KeyedTableLens<
       | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>,
     obj: UpdaterObject
   ): Promise<ReturnedObject | null> {
-    const updates = await this.update(this.filterForKey(key), obj as any);
+    const updates = await this.updateWhere(this.filterForKey(key), obj as any);
     return updates.length == 0 ? null : updates[0];
   }
 
@@ -177,7 +177,7 @@ export class KeyedTableLens<
       | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>,
     obj: UpdaterObject
   ): Promise<boolean> {
-    const updateCount = await this.updateGetCount(
+    const updateCount = await this.updateCount(
       this.filterForKey(key),
       obj as any
     );

@@ -176,7 +176,7 @@ it("inserts/updates/deletes a mapped object class w/ all custom transforms", asy
   expect(selectedUser2?.handle).toEqual(selectedUser1!.handle + "2");
 
   // test updating a column with returns
-  const updateColumnReturns = await userLens.update(
+  const updateColumnReturns = await userLens.updateWhere(
     ["id", "=", insertReturn.serialNo],
     {
       name: "Foo Foo",

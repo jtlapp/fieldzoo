@@ -57,13 +57,16 @@ it("updateQB() allows for updating rows", async () => {
 describe("updating rows via TableLens", () => {
   it("updates returning zero update count", async () => {
     const updateValues = { email: "new.email@xyz.pdq" };
-    const updateCount = await userLensReturningAll.updateGetCount(
+    const updateCount = await userLensReturningAll.updateCount(
       { id: 1 },
       updateValues
     );
     expect(updateCount).toEqual(0);
 
-    const updates = await userLensReturningID.update({ id: 1 }, updateValues);
+    const updates = await userLensReturningID.updateWhere(
+      { id: 1 },
+      updateValues
+    );
     expect(updates.length).toEqual(0);
   });
 
@@ -73,7 +76,7 @@ describe("updating rows via TableLens", () => {
     await userLensReturningID.insert(USERS[1]);
     await userLensReturningID.insert(USERS[2]);
 
-    const updateCount1 = await userLensReturningAll.updateGetCount(
+    const updateCount1 = await userLensReturningAll.updateCount(
       { id: insertReturn0.id },
       updateValues
     );
@@ -86,7 +89,7 @@ describe("updating rows via TableLens", () => {
     ]);
     expect(readUser?.email).toEqual(updateValues.email);
 
-    const updateCount2 = await userLensReturningAll.updateGetCount(
+    const updateCount2 = await userLensReturningAll.updateCount(
       { name: "Sue" },
       updateValues
     );
@@ -102,7 +105,7 @@ describe("updating rows via TableLens", () => {
     expect(readUsers[1].email).toEqual(updateValues.email);
 
     // prettier-ignore
-    const updateCount = await userLensReturningID.updateGetCount({}, {
+    const updateCount = await userLensReturningID.updateCount({}, {
       name: "Every User",
     });
     expect(updateCount).toEqual(3);
@@ -115,7 +118,7 @@ describe("updating rows via TableLens", () => {
 
     // Verify that update performs the correct change on the correct row.
     const updateValues1 = { email: "new.email@xyz.pdq" };
-    const updateReturns1 = await userLensReturningID.update(
+    const updateReturns1 = await userLensReturningID.updateWhere(
       { id: insertReturn.id },
       updateValues1
     );
@@ -129,7 +132,7 @@ describe("updating rows via TableLens", () => {
 
     // Verify a different change on the same row, returning multiple columns.
     const updateValues2 = { name: "Sue" };
-    const updateReturns2 = await userLensReturningIDAndHandle.update(
+    const updateReturns2 = await userLensReturningIDAndHandle.updateWhere(
       { email: updateValues1.email },
       updateValues2
     );
@@ -148,7 +151,7 @@ describe("updating rows via TableLens", () => {
 
     // Verify that update changes all required rows.
     const updateValues3 = { name: "Replacement Sue" };
-    const updateReturns3 = await userLensReturningIDAndHandle.update(
+    const updateReturns3 = await userLensReturningIDAndHandle.updateWhere(
       { name: "Sue" },
       updateValues3
     );
@@ -167,7 +170,7 @@ describe("updating rows via TableLens", () => {
   it("update returns void when defaulting to no return columns", async () => {
     await userLensReturningID.insert(USERS);
 
-    const updates = await userLensReturningDefault.update(
+    const updates = await userLensReturningDefault.updateWhere(
       { name: "Sue" },
       { email: "new.email@xyz.pdq" }
     );
@@ -182,7 +185,7 @@ describe("updating rows via TableLens", () => {
   it("update returns void when explicitly no return columns", async () => {
     await userLensReturningID.insert(USERS);
 
-    const updates = await userLensReturningNothing.update(
+    const updates = await userLensReturningNothing.updateWhere(
       { name: "Sue" },
       { email: "new.email@xyz.pdq" }
     );
@@ -198,7 +201,7 @@ describe("updating rows via TableLens", () => {
     const insertReturns = await userLensReturningID.insert(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
-    const updateReturns = await userLensReturningAll.update(
+    const updateReturns = await userLensReturningAll.updateWhere(
       { name: "Sue" },
       updateValues
     );
@@ -214,7 +217,7 @@ describe("updating rows via TableLens", () => {
     const insertReturns = await userLensReturningID.insert(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
-    const updateReturns = await userLensReturningIDAndHandle.update(
+    const updateReturns = await userLensReturningIDAndHandle.updateWhere(
       {},
       updateValues
     );
@@ -235,7 +238,7 @@ describe("updating rows via TableLens", () => {
     const insertReturns = await userLensReturningID.insert(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
-    const updateCount = await userLensReturningAll.updateGetCount(
+    const updateCount = await userLensReturningAll.updateCount(
       ["id", ">", insertReturns[0].id],
       updateValues
     );
@@ -256,7 +259,7 @@ describe("updating rows via TableLens", () => {
     const insertReturns = await userLensReturningID.insert(USERS);
 
     const updateValues = { email: "new.email@xyz.pdq" };
-    const updateCount = await userLensReturningDefault.updateGetCount(
+    const updateCount = await userLensReturningDefault.updateCount(
       sql`id > ${insertReturns[0].id}`,
       updateValues
     );
@@ -277,14 +280,14 @@ describe("updating rows via TableLens", () => {
     const insertReturns = await userLensReturningID.insert(USERS);
 
     const updateValues1 = { email: "foo@xyz.pdq" };
-    const updateCount = await userLensReturningAll.updateGetCount(
+    const updateCount = await userLensReturningAll.updateCount(
       anyOf(["id", "=", insertReturns[0].id], ["id", "=", insertReturns[2].id]),
       updateValues1
     );
     expect(updateCount).toEqual(2);
 
     const updateValues2 = { email: "bar@xyz.pdq" };
-    const updateReturns = await userLensReturningID.update(
+    const updateReturns = await userLensReturningID.updateWhere(
       anyOf(["id", "=", insertReturns[0].id], ["id", "=", insertReturns[2].id]),
       updateValues2
     );
@@ -298,14 +301,14 @@ describe("updating rows via TableLens", () => {
     const insertReturns = await userLensReturningID.insert(USERS);
 
     const updateValues1 = { email: "foo@xyz.pdq" };
-    const updateCount = await userLensReturningDefault.updateGetCount(
+    const updateCount = await userLensReturningDefault.updateCount(
       allOf(["id", "=", insertReturns[0].id], ["name", "=", "Sue"]),
       updateValues1
     );
     expect(updateCount).toEqual(1);
 
     const updateValues2 = { email: "bar@xyz.pdq" };
-    const updateReturns = await userLensReturningID.update(
+    const updateReturns = await userLensReturningID.updateWhere(
       allOf(["id", "=", insertReturns[0].id], ["name", "=", "Sue"]),
       updateValues2
     );
@@ -313,56 +316,56 @@ describe("updating rows via TableLens", () => {
   });
 
   ignore("detects update() and update() type errors", async () => {
-    userLensReturningID.updateGetCount(
+    userLensReturningID.updateCount(
       // @ts-expect-error - table must have all filter fields
       { notThere: "xyz" },
       { email: "abc@def.ghi" }
     );
-    userLensReturningID.update(
+    userLensReturningID.updateWhere(
       // @ts-expect-error - table must have all filter fields
       { notThere: "xyz" },
       { email: "abc@def.ghi" }
     );
     // @ts-expect-error - table must have all filter fields
-    userLensReturningID.update(["notThere", "=", "foo"], {
+    userLensReturningID.updateWhere(["notThere", "=", "foo"], {
       email: "abc@def.ghi",
     });
     // @ts-expect-error - table must have all filter fields
-    userLensReturningID.update(["notThere", "=", "foo"], {
+    userLensReturningID.updateWhere(["notThere", "=", "foo"], {
       email: "abc@def.ghi",
     });
     // @ts-expect-error - update must only have table columns
-    userLensReturningID.update({ id: 32 }, { notThere: "xyz@pdq.xyz" });
-    userLensReturningID.update(
+    userLensReturningID.updateWhere({ id: 32 }, { notThere: "xyz@pdq.xyz" });
+    userLensReturningID.updateWhere(
       { id: 32 },
       // @ts-expect-error - update must only have table columns
       { notThere: "xyz@pdq.xyz" }
     );
     // @ts-expect-error - doesn't allow plain string expression filters
-    userLensReturningID.update("name = 'John Doe'", USERS[0]);
+    userLensReturningID.updateWhere("name = 'John Doe'", USERS[0]);
     // @ts-expect-error - doesn't allow plain string expression filters
-    userLensReturningID.update("name = 'John Doe'", USERS[0]);
+    userLensReturningID.updateWhere("name = 'John Doe'", USERS[0]);
     // @ts-expect-error - only requested columns are accessible
-    (await userLensReturningID.update({ id: 32 }, USERS[0]))[0].name;
+    (await userLensReturningID.updateWhere({ id: 32 }, USERS[0]))[0].name;
     // @ts-expect-error - only requested columns are accessible
     // prettier-ignore
-    (await userLensReturningID.update({ id: 32 }, USERS[0]))[0].name;
-    await userLensReturningID.updateGetCount(
+    (await userLensReturningID.updateWhere({ id: 32 }, USERS[0]))[0].name;
+    await userLensReturningID.updateCount(
       // @ts-expect-error - only table columns are accessible via anyOf()
       anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
       USERS[0]
     );
-    await userLensReturningID.update(
+    await userLensReturningID.updateWhere(
       // @ts-expect-error - only table columns are accessible via anyOf()
       anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
       USERS[0]
     );
-    await userLensReturningID.updateGetCount(
+    await userLensReturningID.updateCount(
       // @ts-expect-error - only table columns are accessible via allOf()
       allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
       USERS[0]
     );
-    await userLensReturningID.update(
+    await userLensReturningID.updateWhere(
       // @ts-expect-error - only table columns are accessible via allOf()
       allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
       USERS[0]
@@ -400,7 +403,7 @@ describe("update transformation", () => {
       Object.assign({}, userObject1, { firstName: "Suzanne" })
     );
 
-    const updateReturns = await lens.update(
+    const updateReturns = await lens.updateWhere(
       anyOf({ id: insertReturns[0].id }, { id: insertReturns[2].id }),
       updaterUser1
     );
@@ -450,7 +453,7 @@ describe("update transformation", () => {
     const updateReturnTransformLens = new UpdateReturnTransformLens(db);
 
     const insertReturn = await updateReturnTransformLens.insert(userRow1);
-    const updateReturn = await updateReturnTransformLens.update(
+    const updateReturn = await updateReturnTransformLens.updateWhere(
       { id: insertReturn.id },
       { name: "Suzanne Smith" }
     );
@@ -497,7 +500,7 @@ describe("update transformation", () => {
     const updateAndReturnTransformLens = new UpdateAndReturnTransformLens(db);
 
     const insertReturn = await updateAndReturnTransformLens.insert(userRow1);
-    const updateReturn = await updateAndReturnTransformLens.update(
+    const updateReturn = await updateAndReturnTransformLens.updateWhere(
       { id: insertReturn.id },
       UpdaterUser.create(0, userObject1)
     );
