@@ -1,5 +1,6 @@
 import { Term, TermID } from "./term";
 import { GlossaryID } from "./glossary";
+import { UserID } from "./user";
 
 const maxNameLength = Term.schema.properties.name.maxLength!;
 const minDescriptionLength = Term.schema.properties.description.minLength!;
@@ -10,28 +11,31 @@ describe("Term entity", () => {
     expect(
       () =>
         new Term({
-          id: "abc" as TermID,
-          glossaryID: "def" as GlossaryID,
+          uuid: "abc" as TermID,
+          glossaryId: "def" as GlossaryID,
           name: "Good Name",
           description: "A".repeat(minDescriptionLength),
+          updatedBy: 1 as UserID,
         })
     ).not.toThrow();
     expect(
       () =>
         new Term({
-          id: "abc" as TermID,
-          glossaryID: "def" as GlossaryID,
+          uuid: "abc" as TermID,
+          glossaryId: "def" as GlossaryID,
           name: "Good Name",
           description: "This\nis\nfine.",
+          updatedBy: 1 as UserID,
         })
     ).not.toThrow();
     expect(
       () =>
         new Term({
-          id: "abc" as TermID,
-          glossaryID: "def" as GlossaryID,
+          uuid: "abc" as TermID,
+          glossaryId: "def" as GlossaryID,
           name: "A".repeat(maxNameLength),
           description: "A".repeat(maxDescriptionLength),
+          updatedBy: 1 as UserID,
         })
     ).not.toThrow();
   });
@@ -40,28 +44,31 @@ describe("Term entity", () => {
     expect(
       () =>
         new Term({
-          id: "abc" as TermID,
-          glossaryID: "def" as GlossaryID,
+          uuid: "abc" as TermID,
+          glossaryId: "def" as GlossaryID,
           name: "",
           description: "This\nis\nfine.",
+          updatedBy: 1 as UserID,
         })
     ).toThrow("term");
     expect(
       () =>
         new Term({
-          id: "abc" as TermID,
-          glossaryID: "def" as GlossaryID,
+          uuid: "abc" as TermID,
+          glossaryId: "def" as GlossaryID,
           name: "X  Y",
           description: "This\nis\nfine.",
+          updatedBy: 1 as UserID,
         })
     ).toThrow("term");
     expect(
       () =>
         new Term({
-          id: "abc" as TermID,
-          glossaryID: "def" as GlossaryID,
+          uuid: "abc" as TermID,
+          glossaryId: "def" as GlossaryID,
           name: "A".repeat(maxNameLength + 1),
           description: "This\nis\nfine.",
+          updatedBy: 1 as UserID,
         })
     ).toThrow("term");
   });
@@ -70,28 +77,31 @@ describe("Term entity", () => {
     expect(
       () =>
         new Term({
-          id: "abc" as TermID,
-          glossaryID: "def" as GlossaryID,
+          uuid: "abc" as TermID,
+          glossaryId: "def" as GlossaryID,
           name: "Good Name",
           description: "",
+          updatedBy: 1 as UserID,
         })
     ).toThrow("term");
     expect(
       () =>
         new Term({
-          id: "abc" as TermID,
-          glossaryID: "def" as GlossaryID,
+          uuid: "abc" as TermID,
+          glossaryId: "def" as GlossaryID,
           name: "Good Name",
           description: "\n\n",
+          updatedBy: 1 as UserID,
         })
     ).toThrow("term");
     expect(
       () =>
         new Term({
-          id: "abc" as TermID,
-          glossaryID: "def" as GlossaryID,
+          uuid: "abc" as TermID,
+          glossaryId: "def" as GlossaryID,
           name: "Good Name",
           description: "A".repeat(maxDescriptionLength + 1),
+          updatedBy: 1 as UserID,
         })
     ).toThrow("term");
   });
@@ -101,10 +111,11 @@ describe("Term entity", () => {
       () =>
         new Term(
           {
-            id: "abc" as TermID,
-            glossaryID: "def" as GlossaryID,
+            uuid: "abc" as TermID,
+            glossaryId: "def" as GlossaryID,
             name: "",
             description: "",
+            updatedBy: 1 as UserID,
           },
           true
         )
@@ -113,11 +124,12 @@ describe("Term entity", () => {
 
   it("cannot be changed", () => {
     const term = new Term({
-      id: "abc" as TermID,
-      glossaryID: "def" as GlossaryID,
+      uuid: "abc" as TermID,
+      glossaryId: "def" as GlossaryID,
       name: "X",
       description: "Good description",
+      updatedBy: 1 as UserID,
     });
-    expect(() => ((term as any).id = "abc")).toThrow("read only");
+    expect(() => ((term as any).uuid = "abc")).toThrow("read only");
   });
 });

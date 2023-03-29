@@ -1,6 +1,7 @@
 import { Type } from "@sinclair/typebox";
 
-import { FieldsOf } from "@fieldzoo/generic-types";
+import { FieldsOf, SelectivePartial } from "@fieldzoo/generic-types";
+import { KeyedObject } from "@fieldzoo/kysely-lenses";
 import { SafeValidator } from "@fieldzoo/safe-validator";
 import {
   NonEmptyString,
@@ -10,6 +11,7 @@ import {
 import { freezeField } from "@fieldzoo/freeze-field";
 
 import { GlossaryID } from "./glossary";
+import { UserID } from "./user";
 
 /** Database ID of a term record */
 export type TermID = string & { readonly __typeID: unique symbol };
@@ -17,33 +19,47 @@ export type TermID = string & { readonly __typeID: unique symbol };
 /**
  * Class representing a valid term
  */
-export class Term {
-  readonly id: TermID;
-  glossaryID: GlossaryID;
+export class Term implements KeyedObject<Term, ["uuid"]> {
+  readonly uuid: TermID;
+  glossaryId: GlossaryID;
   name: string;
   description: string;
+  updatedBy: UserID;
 
   static schema = Type.Object({
-    id: NonEmptyString(),
-    glossaryID: NonEmptyString(),
+    uuid: Type.String(),
+    glossaryId: NonEmptyString(),
     name: SingleLineUniString({
       minLength: 1,
       maxLength: 100,
     }),
     description: MultiLineUniString({ minLength: 1, maxLength: 1000 }),
+    updatedBy: Type.Number({ minimum: 1 }),
   });
   static #validator = new SafeValidator(this.schema);
 
-  constructor(fields: FieldsOf<Term>, assumeValid = false) {
-    this.id = fields.id;
-    this.glossaryID = fields.glossaryID;
+  constructor(
+    fields: SelectivePartial<FieldsOf<Term>, "uuid">,
+    assumeValid = false
+  ) {
+    this.uuid = fields.uuid ?? ("" as TermID);
+    this.glossaryId = fields.glossaryId;
     this.name = fields.name;
     this.description = fields.description;
+    this.updatedBy = fields.updatedBy;
 
     if (!assumeValid) {
       Term.#validator.safeValidate(this, "Invalid term");
     }
-    freezeField(this, "id");
+    freezeField(this, "uuid");
+  }
+
+  /**
+   * Returns the term's UUID.
+   * @returns The term's UUID.
+   */
+  getKey(): [TermID] {
+    return [this.uuid];
   }
 }
 export interface Term {

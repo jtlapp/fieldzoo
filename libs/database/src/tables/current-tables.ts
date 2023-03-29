@@ -2,6 +2,12 @@
 
 import { Generated } from "kysely";
 
+export interface Database {
+  users: Users;
+  glossaries: Glossaries;
+  terms: Terms;
+}
+
 export interface Users {
   id: Generated<number>;
   name: string;
@@ -11,12 +17,15 @@ export interface Users {
 export interface Glossaries {
   uuid: string;
   ownerId: number;
-  updatedBy: number;
   name: string;
   description: string | null;
+  updatedBy: number;
 }
 
-export interface Database {
-  users: Users;
-  glossaries: Glossaries;
+export interface Terms {
+  uuid: string;
+  glossaryId: string;
+  name: string;
+  description: string;
+  updatedBy: number;
 }
