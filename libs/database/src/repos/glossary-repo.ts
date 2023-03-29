@@ -1,11 +1,10 @@
 import { Kysely } from "kysely";
-import { randomUUID } from "crypto";
 
 import { Glossary, GlossaryID, UserID } from "@fieldzoo/model";
 import { ObjectTableLens } from "@fieldzoo/kysely-lenses";
 
 import { Database } from "../tables/current-tables";
-import { idEncoder } from "../lib/id-encoder";
+import { createBase64UUID } from "../lib/base64-uuid";
 
 /**
  * Repository for persisting glossaries.
@@ -22,7 +21,7 @@ export class GlossaryRepo {
     this.#tableLens = new ObjectTableLens(db, "glossaries", ["uuid"], {
       insertTransform: (glossary) => ({
         ...glossary,
-        uuid: idEncoder.fromUUID(randomUUID()),
+        uuid: createBase64UUID(),
       }),
       updaterTransform: (glossary) => glossary,
       insertReturnTransform: (glossary: Glossary, returns: any) => {
