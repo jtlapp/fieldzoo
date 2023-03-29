@@ -81,8 +81,6 @@ export class KeyedTableLens<
   ReturnColumns,
   ReturnedObject
 > {
-  // TODO: have options.returnColumns default to ["id"]
-
   /**
    * Constructs a new keyed table lens.
    * @param db The Kysely database.

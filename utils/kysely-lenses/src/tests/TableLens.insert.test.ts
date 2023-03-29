@@ -63,8 +63,6 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
-// TODO: add insert test returning all columns
-
 ignore("requires return columns to have a consistent type", () => {
   new TableLens<Database, "users">(db, "users", {
     // @ts-expect-error - actual and declared return types must match
