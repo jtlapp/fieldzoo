@@ -21,19 +21,19 @@ export type GlossaryID = string & { readonly __typeID: unique symbol };
 export class Glossary implements KeyedObject<Glossary, ["uuid"]> {
   readonly uuid: GlossaryID;
   ownerId: UserID;
-  updatedBy: UserID;
   name: string;
   description: string | null;
+  updatedBy: UserID;
 
   static schema = Type.Object({
     uuid: Type.String(),
     ownerId: Type.Number({ minimum: 1 }),
-    updatedBy: Type.Number({ minimum: 1 }),
     name: SingleLineUniString({
       minLength: 1,
       maxLength: 100,
     }),
     description: Nullable(MultiLineUniString({ maxLength: 1000 })),
+    updatedBy: Type.Number({ minimum: 1 }),
   });
   static #validator = new SafeValidator(this.schema);
 
@@ -48,9 +48,9 @@ export class Glossary implements KeyedObject<Glossary, ["uuid"]> {
   ) {
     this.uuid = fields.uuid ?? ("" as GlossaryID);
     this.ownerId = fields.ownerId;
-    this.updatedBy = fields.updatedBy;
     this.name = fields.name;
     this.description = fields.description;
+    this.updatedBy = fields.updatedBy;
 
     if (!assumeValid) {
       Glossary.#validator.safeValidate(this, "Invalid glossary");
