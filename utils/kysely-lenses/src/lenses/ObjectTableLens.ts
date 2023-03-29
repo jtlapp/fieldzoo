@@ -9,6 +9,8 @@ import {
   SelectableColumnTuple,
 } from "../lib/type-utils";
 
+// TODO: catch query errors and provide helpful error messages
+
 /** Default key columns */
 // TODO: get this default from KeyedTableLens
 const DEFAULT_KEY = ["id"] as const;
@@ -75,9 +77,10 @@ export class ObjectTableLens<
    * @param options Options governing ObjectTableLens behavior.
    *  `insertTransform` defaults to a transform that removes the primary key
    *  columns. `insertReturnTransform` defaults to a transform that adds the
-   *  return columns. `updaterTransform` defaults to the `insertTransform`
-   *  and `updateReturnTransform` defaults to the `insertReturnTransform`,
-   *  but the update transforms only apply to the `save()` method.
+   *  return columns. The update transforms only apply to `update()` and
+   *  `updateNoReturns()`; `updateWhere()` and `updateCount()` accept and
+   *  return individual columns. `updateReturnTransform` defaults to the
+   *  `insertReturnTransform`.
    */
   constructor(
     db: Kysely<DB>,
@@ -100,9 +103,7 @@ export class ObjectTableLens<
     );
     this.keyedTableLens = new KeyedTableLens(db, tableName, primaryKeyColumns, {
       ...this.options,
-      // TODO: I'm now thinking this should default to a passthrough
-      updaterTransform:
-        options.updaterTransform ?? this.options.insertTransform,
+      updaterTransform: options.updaterTransform,
       updateReturnTransform:
         options.updateReturnTransform ?? this.options.insertReturnTransform,
     } as any);

@@ -228,6 +228,13 @@ it("inserts/updates/deletes a mapped object class w/ inferred update transforms"
         email: user.email,
       };
     },
+    updaterTransform: (user: KeyedUser) => {
+      return {
+        name: `${user.firstName} ${user.lastName}`,
+        handle: user.handle,
+        email: user.email,
+      };
+    },
     insertReturnTransform: (user, returns) => {
       return new KeyedUser(
         returns.id,
