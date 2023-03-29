@@ -1,7 +1,7 @@
 import { Type } from "@sinclair/typebox";
 
 import { FieldsOf, SelectivePartial } from "@fieldzoo/generic-types";
-import { KeyedObject } from "@fieldzoo/kysely-lenses";
+import { TableObject } from "@fieldzoo/kysely-lenses";
 import { SafeValidator } from "@fieldzoo/safe-validator";
 import {
   Nullable,
@@ -18,7 +18,7 @@ export type GlossaryID = string & { readonly __typeID: unique symbol };
 /**
  * Class representing a valid glossary.
  */
-export class Glossary implements KeyedObject<Glossary, ["uuid"]> {
+export class Glossary implements TableObject<Glossary, ["uuid"]> {
   readonly uuid: GlossaryID;
   ownerId: UserID;
   name: string;

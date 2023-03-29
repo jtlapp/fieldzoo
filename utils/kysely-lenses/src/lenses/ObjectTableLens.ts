@@ -1,7 +1,12 @@
 import { Insertable, Kysely, Selectable } from "kysely";
 
 import { TableLens, TableLensOptions } from "./TableLens";
-import { KeyedTableLens, SingleKeyValue } from "./KeyedTableLens";
+import {
+  KeyedObject,
+  KeyedTableLens,
+  SingleKeyValue,
+  DEFAULT_KEY,
+} from "./KeyedTableLens";
 import {
   KeyTuple,
   ObjectWithKeys,
@@ -11,18 +16,13 @@ import {
 
 // TODO: catch query errors and provide helpful error messages
 
-/** Default key columns */
-// TODO: get this default from KeyedTableLens
-const DEFAULT_KEY = ["id"] as const;
-
 /**
- * Interface for keyed objects.
+ * Interface for table objects.
  */
-// TODO: maybe rename this to TableObject?
-export interface KeyedObject<
+export interface TableObject<
   T,
   PrimaryKeyColumns extends SelectableColumnTuple<T>
-> {
+> extends Required<KeyedObject<T, PrimaryKeyColumns>> {
   getKey(): KeyTuple<T, PrimaryKeyColumns>;
 }
 
@@ -42,7 +42,7 @@ export interface KeyedObject<
 export class ObjectTableLens<
   DB,
   TableName extends keyof DB & string,
-  MappedObject extends KeyedObject<DB[TableName], PrimaryKeyColumns>,
+  MappedObject extends TableObject<DB[TableName], PrimaryKeyColumns>,
   PrimaryKeyColumns extends SelectableColumnTuple<DB[TableName]> = [
     "id" & SelectableColumn<DB[TableName]>
   ],
@@ -172,7 +172,7 @@ export class ObjectTableLens<
 function _prepareBaseOptions<
   DB,
   TableName extends keyof DB & string,
-  MappedObject extends KeyedObject<DB[TableName], PrimaryKeyColumns>,
+  MappedObject extends TableObject<DB[TableName], PrimaryKeyColumns>,
   PrimaryKeyColumns extends SelectableColumnTuple<DB[TableName]>,
   ReturnColumns extends (keyof Selectable<DB[TableName]> & string)[] | ["*"]
 >(

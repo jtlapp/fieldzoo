@@ -17,7 +17,7 @@ import {
 import { TableLensOptions, TableLens } from "./TableLens";
 
 /** Default key columns */
-const DEFAULT_KEY = ["id"] as const;
+export const DEFAULT_KEY = ["id"] as const;
 
 // TODO: Make all modifiable structures readonly when possible.
 
@@ -35,10 +35,10 @@ export type SingleKeyValue<
  * Interface that updater objects must implement to provide a key, if
  * the key is not to be taken directly from the object's properties.
  * @typeparam T Table interface.
- * @typeparam KA Array of the primary key column names.
+ * @typeparam KeyColumns Array of the primary key column names.
  */
-export interface KeyedObject<T, KA extends (keyof Selectable<T> & string)[]> {
-  getKey?: () => KeyTuple<T, KA>;
+export interface KeyedObject<T, KeyColumns extends SelectableColumnTuple<T>> {
+  getKey?: () => KeyTuple<T, KeyColumns>;
 }
 
 /**

@@ -1,7 +1,7 @@
 import { Type } from "@sinclair/typebox";
 
 import { FieldsOf, SelectivePartial } from "@fieldzoo/generic-types";
-import { KeyedObject } from "@fieldzoo/kysely-lenses";
+import { TableObject } from "@fieldzoo/kysely-lenses";
 import { SafeValidator } from "@fieldzoo/safe-validator";
 import {
   NonEmptyString,
@@ -19,7 +19,7 @@ export type TermID = string & { readonly __typeID: unique symbol };
 /**
  * Class representing a valid term
  */
-export class Term implements KeyedObject<Term, ["uuid"]> {
+export class Term implements TableObject<Term, ["uuid"]> {
   readonly uuid: TermID;
   glossaryId: GlossaryID;
   name: string;

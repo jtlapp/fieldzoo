@@ -3,7 +3,7 @@ import { Kysely } from "kysely";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database, Users } from "./utils/test-tables";
 import { USERS, insertedUser1 } from "./utils/test-objects";
-import { KeyedObject, ObjectTableLens } from "../lenses/ObjectTableLens";
+import { TableObject, ObjectTableLens } from "../lenses/ObjectTableLens";
 
 let db: Kysely<Database>;
 
@@ -14,7 +14,7 @@ beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
 it("inserts/updates/deletes a mapped object w/ default transforms", async () => {
-  class KeyedUser implements KeyedObject<Users, ["id"]> {
+  class KeyedUser implements TableObject<Users, ["id"]> {
     constructor(
       public id: number,
       public name: string,
@@ -91,7 +91,7 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
 });
 
 it("inserts/updates/deletes a mapped object class w/ all custom transforms", async () => {
-  class KeyedUser implements KeyedObject<Users, ["id"]> {
+  class KeyedUser implements TableObject<Users, ["id"]> {
     constructor(
       public serialNo: number,
       public firstName: string,
@@ -206,7 +206,7 @@ it("inserts/updates/deletes a mapped object class w/ all custom transforms", asy
 });
 
 it("inserts/updates/deletes a mapped object class w/ inferred update transforms", async () => {
-  class KeyedUser implements KeyedObject<Users, ["id"]> {
+  class KeyedUser implements TableObject<Users, ["id"]> {
     constructor(
       public id: number,
       public firstName: string,

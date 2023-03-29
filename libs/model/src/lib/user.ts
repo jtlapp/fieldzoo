@@ -1,7 +1,7 @@
 import { Type } from "@sinclair/typebox";
 
 import { FieldsOf, SelectivePartial } from "@fieldzoo/generic-types";
-import { KeyedObject } from "@fieldzoo/kysely-lenses";
+import { TableObject } from "@fieldzoo/kysely-lenses";
 import { SafeValidator } from "@fieldzoo/safe-validator";
 import { EmailString, UserNameUniString } from "@fieldzoo/typebox-types";
 import { freezeField } from "@fieldzoo/freeze-field";
@@ -12,7 +12,7 @@ export type UserID = number & { readonly __typeID: unique symbol };
 /**
  * Class representing a valid user.
  */
-export class User implements KeyedObject<User, ["id"]> {
+export class User implements TableObject<User, ["id"]> {
   readonly id: UserID;
   name: string;
   email: string;
