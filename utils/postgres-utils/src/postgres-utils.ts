@@ -16,7 +16,7 @@ export async function dropAllTables(db: Kysely<Schema>): Promise<void> {
   const tableNames = await existingTables(db);
   if (tableNames.length > 0) {
     const dropSql = `${tableNames
-      .map((tableName) => `drop table if exists ${tableName} cascade;`)
+      .map((tableName) => `drop table if exists "${tableName}" cascade;`)
       .join("\n")}`;
     await sql.raw(dropSql).execute(db);
   }
