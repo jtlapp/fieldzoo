@@ -76,11 +76,11 @@ export class ObjectTableLens<
    * @param primaryKeyColumns The names of the primary key columns.
    * @param options Options governing ObjectTableLens behavior.
    *  `insertTransform` defaults to a transform that removes the primary key
-   *  columns. `insertReturnTransform` defaults to a transform that adds the
-   *  return columns. The update transforms only apply to `update()` and
-   *  `updateNoReturns()`; `updateWhere()` and `updateCount()` accept and
-   *  return individual columns. `updateReturnTransform` defaults to the
-   *  `insertReturnTransform`.
+   *  columns whose values are falsy. `insertReturnTransform` defaults to a
+   *  transform that adds the return columns. The update transforms only
+   *  apply to `update()` and `updateNoReturns()`; `updateWhere()` and
+   *  `updateCount()` accept and return individual columns.
+   *  `updateReturnTransform` defaults to the `insertReturnTransform`.
    */
   constructor(
     db: Kysely<DB>,
@@ -190,9 +190,11 @@ function _prepareBaseOptions<
   const baseOptions = {
     insertTransform: (obj: MappedObject) => {
       const insertion = { ...obj };
-      primaryKeyColumns.forEach(
-        (column) => delete insertion[column as keyof MappedObject]
-      );
+      primaryKeyColumns.forEach((column) => {
+        if (!obj[column as keyof MappedObject]) {
+          delete insertion[column as keyof MappedObject];
+        }
+      });
       return insertion;
     },
     insertReturnTransform: (

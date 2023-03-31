@@ -43,21 +43,33 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
   const updateReturn1 = await userLens.update(userWithID);
   expect(updateReturn1).toEqual(null);
 
-  // test inserting a user
-  const insertedUser = new KeyedUser(
+  // test inserting a user with falsy id
+  const insertedUser1 = new KeyedUser(
     0,
     USERS[0].name,
     USERS[0].handle,
     USERS[0].email
   );
-  const insertReturn = (await userLens.insert(insertedUser))!;
-  expect(insertReturn).not.toBeNull();
-  expect(insertReturn.id).toBeGreaterThan(0);
+  const insertReturn1 = (await userLens.insert(insertedUser1))!;
+  expect(insertReturn1).not.toBeNull();
+  expect(insertReturn1.id).toBeGreaterThan(0);
 
   // test getting a user by ID
-  const selectedUser1 = await userLens.selectByKey(insertReturn.id);
-  expect(selectedUser1).toEqual(insertReturn);
-  expect(selectedUser1?.id).toEqual(insertReturn.id);
+  const selectedUser1 = await userLens.selectByKey(insertReturn1.id);
+  expect(selectedUser1).toEqual(insertReturn1);
+  expect(selectedUser1?.id).toEqual(insertReturn1.id);
+
+  // test inserting a user with truthy id
+  const insertedUser2 = new KeyedUser(
+    10,
+    USERS[1].name,
+    USERS[1].handle,
+    USERS[1].email
+  );
+  const insertReturn2 = (await userLens.insert(insertedUser2))!;
+  expect(insertReturn2).toEqual(insertedUser2);
+  const selectedUser2 = await userLens.selectByKey(insertReturn2.id);
+  expect(selectedUser2).toEqual(insertedUser2);
 
   // test updating a user, with returned object
   const updaterUser = new KeyedUser(
@@ -68,26 +80,26 @@ it("inserts/updates/deletes a mapped object w/ default transforms", async () => 
   );
   const updateReturn = await userLens.update(updaterUser);
   expect(updateReturn).toEqual(updaterUser);
-  const selectedUser2 = await userLens.selectByKey(insertReturn.id);
-  expect(selectedUser2).toEqual(updateReturn);
+  const selectedUser3 = await userLens.selectByKey(insertReturn1.id);
+  expect(selectedUser3).toEqual(updateReturn);
 
   // test updating a user, without returned object
   const updaterUser2 = new KeyedUser(
-    selectedUser2!.id,
+    selectedUser3!.id,
     "Freddy",
-    selectedUser2!.handle,
-    selectedUser2!.email
+    selectedUser3!.handle,
+    selectedUser3!.email
   );
   const updateReturn2 = await userLens.updateNoReturns(updaterUser2);
   expect(updateReturn2).toBe(true);
-  const selectedUser3 = await userLens.selectByKey(insertReturn.id);
-  expect(selectedUser3).toEqual(updaterUser2);
+  const selectedUser4 = await userLens.selectByKey(insertReturn1.id);
+  expect(selectedUser4).toEqual(updaterUser2);
 
   // test deleting a user
-  const deleted = await userLens.deleteByKey(insertReturn.id);
+  const deleted = await userLens.deleteByKey(insertReturn1.id);
   expect(deleted).toEqual(true);
-  const selectedUser4 = await userLens.selectByKey(insertReturn.id);
-  expect(selectedUser4).toBeNull();
+  const selectedUser5 = await userLens.selectByKey(insertReturn1.id);
+  expect(selectedUser5).toBeNull();
 });
 
 it("inserts/updates/deletes a mapped object class w/ all custom transforms", async () => {
