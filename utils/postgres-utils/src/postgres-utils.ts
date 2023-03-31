@@ -15,6 +15,8 @@ interface Schema {
 export async function dropAllTables(db: Kysely<Schema>): Promise<void> {
   const tableNames = await existingTables(db);
   if (tableNames.length > 0) {
+    // It is necessary to quote the table name to keep Postgres from
+    // lowercasing it, in case the name contains uppercase letters.
     const dropSql = `${tableNames
       .map((tableName) => `drop table if exists "${tableName}" cascade;`)
       .join("\n")}`;
