@@ -79,7 +79,7 @@ export class ObjectTableLens<
    *  columns whose values are falsy. `insertReturnTransform` defaults to a
    *  transform that adds the return columns. The update transforms only
    *  apply to `update()` and `updateNoReturns()`; `updateWhere()` and
-   *  `updateCount()` accept and return individual columns.
+   *  `updateCount()` accept and return individual columns, not `MappedObject`.
    *  `updateReturnTransform` defaults to the `insertReturnTransform`.
    */
   constructor(
