@@ -35,6 +35,22 @@ export async function up(db: Kysely<any>): Promise<void> {
     .on("terms")
     .column("glossaryId")
     .execute();
+
+  await db.schema
+    .createTable("term_terms")
+    .addColumn("termId", "text", (col) =>
+      col.references("terms.uuid").onDelete("cascade").notNull()
+    )
+    .addColumn("referencedTermId", "text", (col) =>
+      col.references("terms.uuid").onDelete("cascade").notNull()
+    )
+    .execute();
+
+  await db.schema
+    .createIndex("term_terms_termId_index")
+    .on("term_terms")
+    .column("termId")
+    .execute();
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
