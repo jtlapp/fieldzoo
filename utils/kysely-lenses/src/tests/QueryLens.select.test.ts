@@ -11,7 +11,7 @@ import { Database, Users } from "./utils/test-tables";
 import { UserTableLensReturningID } from "./utils/test-lenses";
 import { POSTS, USERS } from "./utils/test-objects";
 import { ignore } from "./utils/test-utils";
-import { allOf, anyOf } from "../filters/CompoundFilter";
+import { QueryModifier } from "../lib/query-filter";
 // import "kysely-params";
 
 let db: Kysely<Database>;
@@ -118,8 +118,10 @@ describe("selectMany() with simple filters", () => {
   it("selects with a query builder filter", async () => {
     await userTableLens.insert(USERS);
 
-    const users = await userQueryLens.selectMany((qb) =>
-      qb.where("name", "=", USERS[0].name).orderBy("handle", "desc")
+    const users = await userQueryLens.selectMany(
+      new QueryModifier((qb) =>
+        qb.where("name", "=", USERS[0].name).orderBy("handle", "desc")
+      )
     );
     expect(users.length).toEqual(2);
     expect(users[0].handle).toEqual(USERS[2].handle);
@@ -283,12 +285,6 @@ describe("selectMany() with simple filters", () => {
     });
   });
 
-  it("throws on unrecognized filter", async () => {
-    expect(userTableLens.selectMany("" as any)).rejects.toThrow(
-      "Unrecognized query filter"
-    );
-  });
-
   ignore("detects selectMany() simple filter type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expressions
     userQueryLens.selectMany("name = 'John Doe'");
@@ -296,6 +292,10 @@ describe("selectMany() with simple filters", () => {
     userQueryLens.selectMany("name", "=");
     // @ts-expect-error - object filter fields must be valid
     userQueryLens.selectMany({ notThere: "xyz" });
+    userQueryLens.selectMany(({ or, cmpr }) =>
+      // @ts-expect-error - where expression columns must be valid
+      or([cmpr("notThere", "=", "Sue")])
+    );
     // @ts-expect-error - binary op filter fields must be valid
     userQueryLens.selectMany(["notThere", "=", "foo"]);
     // @ts-expect-error - binary op filter fields must be valid
@@ -310,65 +310,6 @@ describe("selectMany() with simple filters", () => {
     (await userQueryLens.selectMany((qb) => qb))[0].notThere;
     // @ts-expect-error - only table columns are accessible w/ expr filter
     (await userQueryLens.selectMany(sql`name = 'Sue'`))[0].notThere;
-  });
-});
-
-describe("selectMany() with compound filters", () => {
-  it("selects with allOf()", async () => {
-    //const allOf = userTableLens.selectFilterMaker().allOf;
-    const userIDs = await userTableLens.insert(USERS);
-
-    const users = await userQueryLens.selectMany(
-      allOf({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
-    );
-    expect(users.length).toEqual(1);
-    expect(users[0].handle).toEqual(USERS[2].handle);
-  });
-
-  it("selects with anyOf()", async () => {
-    await userTableLens.insert(USERS);
-
-    const users = await userQueryLens.selectMany(
-      anyOf({ handle: USERS[0].handle }, ["handle", "=", USERS[2].handle])
-    );
-    expect(users.length).toEqual(2);
-    expect(users[0].handle).toEqual(USERS[0].handle);
-    expect(users[1].handle).toEqual(USERS[2].handle);
-  });
-
-  it("selects with anyOf() and a nested allOf()", async () => {
-    const userIDs = await userTableLens.insert(USERS);
-
-    const users = await userQueryLens.selectMany(
-      anyOf(
-        { handle: USERS[0].handle },
-        allOf(["id", ">", userIDs[0].id], (qb) =>
-          qb.where("name", "=", USERS[0].name)
-        )
-      )
-    );
-    expect(users.length).toEqual(2);
-    expect(users[0].handle).toEqual(USERS[0].handle);
-    expect(users[1].handle).toEqual(USERS[2].handle);
-  });
-
-  ignore("detects selectMany() compound filter type errors", async () => {
-    await userQueryLens.selectMany(
-      // @ts-expect-error - only table columns are accessible via anyOf()
-      anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
-    );
-    await userQueryLens.selectMany(
-      // @ts-expect-error - only table columns are accessible via allOf()
-      allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
-    );
-    await userQueryLens.selectMany(
-      // @ts-expect-error - only table columns are accessible via anyOf()
-      anyOf({ name: "xyz" }, allOf(["notThere", "=", "Sue"]))
-    );
-    await userQueryLens.selectMany(
-      // @ts-expect-error - only table columns are accessible via anyOf()
-      allOf({ name: "xyz" }, anyOf(["notThere", "=", "Sue"]))
-    );
   });
 });
 
@@ -408,8 +349,10 @@ describe("selectOne()", () => {
   it("selects the first row with a query builder filter", async () => {
     await userTableLens.insert(USERS);
 
-    const user = await userQueryLens.selectOne((qb) =>
-      qb.where("name", "=", USERS[0].name).orderBy("handle", "desc")
+    const user = await userQueryLens.selectOne(
+      new QueryModifier((qb) =>
+        qb.where("name", "=", USERS[0].name).orderBy("handle", "desc")
+      )
     );
     expect(user?.handle).toEqual(USERS[2].handle);
   });
@@ -424,8 +367,8 @@ describe("selectOne()", () => {
   it("selects the first row with a compound filter", async () => {
     const userIDs = await userTableLens.insert(USERS);
 
-    const user = await userQueryLens.selectOne(
-      allOf({ name: USERS[0].name }, ["id", ">", userIDs[0].id])
+    const user = await userQueryLens.selectOne(({ and, cmpr }) =>
+      and([cmpr("name", "=", USERS[0].name), cmpr("id", ">", userIDs[0].id)])
     );
     expect(user?.handle).toEqual(USERS[2].handle);
   });
@@ -557,12 +500,6 @@ describe("selectOne()", () => {
     });
   });
 
-  it("throws on unrecognized filter", async () => {
-    expect(userTableLens.selectOne("" as any)).rejects.toThrow(
-      "Unrecognized query filter"
-    );
-  });
-
   ignore("detects selectOne() type errors", async () => {
     // @ts-expect-error - doesn't allow plain string expression filters
     userQueryLens.selectOne("name = 'John Doe'");
@@ -570,6 +507,10 @@ describe("selectOne()", () => {
     userQueryLens.selectOne(["name", "="]);
     // @ts-expect-error - object filter fields must be valid
     userQueryLens.selectOne({ notThere: "xyz" });
+    userQueryLens.selectOne(({ or, cmpr }) =>
+      // @ts-expect-error - where expression columns must be valid
+      or([cmpr("notThere", "=", "Sue")])
+    );
     // @ts-expect-error - binary op filter fields must be valid
     userQueryLens.selectOne(["notThere", "=", "foo"]);
     // @ts-expect-error - binary op filter fields must be valid
@@ -584,21 +525,5 @@ describe("selectOne()", () => {
     (await userQueryLens.selectOne((qb) => qb)).notThere;
     // @ts-expect-error - only table columns are accessible w/ expr filter
     (await userQueryLens.selectOne(sql`name = 'Sue'`)).notThere;
-    await userQueryLens.selectOne(
-      // @ts-expect-error - only table columns are accessible via anyOf()
-      anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
-    );
-    await userQueryLens.selectOne(
-      // @ts-expect-error - only table columns are accessible via allOf()
-      allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
-    );
-    await userQueryLens.selectOne(
-      // @ts-expect-error - only table columns are accessible via anyOf()
-      anyOf({ name: "xyz" }, allOf(["notThere", "=", "Sue"]))
-    );
-    await userQueryLens.selectOne(
-      // @ts-expect-error - only table columns are accessible via anyOf()
-      allOf({ name: "xyz" }, anyOf(["notThere", "=", "Sue"]))
-    );
   });
 });

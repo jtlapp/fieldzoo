@@ -1,10 +1,6 @@
+import { Kysely, ReferenceExpression, SelectQueryBuilder } from "kysely";
 import {
-  Kysely,
-  ReferenceExpression,
-  SelectExpressionOrList,
-  SelectQueryBuilder,
-} from "kysely";
-import {
+  SelectArg,
   SelectExpression,
   Selection,
 } from "kysely/dist/cjs/parser/select-parser";
@@ -15,7 +11,7 @@ import {
   ColumnAlias,
   EmptyObject,
 } from "../lib/type-utils";
-import { applyQueryFilter, QueryFilter } from "../filters/QueryFilter";
+import { applyQueryFilter, QueryFilter } from "../lib/query-filter";
 
 /**
  * Query result row type returning all possible columns, including
@@ -26,7 +22,7 @@ type InitialQBOutputOrAll<
   DB,
   TableName extends keyof DB & string,
   InitialQBOutput,
-  SelectColumnAliases extends string[]
+  SelectColumnAliases extends ColumnAlias<DB, TableName>[]
 > = InitialQBOutput extends EmptyObject
   ? AllColumns<DB, TableName, SelectColumnAliases>
   : InitialQBOutput;
@@ -40,7 +36,7 @@ type SelectAllQB<
   DB,
   TableName extends keyof DB & string,
   InitialQBOutput,
-  SelectColumnAliases extends string[]
+  SelectColumnAliases extends ColumnAlias<DB, TableName>[]
 > = SelectQueryBuilder<
   DB,
   TableName,
@@ -161,7 +157,10 @@ export class QueryLens<
    * @returns A query builder for selecting rows from this table,
    *  returning only the requested column or columns.
    */
-  selectQB<SEL extends SelectExpressionOrList<DB, TableName>>(selections: SEL) {
+  selectQB<
+    SE extends SelectExpression<DB, TableName>,
+    SEL extends SelectArg<DB, TableName, SE>
+  >(selections: SEL) {
     // clearSelect() clears a clone of the query builder
     return this.initialQB.clearSelect().select(selections as any);
   }
@@ -190,12 +189,12 @@ export class QueryLens<
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
-      RE
+      RE,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>
     >
   ): Promise<SelectedObject[]> {
     const sqb = this.selectAllQB();
-    const fqb = applyQueryFilter(this, filter)(sqb);
+    const fqb = applyQueryFilter(this, sqb as any, filter);
     const selections = await fqb.execute();
     return this.transformSelectionArray(selections as any);
   }
@@ -210,12 +209,12 @@ export class QueryLens<
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
-      RE
+      RE,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>
     >
   ): Promise<SelectedObject | null> {
     const sqb = this.selectAllQB();
-    const fqb = applyQueryFilter(this, filter)(sqb);
+    const fqb = applyQueryFilter(this, sqb as any, filter);
     const selection = await fqb.executeTakeFirst();
     if (!selection) return null;
     return this.transformSelection(selection as any);
@@ -234,8 +233,8 @@ export class QueryLens<
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
-      RE
+      RE,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>
     >
   ): Promise<
     InitialQBOutputOrAll<DB, TableName, InitialQBOutput, SelectColumnAliases>[]
@@ -245,8 +244,8 @@ export class QueryLens<
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
-      RE
+      RE,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>
     >,
     selections: []
   ): Promise<
@@ -263,8 +262,8 @@ export class QueryLens<
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
-      RE
+      RE,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>
     >,
     selections: ReadonlyArray<SE>
   ): Promise<Selection<DB, TableName, SE>[]>;
@@ -279,8 +278,8 @@ export class QueryLens<
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
-      RE
+      RE,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>
     >,
     selections?: ReadonlyArray<SE>
   ): Promise<
@@ -293,7 +292,7 @@ export class QueryLens<
     | Selection<DB, TableName, SE>[]
   > {
     const sqb = this.createSubselectQB(selections);
-    const fqb = applyQueryFilter(this, filter)(sqb);
+    const fqb = applyQueryFilter(this, sqb as any, filter);
     return fqb.execute() as any;
   }
 
@@ -310,8 +309,8 @@ export class QueryLens<
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
-      RE
+      RE,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>
     >
   ): Promise<InitialQBOutputOrAll<
     DB,
@@ -324,8 +323,8 @@ export class QueryLens<
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
-      RE
+      RE,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>
     >,
     selections: []
   ): Promise<InitialQBOutputOrAll<
@@ -345,8 +344,8 @@ export class QueryLens<
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
-      RE
+      RE,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>
     >,
     selections: ReadonlyArray<SE>
   ): Promise<Selection<DB, TableName, SE> | null>;
@@ -361,8 +360,8 @@ export class QueryLens<
     filter: QueryFilter<
       DB,
       TableName,
-      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>,
-      RE
+      RE,
+      SelectAllQB<DB, TableName, InitialQBOutput, SelectColumnAliases>
     >,
     selections?: ReadonlyArray<SE>
   ): Promise<
@@ -371,7 +370,7 @@ export class QueryLens<
     | null
   > {
     const sqb = this.createSubselectQB(selections);
-    const fqb = applyQueryFilter(this, filter)(sqb);
+    const fqb = applyQueryFilter(this, sqb as any, filter);
     const result = await fqb.executeTakeFirst();
     return result ? (result as any) : null;
   }

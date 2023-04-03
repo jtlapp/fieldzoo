@@ -16,6 +16,7 @@ import { SelectedUser } from "./utils/test-types";
 import { ignore } from "./utils/test-utils";
 import { UserTableLensReturningID } from "./utils/test-lenses";
 import { EmptyObject } from "../lib/type-utils";
+import { QueryModifier } from "../lib/query-filter";
 
 let db: Kysely<Database>;
 let userTableLens: UserTableLensReturningID;
@@ -114,7 +115,9 @@ describe("transforms selection objects", () => {
     expect(user).toEqual(selectedUser1);
 
     await userTableLens.insert([userRow2, userRow3]);
-    const users = await testTransformLens.selectMany((qb) => qb.orderBy("id"));
+    const users = await testTransformLens.selectMany(
+      new QueryModifier((qb) => qb.orderBy("id"))
+    );
     expect(users).toEqual([selectedUser1, selectedUser2, selectedUser3]);
   });
 

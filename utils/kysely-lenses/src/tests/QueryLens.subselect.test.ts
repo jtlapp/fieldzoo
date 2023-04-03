@@ -11,7 +11,6 @@ import { Database } from "./utils/test-tables";
 import { UserTableLensReturningID } from "./utils/test-lenses";
 import { POSTS, USERS } from "./utils/test-objects";
 import { ignore } from "./utils/test-utils";
-import { allOf, anyOf } from "../filters/CompoundFilter";
 
 let db: Kysely<Database>;
 let userQueryLens: QueryLens<Database, "users", object>;
@@ -65,7 +64,8 @@ describe("subselectMany()", () => {
   it("returning all, selects rows matching compound filter", async () => {
     await userTableLens.insert(USERS);
     const users = await userQueryLens.subselectMany(
-      allOf({ name: USERS[0].name }, ["id", ">", 1]),
+      ({ and, cmpr }) =>
+        and([cmpr("name", "=", USERS[0].name), cmpr("id", ">", 1)]),
       []
     );
     expect(users).toEqual([Object.assign({}, USERS[2], { id: 3 })]);
@@ -286,13 +286,15 @@ describe("subselectMany()", () => {
     // @ts-expect-error - only table columns are accessible w/ object filter
     (await userQueryLens.subselectMany({ name: "Sue" }, []))[0].notThere;
     await userQueryLens.subselectMany(
-      // @ts-expect-error - only table columns are accessible via anyOf()
-      anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
+      ({ or, cmpr }) =>
+        // @ts-expect-error - only table columns are accessible via anyOf()
+        or([cmpr("notThere", "=", "xyz"), cmpr("alsoNotThere", "=", "Sue")]),
       []
     );
     await userQueryLens.subselectMany(
-      // @ts-expect-error - only table columns are accessible via allOf()
-      allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
+      ({ and, cmpr }) =>
+        // @ts-expect-error - only table columns are accessible via allOf()
+        and([cmpr("notThere", "=", "xyz"), cmpr("alsoNotThere", "=", "Sue")]),
       []
     );
   });
@@ -320,7 +322,8 @@ describe("subselectOne()", () => {
   it("returning all, selects row matching compound filter", async () => {
     await userTableLens.insert(USERS);
     const user = await userQueryLens.subselectOne(
-      allOf({ name: USERS[0].name }, ["id", ">", 1]),
+      ({ and, cmpr }) =>
+        and([cmpr("name", "=", USERS[0].name), cmpr("id", ">", 1)]),
       []
     );
     expect(user).toEqual(Object.assign({}, USERS[2], { id: 3 }));
@@ -521,13 +524,15 @@ describe("subselectOne()", () => {
     // @ts-expect-error - only table columns are accessible w/ object filter
     (await userQueryLens.subselectOne({ name: "Sue" }, []))?.notThere;
     await userQueryLens.subselectOne(
-      // @ts-expect-error - only table columns are accessible via anyOf()
-      anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
+      ({ or, cmpr }) =>
+        // @ts-expect-error - only table columns are accessible via anyOf()
+        or([cmpr("notThere", "=", "xyz"), cmpr("alsoNotThere", "=", "Sue")]),
       []
     );
     await userQueryLens.subselectOne(
-      // @ts-expect-error - only table columns are accessible via allOf()
-      allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
+      ({ and, cmpr }) =>
+        // @ts-expect-error - only table columns are accessible via allOf()
+        and([cmpr("notThere", "=", "xyz"), cmpr("alsoNotThere", "=", "Sue")]),
       []
     );
   });

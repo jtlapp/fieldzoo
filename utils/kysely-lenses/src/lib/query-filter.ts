@@ -10,11 +10,11 @@ import {
   OperandValueExpressionOrList,
   ReferenceExpression,
   SelectType,
+  WhereExpressionFactory,
   WhereInterface,
 } from "kysely";
 
 import { QueryLens } from "../lenses/QueryLens";
-import { AppliedFilter } from "./AppliedFilter";
 
 type AnyWhereInterface = WhereInterface<any, any>;
 
@@ -25,14 +25,15 @@ type AnyWhereInterface = WhereInterface<any, any>;
 export type QueryFilter<
   DB,
   TableName extends keyof DB & string,
-  QB extends AnyWhereInterface,
-  RE extends ReferenceExpression<DB, TableName>
+  RE extends ReferenceExpression<DB, TableName>,
+  QB1 extends AnyWhereInterface,
+  QB2 extends AnyWhereInterface = QB1
 > =
   | BinaryOperationFilter<DB, TableName, RE>
   | FieldMatchingFilter<DB, TableName, RE>
-  | QueryBuilderFilter<QB>
-  | QueryExpressionFilter
-  | AppliedFilter<DB, TableName, QB>;
+  | QueryModifier<QB1, QB2>
+  | WhereExpressionFactory<DB, TableName>
+  | Expression<any>;
 
 /**
  * A filter that is a binary operation, such as `eq` or `gt`.
@@ -62,63 +63,61 @@ export type FieldMatchingFilter<
 
 /**
  * A filter that is a function that takes a query builder and returns
- * a query builder.
+ * a caller-modified query builder.
  */
-export type QueryBuilderFilter<QB> = (qb: QB) => QB;
-
-/**
- * A filter that is a Kysely expression.
- */
-export type QueryExpressionFilter = Expression<any>;
+export class QueryModifier<
+  QB1 extends AnyWhereInterface,
+  QB2 extends AnyWhereInterface
+> {
+  constructor(readonly modifier: (qb: QB1) => QB2) {}
+}
 
 /**
  * Returns a query builder that constrains the provided query builder
  * according to the provided query filter.
  * @param base The Kysely lens that is used to create references.
+ * @param qb The query builder to constrain.
  * @param filter The query filter.
- * @returns A function that takes a query builder and returns a query
- * builder that is constrained according to the provided query filter.
+ * @returns A query builder constrained for the provided query filter.
  */
 export function applyQueryFilter<
   DB,
   TableName extends keyof DB & string,
-  QB extends AnyWhereInterface,
+  QB1 extends AnyWhereInterface,
+  QB2 extends AnyWhereInterface,
   RE extends ReferenceExpression<DB, TableName>
 >(
   base: QueryLens<DB, TableName, any, any>,
-  filter: QueryFilter<DB, TableName, QB, RE>
-): (qb: AnyWhereInterface) => QB {
-  // Process a query builder filter.
+  qb: QB1,
+  filter: QueryFilter<DB, TableName, RE, QB1, QB2>
+): QB2 {
+  // Process a where expression factory.
   if (typeof filter === "function") {
-    return filter as (qb: AnyWhereInterface) => QB;
+    return qb.where(filter) as QB2;
   }
 
-  if (typeof filter === "object" && filter !== null) {
-    // Process a query expression filter. Check for expressions
-    // first because they could potentially be plain objects.
-    if ("expressionType" in filter) {
-      return (qb) => qb.where(filter) as QB;
-    }
+  // Process a query expression filter. Check for expressions
+  // first because they could potentially be plain objects.
+  if ("expressionType" in filter) {
+    return qb.where(filter) as QB2;
+  }
 
-    // Process a field matching filter. `{}` matches all rows.
-    if (filter.constructor === Object) {
-      return (qb: AnyWhereInterface) => {
-        for (const [column, value] of Object.entries(filter)) {
-          qb = qb.where(base.ref(column), "=", value) as QB;
-        }
-        return qb as QB;
-      };
-    }
+  // Process a query modifier filter.
+  if (filter instanceof QueryModifier) {
+    return filter.modifier(qb);
+  }
 
-    // Process a binary operation filter.
-    if (Array.isArray(filter)) {
-      return (qb) => qb.where(...filter) as QB;
+  // Process a field matching filter. `{}` matches all rows.
+  if (filter.constructor === Object) {
+    for (const [column, value] of Object.entries(filter)) {
+      qb = qb.where(base.ref(column), "=", value) as QB1;
     }
+    return qb as unknown as QB2;
+  }
 
-    // Process a combination filter.
-    if (filter instanceof AppliedFilter) {
-      return filter.apply(base) as (qb: AnyWhereInterface) => QB;
-    }
+  // Process a binary operation filter.
+  if (Array.isArray(filter)) {
+    return qb.where(...filter) as QB2;
   }
 
   throw Error("Unrecognized query filter");

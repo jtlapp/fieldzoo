@@ -20,7 +20,7 @@
     "preset": "jest-presets/node"
   },
   "dependencies": {
-    "kysely": "^0.23.4",
+    "kysely": "^0.24.2",
     "kysely-params": "^0.1.14"
   },
   "devDependencies": {

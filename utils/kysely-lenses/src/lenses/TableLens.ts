@@ -9,7 +9,7 @@ import {
 } from "kysely";
 
 import { LensOptions, QueryLens } from "./QueryLens";
-import { QueryFilter, applyQueryFilter } from "../filters/QueryFilter";
+import { QueryFilter, applyQueryFilter } from "../lib/query-filter";
 import { EmptyObject, ObjectWithKeys } from "../lib/type-utils";
 
 // TODO: don't store options in lens, instead extracting needed
@@ -149,9 +149,9 @@ export class TableLens<
    * @returns Returns the number of deleted rows.
    */
   async deleteWhere<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, DeleteQB<DB, TableName>, RE>
+    filter: QueryFilter<DB, TableName, RE, DeleteQB<DB, TableName>>
   ): Promise<number> {
-    const qb = applyQueryFilter(this, filter)(this.deleteQB());
+    const qb = applyQueryFilter(this, this.deleteQB(), filter);
     const result = await qb.executeTakeFirst();
     return Number(result.numDeletedRows);
   }
@@ -255,12 +255,12 @@ export class TableLens<
    * @see this.updateWhere
    */
   async updateCount<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
+    filter: QueryFilter<DB, TableName, RE, UpdateQB<DB, TableName>>,
     obj: UpdaterObject
   ): Promise<number> {
     const transformedObj = this.transformUpdater(obj);
     const uqb = this.updateQB().set(transformedObj as any);
-    const fqb = applyQueryFilter(this, filter)(uqb);
+    const fqb = applyQueryFilter(this, uqb, filter);
     const result = await fqb.executeTakeFirst();
     return Number(result.numUpdatedRows);
   }
@@ -277,17 +277,17 @@ export class TableLens<
    * @see this.updateCount
    */
   updateWhere<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
+    filter: QueryFilter<DB, TableName, RE, UpdateQB<DB, TableName>>,
     obj: UpdaterObject
   ): Promise<ReturnColumns extends [] ? void : ReturnedObject[]>;
 
   async updateWhere<RE extends ReferenceExpression<DB, TableName>>(
-    filter: QueryFilter<DB, TableName, UpdateQB<DB, TableName>, RE>,
+    filter: QueryFilter<DB, TableName, RE, UpdateQB<DB, TableName>>,
     obj: UpdaterObject
   ): Promise<ReturnedObject[] | void> {
     const transformedObj = this.transformUpdater(obj);
     const uqb = this.updateQB().set(transformedObj as any);
-    const fqb = applyQueryFilter(this, filter)(uqb);
+    const fqb = applyQueryFilter(this, uqb, filter);
 
     if (this.returnColumns.length == 0) {
       await fqb.execute();

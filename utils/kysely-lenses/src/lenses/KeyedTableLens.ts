@@ -6,8 +6,7 @@ import {
   WhereInterface,
 } from "kysely";
 
-import { allOf } from "../filters/CompoundFilter";
-import { QueryFilter } from "../filters/QueryFilter";
+import { QueryFilter } from "../lib/query-filter";
 import {
   KeyTuple,
   ObjectWithKeys,
@@ -203,23 +202,18 @@ export class KeyedTableLens<
     key:
       | SingleKeyValue<DB[TableName], PrimaryKeyColumns>
       | Readonly<KeyTuple<DB[TableName], PrimaryKeyColumns>>
-  ): QueryFilter<DB, TableName, QB, ReferenceExpression<DB, TableName>> {
+  ): QueryFilter<DB, TableName, ReferenceExpression<DB, TableName>, QB> {
     if (Array.isArray(key)) {
-      const filter: QueryFilter<
-        DB,
-        TableName,
-        QB,
-        ReferenceExpression<DB, TableName>
-      >[] = [];
-      for (let i = 0; i < this.primaryKeyColumns.length; i++) {
-        const columnName = this.primaryKeyColumns[i];
-        filter.push([
-          this.ref(columnName),
-          "=",
-          (key as KeyTuple<DB[TableName], PrimaryKeyColumns>)[i],
-        ]);
-      }
-      return allOf(...filter);
+      return ({ and, cmpr }) =>
+        and(
+          this.primaryKeyColumns.map((columnName, i) =>
+            cmpr(
+              this.ref(columnName),
+              "=",
+              (key as KeyTuple<DB[TableName], PrimaryKeyColumns>)[i]
+            )
+          )
+        );
     }
     return [this.ref(this.primaryKeyColumns[0]), "=", key];
   }

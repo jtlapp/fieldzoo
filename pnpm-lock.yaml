@@ -30,7 +30,7 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      kysely: ^0.23.4
+      kysely: ^0.24.2
       pg: ^8.9.0
       ts-jest: ^29.0.5
       tsconfig: workspace:*
@@ -45,7 +45,7 @@ importers:
       commander: 10.0.0
       dotenv: 16.0.3
       es6-error: 4.1.1
-      kysely: 0.23.5
+      kysely: 0.24.2
       pg: 8.10.0
     devDependencies:
       '@types/jest': 29.5.0
@@ -157,7 +157,7 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      kysely: ^0.23.4
+      kysely: ^0.24.2
       pg: ^8.9.0
       ts-jest: ^29.0.5
       tsconfig: workspace:*
@@ -169,7 +169,7 @@ importers:
       '@fieldzoo/model': link:../model
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
       dotenv: 16.0.3
-      kysely: 0.23.5
+      kysely: 0.24.2
       pg: 8.10.0
     devDependencies:
       '@fieldzoo/safe-validator': link:../../utils/safe-validator
@@ -384,13 +384,13 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      kysely: ^0.23.4
+      kysely: ^0.24.2
       kysely-params: ^0.1.14
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
     dependencies:
-      kysely: 0.23.5
+      kysely: 0.24.2
       kysely-params: 0.1.14
     devDependencies:
       '@types/better-sqlite3': 7.6.3
@@ -407,11 +407,11 @@ importers:
     specifiers:
       eslint-config-custom: workspace:*
       jest-presets: workspace:*
-      kysely: ^0.23.4
+      kysely: ^0.24.2
       tsconfig: workspace:*
       typescript: ^4.9.5
     dependencies:
-      kysely: 0.23.5
+      kysely: 0.24.2
     devDependencies:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
@@ -4450,11 +4450,6 @@ packages:
       kysely: 0.24.2
     dev: false
 
-  /kysely/0.23.5:
-    resolution: {integrity: sha512-TH+b56pVXQq0tsyooYLeNfV11j6ih7D50dyN8tkM0e7ndiUH28Nziojiog3qRFlmEj9XePYdZUrNJ2079Qjdow==}
-    engines: {node: '>=14.0.0'}
-    dev: false
-
   /kysely/0.24.2:
     resolution: {integrity: sha512-+7eaTJNUYm2yRq1x+lEOZc+78TO35dTZ9b0dh49+Z9CTt2byMSbMiOKpwPlOyCAaHD4kILkAYWYZNywFlmBwRA==}
     engines: {node: '>=14.0.0'}
@@ -5914,7 +5909,7 @@ packages:
       '@babel/core': 7.21.3
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 29.5.0
+      jest: 29.5.0_@types+node@18.15.10
       jest-util: 29.5.0
       json5: 2.2.3
       lodash.memoize: 4.1.2

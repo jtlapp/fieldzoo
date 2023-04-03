@@ -1,7 +1,6 @@
 import { Insertable, Kysely, Selectable, sql } from "kysely";
 
 import { TableLens } from "../lenses/TableLens";
-import { allOf, anyOf } from "../filters/CompoundFilter";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
 import { Database } from "./utils/test-tables";
 import {
@@ -20,6 +19,7 @@ import {
 } from "./utils/test-objects";
 import { ignore } from "./utils/test-utils";
 import { ReturnedUser, UpdaterUser } from "./utils/test-types";
+import { QueryModifier } from "../lib/query-filter";
 
 let db: Kysely<Database>;
 let userLensReturningDefault: UserTableLensReturningDefault;
@@ -276,43 +276,33 @@ describe("updating rows via TableLens", () => {
     }
   });
 
-  it("updates rows indicated by anyOf() filter", async () => {
+  it("updates rows indicated by a where expression filter", async () => {
     const insertReturns = await userLensReturningID.insert(USERS);
 
     const updateValues1 = { email: "foo@xyz.pdq" };
     const updateCount = await userLensReturningAll.updateCount(
-      anyOf(["id", "=", insertReturns[0].id], ["id", "=", insertReturns[2].id]),
+      ({ or, cmpr }) =>
+        or([
+          cmpr("id", "=", insertReturns[0].id),
+          cmpr("id", "=", insertReturns[2].id),
+        ]),
       updateValues1
     );
     expect(updateCount).toEqual(2);
 
     const updateValues2 = { email: "bar@xyz.pdq" };
     const updateReturns = await userLensReturningID.updateWhere(
-      anyOf(["id", "=", insertReturns[0].id], ["id", "=", insertReturns[2].id]),
+      ({ or, cmpr }) =>
+        or([
+          cmpr("id", "=", insertReturns[0].id),
+          cmpr("id", "=", insertReturns[2].id),
+        ]),
       updateValues2
     );
     expect(updateReturns).toEqual([
       { id: insertReturns[0].id },
       { id: insertReturns[2].id },
     ]);
-  });
-
-  it("updates rows indicated by allOf() filter", async () => {
-    const insertReturns = await userLensReturningID.insert(USERS);
-
-    const updateValues1 = { email: "foo@xyz.pdq" };
-    const updateCount = await userLensReturningDefault.updateCount(
-      allOf(["id", "=", insertReturns[0].id], ["name", "=", "Sue"]),
-      updateValues1
-    );
-    expect(updateCount).toEqual(1);
-
-    const updateValues2 = { email: "bar@xyz.pdq" };
-    const updateReturns = await userLensReturningID.updateWhere(
-      allOf(["id", "=", insertReturns[0].id], ["name", "=", "Sue"]),
-      updateValues2
-    );
-    expect(updateReturns).toEqual([{ id: insertReturns[0].id }]);
   });
 
   ignore("detects update() and update() type errors", async () => {
@@ -351,23 +341,15 @@ describe("updating rows via TableLens", () => {
     // prettier-ignore
     (await userLensReturningID.updateWhere({ id: 32 }, USERS[0]))[0].name;
     await userLensReturningID.updateCount(
-      // @ts-expect-error - only table columns are accessible via anyOf()
-      anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
+      ({ or, cmpr }) =>
+        // @ts-expect-error - only table columns are accessible via anyOf()
+        or([cmpr("notThere", "=", "xyz"), cmpr("alsoNotThere", "=", "Sue")]),
       USERS[0]
     );
     await userLensReturningID.updateWhere(
-      // @ts-expect-error - only table columns are accessible via anyOf()
-      anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
-      USERS[0]
-    );
-    await userLensReturningID.updateCount(
-      // @ts-expect-error - only table columns are accessible via allOf()
-      allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
-      USERS[0]
-    );
-    await userLensReturningID.updateWhere(
-      // @ts-expect-error - only table columns are accessible via allOf()
-      allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"]),
+      ({ or, cmpr }) =>
+        // @ts-expect-error - only table columns are accessible via anyOf()
+        or([cmpr("notThere", "=", "xyz"), cmpr("alsoNotThere", "=", "Sue")]),
       USERS[0]
     );
   });
@@ -404,7 +386,11 @@ describe("update transformation", () => {
     );
 
     const updateReturns = await lens.updateWhere(
-      anyOf({ id: insertReturns[0].id }, { id: insertReturns[2].id }),
+      ({ or, cmpr }) =>
+        or([
+          cmpr("id", "=", insertReturns[0].id),
+          cmpr("id", "=", insertReturns[2].id),
+        ]),
       updaterUser1
     );
     expect(updateReturns).toEqual([
@@ -412,7 +398,9 @@ describe("update transformation", () => {
       { id: insertReturns[2].id },
     ]);
 
-    const readUsers = await lens.selectMany((qb) => qb.orderBy("id"));
+    const readUsers = await lens.selectMany(
+      new QueryModifier((qb) => qb.orderBy("id"))
+    );
     expect(readUsers).toEqual([
       Object.assign({}, userRow1, {
         id: insertReturns[0].id,

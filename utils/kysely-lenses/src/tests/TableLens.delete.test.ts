@@ -5,7 +5,6 @@ import { Database } from "./utils/test-tables";
 import { UserTableLensReturningAll } from "./utils/test-lenses";
 import { USERS } from "./utils/test-objects";
 import { ignore } from "./utils/test-utils";
-import { allOf, anyOf } from "../filters/CompoundFilter";
 
 let db: Kysely<Database>;
 let userLens: UserTableLensReturningAll;
@@ -51,13 +50,19 @@ describe("deleting rows via TableLens", () => {
   it("deletes rows specified via compound filter", async () => {
     await userLens.insert(USERS);
 
-    const count1 = await userLens.deleteWhere(
-      allOf({ name: USERS[0].name }, { handle: USERS[0].handle })
+    const count1 = await userLens.deleteWhere(({ and, cmpr }) =>
+      and([
+        cmpr("name", "=", USERS[0].name),
+        cmpr("handle", "=", USERS[0].handle),
+      ])
     );
     expect(count1).toEqual(1);
 
-    const count2 = await userLens.deleteWhere(
-      anyOf({ name: USERS[0].name }, { handle: USERS[0].handle })
+    const count2 = await userLens.deleteWhere(({ or, cmpr }) =>
+      or([
+        cmpr("name", "=", USERS[0].name),
+        cmpr("handle", "=", USERS[0].handle),
+      ])
     );
     expect(count2).toEqual(1);
   });
@@ -69,13 +74,13 @@ describe("deleting rows via TableLens", () => {
     userLens.deleteWhere(["notThere", "=", "foo"]);
     // @ts-expect-error - doesn't allow plain string expression filters
     userLens.deleteWhere("name = 'John Doe'");
-    await userLens.deleteWhere(
+    await userLens.deleteWhere(({ or, cmpr }) =>
       // @ts-expect-error - only table columns are accessible via anyOf()
-      anyOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
+      or([cmpr("notThere", "=", "xyz"), cmpr("alsoNotThere", "=", "Sue")])
     );
-    await userLens.deleteWhere(
+    await userLens.deleteWhere(({ or, cmpr }) =>
       // @ts-expect-error - only table columns are accessible via allOf()
-      allOf({ notThere: "xyz" }, ["alsoNotThere", "=", "Sue"])
+      or([cmpr("notThere", "=", "xyz"), cmpr("alsoNotThere", "=", "Sue")])
     );
   });
 });
