@@ -14,8 +14,8 @@
   },
   "devDependencies": {
     "nx": "15.8.9",
-    "prettier": "^2.8.4",
-    "prettier-plugin-tailwindcss": "^0.2.3",
+    "prettier": "^2.8.7",
+    "prettier-plugin-tailwindcss": "^0.2.5",
     "syncpack": "^8.5.14"
   },
   "packageManager": "pnpm@7.15.0"

@@ -12,6 +12,7 @@ import { UserTableLensReturningID } from "./utils/test-lenses";
 import { POSTS, USERS } from "./utils/test-objects";
 import { ignore } from "./utils/test-utils";
 import { allOf, anyOf } from "../filters/CompoundFilter";
+// import "kysely-params";
 
 let db: Kysely<Database>;
 let userQueryLens: QueryLens<Database, "users", Partial<Selectable<Users>>>;
@@ -24,6 +25,24 @@ beforeAll(async () => {
 });
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
+
+// it("parameterizes a query", async () => {
+//   await userTableLens.insert(USERS);
+
+//   const parameterization = userQueryLens
+//     .selectAllQB()
+//     .parameterize<{ targetName: string }>(({ qb, param }) =>
+//       qb.where("name", "=", param("targetName"))
+//     );
+//   const users = (
+//     await parameterization.execute(db, {
+//       targetName: USERS[0].name,
+//     })
+//   ).rows;
+//   expect(users.length).toEqual(2);
+//   expect(users[0].handle).toEqual(USERS[0].handle);
+//   expect(users[1].handle).toEqual(USERS[2].handle);
+// });
 
 it("selectAllQB() allows for selecting rows", async () => {
   await db

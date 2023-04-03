@@ -4,7 +4,10 @@
     "lib": ["ES2019"],
     "module": "commonjs",
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "paths": {
+      "kysely-params": ["./node_modules/kysely-params/dist/index.d.ts"]
+    }
   },
   "include": ["*.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["dist", "build", "node_modules"]
