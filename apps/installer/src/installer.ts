@@ -23,10 +23,11 @@ import {
 import { MIGRATION_FILE_PATH } from "@fieldzoo/database";
 import { dropAllTables, existingTables } from "@fieldzoo/postgres-utils";
 
+const DEFAULT_ENV_FILE = ".env-admin";
 const PATH_TO_ROOT = path.join(__dirname, "../../..");
 
 /** Root-relative path name of .env file having DB credentials */
-let envFileName: string; // has a default value, so never null
+let envFileName = DEFAULT_ENV_FILE;
 
 class CommandFailure extends ExtendableError {
   constructor(message: string) {
@@ -39,7 +40,11 @@ program
   .description(
     "Field Zoo Installer. Installs or upgrades the Field Zoo database tables, connecting to the database using the information in the specified .env file."
   )
-  .option("--env <path>", "Path to and including the .env file", ".env-admin")
+  .option(
+    "--env <path>",
+    "Path to and including the .env file",
+    DEFAULT_ENV_FILE
+  )
   .on("option:env", (value) => (envFileName = value))
   .addHelpText(
     "after",
