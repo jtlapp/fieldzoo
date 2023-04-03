@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "kysely": "^0.24.2",
-    "kysely-params": "^0.1.14"
+    "kysely-params": "^0.2.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.3",

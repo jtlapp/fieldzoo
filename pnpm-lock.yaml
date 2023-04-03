@@ -385,13 +385,13 @@ importers:
       jest: ^29.4.3
       jest-presets: workspace:*
       kysely: ^0.24.2
-      kysely-params: ^0.1.14
+      kysely-params: ^0.2.0
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
     dependencies:
       kysely: 0.24.2
-      kysely-params: 0.1.14
+      kysely-params: 0.2.0
     devDependencies:
       '@types/better-sqlite3': 7.6.3
       '@types/jest': 29.5.0
@@ -4444,8 +4444,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /kysely-params/0.1.14:
-    resolution: {integrity: sha512-KN51jjwo4PUloMn+2JaZtXlVywK48bJfASORNzi23HrvvKdugDTBA7vtKx7awRul9sy7Rw3FburTIPNX8mYqVA==}
+  /kysely-params/0.2.0:
+    resolution: {integrity: sha512-pmATfR9GvhglF2cUB1wdhrxn7et8rSeUPZIbIbRndGWYny4CA9QyvUk17W/5iFqROZlh61QxnTuNVXbh5gZE3g==}
     dependencies:
       kysely: 0.24.2
     dev: false
@@ -5909,7 +5909,7 @@ packages:
       '@babel/core': 7.21.3
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 29.5.0_@types+node@18.15.10
+      jest: 29.5.0
       jest-util: 29.5.0
       json5: 2.2.3
       lodash.memoize: 4.1.2

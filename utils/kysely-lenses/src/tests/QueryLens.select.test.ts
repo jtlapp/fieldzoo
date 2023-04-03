@@ -26,9 +26,11 @@ beforeAll(async () => {
 beforeEach(() => resetDB(db));
 afterAll(() => destroyDB(db));
 
+// TODO: delete this when I'm ready
+//
 // it("parameterizes a query", async () => {
 //   await userTableLens.insert(USERS);
-
+//
 //   const parameterization = userQueryLens
 //     .selectAllQB()
 //     .parameterize<{ targetName: string }>(({ qb, param }) =>
