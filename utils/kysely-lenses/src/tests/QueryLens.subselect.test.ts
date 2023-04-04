@@ -2,18 +2,18 @@
  * Tests QueryLens.selectMany(), QueryLens.selectOne(), and query filters.
  */
 
-import { Kysely } from "kysely";
+import { Kysely, Selectable } from "kysely";
 
 import { QueryLens } from "../lenses/QueryLens";
 import { TableLens } from "../lenses/TableLens";
 import { createDB, resetDB, destroyDB } from "./utils/test-setup";
-import { Database } from "./utils/test-tables";
+import { Database, Users } from "./utils/test-tables";
 import { UserTableLensReturningID } from "./utils/test-lenses";
 import { POSTS, USERS } from "./utils/test-objects";
 import { ignore } from "./utils/test-utils";
 
 let db: Kysely<Database>;
-let userQueryLens: QueryLens<Database, "users", object>;
+let userQueryLens: QueryLens<Database, "users", Partial<Selectable<Users>>>;
 let userTableLens: UserTableLensReturningID;
 
 beforeAll(async () => {
