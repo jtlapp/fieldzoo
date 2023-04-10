@@ -13,8 +13,3 @@ libs/database/src/lib/objectid64
 
 - copied from https://github.com/zandaqo/objectid64
 - MIT License. Copyright (c) 2016 Maga D. Zandaqo
-
-utils/kysely-lenses/src/lib/kysely-types.ts
-
-- copied from https://github.com/kysely-org/kysely
-- MIT License. Copyright (c) 2022 Sami Koskimäki.

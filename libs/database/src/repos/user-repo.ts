@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { User, UserID } from "@fieldzoo/model";
-import { ObjectTableLens } from "@fieldzoo/kysely-lenses";
+import { ObjectTableLens } from "kysely-mapper";
 
 import { Database } from "../tables/current-tables";
 

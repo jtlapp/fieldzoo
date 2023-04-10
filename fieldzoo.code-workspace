@@ -49,10 +49,6 @@
       "path": "utils/generic-types"
     },
     {
-      "name": "utils/kysely-lenses",
-      "path": "utils/kysely-lenses"
-    },
-    {
       "name": "utils/postgres-utils",
       "path": "utils/postgres-utils"
     },

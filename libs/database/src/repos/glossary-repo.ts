@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { Glossary, GlossaryID, UserID } from "@fieldzoo/model";
-import { ObjectTableLens } from "@fieldzoo/kysely-lenses";
+import { ObjectTableLens } from "kysely-mapper";
 
 import { Database } from "../tables/current-tables";
 import { createBase64UUID } from "../lib/base64-uuid";

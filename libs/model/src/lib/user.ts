@@ -1,7 +1,7 @@
 import { Type } from "@sinclair/typebox";
 
 import { FieldsOf, SelectivePartial } from "@fieldzoo/generic-types";
-import { TableObject } from "@fieldzoo/kysely-lenses";
+import { TableObject } from "kysely-mapper";
 import { SafeValidator } from "@fieldzoo/safe-validator";
 import { EmailString, UserNameUniString } from "@fieldzoo/typebox-types";
 import { freezeField } from "@fieldzoo/freeze-field";
