@@ -12,7 +12,7 @@
     "build": "tsc",
     "clean": "rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
-    "test": "jest",
+    "test": "jest --runInBand",
     "lint": "TIMING=1 eslint \"src/**/*.ts*\""
   },
   "jest": {
