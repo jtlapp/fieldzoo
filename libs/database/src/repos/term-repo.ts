@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { GlossaryID, TermID, Term, UserID } from "@fieldzoo/model";
-import { ObjectTableLens } from "kysely-mapper";
+import { UniformTableMapper } from "kysely-mapper";
 
 import { Database } from "../tables/current-tables";
 import { createBase64UUID } from "../lib/base64-uuid";
@@ -10,10 +10,10 @@ import { createBase64UUID } from "../lib/base64-uuid";
  * Repository for persisting terms.
  */
 export class TermRepo {
-  readonly #tableLens: ObjectTableLens<Database, "terms", Term, ["uuid"]>;
+  readonly #tableMapper: UniformTableMapper<Database, "terms", Term, ["uuid"]>;
 
   constructor(readonly db: Kysely<Database>) {
-    this.#tableLens = new ObjectTableLens(db, "terms", ["uuid"], {
+    this.#tableMapper = new UniformTableMapper(db, "terms", ["uuid"], {
       insertTransform: (term) => ({
         ...term,
         uuid: createBase64UUID(),
@@ -42,7 +42,7 @@ export class TermRepo {
    *  was not found.
    */
   async deleteById(id: TermID): Promise<boolean> {
-    return this.#tableLens.deleteByKey(id);
+    return this.#tableMapper.deleteByKey(id);
   }
 
   /**
@@ -51,7 +51,7 @@ export class TermRepo {
    * @returns the term, or null if the term was not found.
    */
   async getByID(id: TermID): Promise<Term | null> {
-    return this.#tableLens.selectByKey(id);
+    return this.#tableMapper.selectByKey(id);
   }
 
   /**
@@ -62,7 +62,7 @@ export class TermRepo {
    */
   async store(term: Term): Promise<Term | null> {
     return term.uuid
-      ? this.#tableLens.update(term)
-      : this.#tableLens.insert(term);
+      ? this.#tableMapper.updateTODO(term)
+      : this.#tableMapper.insert().getReturns(term);
   }
 }

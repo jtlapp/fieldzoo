@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { Glossary, GlossaryID, UserID } from "@fieldzoo/model";
-import { ObjectTableLens } from "kysely-mapper";
+import { UniformTableMapper } from "kysely-mapper";
 
 import { Database } from "../tables/current-tables";
 import { createBase64UUID } from "../lib/base64-uuid";
@@ -10,7 +10,7 @@ import { createBase64UUID } from "../lib/base64-uuid";
  * Repository for persisting glossaries.
  */
 export class GlossaryRepo {
-  readonly #tableLens: ObjectTableLens<
+  readonly #tableMapper: UniformTableMapper<
     Database,
     "glossaries",
     Glossary,
@@ -18,7 +18,7 @@ export class GlossaryRepo {
   >;
 
   constructor(readonly db: Kysely<Database>) {
-    this.#tableLens = new ObjectTableLens(db, "glossaries", ["uuid"], {
+    this.#tableMapper = new UniformTableMapper(db, "glossaries", ["uuid"], {
       insertTransform: (glossary) => ({
         ...glossary,
         uuid: createBase64UUID(),
@@ -50,7 +50,7 @@ export class GlossaryRepo {
    *  was not found.
    */
   async deleteById(id: GlossaryID): Promise<boolean> {
-    return this.#tableLens.deleteByKey(id);
+    return this.#tableMapper.deleteByKey(id);
   }
 
   /**
@@ -59,7 +59,7 @@ export class GlossaryRepo {
    * @returns the glossary, or null if the glossary was not found.
    */
   async getByID(id: GlossaryID): Promise<Glossary | null> {
-    return this.#tableLens.selectByKey(id);
+    return this.#tableMapper.selectByKey(id);
   }
 
   /**
@@ -70,7 +70,7 @@ export class GlossaryRepo {
    */
   async store(glossary: Glossary): Promise<Glossary | null> {
     return glossary.uuid
-      ? this.#tableLens.update(glossary)
-      : this.#tableLens.insert(glossary);
+      ? this.#tableMapper.updateTODO(glossary)
+      : this.#tableMapper.insert().getReturns(glossary);
   }
 }

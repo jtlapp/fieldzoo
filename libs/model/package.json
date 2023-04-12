@@ -24,7 +24,7 @@
     "@fieldzoo/safe-validator": "workspace:*",
     "@fieldzoo/typebox-types": "workspace:*",
     "@sinclair/typebox": "^0.25.24",
-    "kysely-mapper": "^0.1.0"
+    "kysely-mapper": "^0.2.0"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",

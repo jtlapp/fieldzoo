@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { User, UserID } from "@fieldzoo/model";
-import { ObjectTableLens } from "kysely-mapper";
+import { UniformTableMapper } from "kysely-mapper";
 
 import { Database } from "../tables/current-tables";
 
@@ -9,10 +9,10 @@ import { Database } from "../tables/current-tables";
  * Repository for persisting users.
  */
 export class UserRepo {
-  readonly #tableLens: ObjectTableLens<Database, "users", User>;
+  readonly #tableMapper: UniformTableMapper<Database, "users", User>;
 
   constructor(readonly db: Kysely<Database>) {
-    this.#tableLens = new ObjectTableLens(db, "users", ["id"], {
+    this.#tableMapper = new UniformTableMapper(db, "users", ["id"], {
       insertReturnTransform: (user: User, returns: any) => {
         return new User({ ...user, id: returns.id as UserID }, true);
       },
@@ -27,7 +27,7 @@ export class UserRepo {
    * @returns true if the user was deleted, false if the user was not found.
    */
   async deleteById(id: UserID): Promise<boolean> {
-    return this.#tableLens.deleteByKey(id);
+    return this.#tableMapper.deleteByKey(id);
   }
 
   /**
@@ -36,7 +36,7 @@ export class UserRepo {
    * @returns the user, or null if the user was not found.
    */
   async getByID(id: UserID): Promise<User | null> {
-    return this.#tableLens.selectByKey(id);
+    return this.#tableMapper.selectByKey(id);
   }
 
   /**
@@ -47,7 +47,7 @@ export class UserRepo {
    */
   async store(user: User): Promise<User | null> {
     return user.id
-      ? this.#tableLens.update(user)
-      : this.#tableLens.insert(user);
+      ? this.#tableMapper.updateTODO(user)
+      : this.#tableMapper.insert().getReturns(user);
   }
 }
