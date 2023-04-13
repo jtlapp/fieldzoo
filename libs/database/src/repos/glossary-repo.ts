@@ -10,18 +10,17 @@ import { createBase64UUID } from "../lib/base64-uuid";
  * Repository for persisting glossaries.
  */
 export class GlossaryRepo {
-  readonly #table: UniformTableMapper<
+  readonly #mapper: UniformTableMapper<
     Database,
     "glossaries",
     Glossary,
     ["uuid"],
     ["*"],
-    ["uuid"],
     number
   >;
 
   constructor(readonly db: Kysely<Database>) {
-    this.#table = new UniformTableMapper(db, "glossaries", {
+    this.#mapper = new UniformTableMapper(db, "glossaries", {
       isMappedObject: (obj) => obj instanceof Glossary,
       primaryKeyColumns: ["uuid"],
       insertTransform: (glossary) => ({
@@ -55,7 +54,7 @@ export class GlossaryRepo {
    *  was not found.
    */
   async deleteById(uuid: GlossaryID): Promise<boolean> {
-    return this.#table.delete({ uuid }).run();
+    return this.#mapper.delete({ uuid }).run();
   }
 
   /**
@@ -64,7 +63,7 @@ export class GlossaryRepo {
    * @returns the glossary, or null if the glossary was not found.
    */
   async getByID(uuid: GlossaryID): Promise<Glossary | null> {
-    return this.#table.select({ uuid }).getOne();
+    return this.#mapper.select({ uuid }).getOne();
   }
 
   /**
@@ -75,7 +74,7 @@ export class GlossaryRepo {
    */
   async store(glossary: Glossary): Promise<Glossary | null> {
     return glossary.uuid
-      ? this.#table.update({ uuid: glossary.uuid }).getOne(glossary)
-      : this.#table.insert().getOne(glossary);
+      ? this.#mapper.update({ uuid: glossary.uuid }).getOne(glossary)
+      : this.#mapper.insert().getOne(glossary);
   }
 }

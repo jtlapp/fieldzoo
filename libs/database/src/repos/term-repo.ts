@@ -10,18 +10,17 @@ import { createBase64UUID } from "../lib/base64-uuid";
  * Repository for persisting terms.
  */
 export class TermRepo {
-  readonly #table: UniformTableMapper<
+  readonly #mapper: UniformTableMapper<
     Database,
     "terms",
     Term,
     ["uuid"],
     ["*"],
-    ["uuid"],
     number
   >;
 
   constructor(readonly db: Kysely<Database>) {
-    this.#table = new UniformTableMapper(db, "terms", {
+    this.#mapper = new UniformTableMapper(db, "terms", {
       isMappedObject: (obj) => obj instanceof Term,
       primaryKeyColumns: ["uuid"],
       insertTransform: (term) => ({
@@ -52,7 +51,7 @@ export class TermRepo {
    *  was not found.
    */
   async deleteById(uuid: TermID): Promise<boolean> {
-    return this.#table.delete({ uuid }).run();
+    return this.#mapper.delete({ uuid }).run();
   }
 
   /**
@@ -61,7 +60,7 @@ export class TermRepo {
    * @returns the term, or null if the term was not found.
    */
   async getByID(uuid: TermID): Promise<Term | null> {
-    return this.#table.select({ uuid }).getOne();
+    return this.#mapper.select({ uuid }).getOne();
   }
 
   /**
@@ -72,7 +71,7 @@ export class TermRepo {
    */
   async store(term: Term): Promise<Term | null> {
     return term.uuid
-      ? this.#table.update({ uuid: term.uuid }).getOne(term)
-      : this.#table.insert().getOne(term);
+      ? this.#mapper.update({ uuid: term.uuid }).getOne(term)
+      : this.#mapper.insert().getOne(term);
   }
 }

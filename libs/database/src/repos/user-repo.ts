@@ -13,10 +13,8 @@ export class UserRepo {
     Database,
     "users",
     User,
-    // TODO: simplify this
     ["id"],
     ["*"],
-    ["id"],
     number
   >;
 
