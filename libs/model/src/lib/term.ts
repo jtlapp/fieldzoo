@@ -1,7 +1,6 @@
 import { Type } from "@sinclair/typebox";
 
 import { FieldsOf, SelectivePartial } from "@fieldzoo/generic-types";
-import { TableObject } from "kysely-mapper";
 import { SafeValidator } from "@fieldzoo/safe-validator";
 import {
   NonEmptyString,
@@ -19,7 +18,7 @@ export type TermID = string & { readonly __typeID: unique symbol };
 /**
  * Class representing a valid term
  */
-export class Term implements TableObject<Term, ["uuid"]> {
+export class Term {
   readonly uuid: TermID;
   glossaryId: GlossaryID;
   name: string;
@@ -52,14 +51,6 @@ export class Term implements TableObject<Term, ["uuid"]> {
       Term.#validator.safeValidate(this, "Invalid term");
     }
     freezeField(this, "uuid");
-  }
-
-  /**
-   * Returns the term's UUID.
-   * @returns The term's UUID.
-   */
-  getKey(): [TermID] {
-    return [this.uuid];
   }
 }
 export interface Term {

@@ -1,7 +1,6 @@
 import { Type } from "@sinclair/typebox";
 
 import { FieldsOf, SelectivePartial } from "@fieldzoo/generic-types";
-import { TableObject } from "kysely-mapper";
 import { SafeValidator } from "@fieldzoo/safe-validator";
 import {
   Nullable,
@@ -18,7 +17,7 @@ export type GlossaryID = string & { readonly __typeID: unique symbol };
 /**
  * Class representing a valid glossary.
  */
-export class Glossary implements TableObject<Glossary, ["uuid"]> {
+export class Glossary {
   readonly uuid: GlossaryID;
   ownerId: UserID;
   name: string;
@@ -56,14 +55,6 @@ export class Glossary implements TableObject<Glossary, ["uuid"]> {
       Glossary.#validator.safeValidate(this, "Invalid glossary");
     }
     freezeField(this, "uuid");
-  }
-
-  /**
-   * Returns the glossary's UUID.
-   * @returns the glossary's UUID.
-   */
-  getKey(): [GlossaryID] {
-    return [this.uuid];
   }
 }
 export interface Glossary {

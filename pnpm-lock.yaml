@@ -157,7 +157,7 @@ importers:
       jest: ^29.4.3
       jest-presets: workspace:*
       kysely: ^0.24.2
-      kysely-mapper: ^0.2.0
+      kysely-mapper: ^0.2.2
       pg: ^8.9.0
       ts-jest: ^29.0.5
       tsconfig: workspace:*
@@ -169,7 +169,7 @@ importers:
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
       dotenv: 16.0.3
       kysely: 0.24.2
-      kysely-mapper: 0.2.0
+      kysely-mapper: 0.2.2
       pg: 8.10.0
     devDependencies:
       '@fieldzoo/safe-validator': link:../../utils/safe-validator
@@ -195,7 +195,7 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      kysely-mapper: ^0.2.0
+      kysely-mapper: ^0.2.2
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -205,7 +205,7 @@ importers:
       '@fieldzoo/safe-validator': link:../../utils/safe-validator
       '@fieldzoo/typebox-types': link:../../utils/typebox-types
       '@sinclair/typebox': 0.25.24
-      kysely-mapper: 0.2.0
+      kysely-mapper: 0.2.2
     devDependencies:
       '@types/jest': 29.5.0
       '@types/node': 18.15.11
@@ -3342,6 +3342,7 @@ packages:
       minimatch: 3.0.5
       once: 1.4.0
       path-is-absolute: 1.0.1
+    dev: true
 
   /glob/7.1.6:
     resolution: {integrity: sha512-LwaxwyZ72Lk7vZINtNNrywX0ZuLyStrdDtabefZKAY5ZGJhVtgdznluResxNmPitE0SAO+O26sWTHeKSI2wMBA==}
@@ -3374,7 +3375,6 @@ packages:
       minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
-    dev: true
 
   /glob/8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
@@ -4360,8 +4360,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /kysely-mapper/0.2.0:
-    resolution: {integrity: sha512-6qy96bC0ymb/OQrES5/C0CPiXcSfBfAtWW7WxeHCjfWcuSHb50y7lCCjGiNvEKVJxWp/jwQLPMl4VIdqRrowhw==}
+  /kysely-mapper/0.2.2:
+    resolution: {integrity: sha512-s/yjnLDLW/1W/TKp7Iwc6A3gTG9iRVqIOF3gQZ2i19L3G/4R3JpYuPkiq/gGehgJDBXiX+i/14LA2rzxR44PzQ==}
     dependencies:
       kysely: 0.24.2
       kysely-params: 0.3.6
@@ -4517,6 +4517,7 @@ packages:
     resolution: {integrity: sha512-tUpxzX0VAzJHjLu0xUfFv1gwVp9ba3IOuRAVH2EGuRW8a5emA2FlACLqiT/lDVtS1W+TGNwqz3sWaNyLgDJWuw==}
     dependencies:
       brace-expansion: 1.1.11
+    dev: true
 
   /minimatch/3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
@@ -5291,7 +5292,7 @@ packages:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     hasBin: true
     dependencies:
-      glob: 7.1.4
+      glob: 7.2.3
 
   /rollup/3.20.2:
     resolution: {integrity: sha512-3zwkBQl7Ai7MFYQE0y1MeQ15+9jsi7XxfrqwTb/9EK8D9C9+//EBR4M+CuA1KODRaNbFez/lWxA5vhEGZp4MUg==}

@@ -9,15 +9,32 @@ import { Database } from "../tables/current-tables";
  * Repository for persisting users.
  */
 export class UserRepo {
-  readonly #tableMapper: UniformTableMapper<Database, "users", User>;
+  readonly #mapper: UniformTableMapper<
+    Database,
+    "users",
+    User,
+    // TODO: simplify this
+    ["id"],
+    ["*"],
+    ["id"],
+    number
+  >;
 
   constructor(readonly db: Kysely<Database>) {
-    this.#tableMapper = new UniformTableMapper(db, "users", ["id"], {
+    this.#mapper = new UniformTableMapper(db, "users", {
+      isMappedObject: (obj) => obj instanceof User,
+      insertTransform: (user: User) => {
+        const insertion = { ...user } as any;
+        delete insertion["id"];
+        return insertion;
+      },
       insertReturnTransform: (user: User, returns: any) => {
         return new User({ ...user, id: returns.id as UserID }, true);
       },
       selectTransform: (row) =>
         new User({ ...row, id: row.id as UserID }, true),
+      returnColumns: ["id"],
+      countTransform: (count) => Number(count),
     });
   }
 
@@ -27,7 +44,7 @@ export class UserRepo {
    * @returns true if the user was deleted, false if the user was not found.
    */
   async deleteById(id: UserID): Promise<boolean> {
-    return this.#tableMapper.deleteByKey(id);
+    return this.#mapper.delete({ id }).run();
   }
 
   /**
@@ -36,7 +53,7 @@ export class UserRepo {
    * @returns the user, or null if the user was not found.
    */
   async getByID(id: UserID): Promise<User | null> {
-    return this.#tableMapper.selectByKey(id);
+    return this.#mapper.select({ id }).getOne();
   }
 
   /**
@@ -47,7 +64,7 @@ export class UserRepo {
    */
   async store(user: User): Promise<User | null> {
     return user.id
-      ? this.#tableMapper.updateTODO(user)
-      : this.#tableMapper.insert().getReturns(user);
+      ? this.#mapper.update({ id: user.id }).getOne(user)
+      : this.#mapper.insert().getOne(user);
   }
 }

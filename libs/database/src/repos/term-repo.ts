@@ -10,15 +10,24 @@ import { createBase64UUID } from "../lib/base64-uuid";
  * Repository for persisting terms.
  */
 export class TermRepo {
-  readonly #tableMapper: UniformTableMapper<Database, "terms", Term, ["uuid"]>;
+  readonly #table: UniformTableMapper<
+    Database,
+    "terms",
+    Term,
+    ["uuid"],
+    ["*"],
+    ["uuid"],
+    number
+  >;
 
   constructor(readonly db: Kysely<Database>) {
-    this.#tableMapper = new UniformTableMapper(db, "terms", ["uuid"], {
+    this.#table = new UniformTableMapper(db, "terms", {
+      isMappedObject: (obj) => obj instanceof Term,
+      primaryKeyColumns: ["uuid"],
       insertTransform: (term) => ({
         ...term,
         uuid: createBase64UUID(),
       }),
-      updaterTransform: (term) => term,
       insertReturnTransform: (term: Term, returns: any) => {
         return new Term({ ...term, uuid: returns.uuid as TermID }, true);
       },
@@ -32,26 +41,27 @@ export class TermRepo {
           },
           true
         ),
+      updateTransform: (term) => term,
     });
   }
 
   /**
    * Delete a term by ID.
-   * @param id ID of the term to delete.
+   * @param uuid UUID of the term to delete.
    * @returns true if the term was deleted, false if the term
    *  was not found.
    */
-  async deleteById(id: TermID): Promise<boolean> {
-    return this.#tableMapper.deleteByKey(id);
+  async deleteById(uuid: TermID): Promise<boolean> {
+    return this.#table.delete({ uuid }).run();
   }
 
   /**
-   * Get a term by ID.
-   * @param id ID of the term to get.
+   * Get a term by UUID.
+   * @param uuid UUID of the term to get.
    * @returns the term, or null if the term was not found.
    */
-  async getByID(id: TermID): Promise<Term | null> {
-    return this.#tableMapper.selectByKey(id);
+  async getByID(uuid: TermID): Promise<Term | null> {
+    return this.#table.select({ uuid }).getOne();
   }
 
   /**
@@ -62,7 +72,7 @@ export class TermRepo {
    */
   async store(term: Term): Promise<Term | null> {
     return term.uuid
-      ? this.#tableMapper.updateTODO(term)
-      : this.#tableMapper.insert().getReturns(term);
+      ? this.#table.update({ uuid: term.uuid }).getOne(term)
+      : this.#table.insert().getOne(term);
   }
 }

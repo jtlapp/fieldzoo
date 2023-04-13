@@ -10,20 +10,24 @@ import { createBase64UUID } from "../lib/base64-uuid";
  * Repository for persisting glossaries.
  */
 export class GlossaryRepo {
-  readonly #tableMapper: UniformTableMapper<
+  readonly #table: UniformTableMapper<
     Database,
     "glossaries",
     Glossary,
-    ["uuid"]
+    ["uuid"],
+    ["*"],
+    ["uuid"],
+    number
   >;
 
   constructor(readonly db: Kysely<Database>) {
-    this.#tableMapper = new UniformTableMapper(db, "glossaries", ["uuid"], {
+    this.#table = new UniformTableMapper(db, "glossaries", {
+      isMappedObject: (obj) => obj instanceof Glossary,
+      primaryKeyColumns: ["uuid"],
       insertTransform: (glossary) => ({
         ...glossary,
         uuid: createBase64UUID(),
       }),
-      updaterTransform: (glossary) => glossary,
       insertReturnTransform: (glossary: Glossary, returns: any) => {
         return new Glossary(
           { ...glossary, uuid: returns.uuid as GlossaryID },
@@ -40,26 +44,27 @@ export class GlossaryRepo {
           },
           true
         ),
+      updateTransform: (glossary) => glossary,
     });
   }
 
   /**
    * Delete a glossary by ID.
-   * @param id ID of the glossary to delete.
+   * @param uuid UUID of the glossary to delete.
    * @returns true if the glossary was deleted, false if the glossary
    *  was not found.
    */
-  async deleteById(id: GlossaryID): Promise<boolean> {
-    return this.#tableMapper.deleteByKey(id);
+  async deleteById(uuid: GlossaryID): Promise<boolean> {
+    return this.#table.delete({ uuid }).run();
   }
 
   /**
    * Get a glossary by ID.
-   * @param id ID of the glossary to get.
+   * @param uuid UUID of the glossary to get.
    * @returns the glossary, or null if the glossary was not found.
    */
-  async getByID(id: GlossaryID): Promise<Glossary | null> {
-    return this.#tableMapper.selectByKey(id);
+  async getByID(uuid: GlossaryID): Promise<Glossary | null> {
+    return this.#table.select({ uuid }).getOne();
   }
 
   /**
@@ -70,7 +75,7 @@ export class GlossaryRepo {
    */
   async store(glossary: Glossary): Promise<Glossary | null> {
     return glossary.uuid
-      ? this.#tableMapper.updateTODO(glossary)
-      : this.#tableMapper.insert().getReturns(glossary);
+      ? this.#table.update({ uuid: glossary.uuid }).getOne(glossary)
+      : this.#table.insert().getOne(glossary);
   }
 }

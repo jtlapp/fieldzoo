@@ -1,7 +1,6 @@
 import { Type } from "@sinclair/typebox";
 
 import { FieldsOf, SelectivePartial } from "@fieldzoo/generic-types";
-import { TableObject } from "kysely-mapper";
 import { SafeValidator } from "@fieldzoo/safe-validator";
 import { EmailString, UserNameUniString } from "@fieldzoo/typebox-types";
 import { freezeField } from "@fieldzoo/freeze-field";
@@ -12,7 +11,7 @@ export type UserID = number & { readonly __typeID: unique symbol };
 /**
  * Class representing a valid user.
  */
-export class User implements TableObject<User, ["id"]> {
+export class User {
   readonly id: UserID;
   name: string;
   email: string;
@@ -44,14 +43,6 @@ export class User implements TableObject<User, ["id"]> {
       User.#validator.safeValidate(this, "Invalid user");
     }
     freezeField(this, "id");
-  }
-
-  /**
-   * Returns the user's ID.
-   * @returns the user's ID.
-   */
-  getKey(): [UserID] {
-    return [this.id];
   }
 }
 export interface User {
