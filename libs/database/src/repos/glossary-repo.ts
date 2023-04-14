@@ -48,7 +48,7 @@ export class GlossaryRepo {
   }
 
   /**
-   * Get a mapper for the terms table. This is a method so that the
+   * Get a mapper for the glossaries table. This is a method so that the
    * mapper type can be inferred from its options without having to
    * specify the type parameters.
    */
