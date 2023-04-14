@@ -52,7 +52,7 @@ export class GlossaryRepo {
    * mapper type can be inferred from its options without having to
    * specify the type parameters.
    */
-  protected getMapper(db: Kysely<Database>) {
+  private getMapper(db: Kysely<Database>) {
     return new UniformTableMapper(db, "glossaries", {
       isMappedObject: (obj) => obj instanceof Glossary,
       primaryKeyColumns: ["uuid"],

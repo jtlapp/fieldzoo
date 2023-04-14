@@ -52,7 +52,7 @@ export class TermRepo {
    * mapper type can be inferred from its options without having to
    * specify the type parameters.
    */
-  protected getMapper(db: Kysely<Database>) {
+  private getMapper(db: Kysely<Database>) {
     return new UniformTableMapper(db, "terms", {
       isMappedObject: (obj) => obj instanceof Term,
       primaryKeyColumns: ["uuid"],

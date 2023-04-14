@@ -50,7 +50,7 @@ export class UserRepo {
    * mapper type can be inferred from its options without having to
    * specify the type parameters.
    */
-  protected getMapper(db: Kysely<Database>) {
+  private getMapper(db: Kysely<Database>) {
     return new UniformTableMapper(db, "users", {
       isMappedObject: (obj) => obj instanceof User,
       insertTransform: (user: User) => {
