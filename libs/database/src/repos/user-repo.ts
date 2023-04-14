@@ -58,9 +58,8 @@ export class UserRepo {
         delete insertion["id"];
         return insertion;
       },
-      insertReturnTransform: (user: User, returns: any) => {
-        return new User({ ...user, id: returns.id as UserID }, true);
-      },
+      insertReturnTransform: (user: User, returns: any) =>
+        new User({ ...user, id: returns.id as UserID }, true),
       selectTransform: (row) =>
         new User({ ...row, id: row.id as UserID }, true),
       returnColumns: ["id"],

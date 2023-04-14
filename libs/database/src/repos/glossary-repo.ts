@@ -60,12 +60,8 @@ export class GlossaryRepo {
         ...glossary,
         uuid: createBase64UUID(),
       }),
-      insertReturnTransform: (glossary: Glossary, returns: any) => {
-        return new Glossary(
-          { ...glossary, uuid: returns.uuid as GlossaryID },
-          true
-        );
-      },
+      insertReturnTransform: (glossary: Glossary, returns: any) =>
+        new Glossary({ ...glossary, uuid: returns.uuid as GlossaryID }, true),
       selectTransform: (row) =>
         new Glossary(
           {

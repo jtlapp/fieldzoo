@@ -60,9 +60,8 @@ export class TermRepo {
         ...term,
         uuid: createBase64UUID(),
       }),
-      insertReturnTransform: (term: Term, returns: any) => {
-        return new Term({ ...term, uuid: returns.uuid as TermID }, true);
-      },
+      insertReturnTransform: (term: Term, returns: any) =>
+        new Term({ ...term, uuid: returns.uuid as TermID }, true),
       selectTransform: (row) =>
         new Term(
           {
