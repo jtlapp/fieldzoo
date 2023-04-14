@@ -10,38 +10,10 @@ import { createBase64UUID } from "../lib/base64-uuid";
  * Repository for persisting terms.
  */
 export class TermRepo {
-  readonly #mapper: UniformTableMapper<
-    Database,
-    "terms",
-    Term,
-    ["uuid"],
-    ["*"],
-    number
-  >;
+  readonly #mapper: ReturnType<TermRepo["getMapper"]>;
 
   constructor(readonly db: Kysely<Database>) {
-    this.#mapper = new UniformTableMapper(db, "terms", {
-      isMappedObject: (obj) => obj instanceof Term,
-      primaryKeyColumns: ["uuid"],
-      insertTransform: (term) => ({
-        ...term,
-        uuid: createBase64UUID(),
-      }),
-      insertReturnTransform: (term: Term, returns: any) => {
-        return new Term({ ...term, uuid: returns.uuid as TermID }, true);
-      },
-      selectTransform: (row) =>
-        new Term(
-          {
-            ...row,
-            uuid: row.uuid as TermID,
-            glossaryId: row.glossaryId as GlossaryID,
-            updatedBy: row.updatedBy as UserID,
-          },
-          true
-        ),
-      updateTransform: (term) => term,
-    });
+    this.#mapper = this.getMapper(db);
   }
 
   /**
@@ -73,5 +45,35 @@ export class TermRepo {
     return term.uuid
       ? this.#mapper.update({ uuid: term.uuid }).getOne(term)
       : this.#mapper.insert().getOne(term);
+  }
+
+  /**
+   * Get a mapper for the terms table. This is a method so that the
+   * mapper type can be inferred from its options without having to
+   * specify the type parameters.
+   */
+  protected getMapper(db: Kysely<Database>) {
+    return new UniformTableMapper(db, "terms", {
+      isMappedObject: (obj) => obj instanceof Term,
+      primaryKeyColumns: ["uuid"],
+      insertTransform: (term) => ({
+        ...term,
+        uuid: createBase64UUID(),
+      }),
+      insertReturnTransform: (term: Term, returns: any) => {
+        return new Term({ ...term, uuid: returns.uuid as TermID }, true);
+      },
+      selectTransform: (row) =>
+        new Term(
+          {
+            ...row,
+            uuid: row.uuid as TermID,
+            glossaryId: row.glossaryId as GlossaryID,
+            updatedBy: row.updatedBy as UserID,
+          },
+          true
+        ),
+      updateTransform: (term) => term,
+    });
   }
 }

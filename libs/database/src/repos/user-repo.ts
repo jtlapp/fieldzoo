@@ -9,31 +9,10 @@ import { Database } from "../tables/current-tables";
  * Repository for persisting users.
  */
 export class UserRepo {
-  readonly #mapper: UniformTableMapper<
-    Database,
-    "users",
-    User,
-    ["id"],
-    ["*"],
-    number
-  >;
+  readonly #mapper: ReturnType<UserRepo["getMapper"]>;
 
   constructor(readonly db: Kysely<Database>) {
-    this.#mapper = new UniformTableMapper(db, "users", {
-      isMappedObject: (obj) => obj instanceof User,
-      insertTransform: (user: User) => {
-        const insertion = { ...user } as any;
-        delete insertion["id"];
-        return insertion;
-      },
-      insertReturnTransform: (user: User, returns: any) => {
-        return new User({ ...user, id: returns.id as UserID }, true);
-      },
-      selectTransform: (row) =>
-        new User({ ...row, id: row.id as UserID }, true),
-      returnColumns: ["id"],
-      countTransform: (count) => Number(count),
-    });
+    this.#mapper = this.getMapper(db);
   }
 
   /**
@@ -64,5 +43,28 @@ export class UserRepo {
     return user.id
       ? this.#mapper.update({ id: user.id }).getOne(user)
       : this.#mapper.insert().getOne(user);
+  }
+
+  /**
+   * Get a mapper for the users table. This is a method so that the
+   * mapper type can be inferred from its options without having to
+   * specify the type parameters.
+   */
+  protected getMapper(db: Kysely<Database>) {
+    return new UniformTableMapper(db, "users", {
+      isMappedObject: (obj) => obj instanceof User,
+      insertTransform: (user: User) => {
+        const insertion = { ...user } as any;
+        delete insertion["id"];
+        return insertion;
+      },
+      insertReturnTransform: (user: User, returns: any) => {
+        return new User({ ...user, id: returns.id as UserID }, true);
+      },
+      selectTransform: (row) =>
+        new User({ ...row, id: row.id as UserID }, true),
+      returnColumns: ["id"],
+      countTransform: (count) => Number(count),
+    });
   }
 }

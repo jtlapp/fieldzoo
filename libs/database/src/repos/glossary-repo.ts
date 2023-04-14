@@ -10,41 +10,10 @@ import { createBase64UUID } from "../lib/base64-uuid";
  * Repository for persisting glossaries.
  */
 export class GlossaryRepo {
-  readonly #mapper: UniformTableMapper<
-    Database,
-    "glossaries",
-    Glossary,
-    ["uuid"],
-    ["*"],
-    number
-  >;
+  readonly #mapper: ReturnType<GlossaryRepo["getMapper"]>;
 
   constructor(readonly db: Kysely<Database>) {
-    this.#mapper = new UniformTableMapper(db, "glossaries", {
-      isMappedObject: (obj) => obj instanceof Glossary,
-      primaryKeyColumns: ["uuid"],
-      insertTransform: (glossary) => ({
-        ...glossary,
-        uuid: createBase64UUID(),
-      }),
-      insertReturnTransform: (glossary: Glossary, returns: any) => {
-        return new Glossary(
-          { ...glossary, uuid: returns.uuid as GlossaryID },
-          true
-        );
-      },
-      selectTransform: (row) =>
-        new Glossary(
-          {
-            ...row,
-            uuid: row.uuid as GlossaryID,
-            ownerId: row.ownerId as UserID,
-            updatedBy: row.updatedBy as UserID,
-          },
-          true
-        ),
-      updateTransform: (glossary) => glossary,
-    });
+    this.#mapper = this.getMapper(db);
   }
 
   /**
@@ -76,5 +45,38 @@ export class GlossaryRepo {
     return glossary.uuid
       ? this.#mapper.update({ uuid: glossary.uuid }).getOne(glossary)
       : this.#mapper.insert().getOne(glossary);
+  }
+
+  /**
+   * Get a mapper for the terms table. This is a method so that the
+   * mapper type can be inferred from its options without having to
+   * specify the type parameters.
+   */
+  protected getMapper(db: Kysely<Database>) {
+    return new UniformTableMapper(db, "glossaries", {
+      isMappedObject: (obj) => obj instanceof Glossary,
+      primaryKeyColumns: ["uuid"],
+      insertTransform: (glossary) => ({
+        ...glossary,
+        uuid: createBase64UUID(),
+      }),
+      insertReturnTransform: (glossary: Glossary, returns: any) => {
+        return new Glossary(
+          { ...glossary, uuid: returns.uuid as GlossaryID },
+          true
+        );
+      },
+      selectTransform: (row) =>
+        new Glossary(
+          {
+            ...row,
+            uuid: row.uuid as GlossaryID,
+            ownerId: row.ownerId as UserID,
+            updatedBy: row.updatedBy as UserID,
+          },
+          true
+        ),
+      updateTransform: (glossary) => glossary,
+    });
   }
 }
