@@ -60,6 +60,7 @@ export class TermRepo {
         ...term,
         uuid: createBase64UUID(),
       }),
+      // TODO: find way to avoid 'any' here and elsewhere
       insertReturnTransform: (term: Term, returns: any) =>
         new Term({ ...term, uuid: returns.uuid as TermID }, true),
       selectTransform: (row) =>

@@ -60,6 +60,7 @@ export class GlossaryRepo {
         ...glossary,
         uuid: createBase64UUID(),
       }),
+      // TODO: find way to avoid 'any' here and elsewhere
       insertReturnTransform: (glossary: Glossary, returns: any) =>
         new Glossary({ ...glossary, uuid: returns.uuid as GlossaryID }, true),
       selectTransform: (row) =>

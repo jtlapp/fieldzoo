@@ -58,6 +58,7 @@ export class UserRepo {
         delete insertion["id"];
         return insertion;
       },
+      // TODO: find way to avoid 'any' here and elsewhere
       insertReturnTransform: (user: User, returns: any) =>
         new User({ ...user, id: returns.id as UserID }, true),
       selectTransform: (row) =>
