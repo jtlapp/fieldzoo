@@ -62,7 +62,6 @@ export class UserRepo {
         new User({ ...user, id: returns.id as UserID }, true),
       selectTransform: (row) =>
         new User({ ...row, id: row.id as UserID }, true),
-      returnColumns: ["id"],
       countTransform: (count) => Number(count),
     });
   }
