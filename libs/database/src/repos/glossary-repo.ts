@@ -32,7 +32,7 @@ export class GlossaryRepo {
    * @returns the glossary, or null if the glossary was not found.
    */
   async getByID(uuid: GlossaryID): Promise<Glossary | null> {
-    return this.#mapper.select(uuid).getOne();
+    return this.#mapper.select(uuid).returnOne();
   }
 
   /**
@@ -43,8 +43,8 @@ export class GlossaryRepo {
    */
   async store(glossary: Glossary): Promise<Glossary | null> {
     return glossary.uuid
-      ? this.#mapper.update(glossary.uuid).getOne(glossary)
-      : this.#mapper.insert().getOne(glossary);
+      ? this.#mapper.update(glossary.uuid).returnOne(glossary)
+      : this.#mapper.insert().returnOne(glossary);
   }
 
   /**

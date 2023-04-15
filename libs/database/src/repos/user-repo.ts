@@ -30,7 +30,7 @@ export class UserRepo {
    * @returns the user, or null if the user was not found.
    */
   async getByID(id: UserID): Promise<User | null> {
-    return this.#mapper.select(id).getOne();
+    return this.#mapper.select(id).returnOne();
   }
 
   /**
@@ -41,8 +41,8 @@ export class UserRepo {
    */
   async store(user: User): Promise<User | null> {
     return user.id
-      ? this.#mapper.update(user.id).getOne(user)
-      : this.#mapper.insert().getOne(user);
+      ? this.#mapper.update(user.id).returnOne(user)
+      : this.#mapper.insert().returnOne(user);
   }
 
   /**

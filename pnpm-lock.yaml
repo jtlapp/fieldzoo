@@ -157,7 +157,7 @@ importers:
       jest: ^29.4.3
       jest-presets: workspace:*
       kysely: ^0.24.2
-      kysely-mapper: ^0.2.4
+      kysely-mapper: ^0.2.5
       pg: ^8.9.0
       ts-jest: ^29.0.5
       tsconfig: workspace:*
@@ -169,7 +169,7 @@ importers:
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
       dotenv: 16.0.3
       kysely: 0.24.2
-      kysely-mapper: 0.2.4
+      kysely-mapper: 0.2.5
       pg: 8.10.0
     devDependencies:
       '@fieldzoo/safe-validator': link:../../utils/safe-validator
@@ -195,7 +195,7 @@ importers:
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      kysely-mapper: ^0.2.4
+      kysely-mapper: ^0.2.5
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -205,7 +205,7 @@ importers:
       '@fieldzoo/safe-validator': link:../../utils/safe-validator
       '@fieldzoo/typebox-types': link:../../utils/typebox-types
       '@sinclair/typebox': 0.25.24
-      kysely-mapper: 0.2.4
+      kysely-mapper: 0.2.5
     devDependencies:
       '@types/jest': 29.5.0
       '@types/node': 18.15.11
@@ -4360,8 +4360,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /kysely-mapper/0.2.4:
-    resolution: {integrity: sha512-P3DRCxRNd2X5GbnilhUsf7+62HbXDPYEISTZNF0Hkn2NFddfjNiC8DMROUFl7ZJSiMzvwOD7DM5kRQ5s5if//Q==}
+  /kysely-mapper/0.2.5:
+    resolution: {integrity: sha512-Eb1noset4dQGGe9DCi+y9Kt+LaOPJzJdx2rFVjODxQPacym+p+Il8U1YDGyS1ookFhl6AlFpojdQX0aWN4N9gw==}
     dependencies:
       kysely: 0.24.2
       kysely-params: 0.3.6

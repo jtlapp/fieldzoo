@@ -32,7 +32,7 @@ export class TermRepo {
    * @returns the term, or null if the term was not found.
    */
   async getByID(uuid: TermID): Promise<Term | null> {
-    return this.#mapper.select(uuid).getOne();
+    return this.#mapper.select(uuid).returnOne();
   }
 
   /**
@@ -43,8 +43,8 @@ export class TermRepo {
    */
   async store(term: Term): Promise<Term | null> {
     return term.uuid
-      ? this.#mapper.update(term.uuid).getOne(term)
-      : this.#mapper.insert().getOne(term);
+      ? this.#mapper.update(term.uuid).returnOne(term)
+      : this.#mapper.insert().returnOne(term);
   }
 
   /**
