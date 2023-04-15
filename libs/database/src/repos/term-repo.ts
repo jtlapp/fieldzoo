@@ -10,10 +10,10 @@ import { createBase64UUID } from "../lib/base64-uuid";
  * Repository for persisting terms.
  */
 export class TermRepo {
-  readonly #mapper: ReturnType<TermRepo["getMapper"]>;
+  readonly #table: ReturnType<TermRepo["getMapper"]>;
 
   constructor(readonly db: Kysely<Database>) {
-    this.#mapper = this.getMapper(db);
+    this.#table = this.getMapper(db);
   }
 
   /**
@@ -23,7 +23,7 @@ export class TermRepo {
    *  was not found.
    */
   async deleteById(uuid: TermID): Promise<boolean> {
-    return this.#mapper.delete(uuid).run();
+    return this.#table.delete(uuid).run();
   }
 
   /**
@@ -32,7 +32,7 @@ export class TermRepo {
    * @returns the term, or null if the term was not found.
    */
   async getByID(uuid: TermID): Promise<Term | null> {
-    return this.#mapper.select(uuid).returnOne();
+    return this.#table.select(uuid).returnOne();
   }
 
   /**
@@ -43,8 +43,8 @@ export class TermRepo {
    */
   async store(term: Term): Promise<Term | null> {
     return term.uuid
-      ? this.#mapper.update(term.uuid).returnOne(term)
-      : this.#mapper.insert().returnOne(term);
+      ? this.#table.update(term.uuid).returnOne(term)
+      : this.#table.insert().returnOne(term);
   }
 
   /**

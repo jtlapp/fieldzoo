@@ -9,10 +9,10 @@ import { Database } from "../tables/current-tables";
  * Repository for persisting users.
  */
 export class UserRepo {
-  readonly #mapper: ReturnType<UserRepo["getMapper"]>;
+  readonly #table: ReturnType<UserRepo["getMapper"]>;
 
   constructor(readonly db: Kysely<Database>) {
-    this.#mapper = this.getMapper(db);
+    this.#table = this.getMapper(db);
   }
 
   /**
@@ -21,7 +21,7 @@ export class UserRepo {
    * @returns true if the user was deleted, false if the user was not found.
    */
   async deleteById(id: UserID): Promise<boolean> {
-    return this.#mapper.delete(id).run();
+    return this.#table.delete(id).run();
   }
 
   /**
@@ -30,7 +30,7 @@ export class UserRepo {
    * @returns the user, or null if the user was not found.
    */
   async getByID(id: UserID): Promise<User | null> {
-    return this.#mapper.select(id).returnOne();
+    return this.#table.select(id).returnOne();
   }
 
   /**
@@ -41,8 +41,8 @@ export class UserRepo {
    */
   async store(user: User): Promise<User | null> {
     return user.id
-      ? this.#mapper.update(user.id).returnOne(user)
-      : this.#mapper.insert().returnOne(user);
+      ? this.#table.update(user.id).returnOne(user)
+      : this.#table.insert().returnOne(user);
   }
 
   /**

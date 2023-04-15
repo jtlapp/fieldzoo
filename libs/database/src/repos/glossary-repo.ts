@@ -10,10 +10,10 @@ import { createBase64UUID } from "../lib/base64-uuid";
  * Repository for persisting glossaries.
  */
 export class GlossaryRepo {
-  readonly #mapper: ReturnType<GlossaryRepo["getMapper"]>;
+  readonly #table: ReturnType<GlossaryRepo["getMapper"]>;
 
   constructor(readonly db: Kysely<Database>) {
-    this.#mapper = this.getMapper(db);
+    this.#table = this.getMapper(db);
   }
 
   /**
@@ -23,7 +23,7 @@ export class GlossaryRepo {
    *  was not found.
    */
   async deleteById(uuid: GlossaryID): Promise<boolean> {
-    return this.#mapper.delete(uuid).run();
+    return this.#table.delete(uuid).run();
   }
 
   /**
@@ -32,7 +32,7 @@ export class GlossaryRepo {
    * @returns the glossary, or null if the glossary was not found.
    */
   async getByID(uuid: GlossaryID): Promise<Glossary | null> {
-    return this.#mapper.select(uuid).returnOne();
+    return this.#table.select(uuid).returnOne();
   }
 
   /**
@@ -43,8 +43,8 @@ export class GlossaryRepo {
    */
   async store(glossary: Glossary): Promise<Glossary | null> {
     return glossary.uuid
-      ? this.#mapper.update(glossary.uuid).returnOne(glossary)
-      : this.#mapper.insert().returnOne(glossary);
+      ? this.#table.update(glossary.uuid).returnOne(glossary)
+      : this.#table.insert().returnOne(glossary);
   }
 
   /**
