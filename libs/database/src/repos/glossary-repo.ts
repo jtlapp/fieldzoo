@@ -23,7 +23,7 @@ export class GlossaryRepo {
    *  was not found.
    */
   async deleteById(uuid: GlossaryID): Promise<boolean> {
-    return this.#mapper.delete({ uuid }).run();
+    return this.#mapper.delete(uuid).run();
   }
 
   /**
@@ -32,7 +32,7 @@ export class GlossaryRepo {
    * @returns the glossary, or null if the glossary was not found.
    */
   async getByID(uuid: GlossaryID): Promise<Glossary | null> {
-    return this.#mapper.select({ uuid }).getOne();
+    return this.#mapper.select(uuid).getOne();
   }
 
   /**
@@ -43,7 +43,7 @@ export class GlossaryRepo {
    */
   async store(glossary: Glossary): Promise<Glossary | null> {
     return glossary.uuid
-      ? this.#mapper.update({ uuid: glossary.uuid }).getOne(glossary)
+      ? this.#mapper.update(glossary.uuid).getOne(glossary)
       : this.#mapper.insert().getOne(glossary);
   }
 
@@ -55,7 +55,7 @@ export class GlossaryRepo {
   private getMapper(db: Kysely<Database>) {
     return new UniformTableMapper(db, "glossaries", {
       isMappedObject: (obj) => obj instanceof Glossary,
-      primaryKeyColumns: ["uuid"],
+      keyColumns: ["uuid"],
       insertTransform: (glossary) => ({
         ...glossary,
         uuid: createBase64UUID(),

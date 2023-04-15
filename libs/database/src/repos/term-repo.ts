@@ -23,7 +23,7 @@ export class TermRepo {
    *  was not found.
    */
   async deleteById(uuid: TermID): Promise<boolean> {
-    return this.#mapper.delete({ uuid }).run();
+    return this.#mapper.delete(uuid).run();
   }
 
   /**
@@ -32,7 +32,7 @@ export class TermRepo {
    * @returns the term, or null if the term was not found.
    */
   async getByID(uuid: TermID): Promise<Term | null> {
-    return this.#mapper.select({ uuid }).getOne();
+    return this.#mapper.select(uuid).getOne();
   }
 
   /**
@@ -43,7 +43,7 @@ export class TermRepo {
    */
   async store(term: Term): Promise<Term | null> {
     return term.uuid
-      ? this.#mapper.update({ uuid: term.uuid }).getOne(term)
+      ? this.#mapper.update(term.uuid).getOne(term)
       : this.#mapper.insert().getOne(term);
   }
 
@@ -55,7 +55,7 @@ export class TermRepo {
   private getMapper(db: Kysely<Database>) {
     return new UniformTableMapper(db, "terms", {
       isMappedObject: (obj) => obj instanceof Term,
-      primaryKeyColumns: ["uuid"],
+      keyColumns: ["uuid"],
       insertTransform: (term) => ({
         ...term,
         uuid: createBase64UUID(),

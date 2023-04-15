@@ -21,7 +21,7 @@ export class UserRepo {
    * @returns true if the user was deleted, false if the user was not found.
    */
   async deleteById(id: UserID): Promise<boolean> {
-    return this.#mapper.delete({ id }).run();
+    return this.#mapper.delete(id).run();
   }
 
   /**
@@ -30,7 +30,7 @@ export class UserRepo {
    * @returns the user, or null if the user was not found.
    */
   async getByID(id: UserID): Promise<User | null> {
-    return this.#mapper.select({ id }).getOne();
+    return this.#mapper.select(id).getOne();
   }
 
   /**
@@ -41,7 +41,7 @@ export class UserRepo {
    */
   async store(user: User): Promise<User | null> {
     return user.id
-      ? this.#mapper.update({ id: user.id }).getOne(user)
+      ? this.#mapper.update(user.id).getOne(user)
       : this.#mapper.insert().getOne(user);
   }
 
