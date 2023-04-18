@@ -56,12 +56,13 @@ export class GlossaryRepo {
     return new UniformTableMapper(db, "glossaries", {
       isMappedObject: (obj) => obj instanceof Glossary,
       keyColumns: ["uuid"],
-      insertTransform: (glossary) => ({
+    }).withTransforms({
+      insertTransform: (glossary: Glossary) => ({
         ...glossary,
         uuid: createBase64UUID(),
       }),
       // TODO: find way to avoid 'any' here and elsewhere
-      insertReturnTransform: (glossary: Glossary, returns: any) =>
+      insertReturnTransform: (glossary: Glossary, returns) =>
         new Glossary({ ...glossary, uuid: returns.uuid as GlossaryID }, true),
       selectTransform: (row) =>
         new Glossary(

@@ -56,12 +56,12 @@ export class TermRepo {
     return new UniformTableMapper(db, "terms", {
       isMappedObject: (obj) => obj instanceof Term,
       keyColumns: ["uuid"],
-      insertTransform: (term) => ({
+    }).withTransforms({
+      insertTransform: (term: Term) => ({
         ...term,
         uuid: createBase64UUID(),
       }),
-      // TODO: find way to avoid 'any' here and elsewhere
-      insertReturnTransform: (term: Term, returns: any) =>
+      insertReturnTransform: (term: Term, returns) =>
         new Term({ ...term, uuid: returns.uuid as TermID }, true),
       selectTransform: (row) =>
         new Term(

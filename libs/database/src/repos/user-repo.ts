@@ -53,13 +53,13 @@ export class UserRepo {
   private getMapper(db: Kysely<Database>) {
     return new UniformTableMapper(db, "users", {
       isMappedObject: (obj) => obj instanceof User,
+    }).withTransforms({
       insertTransform: (user: User) => {
         const insertion = { ...user } as any;
         delete insertion["id"];
         return insertion;
       },
-      // TODO: find way to avoid 'any' here and elsewhere
-      insertReturnTransform: (user: User, returns: any) =>
+      insertReturnTransform: (user: User, returns) =>
         new User({ ...user, id: returns.id as UserID }, true),
       selectTransform: (row) =>
         new User({ ...row, id: row.id as UserID }, true),
