@@ -33,7 +33,7 @@ export class InvalidShapeError extends ExtendableError {
    *    descriptions of the individual validation errors
    * @returns a string representation of the error.
    */
-  toString(includeDetails = true): string {
+  override toString(includeDetails = true): string {
     let message = this.message;
     if (includeDetails) {
       if (this.details.length == 1) {

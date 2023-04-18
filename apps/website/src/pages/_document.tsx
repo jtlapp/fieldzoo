@@ -8,7 +8,7 @@ import Document, {
 } from "next/document";
 
 class MyDocument extends Document {
-  static async getInitialProps(
+  static override async getInitialProps(
     ctx: DocumentContext
   ): Promise<DocumentInitialProps> {
     const initialProps = await Document.getInitialProps(ctx);
@@ -16,7 +16,7 @@ class MyDocument extends Document {
     return initialProps;
   }
 
-  render() {
+  override render() {
     return (
       <Html className="bg-zinc-900">
         <Head />
