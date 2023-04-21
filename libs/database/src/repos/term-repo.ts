@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { GlossaryID, TermID, Term, UserID } from "@fieldzoo/model";
-import { UniformTableMapper } from "kysely-mapper";
+import { TableMapper } from "kysely-mapper";
 
 import { Database } from "../tables/current-tables";
 import { createBase64UUID } from "../lib/base64-uuid";
@@ -43,7 +43,9 @@ export class TermRepo {
    */
   async store(term: Term): Promise<Term | null> {
     return term.uuid
-      ? this.#table.update(term.uuid).returnOne(term)
+      ? (await this.#table.update(term.uuid).run(term))
+        ? term
+        : null
       : this.#table.insert().returnOne(term);
   }
 
@@ -53,8 +55,7 @@ export class TermRepo {
    * specify the type parameters.
    */
   private getMapper(db: Kysely<Database>) {
-    return new UniformTableMapper(db, "terms", {
-      isMappedObject: (obj) => obj instanceof Term,
+    return new TableMapper(db, "terms", {
       keyColumns: ["uuid"],
     }).withTransforms({
       insertTransform: (term: Term) => ({

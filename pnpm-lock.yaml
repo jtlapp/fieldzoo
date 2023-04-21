@@ -157,7 +157,7 @@ importers:
       jest: ^29.4.3
       jest-presets: workspace:*
       kysely: ^0.24.2
-      kysely-mapper: ^0.3.0
+      kysely-mapper: ^0.4.0
       pg: ^8.9.0
       ts-jest: ^29.0.5
       tsconfig: workspace:*
@@ -169,7 +169,7 @@ importers:
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
       dotenv: 16.0.3
       kysely: 0.24.2
-      kysely-mapper: 0.3.0
+      kysely-mapper: 0.4.0
       pg: 8.10.0
     devDependencies:
       '@fieldzoo/safe-validator': link:../../utils/safe-validator
@@ -4367,21 +4367,21 @@ packages:
       kysely-params: 0.3.6
     dev: false
 
-  /kysely-mapper/0.3.0:
-    resolution: {integrity: sha512-nVuBKxI0X7Ag7/694mLmPbdO8rR945M46ahyjatVtg0/NuQlbaCVHi+Dv/9/sDUZRstq5rAOZ/ZCVY3zw6N/+w==}
+  /kysely-mapper/0.4.0:
+    resolution: {integrity: sha512-LU3KZKvhaLSxvkA7R4vNH1iQrtJ1LeHUDsMP1vGrRscCz9pMpeAroKvY89dTrTKdNxVbf4jAuS8Hz4xsrErZEg==}
     dependencies:
       kysely: 0.24.2
-      kysely-params: 0.3.9
+      kysely-params: 0.3.10
+    dev: false
+
+  /kysely-params/0.3.10:
+    resolution: {integrity: sha512-yuQurYlJw3NgjjRvo3ytUiVkdgTyeivOE8gxxqD1sgopnSK82cbD0IzRHj0cdSSuInXO8m72loVHmrhtY/foUA==}
+    dependencies:
+      kysely: 0.24.2
     dev: false
 
   /kysely-params/0.3.6:
     resolution: {integrity: sha512-S3nbiEpwsCzS/aP4QZ3MDqcgvKsI/FYeMjDKuaD/NzofViAjfWxj5jegohNAQTGbYiDTDxq2obpxTP1282Lnmw==}
-    dependencies:
-      kysely: 0.24.2
-    dev: false
-
-  /kysely-params/0.3.9:
-    resolution: {integrity: sha512-VNQK1YGCKU8vr9HYQvhVXFs/Oj0W6HdSMKN2pJVvXGT0VbtNq+QwcGA0BkckHNKXK4jbpQ+2x37nYebxg/CPjw==}
     dependencies:
       kysely: 0.24.2
     dev: false

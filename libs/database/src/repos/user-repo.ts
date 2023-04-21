@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { User, UserID } from "@fieldzoo/model";
-import { UniformTableMapper } from "kysely-mapper";
+import { TableMapper } from "kysely-mapper";
 
 import { Database } from "../tables/current-tables";
 
@@ -41,7 +41,9 @@ export class UserRepo {
    */
   async store(user: User): Promise<User | null> {
     return user.id
-      ? this.#table.update(user.id).returnOne(user)
+      ? (await this.#table.update(user.id).run(user))
+        ? user
+        : null
       : this.#table.insert().returnOne(user);
   }
 
@@ -51,8 +53,8 @@ export class UserRepo {
    * specify the type parameters.
    */
   private getMapper(db: Kysely<Database>) {
-    return new UniformTableMapper(db, "users", {
-      isMappedObject: (obj) => obj instanceof User,
+    return new TableMapper(db, "users", {
+      keyColumns: ["id"],
     }).withTransforms({
       insertTransform: (user: User) => {
         const insertion = { ...user } as any;
