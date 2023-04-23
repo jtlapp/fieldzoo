@@ -157,7 +157,7 @@ importers:
       jest: ^29.4.3
       jest-presets: workspace:*
       kysely: ^0.24.2
-      kysely-mapper: ^0.4.0
+      kysely-mapper: ^0.4.2
       pg: ^8.9.0
       ts-jest: ^29.0.5
       tsconfig: workspace:*
@@ -169,7 +169,7 @@ importers:
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
       dotenv: 16.0.3
       kysely: 0.24.2
-      kysely-mapper: 0.4.0
+      kysely-mapper: 0.4.2
       pg: 8.10.0
     devDependencies:
       '@fieldzoo/safe-validator': link:../../utils/safe-validator
@@ -4367,8 +4367,8 @@ packages:
       kysely-params: 0.3.6
     dev: false
 
-  /kysely-mapper/0.4.0:
-    resolution: {integrity: sha512-LU3KZKvhaLSxvkA7R4vNH1iQrtJ1LeHUDsMP1vGrRscCz9pMpeAroKvY89dTrTKdNxVbf4jAuS8Hz4xsrErZEg==}
+  /kysely-mapper/0.4.2:
+    resolution: {integrity: sha512-uuzJlJYncOZo8TVNLHuODfDGzKFvOZx/WByxzcAxVG4EM2u8dHO0ypJ5FbVQ2ttt2LKknO3sngzkG3+dfeHqLQ==}
     dependencies:
       kysely: 0.24.2
       kysely-params: 0.3.10
