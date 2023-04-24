@@ -1,7 +1,8 @@
 import { Type } from "@sinclair/typebox";
 
 import { SafeValidator } from "./safe-validator";
-import { InvalidShapeError } from "./invalid-shape";
+import { InvalidShapeError } from "./invalid-shape-error";
+import { InvalidValueError } from "./invalid-value-error";
 
 class TestObj1 {
   delta: number;
@@ -70,15 +71,18 @@ describe("safeValidate()", () => {
   });
 
   it("rejects objects with single invalid fields reporting a single error", () => {
-    expect.assertions(3);
+    expect.assertions(4);
     try {
       new TestObj1(0.5, 1, "ABCDE").safeValidate();
     } catch (err: unknown) {
+      if (!(err instanceof InvalidValueError)) throw err;
       if (!(err instanceof InvalidShapeError)) throw err;
       expect(err.details.length).toEqual(1);
-      const message = "delta: Expected integer";
-      expect(err.details[0].toString()).toEqual(message);
-      expect(err.toString()).toEqual("Bad TestObj1: " + message);
+      const message = "Bad TestObj1";
+      const detail = "delta: Expected integer";
+      expect(err.message).toEqual(message);
+      expect(err.details[0].toString()).toEqual(detail);
+      expect(err.toString()).toEqual(`${message}: ${detail}`);
     }
   });
 

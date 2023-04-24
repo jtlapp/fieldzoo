@@ -15,7 +15,7 @@ import {
   ValueError,
 } from "@sinclair/typebox/compiler";
 
-import { InvalidShapeError } from "./invalid-shape";
+import { InvalidShapeError } from "./invalid-shape-error";
 
 /**
  * Class whose instances can safely validate object fields.

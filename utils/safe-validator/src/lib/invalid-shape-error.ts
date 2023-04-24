@@ -3,12 +3,12 @@
  */
 
 import type { ValueError } from "@sinclair/typebox/compiler";
-import ExtendableError from "es6-error";
+import { InvalidValueError } from "./invalid-value-error";
 
 /**
  * Reports the occurrence of one or more validation errors.
  */
-export class InvalidShapeError extends ExtendableError {
+export class InvalidShapeError extends InvalidValueError {
   /**
    * Details of the individual validation errors
    */
