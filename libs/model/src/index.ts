@@ -1,3 +1,3 @@
-export * from "./lib/glossary";
-export * from "./lib/term";
-export * from "./lib/user";
+export * from "./entities/glossary";
+export * from "./entities/term";
+export * from "./entities/user";
