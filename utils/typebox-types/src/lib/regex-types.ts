@@ -34,20 +34,20 @@ export function HostNameString(options: StringOptions<string>) {
 TypeSystem.CreateFormat("MULTI_LINE_UNICODE", (v) =>
   MULTI_LINE_UNICODE_REGEX.test(v)
 );
-export function MultiLineUniString(options: StringOptions<string>) {
+export function MultiLineUnicodeString(options: StringOptions<string>) {
   return Type.String({ format: "MULTI_LINE_UNICODE", ...options });
 }
 
 TypeSystem.CreateFormat("SINGLE_LINE_UNICODE", (v) =>
   SINGLE_LINE_UNICODE_REGEX.test(v)
 );
-export function SingleLineUniString(options: StringOptions<string>) {
+export function SingleLineUnicodeString(options: StringOptions<string>) {
   return Type.String({ format: "SINGLE_LINE_UNICODE", ...options });
 }
 
 TypeSystem.CreateFormat("USER_NAME_UNICODE", (v) =>
   USER_NAME_UNICODE_REGEX.test(v)
 );
-export function UserNameUniString(options: StringOptions<string>) {
+export function UserNameUnicodeString(options: StringOptions<string>) {
   return Type.String({ format: "USER_NAME_UNICODE", ...options });
 }
