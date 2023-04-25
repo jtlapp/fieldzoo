@@ -34,6 +34,14 @@ class TestObj1 {
   unsafeValidate() {
     TestObj1.validator.unsafeValidate(this, "Bad TestObj1");
   }
+
+  validate(safely: boolean) {
+    if (safely) {
+      this.safeValidate();
+    } else {
+      this.unsafeValidate();
+    }
+  }
 }
 
 class TestObj2 {
@@ -189,6 +197,38 @@ describe("unsafeValidate()", () => {
       expect(err.details[1].toString()).toEqual(message2);
       expect(err.toString()).toEqual(
         `Bad TestObj2:\n- ${message1}\n- ${message2}`
+      );
+    }
+  });
+
+  it("performs safe or unsafe validation as requested", () => {
+    expect.assertions(8);
+
+    // test safe validation
+    try {
+      new TestObj1(0.5, 0, "ABCDEGHIJKLMN").validate(true);
+    } catch (err: unknown) {
+      if (!(err instanceof InvalidShapeError)) throw err;
+      expect(err.details.length).toEqual(1);
+      const message1 = "delta: Expected integer";
+      expect(err.details[0].toString()).toEqual(message1);
+      expect(err.toString()).toEqual(`Bad TestObj1: ${message1}`);
+    }
+
+    // test unsafe validation
+    try {
+      new TestObj1(0.5, 0, "ABCDEGHIJKLMN").validate(false);
+    } catch (err: unknown) {
+      if (!(err instanceof InvalidShapeError)) throw err;
+      expect(err.details.length).toEqual(3);
+      const message1 = "delta: Expected integer";
+      const message2 = "count: Expected integer to be greater than 0";
+      const message3 = "name should consist of 5-10 letters";
+      expect(err.details[0].toString()).toEqual(message1);
+      expect(err.details[1].toString()).toEqual(message2);
+      expect(err.details[2].toString()).toEqual(message3);
+      expect(err.toString()).toEqual(
+        `Bad TestObj1:\n- ${message1}\n- ${message2}\n- ${message3}`
       );
     }
   });
