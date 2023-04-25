@@ -1,7 +1,7 @@
 import { DatabaseConfig } from "./database-config";
 
 import { InvalidEnvironmentError } from "./invalid-env-error";
-import { ValidationException } from "@fieldzoo/safe-validator";
+import { ValidationException } from "@fieldzoo/multitier-validator";
 
 const ALL_FIELDS = ["host", "port", "database", "user", "password"];
 

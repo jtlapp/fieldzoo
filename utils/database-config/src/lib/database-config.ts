@@ -9,7 +9,10 @@ import { Type } from "@sinclair/typebox";
 import type { ClientConfig } from "pg";
 
 import type { FieldsOf } from "@fieldzoo/generic-types";
-import { SafeValidator, ValidationException } from "@fieldzoo/safe-validator";
+import {
+  MultitierValidator,
+  ValidationException,
+} from "@fieldzoo/multitier-validator";
 import {
   CodeWordString,
   HostNameString,
@@ -45,7 +48,7 @@ export class DatabaseConfig implements ClientConfig {
     user: CodeWordString({ message: "invalid user" }),
     password: NonEmptyString({ message: "password should not be empty" }),
   });
-  static #validator = new SafeValidator(this.schema);
+  static #validator = new MultitierValidator(this.schema);
 
   constructor(fields: FieldsOf<DatabaseConfig>) {
     this.host = fields.host;
