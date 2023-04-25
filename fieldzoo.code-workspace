@@ -53,8 +53,8 @@
       "path": "utils/postgres-utils"
     },
     {
-      "name": "utils/safe-validator",
-      "path": "utils/safe-validator"
+      "name": "utils/multitier-validator",
+      "path": "utils/multitier-validator"
     },
     {
       "name": "utils/testing-utils",
