@@ -1,14 +1,14 @@
 import { Type } from "@sinclair/typebox";
 
-import { SafeValidator } from "./safe-validator";
-import { ValidationException } from "./invalid-shape-error";
+import { MultitierValidator } from "./multitier-validator";
+import { ValidationException } from "./validation-exception";
 
 class TestObj1 {
   delta: number;
   count: number;
   name: string;
 
-  static readonly validator = new SafeValidator(
+  static readonly validator = new MultitierValidator(
     Type.Object({
       delta: Type.Integer(),
       count: Type.Integer({ exclusiveMinimum: 0 }),
@@ -48,7 +48,7 @@ class TestObj2 {
   int2: number;
   alpha: string;
 
-  static readonly validator = new SafeValidator(
+  static readonly validator = new MultitierValidator(
     Type.Object({
       int1: Type.Integer({ message: "{field} must be an integer" }),
       int2: Type.Integer({ message: "{field} must be an integer" }),

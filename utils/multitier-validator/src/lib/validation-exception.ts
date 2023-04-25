@@ -1,5 +1,5 @@
 /**
- * Classes supporting SafeValidator validation errors.
+ * Classes supporting MultitierValidator validation errors.
  */
 
 import type { ValueError } from "@sinclair/typebox/compiler";
@@ -12,7 +12,7 @@ export class ValidationException extends ExtendableError {
   /**
    * Details of the individual validation errors
    */
-  readonly details: InvalidShapeDetail[];
+  readonly details: InvalidValueDetail[];
 
   /**
    * Constructor
@@ -23,7 +23,7 @@ export class ValidationException extends ExtendableError {
    */
   constructor(message: string, errors: ValueError[]) {
     super(message);
-    this.details = errors.map((err) => new InvalidShapeDetail(err));
+    this.details = errors.map((err) => new InvalidValueDetail(err));
   }
 
   /**
@@ -53,7 +53,7 @@ export class ValidationException extends ExtendableError {
  * Class representing a single validation error. Encapsulates TypeBox
  * error details in order to be able to give them string representations.
  */
-export class InvalidShapeDetail {
+export class InvalidValueDetail {
   /**
    * Associated TypeBox `ValueError` providing details of the error. If the
    * schema assigned a custom message to the error, that message will appear
