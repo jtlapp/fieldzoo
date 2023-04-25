@@ -9,7 +9,7 @@ import { Type } from "@sinclair/typebox";
 import type { ClientConfig } from "pg";
 
 import type { FieldsOf } from "@fieldzoo/generic-types";
-import { SafeValidator, InvalidShapeError } from "@fieldzoo/safe-validator";
+import { SafeValidator, ValidationException } from "@fieldzoo/safe-validator";
 import {
   CodeWordString,
   HostNameString,
@@ -87,7 +87,7 @@ export class DatabaseConfig implements ClientConfig {
         password: process.env[passwordEnvVar]!,
       });
     } catch (err: any) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
 
       const fieldToEnvVarMap: Record<string, string> = {
         host: hostEnvVar,

@@ -1,7 +1,7 @@
 import { DatabaseConfig } from "./database-config";
 
 import { InvalidEnvironmentError } from "./invalid-env-error";
-import { InvalidShapeError } from "@fieldzoo/safe-validator";
+import { ValidationException } from "@fieldzoo/safe-validator";
 
 const ALL_FIELDS = ["host", "port", "database", "user", "password"];
 
@@ -40,7 +40,7 @@ describe("database configuration", () => {
         password: undefined!,
       });
     } catch (err: unknown) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       expect(err.details.length).toEqual(ALL_FIELDS.length);
       for (const detail of err.details) {
         expect(ALL_FIELDS).toContain(detail.error.path.substring(1));
@@ -59,7 +59,7 @@ describe("database configuration", () => {
         password: null!,
       });
     } catch (err: unknown) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       expect(err.details.length).toEqual(ALL_FIELDS.length);
       for (const detail of err.details) {
         expect(ALL_FIELDS).toContain(detail.error.path.substring(1));
@@ -78,7 +78,7 @@ describe("database configuration", () => {
         password: "",
       });
     } catch (err: unknown) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       expect(err.details.length).toEqual(ALL_FIELDS.length);
       for (const detail of err.details) {
         expect(ALL_FIELDS).toContain(detail.error.path.substring(1));
@@ -97,7 +97,7 @@ describe("database configuration", () => {
         password: "abcdef",
       });
     } catch (err: unknown) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       const invalids = ["host", "port", "database", "user"];
       expect(err.details.length).toEqual(invalids.length);
       for (const detail of err.details) {
@@ -117,7 +117,7 @@ describe("database configuration", () => {
         password: "",
       });
     } catch (err: unknown) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       expect(err.details.length).toEqual(ALL_FIELDS.length);
       expect(err.details[0].toString()).toEqual("invalid host name");
       expect(err.details[1].toString()).toEqual(

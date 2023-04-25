@@ -1,8 +1,7 @@
 import { Type } from "@sinclair/typebox";
 
 import { SafeValidator } from "./safe-validator";
-import { InvalidShapeError } from "./invalid-shape-error";
-import { InvalidValueError } from "./invalid-value-error";
+import { ValidationException } from "./invalid-shape-error";
 
 class TestObj1 {
   delta: number;
@@ -83,8 +82,7 @@ describe("safeValidate()", () => {
     try {
       new TestObj1(0.5, 1, "ABCDE").safeValidate();
     } catch (err: unknown) {
-      if (!(err instanceof InvalidValueError)) throw err;
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       expect(err.details.length).toEqual(1);
       const message = "Bad TestObj1";
       const detail = "delta: Expected integer";
@@ -99,7 +97,7 @@ describe("safeValidate()", () => {
     try {
       new TestObj1(0.5, 0, "ABCDE").safeValidate();
     } catch (err: unknown) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       expect(err.details.length).toEqual(1);
       const message = "delta: Expected integer";
       expect(err.details[0].toString()).toEqual(message);
@@ -112,7 +110,7 @@ describe("safeValidate()", () => {
     try {
       new TestObj2(1, 1, "ABCDE").safeValidate();
     } catch (err: unknown) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       expect(err.details.length).toEqual(1);
       const message = "alpha: Expected string length less or equal to 4";
       expect(err.details[0].toString()).toEqual(message);
@@ -125,7 +123,7 @@ describe("safeValidate()", () => {
     try {
       new TestObj1(1, 1, "12345").safeValidate();
     } catch (err: unknown) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       expect(err.details.length).toEqual(1);
       const message = "name should consist of 5-10 letters";
       expect(err.details[0].toString()).toEqual(message);
@@ -140,7 +138,7 @@ describe("unsafeValidate()", () => {
     try {
       new TestObj1(0.5, 1, "ABCDE").unsafeValidate();
     } catch (err: unknown) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       expect(err.details.length).toEqual(1);
       const message = "delta: Expected integer";
       expect(err.details[0].toString()).toEqual(message);
@@ -153,7 +151,7 @@ describe("unsafeValidate()", () => {
     try {
       new TestObj1(0.5, 0, "ABCDEGHIJKLMN").unsafeValidate();
     } catch (err: unknown) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       expect(err.details.length).toEqual(3);
       const message1 = "delta: Expected integer";
       const message2 = "count: Expected integer to be greater than 0";
@@ -172,7 +170,7 @@ describe("unsafeValidate()", () => {
     try {
       new TestObj2(1, 1, "12345").unsafeValidate();
     } catch (err: unknown) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       expect(err.details.length).toEqual(2);
       const message1 = "alpha: Expected string length less or equal to 4";
       const message2 = "alpha: Expected string to match pattern [a-zA-Z]+";
@@ -189,7 +187,7 @@ describe("unsafeValidate()", () => {
     try {
       new TestObj2(0.5, 0.5, "ABCD").unsafeValidate();
     } catch (err: unknown) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       expect(err.details.length).toEqual(2);
       const message1 = "int1 must be an integer";
       const message2 = "int2 must be an integer";
@@ -208,7 +206,7 @@ describe("unsafeValidate()", () => {
     try {
       new TestObj1(0.5, 0, "ABCDEGHIJKLMN").validate(true);
     } catch (err: unknown) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       expect(err.details.length).toEqual(1);
       const message1 = "delta: Expected integer";
       expect(err.details[0].toString()).toEqual(message1);
@@ -219,7 +217,7 @@ describe("unsafeValidate()", () => {
     try {
       new TestObj1(0.5, 0, "ABCDEGHIJKLMN").validate(false);
     } catch (err: unknown) {
-      if (!(err instanceof InvalidShapeError)) throw err;
+      if (!(err instanceof ValidationException)) throw err;
       expect(err.details.length).toEqual(3);
       const message1 = "delta: Expected integer";
       const message2 = "count: Expected integer to be greater than 0";

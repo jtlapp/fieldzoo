@@ -15,7 +15,7 @@ import {
   ValueError,
 } from "@sinclair/typebox/compiler";
 
-import { InvalidShapeError } from "./invalid-shape-error";
+import { ValidationException } from "./invalid-shape-error";
 
 /**
  * Class whose instances can safely validate object fields.
@@ -41,15 +41,15 @@ export class SafeValidator<S extends TSchema> {
    * validation error, reporting only this error.
    *
    * @param value Value to validate against the schema.
-   * @param errorMessage Error message to use in the InvalidShapeError when
+   * @param errorMessage Error message to use in the ValidationException when
    *    thrown. The exception also reports the details of the first error.
-   * @throws InvalidShapeError when the value is invalid.
+   * @throws ValidationException when the value is invalid.
    */
   safeValidate(value: unknown, errorMessage: string): void {
     if (!this.#compiledType.Check(value)) {
       const firstError: ValueError = this.#compiledType.Errors(value).next()!
         .value;
-      throw new InvalidShapeError(errorMessage, [firstError]);
+      throw new ValidationException(errorMessage, [firstError]);
     }
   }
 
@@ -58,13 +58,13 @@ export class SafeValidator<S extends TSchema> {
    * exception report all detectable validation errors.
    *
    * @param value Value to validate against the schema.
-   * @param errorMessage Error message to use in the InvalidShapeError when
+   * @param errorMessage Error message to use in the ValidationException when
    *    thrown. The exception also reports the details of all validation errors.
-   * @throws InvalidShapeError when the value is invalid.
+   * @throws ValidationException when the value is invalid.
    */
   unsafeValidate(value: unknown, errorMessage: string): void {
     if (!this.#compiledType.Check(value)) {
-      throw new InvalidShapeError(errorMessage, [
+      throw new ValidationException(errorMessage, [
         ...this.#compiledType.Errors(value),
       ]);
     }
@@ -79,9 +79,9 @@ export class SafeValidator<S extends TSchema> {
    * minimize the amount of validation code.
    *
    * @param value Value to validate against the schema.
-   * @param errorMessage Error message to use in the InvalidShapeError when
+   * @param errorMessage Error message to use in the ValidationException when
    *    thrown. The exception also reports validation error details.
-   * @throws InvalidShapeError when the value is invalid.
+   * @throws ValidationException when the value is invalid.
    */
   validate(value: unknown, errorMessage: string, safely = true): void {
     safely
