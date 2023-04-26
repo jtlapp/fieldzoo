@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 
-import { SelectivePartial, UnvalidatedFields } from "@fieldzoo/generic-types";
+import { UnvalidatedFields } from "@fieldzoo/generic-types";
 import { MultitierValidator } from "@fieldzoo/multitier-validator";
 import { freezeField } from "@fieldzoo/freeze-field";
 
@@ -10,38 +10,38 @@ import {
   MultilineDescription,
   MultilineDescriptionImpl,
 } from "../values/multiline-description";
-import { TermID, TermIDImpl } from "../values/term-id";
 import { UserID, UserIDImpl } from "../values/user-id";
-import { EmptyStringable } from "@fieldzoo/typebox-types";
+import { NormalizedName, NormalizedNameImpl } from "../values/normalized-name";
 
 /**
  * Class representing a valid term
  */
 export class Term {
   static schema = Type.Object({
-    uuid: EmptyStringable(TermIDImpl.schema),
     glossaryId: GlossaryIDImpl.schema,
-    name: DisplayNameImpl.schema,
+    lookupName: NormalizedNameImpl.schema,
+    displayName: DisplayNameImpl.schema,
     description: MultilineDescriptionImpl.schema,
     updatedBy: UserIDImpl.schema,
   });
   static #validator = new MultitierValidator(this.schema);
 
   /**
-   * @param uuid The term's UUID.
    * @param glossaryId The ID of the glossary this term belongs to.
-   * @param name The term's name.
+   * @param lookupName The term's name, normalized for lookup.
+   * @param displayName The term's display name.
    * @param description The term's description.
    * @param updatedBy The ID of the user who last updated this term.
    */
   constructor(
-    readonly uuid: TermID,
-    public glossaryId: GlossaryID,
-    public name: DisplayName,
+    readonly glossaryId: GlossaryID,
+    readonly lookupName: NormalizedName,
+    public displayName: DisplayName,
     public description: MultilineDescription,
     public updatedBy: UserID
   ) {
-    freezeField(this, "uuid");
+    freezeField(this, "glossaryId");
+    freezeField(this, "lookupName");
   }
 
   /**
@@ -52,19 +52,16 @@ export class Term {
    * @returns A new term.
    */
   static create(
-    fields: Readonly<SelectivePartial<UnvalidatedFields<Term>, "uuid">>,
+    fields: Readonly<UnvalidatedFields<Term>>,
     assumeValid = false
   ) {
-    if (fields.uuid === undefined) {
-      fields = { ...fields, uuid: "" };
-    }
     if (!assumeValid) {
       this.#validator.safeValidate(fields, "Invalid term");
     }
     return new Term(
-      fields.uuid as TermID,
       fields.glossaryId as GlossaryID,
-      fields.name as DisplayName,
+      fields.lookupName as NormalizedName,
+      fields.displayName as DisplayName,
       fields.description as MultilineDescription,
       fields.updatedBy as UserID
     );
