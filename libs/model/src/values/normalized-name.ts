@@ -1,5 +1,4 @@
 import * as typebox from "@sinclair/typebox";
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
 
 import { DisplayName, DisplayNameImpl } from "./display-name";
 
@@ -18,9 +17,7 @@ export class NormalizedNameImpl {
   });
 
   static create(displayName: DisplayName) {
-    this.#validator.validate(displayName, "Invalid description");
+    // displayName is necessarily valid
     return displayName.toLowerCase() as NormalizedName;
   }
-
-  static #validator = new MultitierValidator(this.schema);
 }
