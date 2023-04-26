@@ -8,7 +8,7 @@
 import { Type } from "@sinclair/typebox";
 import type { ClientConfig } from "pg";
 
-import type { FieldsOf } from "@fieldzoo/generic-types";
+import type { Fields } from "@fieldzoo/generic-types";
 import {
   MultitierValidator,
   ValidationException,
@@ -50,7 +50,7 @@ export class DatabaseConfig implements ClientConfig {
   });
   static #validator = new MultitierValidator(this.schema);
 
-  constructor(fields: FieldsOf<DatabaseConfig>) {
+  constructor(fields: Fields<DatabaseConfig>) {
     this.host = fields.host;
     this.port = fields.port;
     this.database = fields.database;
