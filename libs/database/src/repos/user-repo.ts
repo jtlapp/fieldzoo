@@ -1,9 +1,10 @@
 import { Kysely } from "kysely";
 
-import { User, UserID } from "@fieldzoo/model";
+import { User } from "@fieldzoo/model";
 import { TableMapper } from "kysely-mapper";
 
 import { Database } from "../tables/current-tables";
+import { UserID } from "@fieldzoo/model";
 
 /**
  * Repository for persisting users.
@@ -62,9 +63,9 @@ export class UserRepo {
         return insertion;
       },
       insertReturnTransform: (user: User, returns) =>
-        new User({ ...user, id: returns.id as UserID }, true),
+        User.create({ ...user, id: returns.id as UserID }, true),
       selectTransform: (row) =>
-        new User({ ...row, id: row.id as UserID }, true),
+        User.create({ ...row, id: row.id as UserID }, true),
       countTransform: (count) => Number(count),
     });
   }

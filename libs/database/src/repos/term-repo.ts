@@ -1,10 +1,11 @@
 import { Kysely } from "kysely";
 
-import { GlossaryID, TermID, Term, UserID } from "@fieldzoo/model";
+import { Term } from "@fieldzoo/model";
 import { TableMapper } from "kysely-mapper";
 
 import { Database } from "../tables/current-tables";
 import { createBase64UUID } from "../lib/base64-uuid";
+import { TermID } from "@fieldzoo/model";
 
 /**
  * Repository for persisting terms.
@@ -63,14 +64,14 @@ export class TermRepo {
         uuid: createBase64UUID(),
       }),
       insertReturnTransform: (term: Term, returns) =>
-        new Term({ ...term, uuid: returns.uuid as TermID }, true),
+        Term.create({ ...term, uuid: returns.uuid as TermID }, true),
       selectTransform: (row) =>
-        new Term(
+        Term.create(
           {
             ...row,
             uuid: row.uuid as TermID,
-            glossaryId: row.glossaryId as GlossaryID,
-            updatedBy: row.updatedBy as UserID,
+            glossaryId: row.glossaryId,
+            updatedBy: row.updatedBy,
           },
           true
         ),

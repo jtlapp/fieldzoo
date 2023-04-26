@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 
 import { DB_ENVVAR_PREFIX, TEST_ENV } from "@fieldzoo/app-config";
 import { DatabaseConfig } from "@fieldzoo/database-config";
-import { Glossary, Term, TermID, User } from "@fieldzoo/model";
+import { Glossary, Term, User } from "@fieldzoo/model";
 
 import { resetTestDB } from "../index";
 import { Database } from "../tables/current-tables";
@@ -31,14 +31,14 @@ afterAll(() => db.destroy());
 it("inserts, updates, and deletes terms", async () => {
   await resetTestDB(db);
   const userRepo = new UserRepo(db);
-  const insertedUser = new User({
+  const insertedUser = User.create({
     name: "John Doe",
     email: "jdoe@xyz.pdq",
   });
   const userReturn = (await userRepo.store(insertedUser))!;
 
   const glossaryRepo = new GlossaryRepo(db);
-  const insertedGlossary = new Glossary({
+  const insertedGlossary = Glossary.create({
     name: "Test Term",
     description: "This is a test term",
     ownerId: userReturn.id,
@@ -47,7 +47,7 @@ it("inserts, updates, and deletes terms", async () => {
   const glossaryReturn = await glossaryRepo.store(insertedGlossary);
 
   const termRepo = new TermRepo(db);
-  const insertedTerm = new Term({
+  const insertedTerm = Term.create({
     name: "Test Term",
     description: "This is a test term",
     glossaryId: glossaryReturn!.uuid,
@@ -56,9 +56,9 @@ it("inserts, updates, and deletes terms", async () => {
 
   // test updating a non-existent term
   const updateReturn1 = await termRepo.store(
-    new Term({
+    Term.create({
       ...insertedTerm,
-      uuid: "abc" as TermID,
+      uuid: "abc",
     })
   );
   expect(updateReturn1).toEqual(null);
@@ -73,7 +73,7 @@ it("inserts, updates, and deletes terms", async () => {
   expect(selectedTerm1).toEqual(insertReturn);
 
   // test updating a term
-  const updaterTerm = new Term({
+  const updaterTerm = Term.create({
     ...selectedTerm1!,
     name: "Updated Term",
   });

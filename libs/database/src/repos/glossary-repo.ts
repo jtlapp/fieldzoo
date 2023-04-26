@@ -1,10 +1,11 @@
 import { Kysely } from "kysely";
 
-import { Glossary, GlossaryID, UserID } from "@fieldzoo/model";
+import { Glossary } from "@fieldzoo/model";
 import { TableMapper } from "kysely-mapper";
 
 import { Database } from "../tables/current-tables";
 import { createBase64UUID } from "../lib/base64-uuid";
+import { GlossaryID } from "@fieldzoo/model";
 
 /**
  * Repository for persisting glossaries.
@@ -64,14 +65,14 @@ export class GlossaryRepo {
       }),
       // TODO: find way to avoid 'any' here and elsewhere
       insertReturnTransform: (glossary: Glossary, returns) =>
-        new Glossary({ ...glossary, uuid: returns.uuid as GlossaryID }, true),
+        Glossary.create({ ...glossary, uuid: returns.uuid }, true),
       selectTransform: (row) =>
-        new Glossary(
+        Glossary.create(
           {
             ...row,
-            uuid: row.uuid as GlossaryID,
-            ownerId: row.ownerId as UserID,
-            updatedBy: row.updatedBy as UserID,
+            uuid: row.uuid,
+            ownerId: row.ownerId,
+            updatedBy: row.updatedBy,
           },
           true
         ),

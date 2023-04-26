@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 
 import { DB_ENVVAR_PREFIX, TEST_ENV } from "@fieldzoo/app-config";
 import { DatabaseConfig } from "@fieldzoo/database-config";
-import { User, UserID } from "@fieldzoo/model";
+import { User } from "@fieldzoo/model";
 
 import { resetTestDB } from "../index";
 import { Database } from "../tables/current-tables";
@@ -29,17 +29,14 @@ afterAll(() => db.destroy());
 it("inserts, updates, and deletes users", async () => {
   await resetTestDB(db);
   const userRepo = new UserRepo(db);
-  const insertedUser = new User({
+  const insertedUser = User.create({
     name: "John Doe",
     email: "jdoe@xyz.pdq",
   });
 
   // test updating a non-existent user
   const updateReturn1 = await userRepo.store(
-    new User({
-      ...insertedUser,
-      id: 1 as UserID,
-    })
+    User.create({ ...insertedUser, id: 1 })
   );
   expect(updateReturn1).toEqual(null);
 
@@ -54,7 +51,7 @@ it("inserts, updates, and deletes users", async () => {
   expect(selectedUser1?.id).toEqual(insertReturn.id);
 
   // test updating a user
-  const updaterUser = new User({
+  const updaterUser = User.create({
     ...selectedUser1!,
     name: "Jon Doe",
   });

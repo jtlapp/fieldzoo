@@ -30,14 +30,14 @@ afterAll(() => db.destroy());
 it("inserts, updates, and deletes glossaries", async () => {
   await resetTestDB(db);
   const userRepo = new UserRepo(db);
-  const insertedUser = new User({
+  const insertedUser = User.create({
     name: "John Doe",
     email: "jdoe@xyz.pdq",
   });
   const userReturn = (await userRepo.store(insertedUser))!;
 
   const glossaryRepo = new GlossaryRepo(db);
-  const insertedGlossary = new Glossary({
+  const insertedGlossary = Glossary.create({
     name: "Test Glossary",
     description: "This is a test glossary",
     ownerId: userReturn.id,
@@ -46,7 +46,7 @@ it("inserts, updates, and deletes glossaries", async () => {
 
   // test updating a non-existent glossary
   const updateReturn1 = await glossaryRepo.store(
-    new Glossary({
+    Glossary.create({
       ...insertedGlossary,
       uuid: "abc" as GlossaryID,
     })
@@ -63,7 +63,7 @@ it("inserts, updates, and deletes glossaries", async () => {
   expect(selectedGlossary1).toEqual(insertReturn);
 
   // test updating a glossary
-  const updaterGlossary = new Glossary({
+  const updaterGlossary = Glossary.create({
     ...selectedGlossary1!,
     name: "Updated Glossary",
   });
