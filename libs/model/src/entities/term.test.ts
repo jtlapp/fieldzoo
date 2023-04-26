@@ -1,5 +1,6 @@
+import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
+
 import { Term } from "./term";
-import { BASE64_UUID_LENGTH } from "../lib/constants";
 
 const maxNameLength = Term.schema.properties.name.maxLength!;
 const minDescriptionLength = Term.schema.properties.description.minLength!;

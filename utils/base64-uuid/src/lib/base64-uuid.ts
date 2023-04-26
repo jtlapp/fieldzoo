@@ -3,6 +3,11 @@ import { randomUUID } from "crypto";
 import { Encoder } from "./objectid64";
 
 /**
+ * The length of a base64 encoded UUID.
+ */
+export const BASE64_UUID_LENGTH = 22;
+
+/**
  * Singleton that encodes and decodes object IDs. It caches conversion
  * data for performance, so we only want to create a single instance.
  */

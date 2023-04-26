@@ -1,10 +1,10 @@
 import { Kysely } from "kysely";
 
+import { createBase64UUID } from "@fieldzoo/base64-uuid";
 import { Glossary } from "@fieldzoo/model";
 import { TableMapper } from "kysely-mapper";
 
 import { Database } from "../tables/current-tables";
-import { createBase64UUID } from "../lib/base64-uuid";
 import { GlossaryID } from "@fieldzoo/model";
 
 /**

@@ -4,8 +4,9 @@ import { Kysely, PostgresDialect } from "kysely";
 import * as dotenv from "dotenv";
 
 import { DB_ENVVAR_PREFIX, TEST_ENV } from "@fieldzoo/app-config";
+import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 import { DatabaseConfig } from "@fieldzoo/database-config";
-import { BASE64_UUID_LENGTH, Glossary, Term, User } from "@fieldzoo/model";
+import { Glossary, Term, User } from "@fieldzoo/model";
 
 import { resetTestDB } from "../index";
 import { Database } from "../tables/current-tables";

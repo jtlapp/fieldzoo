@@ -10,5 +10,3 @@ export * from "./values/normalized-name";
 export * from "./values/term-id";
 export * from "./values/user-id";
 export * from "./values/user-name";
-
-export * from "./lib/constants";

@@ -1,6 +1,6 @@
+import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 import { MultitierValidator } from "@fieldzoo/multitier-validator";
 import { NonEmptyString } from "@fieldzoo/typebox-types";
-import { BASE64_UUID_LENGTH } from "../lib/constants";
 
 /**
  * Representation of a glossary ID

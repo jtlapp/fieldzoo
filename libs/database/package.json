@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@fieldzoo/app-config": "workspace:*",
+    "@fieldzoo/base64-uuid": "workspace:*",
     "@fieldzoo/database-config": "workspace:*",
     "@fieldzoo/model": "workspace:*",
     "@fieldzoo/postgres-utils": "workspace:*",

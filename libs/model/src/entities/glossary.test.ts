@@ -1,4 +1,5 @@
-import { BASE64_UUID_LENGTH } from "../lib/constants";
+import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
+
 import { Glossary } from "./glossary";
 
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
