@@ -1,5 +1,4 @@
-import { Glossary, GlossaryID } from "./glossary";
-import { UserID } from "./user";
+import { Glossary } from "./glossary";
 
 const maxNameLength = Glossary.schema.properties.name.maxLength!;
 const maxDescriptionLength =
@@ -7,124 +6,114 @@ const maxDescriptionLength =
 
 describe("Glossary entity", () => {
   it("accepts valid glossaries", () => {
-    expect(
-      () =>
-        new Glossary({
-          ownerId: 1 as UserID,
-          updatedBy: 1 as UserID,
-          name: "X",
-          description: null,
-        })
+    expect(() =>
+      Glossary.create({
+        ownerId: 1,
+        updatedBy: 1,
+        name: "X",
+        description: null,
+      })
     ).not.toThrow();
-    expect(
-      () =>
-        new Glossary({
-          uuid: "" as GlossaryID,
-          ownerId: 1 as UserID,
-          updatedBy: 1 as UserID,
-          name: "Good Name",
-          description: "This\nis\nfine.",
-        })
+    expect(() =>
+      Glossary.create({
+        uuid: "",
+        ownerId: 1,
+        updatedBy: 1,
+        name: "Good Name",
+        description: "This\nis\nfine.",
+      })
     ).not.toThrow();
-    expect(
-      () =>
-        new Glossary({
-          uuid: "abc" as GlossaryID,
-          ownerId: 1 as UserID,
-          updatedBy: 1 as UserID,
-          name: "A".repeat(maxNameLength),
-          description: "A".repeat(maxDescriptionLength),
-        })
+    expect(() =>
+      Glossary.create({
+        uuid: "abc",
+        ownerId: 1,
+        updatedBy: 1,
+        name: "A".repeat(maxNameLength),
+        description: "A".repeat(maxDescriptionLength),
+      })
     ).not.toThrow();
   });
 
   it("rejects invalid glossary names", () => {
-    expect(
-      () =>
-        new Glossary({
-          uuid: "abc" as GlossaryID,
-          ownerId: 1 as UserID,
-          updatedBy: 1 as UserID,
-          name: "",
-          description: "This\nis\nfine.",
-        })
+    expect(() =>
+      Glossary.create({
+        uuid: "abc",
+        ownerId: 1,
+        updatedBy: 1,
+        name: "",
+        description: "This\nis\nfine.",
+      })
     ).toThrow("Invalid glossary");
-    expect(
-      () =>
-        new Glossary({
-          uuid: "abc" as GlossaryID,
-          ownerId: 1 as UserID,
-          updatedBy: 1 as UserID,
-          name: "X  Y",
-          description: "This\nis\nfine.",
-        })
+    expect(() =>
+      Glossary.create({
+        uuid: "abc",
+        ownerId: 1,
+        updatedBy: 1,
+        name: "X  Y",
+        description: "This\nis\nfine.",
+      })
     ).toThrow("Invalid glossary");
-    expect(
-      () =>
-        new Glossary({
-          uuid: "abc" as GlossaryID,
-          ownerId: 1 as UserID,
-          updatedBy: 1 as UserID,
-          name: "A".repeat(maxNameLength + 1),
-          description: "This\nis\nfine.",
-        })
+    expect(() =>
+      Glossary.create({
+        uuid: "abc",
+        ownerId: 1,
+        updatedBy: 1,
+        name: "A".repeat(maxNameLength + 1),
+        description: "This\nis\nfine.",
+      })
     ).toThrow("Invalid glossary");
   });
 
   it("rejects invalid glossary descriptions", () => {
-    expect(
-      () =>
-        new Glossary({
-          uuid: "abc" as GlossaryID,
-          ownerId: 1 as UserID,
-          updatedBy: 1 as UserID,
-          name: "Good Name",
-          description: "",
-        })
+    expect(() =>
+      Glossary.create({
+        uuid: "abc",
+        ownerId: 1,
+        updatedBy: 1,
+        name: "Good Name",
+        description: "",
+      })
     ).toThrow("Invalid glossary");
-    expect(
-      () =>
-        new Glossary({
-          uuid: "abc" as GlossaryID,
-          ownerId: 1 as UserID,
-          updatedBy: 1 as UserID,
-          name: "Good Name",
-          description: "\n\n",
-        })
+    expect(() =>
+      Glossary.create({
+        uuid: "abc",
+        ownerId: 1,
+        updatedBy: 1,
+        name: "Good Name",
+        description: "\n\n",
+      })
     ).toThrow("Invalid glossary");
-    expect(
-      () =>
-        new Glossary({
-          uuid: "abc" as GlossaryID,
-          ownerId: 1 as UserID,
-          updatedBy: 1 as UserID,
-          name: "Good Name",
-          description: "A".repeat(maxDescriptionLength + 1),
-        })
+    expect(() =>
+      Glossary.create({
+        uuid: "abc",
+        ownerId: 1,
+        updatedBy: 1,
+        name: "Good Name",
+        description: "A".repeat(maxDescriptionLength + 1),
+      })
     ).toThrow("Invalid glossary");
   });
 
   it("doesn't validate when assumed valid", () => {
-    expect(
-      () =>
-        new Glossary(
-          {
-            uuid: "abc" as GlossaryID,
-            ownerId: 1 as UserID,
-            updatedBy: 1 as UserID,
-            name: "",
-            description: "",
-          },
-          true
-        )
+    expect(() =>
+      Glossary.create(
+        {
+          uuid: "abc",
+          ownerId: 1,
+          updatedBy: 1,
+          name: "",
+          description: "",
+        },
+        true
+      )
     ).not.toThrow();
   });
 
   it("cannot change id", () => {
-    const glossary = new Glossary({
-      uuid: "abc" as GlossaryID,
-      ownerId: 1 as UserID,
-      updatedBy: 1 as UserID,
+    const glossary = Glossary.create({
+      uuid: "abc",
+      ownerId: 1,
+      updatedBy: 1,
       name: "X",
       description: null,
     });

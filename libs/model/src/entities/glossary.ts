@@ -1,62 +1,74 @@
 import { Type } from "@sinclair/typebox";
 
-import { FieldsOf, SelectivePartial } from "@fieldzoo/generic-types";
-import { SafeValidator } from "@fieldzoo/safe-validator";
-import {
-  Nullable,
-  SingleLineUniString,
-  MultiLineUniString,
-} from "@fieldzoo/typebox-types";
+import { SelectivePartial, UnvalidatedFields } from "@fieldzoo/generic-types";
+import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import { EmptyStringable, Nullable } from "@fieldzoo/typebox-types";
 import { freezeField } from "@fieldzoo/freeze-field";
 
-import { UserID } from "./user";
-
-/** Database ID of a glossary record */
-export type GlossaryID = string & { readonly __typeID: unique symbol };
+import { DisplayName, DisplayNameImpl } from "../values/display-name";
+import { GlossaryID, GlossaryIDImpl } from "../values/glossary-id";
+import {
+  MultilineDescription,
+  MultilineDescriptionImpl,
+} from "../values/multiline-description";
+import { UserID, UserIDImpl } from "../values/user-id";
 
 /**
  * Class representing a valid glossary.
  */
 export class Glossary {
-  readonly uuid: GlossaryID;
-  ownerId: UserID;
-  name: string;
-  description: string | null;
-  updatedBy: UserID;
-
   static schema = Type.Object({
-    uuid: Type.String(),
-    ownerId: Type.Number({ minimum: 1 }),
-    name: SingleLineUniString({
-      minLength: 1,
-      maxLength: 100,
-    }),
-    description: Nullable(MultiLineUniString({ maxLength: 1000 })),
-    updatedBy: Type.Number({ minimum: 1 }),
+    uuid: EmptyStringable(GlossaryIDImpl.schema),
+    ownerId: UserIDImpl.schema,
+    name: DisplayNameImpl.schema,
+    description: Nullable(MultilineDescriptionImpl.schema),
+    updatedBy: UserIDImpl.schema,
   });
-  static #validator = new SafeValidator(this.schema);
+  static #validator = new MultitierValidator(this.schema);
 
   /**
-   * Creates a new glossary.
-   * @param fields - Fields of the glossary. `uuid` is optional, but
-   *  must be an empty string for users not yet in the database.
+   * @param uuid The glossary's UUID.
+   * @param ownerId The ID of the user who owns this glossary.
+   * @param name The glossary's name.
+   * @param description The glossary's description.
+   * @param updatedBy The ID of the user who last updated this glossary.
    */
   constructor(
-    fields: SelectivePartial<FieldsOf<Glossary>, "uuid">,
+    readonly uuid: GlossaryID,
+    public ownerId: UserID,
+    public name: DisplayName,
+    public description: MultilineDescription | null,
+    public updatedBy: UserID
+  ) {
+    freezeField(this, "uuid");
+  }
+
+  /**
+   * Create a new glossary, optionally with validation.
+   * @param fields The glossary's properties. `uuid` is optional, defaulting to
+   *  the empty string for glossaries not yet in the database.
+   * @param assumeValid Whether to skip validation.
+   * @returns A new term.
+   */
+  static create(
+    fields: SelectivePartial<UnvalidatedFields<Glossary>, "uuid">,
     assumeValid = false
   ) {
-    this.uuid = fields.uuid ?? ("" as GlossaryID);
-    this.ownerId = fields.ownerId;
-    this.name = fields.name;
-    this.description = fields.description;
-    this.updatedBy = fields.updatedBy;
-
-    if (!assumeValid) {
-      Glossary.#validator.safeValidate(this, "Invalid glossary");
+    if (fields.uuid === undefined) {
+      fields = { ...fields, uuid: "" };
     }
-    freezeField(this, "uuid");
+    if (!assumeValid) {
+      this.#validator.safeValidate(fields, "Invalid glossary");
+    }
+    return new Glossary(
+      fields.uuid as GlossaryID,
+      fields.ownerId as UserID,
+      fields.name as DisplayName,
+      fields.description as MultilineDescription | null,
+      fields.updatedBy as UserID
+    );
   }
 }
 export interface Glossary {
-  readonly __typeID: unique symbol;
+  readonly __validated__: unique symbol;
 }

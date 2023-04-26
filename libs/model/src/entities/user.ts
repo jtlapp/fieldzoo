@@ -1,50 +1,62 @@
 import { Type } from "@sinclair/typebox";
 
-import { FieldsOf, SelectivePartial } from "@fieldzoo/generic-types";
-import { SafeValidator } from "@fieldzoo/safe-validator";
-import { EmailString, UserNameUniString } from "@fieldzoo/typebox-types";
+import { SelectivePartial, UnvalidatedFields } from "@fieldzoo/generic-types";
+import { MultitierValidator } from "@fieldzoo/multitier-validator";
 import { freezeField } from "@fieldzoo/freeze-field";
 
-/** Database ID of a user record */
-export type UserID = number & { readonly __typeID: unique symbol };
+import { UserID, UserIDImpl } from "../values/user-id";
+import { UserName, UserNameImpl } from "../values/user-name";
+import { EmailAddress, EmailAddressImpl } from "../values/email-address";
+import { Zeroable } from "@fieldzoo/typebox-types";
 
 /**
  * Class representing a valid user.
  */
 export class User {
-  readonly id: UserID;
-  name: string;
-  email: string;
-
   static schema = Type.Object({
-    id: Type.Integer({ minimum: 0 }),
-    name: UserNameUniString({
-      minLength: 2,
-      maxLength: 50,
-    }),
-    email: EmailString({ maxLength: 100 }),
+    id: Zeroable(UserIDImpl.schema),
+    name: UserNameImpl.schema,
+    email: EmailAddressImpl.schema,
   });
-  static #validator = new SafeValidator(this.schema);
+  static #validator = new MultitierValidator(this.schema);
 
   /**
-   * Create a new user.
-   * @param fields The user's properties. `id` is optional, but
-   *  must be 0 for users not yet in the database.
+   * @param id User ID. `id` must be 0 for users not yet in the database.
+   * @param name User name.
+   * @param email User email address.
    */
   constructor(
-    fields: SelectivePartial<FieldsOf<User>, "id">,
+    readonly id: UserID,
+    public name: UserName,
+    public email: EmailAddress
+  ) {
+    freezeField(this, "id");
+  }
+
+  /**
+   * Create a new user, optionally with validation.
+   * @param fields The user's properties. `id` is optional, defaulting to
+   *  0 for users not yet in the database.
+   * @param assumeValid Whether to skip validation.
+   * @returns A new user.
+   */
+  static create(
+    fields: Readonly<SelectivePartial<UnvalidatedFields<User>, "id">>,
     assumeValid = false
   ) {
-    this.id = fields.id ?? (0 as UserID);
-    this.name = fields.name;
-    this.email = fields.email;
-
-    if (!assumeValid) {
-      User.#validator.safeValidate(this, "Invalid user");
+    if (fields.id === undefined) {
+      fields = { ...fields, id: 0 };
     }
-    freezeField(this, "id");
+    if (!assumeValid) {
+      User.#validator.safeValidate(fields, "Invalid user");
+    }
+    return new User(
+      fields.id as UserID,
+      fields.name as UserName,
+      fields.email as EmailAddress
+    );
   }
 }
 export interface User {
-  readonly __typeID: unique symbol;
+  readonly __validated__: unique symbol;
 }

@@ -1,4 +1,6 @@
-import { User, UserID } from "./user";
+import { User } from "./user";
+
+import { UserID } from "../values/user-id";
 
 const maxNameLength = User.schema.properties.name.maxLength!;
 
@@ -35,7 +37,9 @@ describe("User entity", () => {
   });
 
   it("doesn't validate when assumed valid", () => {
-    expect(() => new User({ id: ID, name: "", email: "" }, true)).not.toThrow();
+    expect(() =>
+      User.create({ id: ID, name: "", email: "" }, true)
+    ).not.toThrow();
   });
 
   it("ID cannot be changed", () => {
@@ -47,5 +51,5 @@ describe("User entity", () => {
 });
 
 function createUser(id: number | undefined, name: string, email: string) {
-  return new User({ id: id as UserID, name, email });
+  return User.create({ id: id as UserID, name, email });
 }
