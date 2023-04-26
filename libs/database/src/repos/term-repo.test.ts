@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 
 import { DB_ENVVAR_PREFIX, TEST_ENV } from "@fieldzoo/app-config";
 import { DatabaseConfig } from "@fieldzoo/database-config";
-import { Glossary, Term, User } from "@fieldzoo/model";
+import { BASE64_UUID_LENGTH, Glossary, Term, User } from "@fieldzoo/model";
 
 import { resetTestDB } from "../index";
 import { Database } from "../tables/current-tables";
@@ -14,6 +14,7 @@ import { GlossaryRepo } from "./glossary-repo";
 import { TermRepo } from "./term-repo";
 
 const PATH_TO_ROOT = path.join(__dirname, "../../../..");
+const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
 
 let db: Kysely<Database>;
 
@@ -58,7 +59,7 @@ it("inserts, updates, and deletes terms", async () => {
   const updateReturn1 = await termRepo.store(
     Term.create({
       ...insertedTerm,
-      uuid: "abc",
+      uuid: SAMPLE_UUID,
     })
   );
   expect(updateReturn1).toEqual(null);
