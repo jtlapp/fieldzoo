@@ -23,7 +23,7 @@ export class GlossaryRepo {
    * @returns true if the glossary was deleted, false if the glossary
    *  was not found.
    */
-  async deleteById(uuid: GlossaryID): Promise<boolean> {
+  async deleteByID(uuid: GlossaryID): Promise<boolean> {
     return this.#table.delete(uuid).run();
   }
 

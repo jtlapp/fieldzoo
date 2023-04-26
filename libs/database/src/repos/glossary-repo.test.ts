@@ -75,7 +75,7 @@ it("inserts, updates, and deletes glossaries", async () => {
   expect(selectedUser2).toEqual(updateReturn);
 
   // test deleting a glossary
-  const deleted = await glossaryRepo.deleteById(insertReturn.uuid);
+  const deleted = await glossaryRepo.deleteByID(insertReturn.uuid);
   expect(deleted).toEqual(true);
   const selectedUser3 = await glossaryRepo.getByID(insertReturn.uuid);
   expect(selectedUser3).toEqual(null);

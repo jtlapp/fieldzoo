@@ -21,7 +21,7 @@ export class UserRepo {
    * @param id ID of the user to delete.
    * @returns true if the user was deleted, false if the user was not found.
    */
-  async deleteById(id: UserID): Promise<boolean> {
+  async deleteByID(id: UserID): Promise<boolean> {
     return this.#table.delete(id).run();
   }
 

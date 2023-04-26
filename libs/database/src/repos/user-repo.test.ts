@@ -61,7 +61,7 @@ it("inserts, updates, and deletes users", async () => {
   expect(selectedUser2).toEqual(updateReturn);
 
   // test deleting a user
-  const deleted = await userRepo.deleteById(insertReturn.id);
+  const deleted = await userRepo.deleteByID(insertReturn.id);
   expect(deleted).toEqual(true);
   const selectedUser3 = await userRepo.getByID(insertReturn.id);
   expect(selectedUser3).toEqual(null);
