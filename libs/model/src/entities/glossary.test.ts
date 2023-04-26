@@ -1,4 +1,7 @@
+import { BASE64_UUID_LENGTH } from "../lib/constants";
 import { Glossary } from "./glossary";
+
+const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
 
 const maxNameLength = Glossary.schema.properties.name.maxLength!;
 const maxDescriptionLength =
@@ -25,7 +28,7 @@ describe("Glossary entity", () => {
     ).not.toThrow();
     expect(() =>
       Glossary.create({
-        uuid: "abc",
+        uuid: SAMPLE_UUID,
         ownerId: 1,
         updatedBy: 1,
         name: "A".repeat(maxNameLength),
@@ -37,7 +40,7 @@ describe("Glossary entity", () => {
   it("rejects invalid glossary names", () => {
     expect(() =>
       Glossary.create({
-        uuid: "abc",
+        uuid: SAMPLE_UUID,
         ownerId: 1,
         updatedBy: 1,
         name: "",
@@ -46,7 +49,7 @@ describe("Glossary entity", () => {
     ).toThrow("Invalid glossary");
     expect(() =>
       Glossary.create({
-        uuid: "abc",
+        uuid: SAMPLE_UUID,
         ownerId: 1,
         updatedBy: 1,
         name: "X  Y",
@@ -55,7 +58,7 @@ describe("Glossary entity", () => {
     ).toThrow("Invalid glossary");
     expect(() =>
       Glossary.create({
-        uuid: "abc",
+        uuid: SAMPLE_UUID,
         ownerId: 1,
         updatedBy: 1,
         name: "A".repeat(maxNameLength + 1),
@@ -67,7 +70,7 @@ describe("Glossary entity", () => {
   it("rejects invalid glossary descriptions", () => {
     expect(() =>
       Glossary.create({
-        uuid: "abc",
+        uuid: SAMPLE_UUID,
         ownerId: 1,
         updatedBy: 1,
         name: "Good Name",
@@ -76,7 +79,7 @@ describe("Glossary entity", () => {
     ).toThrow("Invalid glossary");
     expect(() =>
       Glossary.create({
-        uuid: "abc",
+        uuid: SAMPLE_UUID,
         ownerId: 1,
         updatedBy: 1,
         name: "Good Name",
@@ -85,7 +88,7 @@ describe("Glossary entity", () => {
     ).toThrow("Invalid glossary");
     expect(() =>
       Glossary.create({
-        uuid: "abc",
+        uuid: SAMPLE_UUID,
         ownerId: 1,
         updatedBy: 1,
         name: "Good Name",
@@ -98,7 +101,7 @@ describe("Glossary entity", () => {
     expect(() =>
       Glossary.create(
         {
-          uuid: "abc",
+          uuid: SAMPLE_UUID,
           ownerId: 1,
           updatedBy: 1,
           name: "",
@@ -111,7 +114,7 @@ describe("Glossary entity", () => {
 
   it("cannot change id", () => {
     const glossary = Glossary.create({
-      uuid: "abc",
+      uuid: SAMPLE_UUID,
       ownerId: 1,
       updatedBy: 1,
       name: "X",

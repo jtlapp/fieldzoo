@@ -1,5 +1,6 @@
 import { MultitierValidator } from "@fieldzoo/multitier-validator";
 import { NonEmptyString } from "@fieldzoo/typebox-types";
+import { BASE64_UUID_LENGTH } from "../lib/constants";
 
 /**
  * Representation of a term ID
@@ -8,7 +9,10 @@ import { NonEmptyString } from "@fieldzoo/typebox-types";
 export type TermID = string & { readonly __validated__: unique symbol };
 
 export class TermIDImpl {
-  static schema = NonEmptyString();
+  static schema = NonEmptyString({
+    minLength: BASE64_UUID_LENGTH,
+    maxLength: BASE64_UUID_LENGTH,
+  });
 
   static create(id: string) {
     this.#validator.validate(id, "Invalid term ID");

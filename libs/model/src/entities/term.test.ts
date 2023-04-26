@@ -1,15 +1,17 @@
 import { Term } from "./term";
+import { BASE64_UUID_LENGTH } from "../lib/constants";
 
 const maxNameLength = Term.schema.properties.name.maxLength!;
 const minDescriptionLength = Term.schema.properties.description.minLength!;
 const maxDescriptionLength = Term.schema.properties.description.maxLength!;
+const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
 
 describe("Term entity", () => {
   it("accepts valid terms", () => {
     expect(() =>
       Term.create({
         uuid: "",
-        glossaryId: "def",
+        glossaryId: SAMPLE_UUID,
         name: "Good Name",
         description: "A".repeat(minDescriptionLength),
         updatedBy: 1,
@@ -17,8 +19,8 @@ describe("Term entity", () => {
     ).not.toThrow();
     expect(() =>
       Term.create({
-        uuid: "abc",
-        glossaryId: "def",
+        uuid: SAMPLE_UUID,
+        glossaryId: SAMPLE_UUID,
         name: "Good Name",
         description: "A".repeat(minDescriptionLength),
         updatedBy: 1,
@@ -26,8 +28,8 @@ describe("Term entity", () => {
     ).not.toThrow();
     expect(() =>
       Term.create({
-        uuid: "abc",
-        glossaryId: "def",
+        uuid: SAMPLE_UUID,
+        glossaryId: SAMPLE_UUID,
         name: "Good Name",
         description: "This\nis\nfine.",
         updatedBy: 1,
@@ -35,8 +37,8 @@ describe("Term entity", () => {
     ).not.toThrow();
     expect(() =>
       Term.create({
-        uuid: "abc",
-        glossaryId: "def",
+        uuid: SAMPLE_UUID,
+        glossaryId: SAMPLE_UUID,
         name: "A".repeat(maxNameLength),
         description: "A".repeat(maxDescriptionLength),
         updatedBy: 1,
@@ -47,8 +49,8 @@ describe("Term entity", () => {
   it("rejects invalid term names", () => {
     expect(() =>
       Term.create({
-        uuid: "abc",
-        glossaryId: "def",
+        uuid: SAMPLE_UUID,
+        glossaryId: SAMPLE_UUID,
         name: "",
         description: "This\nis\nfine.",
         updatedBy: 1,
@@ -56,8 +58,8 @@ describe("Term entity", () => {
     ).toThrow("term");
     expect(() =>
       Term.create({
-        uuid: "abc",
-        glossaryId: "def",
+        uuid: SAMPLE_UUID,
+        glossaryId: SAMPLE_UUID,
         name: "X  Y",
         description: "This\nis\nfine.",
         updatedBy: 1,
@@ -65,8 +67,8 @@ describe("Term entity", () => {
     ).toThrow("term");
     expect(() =>
       Term.create({
-        uuid: "abc",
-        glossaryId: "def",
+        uuid: SAMPLE_UUID,
+        glossaryId: SAMPLE_UUID,
         name: "A".repeat(maxNameLength + 1),
         description: "This\nis\nfine.",
         updatedBy: 1,
@@ -77,8 +79,8 @@ describe("Term entity", () => {
   it("rejects invalid term descriptions", () => {
     expect(() =>
       Term.create({
-        uuid: "abc",
-        glossaryId: "def",
+        uuid: SAMPLE_UUID,
+        glossaryId: SAMPLE_UUID,
         name: "Good Name",
         description: "",
         updatedBy: 1,
@@ -86,8 +88,8 @@ describe("Term entity", () => {
     ).toThrow("term");
     expect(() =>
       Term.create({
-        uuid: "abc",
-        glossaryId: "def",
+        uuid: SAMPLE_UUID,
+        glossaryId: SAMPLE_UUID,
         name: "Good Name",
         description: "\n\n",
         updatedBy: 1,
@@ -95,8 +97,8 @@ describe("Term entity", () => {
     ).toThrow("term");
     expect(() =>
       Term.create({
-        uuid: "abc",
-        glossaryId: "def",
+        uuid: SAMPLE_UUID,
+        glossaryId: SAMPLE_UUID,
         name: "Good Name",
         description: "A".repeat(maxDescriptionLength + 1),
         updatedBy: 1,
@@ -108,8 +110,8 @@ describe("Term entity", () => {
     expect(() =>
       Term.create(
         {
-          uuid: "abc",
-          glossaryId: "def",
+          uuid: SAMPLE_UUID,
+          glossaryId: SAMPLE_UUID,
           name: "",
           description: "",
           updatedBy: 1,
@@ -121,8 +123,8 @@ describe("Term entity", () => {
 
   it("cannot be changed", () => {
     const term = Term.create({
-      uuid: "abc",
-      glossaryId: "def",
+      uuid: SAMPLE_UUID,
+      glossaryId: SAMPLE_UUID,
       name: "X",
       description: "Good description",
       updatedBy: 1,
