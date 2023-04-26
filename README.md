@@ -50,7 +50,9 @@ And if amateurs can learn to do taxonomy, they can also create field guides for 
 
 [PostgreSQL](https://www.postgresql.org/), an advanced, open-source RDBMS. Postgres seems to be the best open source RDBMS, allowing for object queries and minimally-blocking transactions. I briefly considered using NoSQL such as MongoDB but it seemed to vastly increase the complexity of working with non-static relational data. It doesn't appear realistic to generically support both Postgres and MySQL, but it will be possible to add MySQL and other DB support in a way that entails redundantly maintaining code.
 
-[Kysely](https://koskimas.github.io/kysely/), a type-safe, autocompleting typescript SQL query builder. This library leverages TypeScript's amazing type support to allow for writing SQL queries that are free of syntax errors and typos in table and column names, eliminating another class of errors.
+[Kysely](https://github.com/kysely-org/kysely), a type-safe, autocompleting typescript SQL query builder. This library leverages TypeScript's amazing type support to allow for writing SQL queries that are free of syntax errors and typos in table and column names, eliminating another class of errors.
+
+[kysely-mapper](https://github.com/jtlapp/kysely-mapper), a flexible Kysely-based utility I created for mapping between objects and database tables. It reduces the amount of code needed for mapping and allows for highly customized mapping.
 
 [TypeBox](https://github.com/sinclairzx81/typebox), a super-fast data validator. It provides tools for creating JSON schemas and precompiles (at runtime) the schemas into efficient validators. I'm exploring ways to integrate TypeBox with Kysely for error-free SQL development.
 
