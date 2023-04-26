@@ -1,7 +1,7 @@
 import * as typebox from "@sinclair/typebox";
 import { MultitierValidator } from "@fieldzoo/multitier-validator";
 
-import { DisplayName } from "./display-name";
+import { DisplayName, DisplayNameImpl } from "./display-name";
 
 /**
  * Normalized representation of a display name, suitable for looking up a name
@@ -12,8 +12,10 @@ import { DisplayName } from "./display-name";
 export type NormalizedName = string & { readonly __validated__: unique symbol };
 
 export class NormalizedNameImpl {
-  // TODO: limit length
-  static schema = typebox.Type.String();
+  static schema = typebox.Type.String({
+    minLength: DisplayNameImpl.schema.minLength,
+    maxLength: DisplayNameImpl.schema.maxLength,
+  });
 
   static create(displayName: DisplayName) {
     this.#validator.validate(displayName, "Invalid description");
