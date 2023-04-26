@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 
-import { UnvalidatedFields } from "@fieldzoo/generic-types";
+import { SelectivePartial, UnvalidatedFields } from "@fieldzoo/generic-types";
 import { MultitierValidator } from "@fieldzoo/multitier-validator";
 import { freezeField } from "@fieldzoo/freeze-field";
 
@@ -12,12 +12,15 @@ import {
 } from "../values/multiline-description";
 import { UserID, UserIDImpl } from "../values/user-id";
 import { NormalizedName, NormalizedNameImpl } from "../values/normalized-name";
+import { TermID, TermIDImpl } from "../values/term-id";
+import { Zeroable } from "@fieldzoo/typebox-types";
 
 /**
  * Class representing a valid term
  */
 export class Term {
   static schema = Type.Object({
+    id: Zeroable(TermIDImpl.schema),
     glossaryId: GlossaryIDImpl.schema,
     lookupName: NormalizedNameImpl.schema,
     displayName: DisplayNameImpl.schema,
@@ -34,14 +37,15 @@ export class Term {
    * @param updatedBy The ID of the user who last updated this term.
    */
   constructor(
+    readonly id: TermID,
     readonly glossaryId: GlossaryID,
-    readonly lookupName: NormalizedName,
+    public lookupName: NormalizedName,
     public displayName: DisplayName,
     public description: MultilineDescription,
     public updatedBy: UserID
   ) {
+    freezeField(this, "id");
     freezeField(this, "glossaryId");
-    freezeField(this, "lookupName");
   }
 
   /**
@@ -52,13 +56,17 @@ export class Term {
    * @returns A new term.
    */
   static create(
-    fields: Readonly<UnvalidatedFields<Term>>,
+    fields: Readonly<SelectivePartial<UnvalidatedFields<Term>, "id">>,
     assumeValid = false
   ) {
+    if (fields.id === undefined) {
+      fields = { ...fields, id: 0 };
+    }
     if (!assumeValid) {
       this.#validator.safeValidate(fields, "Invalid term");
     }
     return new Term(
+      fields.id as TermID,
       fields.glossaryId as GlossaryID,
       fields.lookupName as NormalizedName,
       fields.displayName as DisplayName,

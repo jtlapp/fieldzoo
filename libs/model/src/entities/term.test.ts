@@ -38,6 +38,29 @@ describe("Term entity", () => {
         updatedBy: 1,
       })
     ).not.toThrow();
+    expect(() =>
+      Term.create({
+        id: 1,
+        glossaryId: SAMPLE_UUID,
+        lookupName: normalizeName("Good Name"),
+        displayName: "Good Name",
+        description: "A".repeat(minDescriptionLength),
+        updatedBy: 1,
+      })
+    ).not.toThrow();
+  });
+
+  it("rejects invalid term IDs", () => {
+    expect(() =>
+      Term.create({
+        id: -1,
+        glossaryId: SAMPLE_UUID,
+        lookupName: normalizeName("Good Name"),
+        displayName: "Good Name",
+        description: "A".repeat(minDescriptionLength),
+        updatedBy: 1,
+      })
+    ).toThrow("term");
   });
 
   it("rejects invalid glossary IDs", () => {
@@ -201,8 +224,8 @@ describe("Term entity", () => {
       description: "Good description",
       updatedBy: 1,
     });
+    expect(() => ((term as any).id = 999)).toThrow("read only");
     expect(() => ((term as any).glossaryId = "abc")).toThrow("read only");
-    expect(() => ((term as any).lookupName = "abc")).toThrow("read only");
   });
 });
 

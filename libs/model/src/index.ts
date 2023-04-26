@@ -7,5 +7,6 @@ export * from "./values/email-address";
 export * from "./values/glossary-id";
 export * from "./values/multiline-description";
 export * from "./values/normalized-name";
+export * from "./values/term-id";
 export * from "./values/user-id";
 export * from "./values/user-name";
