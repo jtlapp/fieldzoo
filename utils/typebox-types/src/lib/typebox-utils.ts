@@ -5,3 +5,6 @@ export const NonEmptyString = (options?: StringOptions<string>) =>
 
 export const Nullable = <T extends TSchema>(type: T) =>
   Type.Union([type, Type.Null()]);
+
+export const Zeroable = <T extends TSchema>(type: T) =>
+  Type.Union([type, Type.Literal(0)]);
