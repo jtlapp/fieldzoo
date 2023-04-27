@@ -31,7 +31,7 @@ export class Term {
     glossaryId: GlossaryIDImpl.schema,
     displayName: DisplayNameImpl.schema,
     description: MultilineDescriptionImpl.schema,
-    updatedBy: UserIDImpl.schema,
+    modifiedBy: UserIDImpl.schema,
   });
   static #validator = new MultitierValidator(this.schema);
 
@@ -39,7 +39,7 @@ export class Term {
    * @param glossaryId The ID of the glossary this term belongs to.
    * @param displayName The term's display name.
    * @param description The term's description.
-   * @param updatedBy The ID of the user who last updated this term.
+   * @param modifiedBy The ID of the user who last updated this term.
    * @param lookupName The term's name, normalized for lookup.
    *  Computed from displayName on demand when not provided.
    */
@@ -48,7 +48,7 @@ export class Term {
     readonly glossaryId: GlossaryID,
     displayName: DisplayName,
     public description: MultilineDescription,
-    public updatedBy: UserID,
+    public modifiedBy: UserID,
     lookupName?: NormalizedName
   ) {
     freezeField(this, "id");
@@ -97,7 +97,7 @@ export class Term {
       fields.glossaryId as GlossaryID,
       fields.displayName as DisplayName,
       fields.description as MultilineDescription,
-      fields.updatedBy as UserID,
+      fields.modifiedBy as UserID,
       fields.lookupName as NormalizedName
     );
   }

@@ -19,7 +19,7 @@ export interface Glossaries {
   ownerId: number;
   name: string;
   description: string | null;
-  updatedBy: number;
+  modifiedBy: number;
 }
 
 export interface Terms {
@@ -28,5 +28,5 @@ export interface Terms {
   lookupName: string;
   displayName: string;
   description: string;
-  updatedBy: number;
+  modifiedBy: number;
 }

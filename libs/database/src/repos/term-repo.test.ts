@@ -42,7 +42,7 @@ it("inserts, updates, and deletes terms", async () => {
     name: "Test Term",
     description: "This is a test term",
     ownerId: userReturn.id,
-    updatedBy: userReturn.id,
+    modifiedBy: userReturn.id,
   });
   const glossaryReturn = await glossaryRepo.store(insertedGlossary);
 
@@ -51,7 +51,7 @@ it("inserts, updates, and deletes terms", async () => {
     displayName: "Test Term",
     description: "This is a test term",
     glossaryId: glossaryReturn!.uuid,
-    updatedBy: userReturn.id,
+    modifiedBy: userReturn.id,
   });
 
   // test updating a non-existent term

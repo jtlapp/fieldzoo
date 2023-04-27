@@ -11,7 +11,7 @@ import { Kysely, sql } from "kysely";
 export const MIGRATION_FILE_PATH = path.join(__dirname, "../migrations");
 
 /**
- * Creates a table having `createdAt` and `updatedAt` timestamps.
+ * Creates a table having `createdAt` and `modifiedAt` timestamps.
  *
  * @param db Reference to the Kysely DB
  * @param tableName Name of the table to create
@@ -23,14 +23,14 @@ export function createTimestampedTable(db: Kysely<any>, tableName: string) {
     .addColumn("createdAt", "timestamp", (col) =>
       col.defaultTo(sql`now()`).notNull()
     )
-    .addColumn("updatedAt", "timestamp", (col) =>
+    .addColumn("modifiedAt", "timestamp", (col) =>
       col.defaultTo(sql`now()`).notNull()
     );
 }
 
 /**
- * Creates a table having `createdAt` and `updatedAt` timestamps, as well
- * as an `updatedBy` column indicated the user who last updated the row.
+ * Creates a table having `createdAt` and `modifiedAt` timestamps, as well
+ * as an `modifiedBy` column indicated the user who last modified the row.
  *
  * @param db Reference to the Kysely DB
  * @param tableName Name of the table to create
@@ -38,7 +38,7 @@ export function createTimestampedTable(db: Kysely<any>, tableName: string) {
  */
 export function createCollaborativeTable(db: Kysely<any>, tableName: string) {
   return createTimestampedTable(db, tableName).addColumn(
-    "updatedBy",
+    "modifiedBy",
     "integer",
     (col) => col.references("users.id").onDelete("cascade").notNull()
   );

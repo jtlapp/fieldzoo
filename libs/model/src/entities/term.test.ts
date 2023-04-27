@@ -16,7 +16,7 @@ describe("Term entity", () => {
         glossaryId: SAMPLE_UUID,
         displayName: "Good Name",
         description: "This\nis\nfine.",
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).not.toThrow();
     expect(() =>
@@ -25,7 +25,7 @@ describe("Term entity", () => {
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
         description: "A".repeat(minDescriptionLength),
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).not.toThrow();
     expect(() =>
@@ -34,7 +34,7 @@ describe("Term entity", () => {
         lookupName: "a".repeat(maxNameLength),
         displayName: "A".repeat(maxNameLength),
         description: "A".repeat(maxDescriptionLength),
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).not.toThrow();
     expect(() =>
@@ -44,7 +44,7 @@ describe("Term entity", () => {
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
         description: "A".repeat(minDescriptionLength),
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).not.toThrow();
   });
@@ -57,7 +57,7 @@ describe("Term entity", () => {
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
         description: "A".repeat(minDescriptionLength),
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("term");
   });
@@ -69,7 +69,7 @@ describe("Term entity", () => {
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
         description: "This\nis\nfine.",
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("term");
     expect(() =>
@@ -78,7 +78,7 @@ describe("Term entity", () => {
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
         description: "This\nis\nfine.",
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("term");
     expect(() =>
@@ -87,7 +87,7 @@ describe("Term entity", () => {
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
         description: "This\nis\nfine.",
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("term");
     expect(() =>
@@ -96,7 +96,7 @@ describe("Term entity", () => {
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
         description: "This\nis\nfine.",
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("term");
     expect(() =>
@@ -105,7 +105,7 @@ describe("Term entity", () => {
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
         description: "This\nis\nfine.",
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("term");
   });
@@ -117,7 +117,7 @@ describe("Term entity", () => {
         lookupName: 999 as unknown as string,
         displayName: "Good Name",
         description: "This\nis\nfine.",
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("term");
     expect(() =>
@@ -126,7 +126,7 @@ describe("Term entity", () => {
         lookupName: "",
         displayName: "Good Name",
         description: "This\nis\nfine.",
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("term");
     expect(() =>
@@ -135,7 +135,7 @@ describe("Term entity", () => {
         lookupName: "food-name",
         displayName: "Good Name",
         description: "This\nis\nfine.",
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("lookupName");
   });
@@ -147,7 +147,7 @@ describe("Term entity", () => {
         lookupName: normalizeName("Good Name"),
         displayName: "",
         description: "This\nis\nfine.",
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("term");
     expect(() =>
@@ -156,7 +156,7 @@ describe("Term entity", () => {
         lookupName: normalizeName("Good Name"),
         displayName: "X  Y",
         description: "This\nis\nfine.",
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("term");
     expect(() =>
@@ -165,7 +165,7 @@ describe("Term entity", () => {
         lookupName: normalizeName("Good Name"),
         displayName: "A".repeat(maxNameLength + 1),
         description: "This\nis\nfine.",
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("term");
   });
@@ -177,7 +177,7 @@ describe("Term entity", () => {
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
         description: "",
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("term");
     expect(() =>
@@ -186,7 +186,7 @@ describe("Term entity", () => {
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
         description: "\n\n",
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("term");
     expect(() =>
@@ -195,7 +195,7 @@ describe("Term entity", () => {
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
         description: "A".repeat(maxDescriptionLength + 1),
-        updatedBy: 1,
+        modifiedBy: 1,
       })
     ).toThrow("term");
   });
@@ -208,7 +208,7 @@ describe("Term entity", () => {
           lookupName: "",
           displayName: "",
           description: "",
-          updatedBy: 1,
+          modifiedBy: 1,
         },
         false
       )
@@ -220,7 +220,7 @@ describe("Term entity", () => {
           lookupName: "foo",
           displayName: "bar",
           description: "valid",
-          updatedBy: 1,
+          modifiedBy: 1,
         },
         false
       )
@@ -233,7 +233,7 @@ describe("Term entity", () => {
       lookupName: normalizeName("X"),
       displayName: "X",
       description: "Good description",
-      updatedBy: 1,
+      modifiedBy: 1,
     });
     expect(() => ((term as any).id = 999)).toThrow("read only");
     expect(() => ((term as any).glossaryId = "abc")).toThrow("read only");

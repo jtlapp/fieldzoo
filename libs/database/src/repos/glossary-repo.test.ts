@@ -43,7 +43,7 @@ it("inserts, updates, and deletes glossaries", async () => {
     name: "Test Glossary",
     description: "This is a test glossary",
     ownerId: userReturn.id,
-    updatedBy: userReturn.id,
+    modifiedBy: userReturn.id,
   });
 
   // test updating a non-existent glossary

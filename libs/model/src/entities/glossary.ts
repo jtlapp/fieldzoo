@@ -22,7 +22,7 @@ export class Glossary {
     ownerId: UserIDImpl.schema,
     name: DisplayNameImpl.schema,
     description: Nullable(MultilineDescriptionImpl.schema),
-    updatedBy: UserIDImpl.schema,
+    modifiedBy: UserIDImpl.schema,
   });
   static #validator = new MultitierValidator(this.schema);
 
@@ -31,14 +31,14 @@ export class Glossary {
    * @param ownerId The ID of the user who owns this glossary.
    * @param name The glossary's name.
    * @param description The glossary's description.
-   * @param updatedBy The ID of the user who last updated this glossary.
+   * @param modifiedBy The ID of the user who last updated this glossary.
    */
   constructor(
     readonly uuid: GlossaryID,
     public ownerId: UserID,
     public name: DisplayName,
     public description: MultilineDescription | null,
-    public updatedBy: UserID
+    public modifiedBy: UserID
   ) {
     freezeField(this, "uuid");
   }
@@ -65,7 +65,7 @@ export class Glossary {
       fields.ownerId as UserID,
       fields.name as DisplayName,
       fields.description as MultilineDescription | null,
-      fields.updatedBy as UserID
+      fields.modifiedBy as UserID
     );
   }
 }
