@@ -63,8 +63,8 @@ export class UserRepo {
         return insertion;
       },
       insertReturnTransform: (user: User, returns) =>
-        User.create({ ...user, id: returns.id }, true),
-      selectTransform: (row) => User.create(row, true),
+        User.create({ ...user, id: returns.id }, false),
+      selectTransform: (row) => User.create(row, false),
       countTransform: (count) => Number(count),
     });
   }

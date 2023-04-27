@@ -84,10 +84,10 @@ export class TermRepo {
             displayName: term.displayName,
             lookupName: term.lookupName,
           },
-          true
+          false
         ),
       updateTransform: upsertTransform,
-      selectTransform: (row) => Term.create(row, true),
+      selectTransform: (row) => Term.create(row, false),
     });
   }
 
@@ -99,7 +99,7 @@ export class TermRepo {
     return new TableMapper(db, "terms", {
       keyColumns: ["glossaryId", "lookupName"],
     }).withTransforms({
-      selectTransform: (row) => Term.create(row, true),
+      selectTransform: (row) => Term.create(row, false),
       insertTransform: () => {
         throw Error("Cannot insert via key mapper");
       },
