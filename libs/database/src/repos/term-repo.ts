@@ -8,7 +8,8 @@ import { GlossaryID } from "@fieldzoo/model";
 import { NormalizedName } from "@fieldzoo/model";
 
 /**
- * Repository for persisting terms.
+ * Repository for persisting terms. Terms have a database-internal ID and a
+ * universal key given by the tuple [glossary ID, lookup name].
  */
 export class TermRepo {
   readonly #idTable: ReturnType<TermRepo["getIDMapper"]>;
