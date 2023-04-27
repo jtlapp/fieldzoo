@@ -12,7 +12,7 @@ export type MultilineDescription = string & {
 export class MultilineDescriptionImpl {
   static schema = MultiLineUnicodeString({ minLength: 1, maxLength: 1000 });
 
-  static create(description: string, safely = true) {
+  static castFrom(description: string, safely = true) {
     this.#validator.validate(description, "Invalid description", safely);
     return description as MultilineDescription;
   }

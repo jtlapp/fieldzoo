@@ -58,7 +58,7 @@ it("inserts, updates, and deletes users", async () => {
 
   // test updating a user
   await sleep(20);
-  selectedUser1!.name = UserNameImpl.create("Jon Doe");
+  selectedUser1!.name = UserNameImpl.castFrom("Jon Doe");
 
   const updateReturn = await userRepo.store(selectedUser1!);
   expectEqualUsers(updateReturn, selectedUser1!);

@@ -11,7 +11,7 @@ export type UserID = number & { readonly __validated__: unique symbol };
 export class UserIDImpl {
   static schema = Type.Integer({ minimum: 1 });
 
-  static create(id: number) {
+  static castFrom(id: number) {
     this.#validator.validate(id, "Invalid user ID");
     return id as UserID;
   }

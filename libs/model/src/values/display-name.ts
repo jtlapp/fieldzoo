@@ -13,7 +13,7 @@ export class DisplayNameImpl {
     maxLength: 100,
   });
 
-  static create(name: string, safely = true) {
+  static castFrom(name: string, safely = true) {
     this.#validator.validate(name, "Invalid display name", safely);
     return name as DisplayName;
   }

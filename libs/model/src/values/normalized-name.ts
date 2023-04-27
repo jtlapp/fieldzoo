@@ -16,7 +16,7 @@ export class NormalizedNameImpl {
     maxLength: DisplayNameImpl.schema.maxLength,
   });
 
-  static create(displayName: DisplayName) {
+  static castFrom(displayName: DisplayName) {
     // displayName is necessarily valid
     return displayName.toLowerCase().replace(" ", "-") as NormalizedName;
   }

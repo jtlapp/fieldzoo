@@ -241,5 +241,5 @@ describe("Term entity", () => {
 });
 
 function normalizeName(displayName: string) {
-  return NormalizedNameImpl.create(displayName as DisplayName);
+  return NormalizedNameImpl.castFrom(displayName as DisplayName);
 }

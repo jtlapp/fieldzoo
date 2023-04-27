@@ -85,7 +85,7 @@ export class Term {
       if (
         fields.lookupName !== undefined &&
         fields.lookupName !=
-          NormalizedNameImpl.create(fields.displayName as DisplayName)
+          NormalizedNameImpl.castFrom(fields.displayName as DisplayName)
       ) {
         throw new ValidationException(
           "lookupName is inconsistent with displayName"
@@ -125,7 +125,7 @@ export class Term {
    */
   get lookupName() {
     if (this.#lookupName === undefined) {
-      this.#lookupName = NormalizedNameImpl.create(this.#displayName);
+      this.#lookupName = NormalizedNameImpl.castFrom(this.#displayName);
     }
     return this.#lookupName;
   }

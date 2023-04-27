@@ -13,7 +13,7 @@ export class UserNameImpl {
     maxLength: 50,
   });
 
-  static create(name: string, safely = true) {
+  static castFrom(name: string, safely = true) {
     this.#validator.validate(name, "Invalid user name", safely);
     return name as UserName;
   }

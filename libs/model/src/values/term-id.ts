@@ -11,7 +11,7 @@ export type TermID = number & { readonly __validated__: unique symbol };
 export class TermIDImpl {
   static schema = Type.Integer({ minimum: 1 });
 
-  static create(id: number) {
+  static castFrom(id: number) {
     this.#validator.validate(id, "Invalid term ID");
     return id as TermID;
   }

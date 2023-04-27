@@ -69,7 +69,7 @@ it("inserts, updates, and deletes terms", async () => {
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).not.toEqual(0);
   expect(insertReturn.lookupName).toEqual(
-    NormalizedNameImpl.create(insertedTerm.displayName)
+    NormalizedNameImpl.castFrom(insertedTerm.displayName)
   );
 
   // test getting a term by key
@@ -88,7 +88,7 @@ it("inserts, updates, and deletes terms", async () => {
   const updateReturn = await termRepo.update(updaterTerm);
   expect(updateReturn).toBe(true);
   expect(updaterTerm.lookupName).toEqual(
-    NormalizedNameImpl.create(updaterTerm.displayName)
+    NormalizedNameImpl.castFrom(updaterTerm.displayName)
   );
 
   const selectedUser2 = await termRepo.getByKey([

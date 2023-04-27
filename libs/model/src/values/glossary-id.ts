@@ -14,7 +14,7 @@ export class GlossaryIDImpl {
     maxLength: BASE64_UUID_LENGTH,
   });
 
-  static create(id: string) {
+  static castFrom(id: string) {
     this.#validator.validate(id, "Invalid glossary ID");
     return id as GlossaryID;
   }
