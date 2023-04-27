@@ -4,9 +4,8 @@ import { Kysely, PostgresDialect } from "kysely";
 import * as dotenv from "dotenv";
 
 import { DB_ENVVAR_PREFIX, TEST_ENV } from "@fieldzoo/app-config";
-import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 import { DatabaseConfig } from "@fieldzoo/database-config";
-import { Glossary, Term, User } from "@fieldzoo/model";
+import { Glossary, NormalizedNameImpl, Term, User } from "@fieldzoo/model";
 
 import { resetTestDB } from "../index";
 import { Database } from "../tables/current-tables";
@@ -15,7 +14,6 @@ import { GlossaryRepo } from "./glossary-repo";
 import { TermRepo } from "./term-repo";
 
 const PATH_TO_ROOT = path.join(__dirname, "../../../..");
-const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
 
 let db: Kysely<Database>;
 
@@ -50,43 +48,68 @@ it("inserts, updates, and deletes terms", async () => {
 
   const termRepo = new TermRepo(db);
   const insertedTerm = Term.create({
-    name: "Test Term",
+    displayName: "Test Term",
     description: "This is a test term",
     glossaryId: glossaryReturn!.uuid,
     updatedBy: userReturn.id,
   });
 
   // test updating a non-existent term
-  const updateReturn1 = await termRepo.store(
+  const updateReturn1 = await termRepo.update(
     Term.create({
       ...insertedTerm,
-      uuid: SAMPLE_UUID,
+      id: 999,
+      displayName: insertedTerm.displayName,
     })
   );
-  expect(updateReturn1).toEqual(null);
+  expect(updateReturn1).toBe(false);
 
   // test inserting a term
-  const insertReturn = (await termRepo.store(insertedTerm))!;
+  const insertReturn = (await termRepo.add(insertedTerm))!;
   expect(insertReturn).not.toBeNull();
-  expect(insertReturn.uuid).not.toEqual("");
+  expect(insertReturn.id).not.toEqual(0);
+  expect(insertReturn.lookupName).toEqual(
+    NormalizedNameImpl.create(insertedTerm.displayName)
+  );
 
-  // test getting a term by ID
-  const selectedTerm1 = await termRepo.getByID(insertReturn.uuid);
-  expect(selectedTerm1).toEqual(insertReturn);
+  // test getting a term by key
+  const selectedTerm1 = await termRepo.getByKey([
+    insertedTerm.glossaryId,
+    insertedTerm.lookupName,
+  ]);
+  expectEqualTerms(selectedTerm1, insertReturn);
 
   // test updating a term
   const updaterTerm = Term.create({
     ...selectedTerm1!,
-    name: "Updated Term",
+    displayName: "Updated Term",
   });
-  const updateReturn = await termRepo.store(updaterTerm);
-  expect(updateReturn).toEqual(updaterTerm);
-  const selectedUser2 = await termRepo.getByID(insertReturn.uuid);
-  expect(selectedUser2).toEqual(updateReturn);
+
+  const updateReturn = await termRepo.update(updaterTerm);
+  expect(updateReturn).toBe(true);
+  expect(updaterTerm.lookupName).toEqual(
+    NormalizedNameImpl.create(updaterTerm.displayName)
+  );
+
+  const selectedUser2 = await termRepo.getByKey([
+    updaterTerm.glossaryId,
+    updaterTerm.lookupName,
+  ]);
+  expectEqualTerms(selectedUser2, updaterTerm);
 
   // test deleting a term
-  const deleted = await termRepo.deleteById(insertReturn.uuid);
+  const deleted = await termRepo.deleteByID(insertReturn.id);
   expect(deleted).toEqual(true);
-  const selectedUser3 = await termRepo.getByID(insertReturn.uuid);
-  expect(selectedUser3).toEqual(null);
+  const selectedUser3 = await termRepo.getByKey([
+    updaterTerm.glossaryId,
+    updaterTerm.lookupName,
+  ]);
+  expect(selectedUser3).toBeNull();
 });
+
+function expectEqualTerms(actual: Term | null, expected: Term) {
+  expect(actual).not.toBeNull();
+  expect(actual!.id).toEqual(expected.id);
+  expect(actual!.displayName).toEqual(expected.displayName);
+  expect(actual!.lookupName).toEqual(expected.lookupName);
+}

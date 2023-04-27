@@ -23,9 +23,10 @@ export interface Glossaries {
 }
 
 export interface Terms {
-  uuid: string;
+  id: Generated<number>;
   glossaryId: string;
-  name: string;
+  lookupName: string;
+  displayName: string;
   description: string;
   updatedBy: number;
 }
