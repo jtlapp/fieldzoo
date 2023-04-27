@@ -1,7 +1,10 @@
 import { Type } from "@sinclair/typebox";
 
 import { SelectivePartial, UnvalidatedFields } from "@fieldzoo/generic-types";
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import {
+  MultitierValidator,
+  ValidationException,
+} from "@fieldzoo/multitier-validator";
 import { freezeField } from "@fieldzoo/freeze-field";
 
 import { DisplayName, DisplayNameImpl } from "../values/display-name";
@@ -19,10 +22,13 @@ import { Zeroable } from "@fieldzoo/typebox-types";
  * Class representing a valid term
  */
 export class Term {
+  #displayName: DisplayName;
+  #lookupName?: NormalizedName; // generated on demand
+
   static schema = Type.Object({
     id: Zeroable(TermIDImpl.schema),
+    lookupName: Type.Optional(NormalizedNameImpl.schema),
     glossaryId: GlossaryIDImpl.schema,
-    lookupName: NormalizedNameImpl.schema,
     displayName: DisplayNameImpl.schema,
     description: MultilineDescriptionImpl.schema,
     updatedBy: UserIDImpl.schema,
@@ -31,32 +37,44 @@ export class Term {
 
   /**
    * @param glossaryId The ID of the glossary this term belongs to.
-   * @param lookupName The term's name, normalized for lookup.
    * @param displayName The term's display name.
    * @param description The term's description.
    * @param updatedBy The ID of the user who last updated this term.
+   * @param lookupName The term's name, normalized for lookup.
+   *  Computed from displayName on demand when not provided.
    */
   constructor(
     readonly id: TermID,
     readonly glossaryId: GlossaryID,
-    public lookupName: NormalizedName,
-    public displayName: DisplayName,
+    displayName: DisplayName,
     public description: MultilineDescription,
-    public updatedBy: UserID
+    public updatedBy: UserID,
+    lookupName?: NormalizedName
   ) {
     freezeField(this, "id");
     freezeField(this, "glossaryId");
+    this.#displayName = displayName;
+    this.#lookupName = lookupName;
   }
 
   /**
    * Create a new term, optionally with validation.
-   * @param fields The term's properties. `uuid` is optional, defaulting to
-   *  the empty string for terms not yet in the database.
+   * @param fields The term's properties. `id` and `lookupName` are optional.
+   *  `id` defaults to 0 for terms not yet in the database. `lookupName`
+   *  derives from `displayName` when not provided.
    * @param assumeValid Whether to skip validation.
    * @returns A new term.
    */
   static create(
-    fields: Readonly<SelectivePartial<UnvalidatedFields<Term>, "id">>,
+    fields: Readonly<
+      SelectivePartial<
+        UnvalidatedFields<Term> & {
+          displayName: string;
+          lookupName: string;
+        },
+        "id" | "lookupName"
+      >
+    >,
     assumeValid = false
   ) {
     if (fields.id === undefined) {
@@ -64,15 +82,52 @@ export class Term {
     }
     if (!assumeValid) {
       this.#validator.safeValidate(fields, "Invalid term");
+      if (
+        fields.lookupName !== undefined &&
+        fields.lookupName !=
+          NormalizedNameImpl.create(fields.displayName as DisplayName)
+      ) {
+        throw new ValidationException(
+          "lookupName is inconsistent with displayName"
+        );
+      }
     }
     return new Term(
       fields.id as TermID,
       fields.glossaryId as GlossaryID,
-      fields.lookupName as NormalizedName,
       fields.displayName as DisplayName,
       fields.description as MultilineDescription,
-      fields.updatedBy as UserID
+      fields.updatedBy as UserID,
+      fields.lookupName as NormalizedName
     );
+  }
+
+  /**
+   * Returns the display name.
+   * @returns The display name.
+   */
+  get displayName() {
+    return this.#displayName;
+  }
+
+  /**
+   * Sets the display name and resets the lookup name.
+   * @param value The new display name.
+   */
+  set displayName(value: DisplayName) {
+    this.#displayName = value;
+    this.#lookupName = undefined;
+  }
+
+  /**
+   * Returns the lookup name.
+   * @returns The lookup name.
+   */
+  get lookupName() {
+    if (this.#lookupName === undefined) {
+      this.#lookupName = NormalizedNameImpl.create(this.#displayName);
+    }
+    return this.#lookupName;
   }
 }
 export interface Term {

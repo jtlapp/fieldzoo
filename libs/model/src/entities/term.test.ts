@@ -14,9 +14,8 @@ describe("Term entity", () => {
     expect(() =>
       Term.create({
         glossaryId: SAMPLE_UUID,
-        lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
-        description: "A".repeat(minDescriptionLength),
+        description: "This\nis\nfine.",
         updatedBy: 1,
       })
     ).not.toThrow();
@@ -25,7 +24,7 @@ describe("Term entity", () => {
         glossaryId: SAMPLE_UUID,
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
-        description: "This\nis\nfine.",
+        description: "A".repeat(minDescriptionLength),
         updatedBy: 1,
       })
     ).not.toThrow();
@@ -115,15 +114,6 @@ describe("Term entity", () => {
     expect(() =>
       Term.create({
         glossaryId: SAMPLE_UUID,
-        lookupName: undefined!,
-        displayName: "Good Name",
-        description: "This\nis\nfine.",
-        updatedBy: 1,
-      })
-    ).toThrow("term");
-    expect(() =>
-      Term.create({
-        glossaryId: SAMPLE_UUID,
         lookupName: 999 as unknown as string,
         displayName: "Good Name",
         description: "This\nis\nfine.",
@@ -139,6 +129,15 @@ describe("Term entity", () => {
         updatedBy: 1,
       })
     ).toThrow("term");
+    expect(() =>
+      Term.create({
+        glossaryId: SAMPLE_UUID,
+        lookupName: "food-name",
+        displayName: "Good Name",
+        description: "This\nis\nfine.",
+        updatedBy: 1,
+      })
+    ).toThrow("lookupName");
   });
 
   it("rejects invalid term names", () => {
