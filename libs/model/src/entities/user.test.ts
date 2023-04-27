@@ -38,7 +38,7 @@ describe("User entity", () => {
 
   it("doesn't validate when assumed valid", () => {
     expect(() =>
-      User.create({ id: ID, name: "", email: "" }, true)
+      User.create({ id: ID, name: "", email: "" }, false)
     ).not.toThrow();
   });
 

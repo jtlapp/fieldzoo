@@ -47,17 +47,17 @@ export class Glossary {
    * Create a new glossary, optionally with validation.
    * @param fields The glossary's properties. `uuid` is optional, defaulting to
    *  the empty string for glossaries not yet in the database.
-   * @param assumeValid Whether to skip validation.
+   * @param validate Whether to validate the fields. Defaults to true.
    * @returns A new term.
    */
   static create(
     fields: SelectivePartial<UnvalidatedFields<Glossary>, "uuid">,
-    assumeValid = false
+    validate = true
   ) {
     if (fields.uuid === undefined) {
       fields = { ...fields, uuid: "" };
     }
-    if (!assumeValid) {
+    if (validate) {
       this.#validator.safeValidate(fields, "Invalid glossary");
     }
     return new Glossary(

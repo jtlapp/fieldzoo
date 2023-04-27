@@ -210,7 +210,19 @@ describe("Term entity", () => {
           description: "",
           updatedBy: 1,
         },
-        true
+        false
+      )
+    ).not.toThrow();
+    expect(() =>
+      Term.create(
+        {
+          glossaryId: SAMPLE_UUID,
+          lookupName: "foo",
+          displayName: "bar",
+          description: "valid",
+          updatedBy: 1,
+        },
+        false
       )
     ).not.toThrow();
   });

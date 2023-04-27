@@ -108,7 +108,7 @@ describe("Glossary entity", () => {
           name: "",
           description: "",
         },
-        true
+        false
       )
     ).not.toThrow();
   });

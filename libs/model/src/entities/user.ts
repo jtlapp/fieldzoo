@@ -37,17 +37,17 @@ export class User {
    * Create a new user, optionally with validation.
    * @param fields The user's properties. `id` is optional, defaulting to
    *  0 for users not yet in the database.
-   * @param assumeValid Whether to skip validation.
+   * @param validate Whether to validate the fields. Defaults to true.
    * @returns A new user.
    */
   static create(
     fields: Readonly<SelectivePartial<UnvalidatedFields<User>, "id">>,
-    assumeValid = false
+    validate = true
   ) {
     if (fields.id === undefined) {
       fields = { ...fields, id: 0 };
     }
-    if (!assumeValid) {
+    if (validate) {
       User.#validator.safeValidate(fields, "Invalid user");
     }
     return new User(

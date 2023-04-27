@@ -62,7 +62,7 @@ export class Term {
    * @param fields The term's properties. `id` and `lookupName` are optional.
    *  `id` defaults to 0 for terms not yet in the database. `lookupName`
    *  derives from `displayName` when not provided.
-   * @param assumeValid Whether to skip validation.
+   * @param validate Whether to validate the fields. Defaults to true.
    * @returns A new term.
    */
   static create(
@@ -75,12 +75,12 @@ export class Term {
         "id" | "lookupName"
       >
     >,
-    assumeValid = false
+    validate = true
   ) {
     if (fields.id === undefined) {
       fields = { ...fields, id: 0 };
     }
-    if (!assumeValid) {
+    if (validate) {
       this.#validator.safeValidate(fields, "Invalid term");
       if (
         fields.lookupName !== undefined &&
