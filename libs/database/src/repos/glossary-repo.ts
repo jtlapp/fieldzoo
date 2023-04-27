@@ -66,17 +66,8 @@ export class GlossaryRepo {
       // TODO: find way to avoid 'any' here and elsewhere
       insertReturnTransform: (glossary: Glossary, returns) =>
         Glossary.create({ ...glossary, uuid: returns.uuid }, true),
-      selectTransform: (row) =>
-        Glossary.create(
-          {
-            ...row,
-            uuid: row.uuid,
-            ownerId: row.ownerId,
-            updatedBy: row.updatedBy,
-          },
-          true
-        ),
-      updateTransform: (glossary) => glossary,
+      selectTransform: (row) => Glossary.create(row, true),
+      updateTransform: (glossary: Glossary) => glossary,
     });
   }
 }
