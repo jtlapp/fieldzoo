@@ -59,7 +59,7 @@ describe("User entity", () => {
 
   it("doesn't validate when assumed valid", () => {
     expect(() =>
-      User.create({ id: ID, name: "", email: "" }, false)
+      User.castFrom({ id: ID, name: "", email: "" }, false)
     ).not.toThrow();
   });
 
@@ -78,5 +78,11 @@ function createUser(
   createdAt?: Date,
   modifiedAt?: Date
 ) {
-  return User.create({ id: id as UserID, name, email, createdAt, modifiedAt });
+  return User.castFrom({
+    id: id as UserID,
+    name,
+    email,
+    createdAt,
+    modifiedAt,
+  });
 }

@@ -31,14 +31,14 @@ afterAll(() => db.destroy());
 it("inserts, updates, and deletes terms", async () => {
   await resetTestDB(db);
   const userRepo = new UserRepo(db);
-  const insertedUser = User.create({
+  const insertedUser = User.castFrom({
     name: "John Doe",
     email: "jdoe@xyz.pdq",
   });
   const userReturn = (await userRepo.store(insertedUser))!;
 
   const glossaryRepo = new GlossaryRepo(db);
-  const insertedGlossary = Glossary.create({
+  const insertedGlossary = Glossary.castFrom({
     name: "Test Term",
     description: "This is a test term",
     ownerId: userReturn.id,
@@ -47,7 +47,7 @@ it("inserts, updates, and deletes terms", async () => {
   const glossaryReturn = await glossaryRepo.store(insertedGlossary);
 
   const termRepo = new TermRepo(db);
-  const insertedTerm = Term.create({
+  const insertedTerm = Term.castFrom({
     displayName: "Test Term",
     description: "This is a test term",
     glossaryId: glossaryReturn!.uuid,
@@ -56,7 +56,7 @@ it("inserts, updates, and deletes terms", async () => {
 
   // test updating a non-existent term
   const updateReturn1 = await termRepo.update(
-    Term.create({
+    Term.castFrom({
       ...insertedTerm,
       id: 999,
       displayName: insertedTerm.displayName,
@@ -80,7 +80,7 @@ it("inserts, updates, and deletes terms", async () => {
   expectEqualTerms(selectedTerm1, insertReturn);
 
   // test updating a term
-  const updaterTerm = Term.create({
+  const updaterTerm = Term.castFrom({
     ...selectedTerm1!,
     displayName: "Updated Term",
   });

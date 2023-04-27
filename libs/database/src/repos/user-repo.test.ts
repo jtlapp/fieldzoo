@@ -30,7 +30,7 @@ afterAll(() => db.destroy());
 it("inserts, updates, and deletes users", async () => {
   await resetTestDB(db);
   const userRepo = new UserRepo(db);
-  const insertedUser = User.create({
+  const insertedUser = User.castFrom({
     name: "John Doe",
     email: "jdoe@xyz.pdq",
   });
@@ -40,7 +40,7 @@ it("inserts, updates, and deletes users", async () => {
 
   // test updating a non-existent user
   const updateReturn1 = await userRepo.store(
-    User.create({ ...insertedUser, id: 1 })
+    User.castFrom({ ...insertedUser, id: 1 })
   );
   expect(updateReturn1).toEqual(null);
 

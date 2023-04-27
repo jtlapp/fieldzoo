@@ -77,7 +77,7 @@ export class TermRepo {
     }).withTransforms({
       insertTransform: upsertTransform,
       insertReturnTransform: (term: Term, returns) =>
-        Term.create(
+        Term.castFrom(
           {
             ...term,
             id: returns.id,
@@ -88,7 +88,7 @@ export class TermRepo {
           false
         ),
       updateTransform: upsertTransform,
-      selectTransform: (row) => Term.create(row, false),
+      selectTransform: (row) => Term.castFrom(row, false),
     });
   }
 
@@ -100,7 +100,7 @@ export class TermRepo {
     return new TableMapper(db, "terms", {
       keyColumns: ["glossaryId", "lookupName"],
     }).withTransforms({
-      selectTransform: (row) => Term.create(row, false),
+      selectTransform: (row) => Term.castFrom(row, false),
       insertTransform: () => {
         throw Error("Cannot insert via key mapper");
       },

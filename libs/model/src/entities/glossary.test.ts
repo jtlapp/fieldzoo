@@ -11,7 +11,7 @@ const maxDescriptionLength =
 describe("Glossary entity", () => {
   it("accepts valid glossaries", () => {
     expect(() =>
-      Glossary.create({
+      Glossary.castFrom({
         ownerId: 1,
         modifiedBy: 1,
         name: "X",
@@ -19,7 +19,7 @@ describe("Glossary entity", () => {
       })
     ).not.toThrow();
     expect(() =>
-      Glossary.create({
+      Glossary.castFrom({
         uuid: "",
         ownerId: 1,
         modifiedBy: 1,
@@ -28,7 +28,7 @@ describe("Glossary entity", () => {
       })
     ).not.toThrow();
     expect(() =>
-      Glossary.create({
+      Glossary.castFrom({
         uuid: SAMPLE_UUID,
         ownerId: 1,
         modifiedBy: 1,
@@ -40,7 +40,7 @@ describe("Glossary entity", () => {
 
   it("rejects invalid glossary names", () => {
     expect(() =>
-      Glossary.create({
+      Glossary.castFrom({
         uuid: SAMPLE_UUID,
         ownerId: 1,
         modifiedBy: 1,
@@ -49,7 +49,7 @@ describe("Glossary entity", () => {
       })
     ).toThrow("Invalid glossary");
     expect(() =>
-      Glossary.create({
+      Glossary.castFrom({
         uuid: SAMPLE_UUID,
         ownerId: 1,
         modifiedBy: 1,
@@ -58,7 +58,7 @@ describe("Glossary entity", () => {
       })
     ).toThrow("Invalid glossary");
     expect(() =>
-      Glossary.create({
+      Glossary.castFrom({
         uuid: SAMPLE_UUID,
         ownerId: 1,
         modifiedBy: 1,
@@ -70,7 +70,7 @@ describe("Glossary entity", () => {
 
   it("rejects invalid glossary descriptions", () => {
     expect(() =>
-      Glossary.create({
+      Glossary.castFrom({
         uuid: SAMPLE_UUID,
         ownerId: 1,
         modifiedBy: 1,
@@ -79,7 +79,7 @@ describe("Glossary entity", () => {
       })
     ).toThrow("Invalid glossary");
     expect(() =>
-      Glossary.create({
+      Glossary.castFrom({
         uuid: SAMPLE_UUID,
         ownerId: 1,
         modifiedBy: 1,
@@ -88,7 +88,7 @@ describe("Glossary entity", () => {
       })
     ).toThrow("Invalid glossary");
     expect(() =>
-      Glossary.create({
+      Glossary.castFrom({
         uuid: SAMPLE_UUID,
         ownerId: 1,
         modifiedBy: 1,
@@ -100,7 +100,7 @@ describe("Glossary entity", () => {
 
   it("doesn't validate when assumed valid", () => {
     expect(() =>
-      Glossary.create(
+      Glossary.castFrom(
         {
           uuid: SAMPLE_UUID,
           ownerId: 1,
@@ -114,7 +114,7 @@ describe("Glossary entity", () => {
   });
 
   it("cannot change id", () => {
-    const glossary = Glossary.create({
+    const glossary = Glossary.castFrom({
       uuid: SAMPLE_UUID,
       ownerId: 1,
       modifiedBy: 1,

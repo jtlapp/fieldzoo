@@ -67,7 +67,7 @@ export class UserRepo {
     }).withTransforms({
       insertTransform: upsertTransform,
       insertReturnTransform: (user: User, returns) =>
-        User.create(
+        User.castFrom(
           {
             ...user,
             id: returns.id,
@@ -78,7 +78,7 @@ export class UserRepo {
         ),
       updateTransform: upsertTransform,
       updateReturnTransform: (user: User, returns) =>
-        User.create(
+        User.castFrom(
           {
             ...user,
             createdAt: user.createdAt, // spread won't get getters
@@ -86,7 +86,7 @@ export class UserRepo {
           },
           false
         ),
-      selectTransform: (row) => User.create(row, false),
+      selectTransform: (row) => User.castFrom(row, false),
       countTransform: (count) => Number(count),
     });
   }

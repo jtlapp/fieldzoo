@@ -12,7 +12,7 @@ const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
 describe("Term entity", () => {
   it("accepts valid terms", () => {
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: SAMPLE_UUID,
         displayName: "Good Name",
         description: "This\nis\nfine.",
@@ -20,7 +20,7 @@ describe("Term entity", () => {
       })
     ).not.toThrow();
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: SAMPLE_UUID,
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
@@ -29,7 +29,7 @@ describe("Term entity", () => {
       })
     ).not.toThrow();
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: SAMPLE_UUID,
         lookupName: "a".repeat(maxNameLength),
         displayName: "A".repeat(maxNameLength),
@@ -38,7 +38,7 @@ describe("Term entity", () => {
       })
     ).not.toThrow();
     expect(() =>
-      Term.create({
+      Term.castFrom({
         id: 1,
         glossaryId: SAMPLE_UUID,
         lookupName: normalizeName("Good Name"),
@@ -51,7 +51,7 @@ describe("Term entity", () => {
 
   it("rejects invalid term IDs", () => {
     expect(() =>
-      Term.create({
+      Term.castFrom({
         id: -1,
         glossaryId: SAMPLE_UUID,
         lookupName: normalizeName("Good Name"),
@@ -64,7 +64,7 @@ describe("Term entity", () => {
 
   it("rejects invalid glossary IDs", () => {
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: undefined!,
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
@@ -73,7 +73,7 @@ describe("Term entity", () => {
       })
     ).toThrow("term");
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: 999 as unknown as string,
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
@@ -82,7 +82,7 @@ describe("Term entity", () => {
       })
     ).toThrow("term");
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: "",
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
@@ -91,7 +91,7 @@ describe("Term entity", () => {
       })
     ).toThrow("term");
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: "too short",
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
@@ -100,7 +100,7 @@ describe("Term entity", () => {
       })
     ).toThrow("term");
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: SAMPLE_UUID + "too long",
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
@@ -112,7 +112,7 @@ describe("Term entity", () => {
 
   it("rejects invalid lookup names", () => {
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: SAMPLE_UUID,
         lookupName: 999 as unknown as string,
         displayName: "Good Name",
@@ -121,7 +121,7 @@ describe("Term entity", () => {
       })
     ).toThrow("term");
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: SAMPLE_UUID,
         lookupName: "",
         displayName: "Good Name",
@@ -130,7 +130,7 @@ describe("Term entity", () => {
       })
     ).toThrow("term");
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: SAMPLE_UUID,
         lookupName: "food-name",
         displayName: "Good Name",
@@ -142,7 +142,7 @@ describe("Term entity", () => {
 
   it("rejects invalid term names", () => {
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: SAMPLE_UUID,
         lookupName: normalizeName("Good Name"),
         displayName: "",
@@ -151,7 +151,7 @@ describe("Term entity", () => {
       })
     ).toThrow("term");
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: SAMPLE_UUID,
         lookupName: normalizeName("Good Name"),
         displayName: "X  Y",
@@ -160,7 +160,7 @@ describe("Term entity", () => {
       })
     ).toThrow("term");
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: SAMPLE_UUID,
         lookupName: normalizeName("Good Name"),
         displayName: "A".repeat(maxNameLength + 1),
@@ -172,7 +172,7 @@ describe("Term entity", () => {
 
   it("rejects invalid term descriptions", () => {
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: SAMPLE_UUID,
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
@@ -181,7 +181,7 @@ describe("Term entity", () => {
       })
     ).toThrow("term");
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: SAMPLE_UUID,
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
@@ -190,7 +190,7 @@ describe("Term entity", () => {
       })
     ).toThrow("term");
     expect(() =>
-      Term.create({
+      Term.castFrom({
         glossaryId: SAMPLE_UUID,
         lookupName: normalizeName("Good Name"),
         displayName: "Good Name",
@@ -202,7 +202,7 @@ describe("Term entity", () => {
 
   it("doesn't validate when assumed valid", () => {
     expect(() =>
-      Term.create(
+      Term.castFrom(
         {
           glossaryId: SAMPLE_UUID,
           lookupName: "",
@@ -214,7 +214,7 @@ describe("Term entity", () => {
       )
     ).not.toThrow();
     expect(() =>
-      Term.create(
+      Term.castFrom(
         {
           glossaryId: SAMPLE_UUID,
           lookupName: "foo",
@@ -228,7 +228,7 @@ describe("Term entity", () => {
   });
 
   it("cannot be changed", () => {
-    const term = Term.create({
+    const term = Term.castFrom({
       glossaryId: SAMPLE_UUID,
       lookupName: normalizeName("X"),
       displayName: "X",

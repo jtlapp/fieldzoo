@@ -65,8 +65,8 @@ export class GlossaryRepo {
       }),
       // TODO: find way to avoid 'any' here and elsewhere
       insertReturnTransform: (glossary: Glossary, returns) =>
-        Glossary.create({ ...glossary, uuid: returns.uuid }, false),
-      selectTransform: (row) => Glossary.create(row, false),
+        Glossary.castFrom({ ...glossary, uuid: returns.uuid }, false),
+      selectTransform: (row) => Glossary.castFrom(row, false),
       updateTransform: (glossary: Glossary) => glossary,
     });
   }

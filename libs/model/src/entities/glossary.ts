@@ -44,13 +44,13 @@ export class Glossary {
   }
 
   /**
-   * Create a new glossary, optionally with validation.
+   * Cast a new glossary from fields, optionally with validation.
    * @param fields The glossary's properties. `uuid` is optional, defaulting to
    *  the empty string for glossaries not yet in the database.
    * @param validate Whether to validate the fields. Defaults to true.
    * @returns A new term.
    */
-  static create(
+  static castFrom(
     fields: SelectivePartial<UnvalidatedFields<Glossary>, "uuid">,
     validate = true
   ) {

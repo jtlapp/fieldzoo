@@ -65,13 +65,13 @@ export class User {
   }
 
   /**
-   * Create a new user, optionally with validation.
+   * Casts a new User from fields, optionally with validation.
    * @param fields The user's properties. `id` is optional, defaulting to
    *  0 for users not yet in the database.
    * @param validate Whether to validate the fields. Defaults to true.
    * @returns A new user.
    */
-  static create(
+  static castFrom(
     fields: Readonly<
       SelectivePartial<
         UnvalidatedFields<User>,

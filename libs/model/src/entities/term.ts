@@ -58,14 +58,14 @@ export class Term {
   }
 
   /**
-   * Create a new term, optionally with validation.
+   * Cast a new term from fields, optionally with validation.
    * @param fields The term's properties. `id` and `lookupName` are optional.
    *  `id` defaults to 0 for terms not yet in the database. `lookupName`
    *  derives from `displayName` when not provided.
    * @param validate Whether to validate the fields. Defaults to true.
    * @returns A new term.
    */
-  static create(
+  static castFrom(
     fields: Readonly<
       SelectivePartial<
         UnvalidatedFields<Term> & {
