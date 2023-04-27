@@ -21,7 +21,7 @@ export class ValidationException extends ExtendableError {
    * @param errors Validation errors as reported by TypeBox
    *
    */
-  constructor(message: string, errors: ValueError[]) {
+  constructor(message: string, errors: ValueError[] = []) {
     super(message);
     this.details = errors.map((err) => new InvalidValueDetail(err));
   }
@@ -35,7 +35,7 @@ export class ValidationException extends ExtendableError {
    */
   override toString(includeDetails = true): string {
     let message = this.message;
-    if (includeDetails) {
+    if (includeDetails && this.details.length > 0) {
       if (this.details.length == 1) {
         message += ": " + this.details[0].toString();
       } else {

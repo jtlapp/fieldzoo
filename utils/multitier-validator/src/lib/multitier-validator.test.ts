@@ -230,4 +230,15 @@ describe("unsafeValidate()", () => {
       );
     }
   });
+
+  it("allows exceptions having no details", () => {
+    expect.assertions(2);
+    try {
+      throw new ValidationException("Invalid");
+    } catch (err: unknown) {
+      if (!(err instanceof ValidationException)) throw err;
+      expect(err.details.length).toEqual(0);
+      expect(err.toString()).toEqual("Invalid");
+    }
+  });
 });
