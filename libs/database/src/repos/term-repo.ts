@@ -63,6 +63,7 @@ export class TermRepo {
     const upsertTransform = (term: Term) => {
       const values = {
         ...term,
+        // spread doesn't get getters
         displayName: term.displayName,
         lookupName: term.lookupName,
       } as any;
@@ -79,6 +80,7 @@ export class TermRepo {
           {
             ...term,
             id: returns.id,
+            // spread doesn't get getters
             displayName: term.displayName,
             lookupName: term.lookupName,
           },
