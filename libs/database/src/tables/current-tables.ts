@@ -12,6 +12,8 @@ export interface Users {
   id: Generated<number>;
   name: string;
   email: string;
+  createdAt: Date;
+  modifiedAt: Date;
 }
 
 export interface Glossaries {

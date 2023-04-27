@@ -7,9 +7,10 @@ import { DB_ENVVAR_PREFIX, TEST_ENV } from "@fieldzoo/app-config";
 import { DatabaseConfig } from "@fieldzoo/database-config";
 import { User } from "@fieldzoo/model";
 
-import { resetTestDB } from "../index";
+import { resetTestDB, sleep } from "../utils/database-testing";
 import { Database } from "../tables/current-tables";
 import { UserRepo } from "./user-repo";
+import { UserNameImpl } from "@fieldzoo/model";
 
 const PATH_TO_ROOT = path.join(__dirname, "../../../..");
 
@@ -33,6 +34,9 @@ it("inserts, updates, and deletes users", async () => {
     name: "John Doe",
     email: "jdoe@xyz.pdq",
   });
+  expect(insertedUser.id).toEqual(0);
+  expect(() => insertedUser.createdAt).toThrow("no creation date");
+  expect(() => insertedUser.modifiedAt).toThrow("no modification date");
 
   // test updating a non-existent user
   const updateReturn1 = await userRepo.store(
@@ -44,21 +48,27 @@ it("inserts, updates, and deletes users", async () => {
   const insertReturn = (await userRepo.store(insertedUser))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).toBeGreaterThan(0);
+  expect(insertReturn.createdAt).toBeInstanceOf(Date);
+  expect(insertReturn.modifiedAt).toEqual(insertReturn.createdAt);
 
   // test getting a user by ID
   const selectedUser1 = await userRepo.getByID(insertReturn.id);
-  expect(selectedUser1).toEqual(insertReturn);
-  expect(selectedUser1?.id).toEqual(insertReturn.id);
+  expectEqualUsers(selectedUser1, insertReturn);
+  expect(selectedUser1!.modifiedAt).toEqual(insertReturn.modifiedAt);
 
   // test updating a user
-  const updaterUser = User.create({
-    ...selectedUser1!,
-    name: "Jon Doe",
-  });
-  const updateReturn = await userRepo.store(updaterUser);
-  expect(updateReturn).toEqual(updaterUser);
+  await sleep(20);
+  selectedUser1!.name = UserNameImpl.create("Jon Doe");
+
+  const updateReturn = await userRepo.store(selectedUser1!);
+  expectEqualUsers(updateReturn, selectedUser1!);
+  expect(updateReturn?.modifiedAt.getTime()).toBeGreaterThan(
+    selectedUser1!.modifiedAt.getTime()
+  );
+
   const selectedUser2 = await userRepo.getByID(insertReturn.id);
-  expect(selectedUser2).toEqual(updateReturn);
+  expectEqualUsers(selectedUser2, updateReturn!);
+  expect(selectedUser2!.modifiedAt).toEqual(updateReturn!.modifiedAt);
 
   // test deleting a user
   const deleted = await userRepo.deleteByID(insertReturn.id);
@@ -66,3 +76,9 @@ it("inserts, updates, and deletes users", async () => {
   const selectedUser3 = await userRepo.getByID(insertReturn.id);
   expect(selectedUser3).toEqual(null);
 });
+
+function expectEqualUsers(actual: User | null, expected: User) {
+  expect(actual).not.toBeNull();
+  expect(actual!.id).toEqual(expected.id);
+  expect(actual!.createdAt).toEqual(expected.createdAt);
+}

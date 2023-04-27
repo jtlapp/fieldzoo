@@ -3,9 +3,13 @@ import { Kysely } from "kysely";
 import {
   createTimestampedTable,
   createCollaborativeTable,
+  createUpdateModifiedAtFunction,
+  addModifiedAtTrigger,
 } from "../utils/migration-utils";
 
 export async function up(db: Kysely<any>): Promise<void> {
+  await createUpdateModifiedAtFunction(db);
+
   // users table
 
   await createTimestampedTable(db, "users")
@@ -13,6 +17,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("name", "text", (col) => col.notNull())
     .addColumn("email", "text", (col) => col.notNull())
     .execute();
+  await addModifiedAtTrigger(db, "users");
 
   // glossaries table
 

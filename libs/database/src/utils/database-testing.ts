@@ -57,3 +57,7 @@ export async function resetTestDB(db: Kysely<any>): Promise<void> {
   const { error } = await migrator.migrateToLatest();
   if (error) throw error;
 }
+
+export async function sleep(millis: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, millis));
+}

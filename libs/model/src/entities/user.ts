@@ -13,10 +13,15 @@ import { Zeroable } from "@fieldzoo/typebox-types";
  * Class representing a valid user.
  */
 export class User {
+  #createdAt?: Date;
+  #modifiedAt?: Date;
+
   static schema = Type.Object({
     id: Zeroable(UserIDImpl.schema),
     name: UserNameImpl.schema,
     email: EmailAddressImpl.schema,
+    createdAt: Type.Optional(Type.Date()),
+    modifiedAt: Type.Optional(Type.Date()),
   });
   static #validator = new MultitierValidator(this.schema);
 
@@ -28,9 +33,35 @@ export class User {
   constructor(
     readonly id: UserID,
     public name: UserName,
-    public email: EmailAddress
+    public email: EmailAddress,
+    createdAt?: Date,
+    modifiedAt?: Date
   ) {
     freezeField(this, "id");
+    this.#createdAt = createdAt;
+    this.#modifiedAt = modifiedAt;
+  }
+
+  /**
+   * Returns the date on which the user was created.
+   * @returns The date on which the user was created.
+   */
+  get createdAt(): Date {
+    if (this.#createdAt === undefined) {
+      throw new Error("User has no creation date");
+    }
+    return this.#createdAt;
+  }
+
+  /**
+   * Returns the date on which the user was last modified.
+   * @returns The date on which the user was last modified.
+   */
+  get modifiedAt(): Date {
+    if (this.#modifiedAt === undefined) {
+      throw new Error("User has no modification date");
+    }
+    return this.#modifiedAt;
   }
 
   /**
@@ -41,7 +72,12 @@ export class User {
    * @returns A new user.
    */
   static create(
-    fields: Readonly<SelectivePartial<UnvalidatedFields<User>, "id">>,
+    fields: Readonly<
+      SelectivePartial<
+        UnvalidatedFields<User>,
+        "id" | "createdAt" | "modifiedAt"
+      >
+    >,
     validate = true
   ) {
     if (fields.id === undefined) {
@@ -53,7 +89,9 @@ export class User {
     return new User(
       fields.id as UserID,
       fields.name as UserName,
-      fields.email as EmailAddress
+      fields.email as EmailAddress,
+      fields.createdAt as Date,
+      fields.modifiedAt as Date
     );
   }
 }

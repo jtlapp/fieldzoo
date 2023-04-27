@@ -42,9 +42,7 @@ export class UserRepo {
    */
   async store(user: User): Promise<User | null> {
     return user.id
-      ? (await this.#table.update(user.id).run(user))
-        ? user
-        : null
+      ? await this.#table.update(user.id).returnOne(user)
       : this.#table.insert().returnOne(user);
   }
 
@@ -54,16 +52,40 @@ export class UserRepo {
    * specify the type parameters.
    */
   private getMapper(db: Kysely<Database>) {
+    const upsertTransform = (user: User) => {
+      const update = { ...user } as any;
+      delete update["id"];
+      delete update["createdAt"];
+      delete update["modifiedAt"];
+      return update;
+    };
+
     return new TableMapper(db, "users", {
       keyColumns: ["id"],
+      insertReturnColumns: ["id", "createdAt", "modifiedAt"],
+      updateReturnColumns: ["modifiedAt"],
     }).withTransforms({
-      insertTransform: (user: User) => {
-        const insertion = { ...user } as any;
-        delete insertion["id"];
-        return insertion;
-      },
+      insertTransform: upsertTransform,
       insertReturnTransform: (user: User, returns) =>
-        User.create({ ...user, id: returns.id }, false),
+        User.create(
+          {
+            ...user,
+            id: returns.id,
+            createdAt: returns.createdAt,
+            modifiedAt: returns.modifiedAt,
+          },
+          false
+        ),
+      updateTransform: upsertTransform,
+      updateReturnTransform: (user: User, returns) =>
+        User.create(
+          {
+            ...user,
+            createdAt: user.createdAt, // spread won't get getters
+            modifiedAt: returns.modifiedAt,
+          },
+          false
+        ),
       selectTransform: (row) => User.create(row, false),
       countTransform: (count) => Number(count),
     });

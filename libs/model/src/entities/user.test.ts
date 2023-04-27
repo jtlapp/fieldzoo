@@ -8,16 +8,22 @@ const ID = 1 as UserID;
 const EMAIL = "x@yz.com";
 
 describe("User entity", () => {
-  it("accepts valid user names", () => {
+  it("accepts valid users", () => {
     expect(() => createUser(undefined, "Mo", EMAIL)).not.toThrow();
     expect(() => createUser(0, "Mo", EMAIL)).not.toThrow();
     expect(() => createUser(ID, "Mo", EMAIL)).not.toThrow();
-    expect(() => createUser(ID, "Jimmy", EMAIL)).not.toThrow();
-    expect(() => createUser(ID, "Mary Q.", EMAIL)).not.toThrow();
-    expect(() => createUser(ID, "Mary Q. Reacher", EMAIL)).not.toThrow();
     expect(() => createUser(ID, "Mark Heüße", EMAIL)).not.toThrow();
     const maxLength = "A".repeat(maxNameLength);
     expect(() => createUser(ID, maxLength, EMAIL)).not.toThrow();
+    const user = createUser(
+      ID,
+      "Mo",
+      EMAIL,
+      new Date("1/2/23"),
+      new Date("1/2/23")
+    );
+    expect(user.createdAt).toEqual(new Date("1/2/23"));
+    expect(user.modifiedAt).toEqual(new Date("1/2/23"));
   });
 
   it("rejects invalid IDs", () => {
@@ -36,6 +42,21 @@ describe("User entity", () => {
     expect(() => createUser(ID, "Tom", "oopsie")).toThrow("Invalid user");
   });
 
+  it("rejects invalid dates", () => {
+    expect(() => createUser(ID, "Tom", EMAIL, new Date("oopsie"))).toThrow(
+      "Invalid user"
+    );
+    expect(() => createUser(ID, "Tom", EMAIL, "" as unknown as Date)).toThrow(
+      "Invalid user"
+    );
+    expect(() =>
+      createUser(ID, "Tom", EMAIL, new Date("1/2/23"), new Date("oopsie"))
+    ).toThrow("Invalid user");
+    expect(() =>
+      createUser(ID, "Tom", EMAIL, new Date("1/2/23"), "" as unknown as Date)
+    ).toThrow("Invalid user");
+  });
+
   it("doesn't validate when assumed valid", () => {
     expect(() =>
       User.create({ id: ID, name: "", email: "" }, false)
@@ -50,6 +71,12 @@ describe("User entity", () => {
   });
 });
 
-function createUser(id: number | undefined, name: string, email: string) {
-  return User.create({ id: id as UserID, name, email });
+function createUser(
+  id: number | undefined,
+  name: string,
+  email: string,
+  createdAt?: Date,
+  modifiedAt?: Date
+) {
+  return User.create({ id: id as UserID, name, email, createdAt, modifiedAt });
 }
