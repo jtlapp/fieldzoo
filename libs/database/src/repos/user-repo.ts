@@ -53,11 +53,11 @@ export class UserRepo {
    */
   private getMapper(db: Kysely<Database>) {
     const upsertTransform = (user: User) => {
-      const update = { ...user } as any;
-      delete update["id"];
-      delete update["createdAt"];
-      delete update["modifiedAt"];
-      return update;
+      const values = { ...user } as any;
+      delete values["id"];
+      delete values["createdAt"];
+      delete values["modifiedAt"];
+      return values;
     };
 
     return new TableMapper(db, "users", {
