@@ -5,12 +5,11 @@ import * as dotenv from "dotenv";
 
 import { DB_ENVVAR_PREFIX, TEST_ENV } from "@fieldzoo/app-config";
 import { DatabaseConfig } from "@fieldzoo/database-config";
-import { User } from "@fieldzoo/model";
+import { User, UserNameImpl } from "@fieldzoo/model";
 
 import { resetTestDB, sleep } from "../utils/database-testing";
 import { Database } from "../tables/current-tables";
 import { UserRepo } from "./user-repo";
-import { UserNameImpl } from "@fieldzoo/model";
 
 const PATH_TO_ROOT = path.join(__dirname, "../../../..");
 
