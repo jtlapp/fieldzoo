@@ -5,14 +5,16 @@ import { TableMapper } from "kysely-mapper";
 
 import { Database } from "../tables/current-tables";
 import { UserID } from "@fieldzoo/model";
+import { TimestampedRepo } from "../lib/timestamped-repo";
 
 /**
  * Repository for persisting users.
  */
-export class UserRepo {
+export class UserRepo extends TimestampedRepo<Database, "users"> {
   readonly #table: ReturnType<UserRepo["getMapper"]>;
 
   constructor(readonly db: Kysely<Database>) {
+    super();
     this.#table = this.getMapper(db);
   }
 
@@ -53,39 +55,25 @@ export class UserRepo {
    */
   private getMapper(db: Kysely<Database>) {
     const upsertTransform = (user: User) => {
-      const values = { ...user } as any;
+      const values = super.getUpsertValues(user);
       delete values["id"];
-      delete values["createdAt"];
-      delete values["modifiedAt"];
       return values;
     };
 
     return new TableMapper(db, "users", {
       keyColumns: ["id"],
-      insertReturnColumns: ["id", "createdAt", "modifiedAt"],
-      updateReturnColumns: ["modifiedAt"],
+      insertReturnColumns: super.getInsertReturnColumns(["id"]),
+      updateReturnColumns: super.getUpdateReturnColumns(),
     }).withTransforms({
       insertTransform: upsertTransform,
       insertReturnTransform: (user: User, returns) =>
         User.castFrom(
-          {
-            ...user,
-            id: returns.id,
-            createdAt: returns.createdAt,
-            modifiedAt: returns.modifiedAt,
-          },
+          super.getInsertReturnValues(user, returns, { id: returns.id }),
           false
         ),
       updateTransform: upsertTransform,
       updateReturnTransform: (user: User, returns) =>
-        User.castFrom(
-          {
-            ...user,
-            createdAt: user.createdAt, // spread won't get getters
-            modifiedAt: returns.modifiedAt,
-          },
-          false
-        ),
+        User.castFrom(super.getUpdateReturnValues(user, returns), false),
       selectTransform: (row) => User.castFrom(row, false),
       countTransform: (count) => Number(count),
     });

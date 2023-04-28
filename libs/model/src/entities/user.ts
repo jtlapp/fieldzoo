@@ -8,20 +8,21 @@ import { UserID, UserIDImpl } from "../values/user-id";
 import { UserName, UserNameImpl } from "../values/user-name";
 import { EmailAddress, EmailAddressImpl } from "../values/email-address";
 import { Zeroable } from "@fieldzoo/typebox-types";
+import {
+  TimestampedColumns,
+  TimestampedEntity,
+} from "../lib/timestamped-entity";
 
 /**
  * Class representing a valid user.
  */
-export class User {
-  #createdAt?: Date;
-  #modifiedAt?: Date;
-
+export class User extends TimestampedEntity {
   static schema = Type.Object({
     id: Zeroable(UserIDImpl.schema),
     name: UserNameImpl.schema,
     email: EmailAddressImpl.schema,
-    createdAt: Type.Optional(Type.Date()),
-    modifiedAt: Type.Optional(Type.Date()),
+    createdAt: super.timestampedSchema.createdAt,
+    modifiedAt: super.timestampedSchema.modifiedAt,
   });
   static #validator = new MultitierValidator(this.schema);
 
@@ -29,6 +30,8 @@ export class User {
    * @param id User ID. `id` must be 0 for users not yet in the database.
    * @param name User name.
    * @param email User email address.
+   * @param createdAt The date/time at which the user was created.
+   * @param modifiedAt The date/time at which the user was last modified.
    */
   constructor(
     readonly id: UserID,
@@ -37,31 +40,8 @@ export class User {
     createdAt?: Date,
     modifiedAt?: Date
   ) {
+    super(createdAt, modifiedAt);
     freezeField(this, "id");
-    this.#createdAt = createdAt;
-    this.#modifiedAt = modifiedAt;
-  }
-
-  /**
-   * Returns the date on which the user was created.
-   * @returns The date on which the user was created.
-   */
-  get createdAt(): Date {
-    if (this.#createdAt === undefined) {
-      throw new Error("User has no creation date");
-    }
-    return this.#createdAt;
-  }
-
-  /**
-   * Returns the date on which the user was last modified.
-   * @returns The date on which the user was last modified.
-   */
-  get modifiedAt(): Date {
-    if (this.#modifiedAt === undefined) {
-      throw new Error("User has no modification date");
-    }
-    return this.#modifiedAt;
   }
 
   /**
@@ -73,10 +53,7 @@ export class User {
    */
   static castFrom(
     fields: Readonly<
-      SelectivePartial<
-        UnvalidatedFields<User>,
-        "id" | "createdAt" | "modifiedAt"
-      >
+      SelectivePartial<UnvalidatedFields<User>, "id" | TimestampedColumns>
     >,
     validate = true
   ) {
