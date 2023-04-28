@@ -2,7 +2,11 @@ import { Selectable, Selection } from "kysely";
 
 import { TimestampedEntity } from "@fieldzoo/model";
 
-export class TimestampedRepo<DB, TB extends keyof DB> {
+/**
+ * Repository for persisting entities with `createdAt` and `modifiedAt`
+ * timestamp columns.
+ */
+export abstract class TimestampedRepo<DB, TB extends keyof DB> {
   getInsertReturnColumns(extraColumns: string[] = []) {
     return ["createdAt", "modifiedAt"].concat(
       extraColumns
