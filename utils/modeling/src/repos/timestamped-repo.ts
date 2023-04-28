@@ -4,7 +4,9 @@ import { TimestampedEntity } from "../entities/timestamped-entity";
 
 /**
  * Repository for persisting entities with `createdAt` and `modifiedAt`
- * timestamp columns.
+ * timestamp columns. Several method take a `getters` object to allow
+ * the caller to assign getter properties, which are not otherwise
+ * copied from the provided entity.
  */
 export abstract class TimestampedRepo<DB, TB extends keyof DB> {
   getInsertReturnColumns(extraColumns: string[] = []) {
