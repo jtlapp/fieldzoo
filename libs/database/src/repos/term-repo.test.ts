@@ -13,7 +13,7 @@ import {
   User,
 } from "@fieldzoo/model";
 
-import { resetTestDB, sleep } from "../index";
+import { resetTestDB, sleep } from "../utils/database-testing";
 import { Database } from "../tables/current-tables";
 import { UserRepo } from "./user-repo";
 import { GlossaryRepo } from "./glossary-repo";
