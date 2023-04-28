@@ -5,9 +5,15 @@ import * as dotenv from "dotenv";
 
 import { DB_ENVVAR_PREFIX, TEST_ENV } from "@fieldzoo/app-config";
 import { DatabaseConfig } from "@fieldzoo/database-config";
-import { Glossary, NormalizedNameImpl, Term, User } from "@fieldzoo/model";
+import {
+  DisplayNameImpl,
+  Glossary,
+  NormalizedNameImpl,
+  Term,
+  User,
+} from "@fieldzoo/model";
 
-import { resetTestDB } from "../index";
+import { resetTestDB, sleep } from "../index";
 import { Database } from "../tables/current-tables";
 import { UserRepo } from "./user-repo";
 import { GlossaryRepo } from "./glossary-repo";
@@ -62,7 +68,7 @@ it("inserts, updates, and deletes terms", async () => {
       displayName: insertedTerm.displayName,
     })
   );
-  expect(updateReturn1).toBe(false);
+  expect(updateReturn1).toBeNull();
 
   // test inserting a term
   const insertReturn = (await termRepo.add(insertedTerm))!;
@@ -71,6 +77,8 @@ it("inserts, updates, and deletes terms", async () => {
   expect(insertReturn.lookupName).toEqual(
     NormalizedNameImpl.castFrom(insertedTerm.displayName)
   );
+  expect(insertReturn.createdAt).toBeInstanceOf(Date);
+  expect(insertReturn.modifiedAt).toEqual(insertReturn.createdAt);
 
   // test getting a term by key
   const selectedTerm1 = await termRepo.getByKey([
@@ -78,33 +86,36 @@ it("inserts, updates, and deletes terms", async () => {
     insertedTerm.lookupName,
   ]);
   expectEqualTerms(selectedTerm1, insertReturn);
+  expect(selectedTerm1!.modifiedAt).toEqual(insertReturn.modifiedAt);
 
   // test updating a term
-  const updaterTerm = Term.castFrom({
-    ...selectedTerm1!,
-    displayName: "Updated Term",
-  });
+  await sleep(20);
+  selectedTerm1!.displayName = DisplayNameImpl.castFrom("Updated Term");
 
-  const updateReturn = await termRepo.update(updaterTerm);
-  expect(updateReturn).toBe(true);
-  expect(updaterTerm.lookupName).toEqual(
-    NormalizedNameImpl.castFrom(updaterTerm.displayName)
+  const updateReturn = await termRepo.update(selectedTerm1!);
+  expectEqualTerms(updateReturn, selectedTerm1!);
+  expect(updateReturn!.lookupName).toEqual(
+    NormalizedNameImpl.castFrom(selectedTerm1!.displayName)
+  );
+  expect(updateReturn?.modifiedAt.getTime()).toBeGreaterThan(
+    selectedTerm1!.modifiedAt.getTime()
   );
 
-  const selectedUser2 = await termRepo.getByKey([
-    updaterTerm.glossaryId,
-    updaterTerm.lookupName,
+  const selectedTerm2 = await termRepo.getByKey([
+    selectedTerm1!.glossaryId,
+    selectedTerm1!.lookupName,
   ]);
-  expectEqualTerms(selectedUser2, updaterTerm);
+  expectEqualTerms(selectedTerm2, updateReturn!);
+  expect(selectedTerm2!.modifiedAt).toEqual(updateReturn!.modifiedAt);
 
   // test deleting a term
   const deleted = await termRepo.deleteByID(insertReturn.id);
   expect(deleted).toEqual(true);
-  const selectedUser3 = await termRepo.getByKey([
-    updaterTerm.glossaryId,
-    updaterTerm.lookupName,
+  const selectedTerm3 = await termRepo.getByKey([
+    selectedTerm1!.glossaryId,
+    selectedTerm1!.lookupName,
   ]);
-  expect(selectedUser3).toBeNull();
+  expect(selectedTerm3).toBeNull();
 });
 
 function expectEqualTerms(actual: Term | null, expected: Term) {

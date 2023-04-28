@@ -1,6 +1,7 @@
 import { User } from "./user";
 
 import { UserID } from "../values/user-id";
+import { testTimestamps } from "../lib/timestamped-entity.util";
 
 const maxNameLength = User.schema.properties.name.maxLength!;
 
@@ -15,15 +16,6 @@ describe("User entity", () => {
     expect(() => createUser(ID, "Mark Heüße", EMAIL)).not.toThrow();
     const maxLength = "A".repeat(maxNameLength);
     expect(() => createUser(ID, maxLength, EMAIL)).not.toThrow();
-    const user = createUser(
-      ID,
-      "Mo",
-      EMAIL,
-      new Date("1/2/23"),
-      new Date("1/2/23")
-    );
-    expect(user.createdAt).toEqual(new Date("1/2/23"));
-    expect(user.modifiedAt).toEqual(new Date("1/2/23"));
   });
 
   it("rejects invalid IDs", () => {
@@ -42,19 +34,10 @@ describe("User entity", () => {
     expect(() => createUser(ID, "Tom", "oopsie")).toThrow("Invalid user");
   });
 
-  it("rejects invalid dates", () => {
-    expect(() => createUser(ID, "Tom", EMAIL, new Date("oopsie"))).toThrow(
-      "Invalid user"
+  it("accepts only valid timestamps", () => {
+    testTimestamps("Invalid user", (createdAt, modifiedAt) =>
+      createUser(ID, "Mo", EMAIL, createdAt, modifiedAt)
     );
-    expect(() => createUser(ID, "Tom", EMAIL, "" as unknown as Date)).toThrow(
-      "Invalid user"
-    );
-    expect(() =>
-      createUser(ID, "Tom", EMAIL, new Date("1/2/23"), new Date("oopsie"))
-    ).toThrow("Invalid user");
-    expect(() =>
-      createUser(ID, "Tom", EMAIL, new Date("1/2/23"), "" as unknown as Date)
-    ).toThrow("Invalid user");
   });
 
   it("doesn't validate when assumed valid", () => {

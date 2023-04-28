@@ -3,7 +3,7 @@
  */
 
 import * as path from "path";
-import { Kysely, sql } from "kysely";
+import { CreateTableBuilder, Kysely, sql } from "kysely";
 
 /**
  * Returns the path to the migration files.
@@ -37,15 +37,24 @@ export function createUpdateModifiedAtFunction(db: Kysely<any>) {
  * @param tableName Name of the table to create
  * @returns A Kysely table builder
  */
-export function createTimestampedTable(db: Kysely<any>, tableName: string) {
-  return db.schema
-    .createTable(tableName)
-    .addColumn("createdAt", "timestamp", (col) =>
-      col.defaultTo(sql`now()`).notNull()
-    )
-    .addColumn("modifiedAt", "timestamp", (col) =>
-      col.defaultTo(sql`now()`).notNull()
-    );
+export async function createTimestampedTable(
+  db: Kysely<any>,
+  tableName: string,
+  factory: (
+    tb: CreateTableBuilder<string, "createdAt" | "modifiedAt">
+  ) => CreateTableBuilder<string, any>
+) {
+  factory(
+    db.schema
+      .createTable(tableName)
+      .addColumn("createdAt", "timestamp", (col) =>
+        col.defaultTo(sql`now()`).notNull()
+      )
+      .addColumn("modifiedAt", "timestamp", (col) =>
+        col.defaultTo(sql`now()`).notNull()
+      )
+  ).execute();
+  await addModifiedAtTrigger(db, tableName);
 }
 
 /**
@@ -56,11 +65,19 @@ export function createTimestampedTable(db: Kysely<any>, tableName: string) {
  * @param tableName Name of the table to create
  * @returns A Kysely table builder
  */
-export function createCollaborativeTable(db: Kysely<any>, tableName: string) {
-  return createTimestampedTable(db, tableName).addColumn(
-    "modifiedBy",
-    "integer",
-    (col) => col.references("users.id").onDelete("cascade").notNull()
+export async function createCollaborativeTable(
+  db: Kysely<any>,
+  tableName: string,
+  factory: (
+    tb: CreateTableBuilder<string, "createdAt" | "modifiedAt" | "modifiedBy">
+  ) => CreateTableBuilder<string, any>
+) {
+  await createTimestampedTable(db, tableName, (tb) =>
+    factory(
+      tb.addColumn("modifiedBy", "integer", (col) =>
+        col.references("users.id").onDelete("cascade").notNull()
+      )
+    )
   );
 }
 

@@ -3,6 +3,7 @@ import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 import { Term } from "./term";
 import { NormalizedNameImpl } from "../values/normalized-name";
 import { DisplayName } from "../values/display-name";
+import { testTimestamps } from "../lib/timestamped-entity.util";
 
 const maxNameLength = Term.schema.properties.displayName.maxLength!;
 const minDescriptionLength = Term.schema.properties.description.minLength!;
@@ -198,6 +199,19 @@ describe("Term entity", () => {
         modifiedBy: 1,
       })
     ).toThrow("term");
+  });
+
+  it("accepts only valid timestamps", () => {
+    testTimestamps("Invalid term", (createdAt, modifiedAt) =>
+      Term.castFrom({
+        glossaryId: SAMPLE_UUID,
+        displayName: "Good Name",
+        description: "This\nis\nfine.",
+        modifiedBy: 1,
+        createdAt,
+        modifiedAt,
+      })
+    );
   });
 
   it("doesn't validate when assumed valid", () => {

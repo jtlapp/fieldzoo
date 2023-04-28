@@ -17,8 +17,11 @@ export abstract class TimestampedRepo<DB, TB extends keyof DB> {
     return ["modifiedAt"] as (keyof Selectable<DB[TB]>)[];
   }
 
-  getUpsertValues<Entity extends TimestampedEntity>(entity: Entity): any {
-    const values = { ...entity } as any;
+  getUpsertValues<Entity extends TimestampedEntity>(
+    entity: Entity,
+    getters: object = {}
+  ): any {
+    const values = { ...entity, ...getters } as any;
     delete values["createdAt"];
     delete values["modifiedAt"];
     return values;
@@ -27,7 +30,7 @@ export abstract class TimestampedRepo<DB, TB extends keyof DB> {
   getInsertReturnValues<Entity extends TimestampedEntity>(
     entity: Entity,
     returns: Partial<Selection<DB, TB, any>>,
-    getters: object
+    getters: object = {}
   ) {
     return {
       ...entity,
@@ -39,10 +42,12 @@ export abstract class TimestampedRepo<DB, TB extends keyof DB> {
 
   getUpdateReturnValues<Entity extends TimestampedEntity>(
     entity: Entity,
-    returns: Partial<Selection<DB, TB, any>>
+    returns: Partial<Selection<DB, TB, any>>,
+    getters: object = {}
   ) {
     return {
       ...entity,
+      ...getters,
       createdAt: entity.createdAt,
       modifiedAt: returns.modifiedAt,
     };

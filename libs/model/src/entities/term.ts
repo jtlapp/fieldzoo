@@ -6,6 +6,7 @@ import {
   ValidationException,
 } from "@fieldzoo/multitier-validator";
 import { freezeField } from "@fieldzoo/freeze-field";
+import { Zeroable } from "@fieldzoo/typebox-types";
 
 import { DisplayName, DisplayNameImpl } from "../values/display-name";
 import { GlossaryID, GlossaryIDImpl } from "../values/glossary-id";
@@ -16,12 +17,15 @@ import {
 import { UserID, UserIDImpl } from "../values/user-id";
 import { NormalizedName, NormalizedNameImpl } from "../values/normalized-name";
 import { TermID, TermIDImpl } from "../values/term-id";
-import { Zeroable } from "@fieldzoo/typebox-types";
+import {
+  TimestampedColumns,
+  TimestampedEntity,
+} from "../lib/timestamped-entity";
 
 /**
  * Class representing a valid term
  */
-export class Term {
+export class Term extends TimestampedEntity {
   #displayName: DisplayName;
   #lookupName?: NormalizedName; // generated on demand
 
@@ -32,6 +36,8 @@ export class Term {
     displayName: DisplayNameImpl.schema,
     description: MultilineDescriptionImpl.schema,
     modifiedBy: UserIDImpl.schema,
+    createdAt: super.timestampedSchema.createdAt,
+    modifiedAt: super.timestampedSchema.modifiedAt,
   });
   static #validator = new MultitierValidator(this.schema);
 
@@ -42,6 +48,8 @@ export class Term {
    * @param modifiedBy The ID of the user who last updated this term.
    * @param lookupName The term's name, normalized for lookup.
    *  Computed from displayName on demand when not provided.
+   * @param createdAt The date/time at which the term was created.
+   * @param modifiedAt The date/time at which the term was last modified.
    */
   constructor(
     readonly id: TermID,
@@ -49,8 +57,11 @@ export class Term {
     displayName: DisplayName,
     public description: MultilineDescription,
     public modifiedBy: UserID,
-    lookupName?: NormalizedName
+    lookupName?: NormalizedName,
+    createdAt?: Date,
+    modifiedAt?: Date
   ) {
+    super(createdAt, modifiedAt);
     freezeField(this, "id");
     freezeField(this, "glossaryId");
     this.#displayName = displayName;
@@ -72,7 +83,7 @@ export class Term {
           displayName: string;
           lookupName: string;
         },
-        "id" | "lookupName"
+        "id" | "lookupName" | TimestampedColumns
       >
     >,
     validate = true
@@ -98,7 +109,9 @@ export class Term {
       fields.displayName as DisplayName,
       fields.description as MultilineDescription,
       fields.modifiedBy as UserID,
-      fields.lookupName as NormalizedName
+      fields.lookupName as NormalizedName,
+      fields.createdAt as Date,
+      fields.modifiedAt as Date
     );
   }
 

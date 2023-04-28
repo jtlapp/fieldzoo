@@ -6,16 +6,18 @@ import { TableMapper } from "kysely-mapper";
 import { Database } from "../tables/current-tables";
 import { GlossaryID } from "@fieldzoo/model";
 import { NormalizedName } from "@fieldzoo/model";
+import { TimestampedRepo } from "../lib/timestamped-repo";
 
 /**
  * Repository for persisting terms. Terms have a database-internal ID and a
  * universal key given by the tuple [glossary ID, lookup name].
  */
-export class TermRepo {
+export class TermRepo extends TimestampedRepo<Database, "terms"> {
   readonly #idTable: ReturnType<TermRepo["getIDMapper"]>;
   readonly #keyTable: ReturnType<TermRepo["getKeyMapper"]>;
 
   constructor(readonly db: Kysely<Database>) {
+    super();
     this.#idTable = this.getIDMapper(db);
     this.#keyTable = this.getKeyMapper(db);
   }
@@ -53,8 +55,8 @@ export class TermRepo {
    * @param term Term that overwrites the old term.
    * @returns Whether the term was found and updated.
    */
-  async update(term: Term): Promise<boolean> {
-    return this.#idTable.update(term.id).run(term);
+  async update(term: Term): Promise<Term | null> {
+    return this.#idTable.update(term.id).returnOne(term);
   }
 
   /**
@@ -62,32 +64,38 @@ export class TermRepo {
    */
   private getIDMapper(db: Kysely<Database>) {
     const upsertTransform = (term: Term) => {
-      const values = {
-        ...term,
-        // spread doesn't get getters
+      const values = super.getUpsertValues(term, {
         displayName: term.displayName,
         lookupName: term.lookupName,
-      } as any;
+      });
       delete values["id"];
       return values;
     };
 
     return new TableMapper(db, "terms", {
       keyColumns: ["id"],
+      insertReturnColumns: super.getInsertReturnColumns(["id"]),
+      updateReturnColumns: super.getUpdateReturnColumns(),
     }).withTransforms({
       insertTransform: upsertTransform,
       insertReturnTransform: (term: Term, returns) =>
         Term.castFrom(
-          {
-            ...term,
+          super.getInsertReturnValues(term, returns, {
             id: returns.id,
-            // spread doesn't get getters
             displayName: term.displayName,
             lookupName: term.lookupName,
-          },
+          }),
           false
         ),
       updateTransform: upsertTransform,
+      updateReturnTransform: (term: Term, returns) =>
+        Term.castFrom(
+          super.getUpdateReturnValues(term, returns, {
+            displayName: term.displayName,
+            lookupName: term.lookupName,
+          }),
+          false
+        ),
       selectTransform: (row) => Term.castFrom(row, false),
     });
   }
