@@ -1,11 +1,10 @@
 import { Kysely } from "kysely";
-
-import { User } from "@fieldzoo/model";
 import { TableMapper } from "kysely-mapper";
 
-import { Database } from "../tables/current-tables";
-import { UserID } from "@fieldzoo/model";
+import { User, UserID } from "@fieldzoo/model";
 import { TimestampedRepo } from "@fieldzoo/modeling";
+
+import { Database } from "../tables/current-tables";
 
 /**
  * Repository for persisting users.
