@@ -52,29 +52,29 @@ it("inserts, updates, and deletes users", async () => {
   expect(insertReturn.modifiedAt).toEqual(insertReturn.createdAt);
 
   // test getting a user by ID
-  const selectedUser1 = await userRepo.getByID(insertReturn.id);
-  expectEqualUsers(selectedUser1, insertReturn);
-  expect(selectedUser1!.modifiedAt).toEqual(insertReturn.modifiedAt);
+  const selection1 = await userRepo.getByID(insertReturn.id);
+  expectEqualUsers(selection1, insertReturn);
+  expect(selection1!.modifiedAt).toEqual(insertReturn.modifiedAt);
 
   // test updating a user
   await sleep(20);
-  selectedUser1!.name = UserNameImpl.castFrom("Jon Doe");
+  selection1!.name = UserNameImpl.castFrom("Jon Doe");
 
-  const updateReturn = await userRepo.store(selectedUser1!);
-  expectEqualUsers(updateReturn, selectedUser1!);
+  const updateReturn = await userRepo.store(selection1!);
+  expectEqualUsers(updateReturn, selection1!);
   expect(updateReturn?.modifiedAt.getTime()).toBeGreaterThan(
-    selectedUser1!.modifiedAt.getTime()
+    selection1!.modifiedAt.getTime()
   );
 
-  const selectedUser2 = await userRepo.getByID(insertReturn.id);
-  expectEqualUsers(selectedUser2, updateReturn!);
-  expect(selectedUser2!.modifiedAt).toEqual(updateReturn!.modifiedAt);
+  const selection2 = await userRepo.getByID(insertReturn.id);
+  expectEqualUsers(selection2, updateReturn!);
+  expect(selection2!.modifiedAt).toEqual(updateReturn!.modifiedAt);
 
   // test deleting a user
   const deleted = await userRepo.deleteByID(insertReturn.id);
   expect(deleted).toEqual(true);
-  const selectedUser3 = await userRepo.getByID(insertReturn.id);
-  expect(selectedUser3).toEqual(null);
+  const selection3 = await userRepo.getByID(insertReturn.id);
+  expect(selection3).toEqual(null);
 });
 
 function expectEqualUsers(actual: User | null, expected: User) {

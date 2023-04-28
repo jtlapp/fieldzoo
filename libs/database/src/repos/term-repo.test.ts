@@ -81,41 +81,41 @@ it("inserts, updates, and deletes terms", async () => {
   expect(insertReturn.modifiedAt).toEqual(insertReturn.createdAt);
 
   // test getting a term by key
-  const selectedTerm1 = await termRepo.getByKey([
+  const selection1 = await termRepo.getByKey([
     insertedTerm.glossaryId,
     insertedTerm.lookupName,
   ]);
-  expectEqualTerms(selectedTerm1, insertReturn);
-  expect(selectedTerm1!.modifiedAt).toEqual(insertReturn.modifiedAt);
+  expectEqualTerms(selection1, insertReturn);
+  expect(selection1!.modifiedAt).toEqual(insertReturn.modifiedAt);
 
   // test updating a term
   await sleep(20);
-  selectedTerm1!.displayName = DisplayNameImpl.castFrom("Updated Term");
+  selection1!.displayName = DisplayNameImpl.castFrom("Updated Term");
 
-  const updateReturn = await termRepo.update(selectedTerm1!);
-  expectEqualTerms(updateReturn, selectedTerm1!);
+  const updateReturn = await termRepo.update(selection1!);
+  expectEqualTerms(updateReturn, selection1!);
   expect(updateReturn!.lookupName).toEqual(
-    NormalizedNameImpl.castFrom(selectedTerm1!.displayName)
+    NormalizedNameImpl.castFrom(selection1!.displayName)
   );
   expect(updateReturn?.modifiedAt.getTime()).toBeGreaterThan(
-    selectedTerm1!.modifiedAt.getTime()
+    selection1!.modifiedAt.getTime()
   );
 
-  const selectedTerm2 = await termRepo.getByKey([
-    selectedTerm1!.glossaryId,
-    selectedTerm1!.lookupName,
+  const selection2 = await termRepo.getByKey([
+    selection1!.glossaryId,
+    selection1!.lookupName,
   ]);
-  expectEqualTerms(selectedTerm2, updateReturn!);
-  expect(selectedTerm2!.modifiedAt).toEqual(updateReturn!.modifiedAt);
+  expectEqualTerms(selection2, updateReturn!);
+  expect(selection2!.modifiedAt).toEqual(updateReturn!.modifiedAt);
 
   // test deleting a term
   const deleted = await termRepo.deleteByID(insertReturn.id);
   expect(deleted).toEqual(true);
-  const selectedTerm3 = await termRepo.getByKey([
-    selectedTerm1!.glossaryId,
-    selectedTerm1!.lookupName,
+  const selection3 = await termRepo.getByKey([
+    selection1!.glossaryId,
+    selection1!.lookupName,
   ]);
-  expect(selectedTerm3).toBeNull();
+  expect(selection3).toBeNull();
 });
 
 function expectEqualTerms(actual: Term | null, expected: Term) {
