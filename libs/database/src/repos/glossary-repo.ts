@@ -1,19 +1,20 @@
 import { Kysely } from "kysely";
-
-import { createBase64UUID } from "@fieldzoo/base64-uuid";
-import { Glossary } from "@fieldzoo/model";
 import { TableMapper } from "kysely-mapper";
 
+import { createBase64UUID } from "@fieldzoo/base64-uuid";
+import { Glossary, GlossaryID } from "@fieldzoo/model";
+import { TimestampedRepo } from "@fieldzoo/modeling";
+
 import { Database } from "../tables/current-tables";
-import { GlossaryID } from "@fieldzoo/model";
 
 /**
  * Repository for persisting glossaries.
  */
-export class GlossaryRepo {
+export class GlossaryRepo extends TimestampedRepo<Database, "glossaries"> {
   readonly #table: ReturnType<GlossaryRepo["getMapper"]>;
 
   constructor(readonly db: Kysely<Database>) {
+    super();
     this.#table = this.getMapper(db);
   }
 
@@ -44,9 +45,7 @@ export class GlossaryRepo {
    */
   async store(glossary: Glossary): Promise<Glossary | null> {
     return glossary.uuid
-      ? (await this.#table.update(glossary.uuid).run(glossary))
-        ? glossary
-        : null
+      ? this.#table.update(glossary.uuid).returnOne(glossary)
       : this.#table.insert().returnOne(glossary);
   }
 
@@ -58,16 +57,28 @@ export class GlossaryRepo {
   private getMapper(db: Kysely<Database>) {
     return new TableMapper(db, "glossaries", {
       keyColumns: ["uuid"],
+      insertReturnColumns: super.getInsertReturnColumns(["uuid"]),
+      updateReturnColumns: super.getUpdateReturnColumns(),
     }).withTransforms({
-      insertTransform: (glossary: Glossary) => ({
-        ...glossary,
-        uuid: createBase64UUID(),
-      }),
-      // TODO: find way to avoid 'any' here and elsewhere
+      insertTransform: (glossary: Glossary) =>
+        super.getUpsertValues(glossary, {
+          uuid: createBase64UUID(),
+        }),
       insertReturnTransform: (glossary: Glossary, returns) =>
-        Glossary.castFrom({ ...glossary, uuid: returns.uuid }, false),
+        Glossary.castFrom(
+          super.getInsertReturnValues(glossary, returns, {
+            uuid: returns.uuid,
+          }),
+          false
+        ),
+      updateTransform: (glossary: Glossary) => super.getUpsertValues(glossary),
+      updateReturnTransform: (glossary: Glossary, returns) =>
+        Glossary.castFrom(
+          super.getUpdateReturnValues(glossary, returns),
+          false
+        ),
       selectTransform: (row) => Glossary.castFrom(row, false),
-      updateTransform: (glossary: Glossary) => glossary,
+      countTransform: (count) => Number(count),
     });
   }
 }

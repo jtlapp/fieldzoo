@@ -12,17 +12,20 @@ import {
   MultilineDescriptionImpl,
 } from "../values/multiline-description";
 import { UserID, UserIDImpl } from "../values/user-id";
+import { TimestampedColumns, TimestampedEntity } from "@fieldzoo/modeling";
 
 /**
  * Class representing a valid glossary.
  */
-export class Glossary {
+export class Glossary extends TimestampedEntity {
   static schema = Type.Object({
     uuid: EmptyStringable(GlossaryIDImpl.schema),
     ownerId: UserIDImpl.schema,
     name: DisplayNameImpl.schema,
     description: Nullable(MultilineDescriptionImpl.schema),
     modifiedBy: UserIDImpl.schema,
+    createdAt: super.timestampedSchema.createdAt,
+    modifiedAt: super.timestampedSchema.modifiedAt,
   });
   static #validator = new MultitierValidator(this.schema);
 
@@ -32,14 +35,19 @@ export class Glossary {
    * @param name The glossary's name.
    * @param description The glossary's description.
    * @param modifiedBy The ID of the user who last updated this glossary.
+   * @param createdAt The date/time at which the glossary was created.
+   * @param modifiedAt The date/time at which the glossary was last modified.
    */
   constructor(
     readonly uuid: GlossaryID,
     public ownerId: UserID,
     public name: DisplayName,
     public description: MultilineDescription | null,
-    public modifiedBy: UserID
+    public modifiedBy: UserID,
+    createdAt?: Date,
+    modifiedAt?: Date
   ) {
+    super(createdAt, modifiedAt);
     freezeField(this, "uuid");
   }
 
@@ -48,10 +56,13 @@ export class Glossary {
    * @param fields The glossary's properties. `uuid` is optional, defaulting to
    *  the empty string for glossaries not yet in the database.
    * @param validate Whether to validate the fields. Defaults to true.
-   * @returns A new term.
+   * @returns A new glossary.
    */
   static castFrom(
-    fields: SelectivePartial<UnvalidatedFields<Glossary>, "uuid">,
+    fields: SelectivePartial<
+      UnvalidatedFields<Glossary>,
+      "uuid" | TimestampedColumns
+    >,
     validate = true
   ) {
     if (fields.uuid === undefined) {
@@ -65,7 +76,9 @@ export class Glossary {
       fields.ownerId as UserID,
       fields.name as DisplayName,
       fields.description as MultilineDescription | null,
-      fields.modifiedBy as UserID
+      fields.modifiedBy as UserID,
+      fields.createdAt as Date,
+      fields.modifiedAt as Date
     );
   }
 }

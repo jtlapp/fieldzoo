@@ -1,6 +1,7 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 
 import { Glossary } from "./glossary";
+import { testTimestamps } from "@fieldzoo/modeling";
 
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
 
@@ -96,6 +97,19 @@ describe("Glossary entity", () => {
         description: "A".repeat(maxDescriptionLength + 1),
       })
     ).toThrow("Invalid glossary");
+  });
+
+  it("accepts only valid timestamps", () => {
+    testTimestamps("Invalid glossary", (createdAt, modifiedAt) =>
+      Glossary.castFrom({
+        ownerId: 1,
+        modifiedBy: 1,
+        name: "Good Name",
+        description: "This\nis\nfine.",
+        createdAt,
+        modifiedAt,
+      })
+    );
   });
 
   it("doesn't validate when assumed valid", () => {

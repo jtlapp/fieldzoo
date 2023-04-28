@@ -6,9 +6,9 @@ import * as dotenv from "dotenv";
 import { DB_ENVVAR_PREFIX, TEST_ENV } from "@fieldzoo/app-config";
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 import { DatabaseConfig } from "@fieldzoo/database-config";
-import { Glossary, User } from "@fieldzoo/model";
+import { DisplayNameImpl, Glossary, User } from "@fieldzoo/model";
 
-import { resetTestDB } from "../index";
+import { resetTestDB, sleep } from "../utils/database-testing";
 import { Database } from "../tables/current-tables";
 import { UserRepo } from "./user-repo";
 import { GlossaryRepo } from "./glossary-repo";
@@ -59,24 +59,37 @@ it("inserts, updates, and deletes glossaries", async () => {
   const insertReturn = (await glossaryRepo.store(insertedGlossary))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.uuid).not.toEqual("");
+  expect(insertReturn.createdAt).toBeInstanceOf(Date);
+  expect(insertReturn.modifiedAt).toEqual(insertReturn.createdAt);
 
   // test getting a glossary by ID
-  const selectedGlossary1 = await glossaryRepo.getByID(insertReturn.uuid);
-  expect(selectedGlossary1).toEqual(insertReturn);
+  const selection1 = await glossaryRepo.getByID(insertReturn.uuid);
+  expectEqualGlossaries(selection1, insertReturn);
+  expect(selection1!.modifiedAt).toEqual(insertReturn.modifiedAt);
 
   // test updating a glossary
-  const updaterGlossary = Glossary.castFrom({
-    ...selectedGlossary1!,
-    name: "Updated Glossary",
-  });
-  const updateReturn = await glossaryRepo.store(updaterGlossary);
-  expect(updateReturn).toEqual(updaterGlossary);
-  const selectedUser2 = await glossaryRepo.getByID(insertReturn.uuid);
-  expect(selectedUser2).toEqual(updateReturn);
+  await sleep(20);
+  selection1!.name = DisplayNameImpl.castFrom("Updated Glossary");
+
+  const updateReturn = await glossaryRepo.store(selection1!);
+  expectEqualGlossaries(updateReturn, selection1!);
+  expect(updateReturn?.modifiedAt.getTime()).toBeGreaterThan(
+    selection1!.modifiedAt.getTime()
+  );
+
+  const selection2 = await glossaryRepo.getByID(insertReturn.uuid);
+  expectEqualGlossaries(selection2, updateReturn!);
+  expect(selection2!.modifiedAt).toEqual(updateReturn!.modifiedAt);
 
   // test deleting a glossary
   const deleted = await glossaryRepo.deleteByID(insertReturn.uuid);
   expect(deleted).toEqual(true);
-  const selectedUser3 = await glossaryRepo.getByID(insertReturn.uuid);
-  expect(selectedUser3).toEqual(null);
+  const selection3 = await glossaryRepo.getByID(insertReturn.uuid);
+  expect(selection3).toEqual(null);
 });
+
+function expectEqualGlossaries(actual: Glossary | null, expected: Glossary) {
+  expect(actual).not.toBeNull();
+  expect(actual!.uuid).toEqual(expected.uuid);
+  expect(actual!.createdAt).toEqual(expected.createdAt);
+}
