@@ -5,7 +5,7 @@ import { TableMapper } from "kysely-mapper";
 
 import { Database } from "../tables/current-tables";
 import { UserID } from "@fieldzoo/model";
-import { TimestampedRepo } from "../lib/timestamped-repo";
+import { TimestampedRepo } from "@fieldzoo/modeling";
 
 /**
  * Repository for persisting users.

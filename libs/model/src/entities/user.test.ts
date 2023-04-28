@@ -1,7 +1,7 @@
 import { User } from "./user";
 
 import { UserID } from "../values/user-id";
-import { testTimestamps } from "../lib/timestamped-entity.util";
+import { testTimestamps } from "@fieldzoo/modeling";
 
 const maxNameLength = User.schema.properties.name.maxLength!;
 

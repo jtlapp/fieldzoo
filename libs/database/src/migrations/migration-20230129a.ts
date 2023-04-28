@@ -2,9 +2,10 @@ import { Kysely } from "kysely";
 
 import {
   createTimestampedTable,
-  createCollaborativeTable,
   createUpdateModifiedAtFunction,
-} from "../utils/migration-utils";
+} from "@fieldzoo/modeling";
+
+import { createCollaborativeTable } from "../utils/migration-utils";
 
 export async function up(db: Kysely<any>): Promise<void> {
   await createUpdateModifiedAtFunction(db);

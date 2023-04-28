@@ -17,10 +17,7 @@ import {
 import { UserID, UserIDImpl } from "../values/user-id";
 import { NormalizedName, NormalizedNameImpl } from "../values/normalized-name";
 import { TermID, TermIDImpl } from "../values/term-id";
-import {
-  TimestampedColumns,
-  TimestampedEntity,
-} from "../lib/timestamped-entity";
+import { TimestampedColumns, TimestampedEntity } from "@fieldzoo/modeling";
 
 /**
  * Class representing a valid term

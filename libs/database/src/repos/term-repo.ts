@@ -6,7 +6,7 @@ import { TableMapper } from "kysely-mapper";
 import { Database } from "../tables/current-tables";
 import { GlossaryID } from "@fieldzoo/model";
 import { NormalizedName } from "@fieldzoo/model";
-import { TimestampedRepo } from "../lib/timestamped-repo";
+import { TimestampedRepo } from "@fieldzoo/modeling";
 
 /**
  * Repository for persisting terms. Terms have a database-internal ID and a

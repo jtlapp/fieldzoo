@@ -8,10 +8,7 @@ import { UserID, UserIDImpl } from "../values/user-id";
 import { UserName, UserNameImpl } from "../values/user-name";
 import { EmailAddress, EmailAddressImpl } from "../values/email-address";
 import { Zeroable } from "@fieldzoo/typebox-types";
-import {
-  TimestampedColumns,
-  TimestampedEntity,
-} from "../lib/timestamped-entity";
+import { TimestampedColumns, TimestampedEntity } from "@fieldzoo/modeling";
 
 /**
  * Class representing a valid user.

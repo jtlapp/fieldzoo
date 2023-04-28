@@ -3,7 +3,7 @@ import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 import { Term } from "./term";
 import { NormalizedNameImpl } from "../values/normalized-name";
 import { DisplayName } from "../values/display-name";
-import { testTimestamps } from "../lib/timestamped-entity.util";
+import { testTimestamps } from "@fieldzoo/modeling";
 
 const maxNameLength = Term.schema.properties.displayName.maxLength!;
 const minDescriptionLength = Term.schema.properties.description.minLength!;

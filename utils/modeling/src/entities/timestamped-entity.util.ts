@@ -1,4 +1,4 @@
-import { TimestampedEntity } from "../lib/timestamped-entity";
+import { TimestampedEntity } from "../entities/timestamped-entity";
 
 /**
  * Tests valid and invalid TimestampedEntity timestamps.

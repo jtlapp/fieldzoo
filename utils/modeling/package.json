@@ -1,7 +1,8 @@
 {
-  "name": "@fieldzoo/model",
+  "name": "@fieldzoo/modeling",
   "version": "0.0.0",
   "private": true,
+  "license": "MIT",
   "main": "dist/index.js",
   "source": "src/index.ts",
   "types": "src/index.ts",
@@ -13,20 +14,10 @@
     "clean": "rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
     "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
-    "test": "jest"
+    "test": "jest --passWithNoTests"
   },
   "jest": {
     "preset": "jest-presets/node"
-  },
-  "dependencies": {
-    "@fieldzoo/base64-uuid": "workspace:*",
-    "@fieldzoo/freeze-field": "workspace:*",
-    "@fieldzoo/generic-types": "workspace:*",
-    "@fieldzoo/modeling": "workspace:*",
-    "@fieldzoo/multitier-validator": "workspace:*",
-    "@fieldzoo/typebox-types": "workspace:*",
-    "@sinclair/typebox": "^0.25.24",
-    "kysely-mapper": "^0.2.5"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",
@@ -37,5 +28,9 @@
     "ts-jest": "^29.0.5",
     "tsconfig": "workspace:*",
     "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.25.24",
+    "kysely": "^0.24.2"
   }
 }

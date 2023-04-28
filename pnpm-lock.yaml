@@ -148,6 +148,7 @@ importers:
       '@fieldzoo/base64-uuid': workspace:*
       '@fieldzoo/database-config': workspace:*
       '@fieldzoo/model': workspace:*
+      '@fieldzoo/modeling': workspace:*
       '@fieldzoo/multitier-validator': workspace:*
       '@fieldzoo/postgres-utils': workspace:*
       '@types/jest': ^29.4.0
@@ -168,6 +169,7 @@ importers:
       '@fieldzoo/base64-uuid': link:../../utils/base64-uuid
       '@fieldzoo/database-config': link:../../utils/database-config
       '@fieldzoo/model': link:../model
+      '@fieldzoo/modeling': link:../../utils/modeling
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
       dotenv: 16.0.3
       kysely: 0.24.2
@@ -190,6 +192,7 @@ importers:
       '@fieldzoo/base64-uuid': workspace:*
       '@fieldzoo/freeze-field': workspace:*
       '@fieldzoo/generic-types': workspace:*
+      '@fieldzoo/modeling': workspace:*
       '@fieldzoo/multitier-validator': workspace:*
       '@fieldzoo/typebox-types': workspace:*
       '@sinclair/typebox': ^0.25.24
@@ -206,6 +209,7 @@ importers:
       '@fieldzoo/base64-uuid': link:../../utils/base64-uuid
       '@fieldzoo/freeze-field': link:../../utils/freeze-field
       '@fieldzoo/generic-types': link:../../utils/generic-types
+      '@fieldzoo/modeling': link:../../utils/modeling
       '@fieldzoo/multitier-validator': link:../../utils/multitier-validator
       '@fieldzoo/typebox-types': link:../../utils/typebox-types
       '@sinclair/typebox': 0.25.24
@@ -397,6 +401,31 @@ importers:
     devDependencies:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
+      tsconfig: link:../../config/tsconfig
+      typescript: 4.9.5
+
+  utils/modeling:
+    specifiers:
+      '@sinclair/typebox': ^0.25.24
+      '@types/jest': ^29.4.0
+      '@types/node': ^18.14.1
+      eslint-config-custom: workspace:*
+      jest: ^29.4.3
+      jest-presets: workspace:*
+      kysely: ^0.24.2
+      ts-jest: ^29.0.5
+      tsconfig: workspace:*
+      typescript: ^4.9.5
+    dependencies:
+      '@sinclair/typebox': 0.25.24
+      kysely: 0.24.2
+    devDependencies:
+      '@types/jest': 29.5.0
+      '@types/node': 18.15.11
+      eslint-config-custom: link:../../config/eslint-config-custom
+      jest: 29.5.0_@types+node@18.15.11
+      jest-presets: link:../../config/jest-presets
+      ts-jest: 29.1.0_rgossuqlslmrpogqankdav3e2e
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
 

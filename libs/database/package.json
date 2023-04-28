@@ -23,6 +23,7 @@
     "@fieldzoo/base64-uuid": "workspace:*",
     "@fieldzoo/database-config": "workspace:*",
     "@fieldzoo/model": "workspace:*",
+    "@fieldzoo/modeling": "workspace:*",
     "@fieldzoo/postgres-utils": "workspace:*",
     "dotenv": "^16.0.3",
     "kysely": "^0.24.2",

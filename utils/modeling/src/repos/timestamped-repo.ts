@@ -1,6 +1,6 @@
 import { Selectable, Selection } from "kysely";
 
-import { TimestampedEntity } from "@fieldzoo/model";
+import { TimestampedEntity } from "../entities/timestamped-entity";
 
 /**
  * Repository for persisting entities with `createdAt` and `modifiedAt`
