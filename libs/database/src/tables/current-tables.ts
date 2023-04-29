@@ -22,6 +22,8 @@ export interface Glossaries {
   name: string;
   description: string | null;
   modifiedBy: number;
+  createdAt: Date;
+  modifiedAt: Date;
 }
 
 export interface Terms {
@@ -31,4 +33,6 @@ export interface Terms {
   displayName: string;
   description: string;
   modifiedBy: number;
+  createdAt: Date;
+  modifiedAt: Date;
 }

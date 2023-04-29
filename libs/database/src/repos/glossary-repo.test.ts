@@ -36,7 +36,7 @@ it("inserts, updates, and deletes glossaries", async () => {
     name: "John Doe",
     email: "jdoe@xyz.pdq",
   });
-  const userReturn = (await userRepo.store(insertedUser))!;
+  const userReturn = (await userRepo.add(insertedUser))!;
 
   const glossaryRepo = new GlossaryRepo(db);
   const insertedGlossary = Glossary.castFrom({
@@ -47,16 +47,16 @@ it("inserts, updates, and deletes glossaries", async () => {
   });
 
   // test updating a non-existent glossary
-  const updateReturn1 = await glossaryRepo.store(
+  const updateReturn1 = await glossaryRepo.update(
     Glossary.castFrom({
       ...insertedGlossary,
       uuid: SAMPLE_UUID,
     })
   );
-  expect(updateReturn1).toEqual(null);
+  expect(updateReturn1).toBe(false);
 
   // test inserting a glossary
-  const insertReturn = (await glossaryRepo.store(insertedGlossary))!;
+  const insertReturn = (await glossaryRepo.add(insertedGlossary))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.uuid).not.toEqual("");
   expect(insertReturn.createdAt).toBeInstanceOf(Date);
@@ -68,18 +68,19 @@ it("inserts, updates, and deletes glossaries", async () => {
   expect(selection1!.modifiedAt).toEqual(insertReturn.modifiedAt);
 
   // test updating a glossary
+  const originallyModifiedAt = selection1!.modifiedAt;
   await sleep(20);
   selection1!.name = DisplayNameImpl.castFrom("Updated Glossary");
 
-  const updateReturn = await glossaryRepo.store(selection1!);
-  expectEqualGlossaries(updateReturn, selection1!);
-  expect(updateReturn?.modifiedAt.getTime()).toBeGreaterThan(
-    selection1!.modifiedAt.getTime()
+  const updateReturn2 = await glossaryRepo.update(selection1!);
+  expect(updateReturn2).toBe(true);
+  expect(selection1!.modifiedAt.getTime()).toBeGreaterThan(
+    originallyModifiedAt.getTime()
   );
 
   const selection2 = await glossaryRepo.getByID(insertReturn.uuid);
-  expectEqualGlossaries(selection2, updateReturn!);
-  expect(selection2!.modifiedAt).toEqual(updateReturn!.modifiedAt);
+  expectEqualGlossaries(selection2, selection1!);
+  expect(selection2!.modifiedAt).toEqual(selection1!.modifiedAt);
 
   // test deleting a glossary
   const deleted = await glossaryRepo.deleteByID(insertReturn.uuid);

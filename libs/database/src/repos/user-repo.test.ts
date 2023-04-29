@@ -38,13 +38,13 @@ it("inserts, updates, and deletes users", async () => {
   expect(() => insertedUser.modifiedAt).toThrow("no modification date");
 
   // test updating a non-existent user
-  const updateReturn1 = await userRepo.store(
+  const updateReturn1 = await userRepo.update(
     User.castFrom({ ...insertedUser, id: 1 })
   );
-  expect(updateReturn1).toEqual(null);
+  expect(updateReturn1).toBe(false);
 
   // test inserting a user
-  const insertReturn = (await userRepo.store(insertedUser))!;
+  const insertReturn = await userRepo.add(insertedUser);
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).toBeGreaterThan(0);
   expect(insertReturn.createdAt).toBeInstanceOf(Date);
@@ -56,24 +56,25 @@ it("inserts, updates, and deletes users", async () => {
   expect(selection1!.modifiedAt).toEqual(insertReturn.modifiedAt);
 
   // test updating a user
+  const originallyModifiedAt = selection1!.modifiedAt;
   await sleep(20);
   selection1!.name = UserNameImpl.castFrom("Jon Doe");
 
-  const updateReturn = await userRepo.store(selection1!);
-  expectEqualUsers(updateReturn, selection1!);
-  expect(updateReturn?.modifiedAt.getTime()).toBeGreaterThan(
-    selection1!.modifiedAt.getTime()
+  const updateReturn2 = await userRepo.update(selection1!);
+  expect(updateReturn2).toBe(true);
+  expect(selection1!.modifiedAt.getTime()).toBeGreaterThan(
+    originallyModifiedAt.getTime()
   );
 
   const selection2 = await userRepo.getByID(insertReturn.id);
-  expectEqualUsers(selection2, updateReturn!);
-  expect(selection2!.modifiedAt).toEqual(updateReturn!.modifiedAt);
+  expectEqualUsers(selection2, selection1!);
+  expect(selection2!.modifiedAt).toEqual(selection1!.modifiedAt);
 
   // test deleting a user
   const deleted = await userRepo.deleteByID(insertReturn.id);
-  expect(deleted).toEqual(true);
+  expect(deleted).toBe(true);
   const selection3 = await userRepo.getByID(insertReturn.id);
-  expect(selection3).toEqual(null);
+  expect(selection3).toBeNull();
 });
 
 function expectEqualUsers(actual: User | null, expected: User) {

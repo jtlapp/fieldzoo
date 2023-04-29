@@ -19,7 +19,16 @@ export class GlossaryRepo extends TimestampedRepo<Database, "glossaries"> {
   }
 
   /**
-   * Delete a glossary by ID.
+   * Adds a glossary to the repository.
+   * @param glossary Glossary to add.
+   * @returns A new glossary instance with its assigned UUID.
+   */
+  async add(glossary: Glossary): Promise<Glossary> {
+    return this.#table.insert().returnOne(glossary);
+  }
+
+  /**
+   * Deletes a glossary by ID.
    * @param uuid UUID of the glossary to delete.
    * @returns true if the glossary was deleted, false if the glossary
    *  was not found.
@@ -29,7 +38,7 @@ export class GlossaryRepo extends TimestampedRepo<Database, "glossaries"> {
   }
 
   /**
-   * Get a glossary by ID.
+   * Gets a glossary by ID.
    * @param uuid UUID of the glossary to get.
    * @returns the glossary, or null if the glossary was not found.
    */
@@ -38,19 +47,18 @@ export class GlossaryRepo extends TimestampedRepo<Database, "glossaries"> {
   }
 
   /**
-   * Insert or update a glossary. Glossaries with empty string UUIDs are
-   * inserted; glossaries with non-empty UUIDs are updated.
-   * @param glossary Glossary to insert or update.
-   * @returns the glossary, or null if the glossary-to-update was not found.
+   * Updates a glossary, including changing its `modifiedAt` date.
+   * @param glossary Glosario with modified values.
+   * @returns Whether the glossary was found and updated.
    */
-  async store(glossary: Glossary): Promise<Glossary | null> {
-    return glossary.uuid
-      ? this.#table.update(glossary.uuid).returnOne(glossary)
-      : this.#table.insert().returnOne(glossary);
+  async update(glossary: Glossary): Promise<boolean> {
+    return (
+      (await this.#table.update(glossary.uuid).returnOne(glossary)) !== null
+    );
   }
 
   /**
-   * Get a mapper for the glossaries table. This is a method so that the
+   * Gets a mapper for the glossaries table. This is a method so that the
    * mapper type can be inferred from its options without having to
    * specify the type parameters.
    */
@@ -73,10 +81,7 @@ export class GlossaryRepo extends TimestampedRepo<Database, "glossaries"> {
         ),
       updateTransform: (glossary: Glossary) => super.getUpsertValues(glossary),
       updateReturnTransform: (glossary: Glossary, returns) =>
-        Glossary.castFrom(
-          super.getUpdateReturnValues(glossary, returns),
-          false
-        ),
+        super.modifyForUpdate(glossary, returns),
       selectTransform: (row) => Glossary.castFrom(row, false),
       countTransform: (count) => Number(count),
     });

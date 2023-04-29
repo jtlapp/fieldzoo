@@ -41,7 +41,7 @@ it("inserts, updates, and deletes terms", async () => {
     name: "John Doe",
     email: "jdoe@xyz.pdq",
   });
-  const userReturn = (await userRepo.store(insertedUser))!;
+  const userReturn = (await userRepo.add(insertedUser))!;
 
   const glossaryRepo = new GlossaryRepo(db);
   const insertedGlossary = Glossary.castFrom({
@@ -50,7 +50,7 @@ it("inserts, updates, and deletes terms", async () => {
     ownerId: userReturn.id,
     modifiedBy: userReturn.id,
   });
-  const glossaryReturn = await glossaryRepo.store(insertedGlossary);
+  const glossaryReturn = await glossaryRepo.add(insertedGlossary);
 
   const termRepo = new TermRepo(db);
   const insertedTerm = Term.castFrom({
@@ -68,10 +68,10 @@ it("inserts, updates, and deletes terms", async () => {
       displayName: insertedTerm.displayName,
     })
   );
-  expect(updateReturn1).toBeNull();
+  expect(updateReturn1).toBe(false);
 
   // test inserting a term
-  const insertReturn = (await termRepo.add(insertedTerm))!;
+  const insertReturn = await termRepo.add(insertedTerm);
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).not.toEqual(0);
   expect(insertReturn.lookupName).toEqual(
@@ -89,24 +89,22 @@ it("inserts, updates, and deletes terms", async () => {
   expect(selection1!.modifiedAt).toEqual(insertReturn.modifiedAt);
 
   // test updating a term
+  const originallyModifiedAt = selection1!.modifiedAt;
   await sleep(20);
   selection1!.displayName = DisplayNameImpl.castFrom("Updated Term");
 
-  const updateReturn = await termRepo.update(selection1!);
-  expectEqualTerms(updateReturn, selection1!);
-  expect(updateReturn!.lookupName).toEqual(
-    NormalizedNameImpl.castFrom(selection1!.displayName)
-  );
-  expect(updateReturn?.modifiedAt.getTime()).toBeGreaterThan(
-    selection1!.modifiedAt.getTime()
+  const updateReturn2 = await termRepo.update(selection1!);
+  expect(updateReturn2).toBe(true);
+  expect(selection1!.modifiedAt.getTime()).toBeGreaterThan(
+    originallyModifiedAt.getTime()
   );
 
   const selection2 = await termRepo.getByKey([
     selection1!.glossaryId,
     selection1!.lookupName,
   ]);
-  expectEqualTerms(selection2, updateReturn!);
-  expect(selection2!.modifiedAt).toEqual(updateReturn!.modifiedAt);
+  expectEqualTerms(selection2, selection1!);
+  expect(selection2!.modifiedAt).toEqual(selection1!.modifiedAt);
 
   // test deleting a term
   const deleted = await termRepo.deleteByID(insertReturn.id);

@@ -18,7 +18,16 @@ export class UserRepo extends TimestampedRepo<Database, "users"> {
   }
 
   /**
-   * Delete a user by ID.
+   * Adds a user to the repository.
+   * @param user User to add.
+   * @returns A new user instance with its generated ID.
+   */
+  async add(user: User): Promise<User> {
+    return this.#table.insert().returnOne(user);
+  }
+
+  /**
+   * Deletes a user by ID.
    * @param id ID of the user to delete.
    * @returns true if the user was deleted, false if the user was not found.
    */
@@ -27,7 +36,7 @@ export class UserRepo extends TimestampedRepo<Database, "users"> {
   }
 
   /**
-   * Get a user by ID.
+   * Gets a user by ID.
    * @param id ID of the user to get.
    * @returns the user, or null if the user was not found.
    */
@@ -36,19 +45,16 @@ export class UserRepo extends TimestampedRepo<Database, "users"> {
   }
 
   /**
-   * Insert or update a user. Users with ID 0 are inserted;
-   * users with non-zero IDs are updated.
-   * @param user User to insert or update.
-   * @returns the user, or null if the user-to-update was not found.
+   * Updates a user, including changing its `modifiedAt` date.
+   * @param user User with modified values.
+   * @returns Whether the user was found and updated.
    */
-  async store(user: User): Promise<User | null> {
-    return user.id
-      ? await this.#table.update(user.id).returnOne(user)
-      : this.#table.insert().returnOne(user);
+  async update(user: User): Promise<boolean> {
+    return (await this.#table.update(user.id).returnOne(user)) !== null;
   }
 
   /**
-   * Get a mapper for the users table. This is a method so that the
+   * Gets a mapper for the users table. This is a method so that the
    * mapper type can be inferred from its options without having to
    * specify the type parameters.
    */
@@ -72,7 +78,7 @@ export class UserRepo extends TimestampedRepo<Database, "users"> {
         ),
       updateTransform: upsertTransform,
       updateReturnTransform: (user: User, returns) =>
-        User.castFrom(super.getUpdateReturnValues(user, returns), false),
+        super.modifyForUpdate(user, returns),
       selectTransform: (row) => User.castFrom(row, false),
       countTransform: (count) => Number(count),
     });
