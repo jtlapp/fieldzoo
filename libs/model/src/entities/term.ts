@@ -18,6 +18,7 @@ import { UserID, UserIDImpl } from "../values/user-id";
 import { NormalizedName, NormalizedNameImpl } from "../values/normalized-name";
 import { TermID, TermIDImpl } from "../values/term-id";
 import { TimestampedColumns, TimestampedEntity } from "@fieldzoo/modeling";
+import { VersionNumber, VersionNumberImpl } from "../values/version-number";
 
 /**
  * Class representing a valid term
@@ -28,6 +29,7 @@ export class Term extends TimestampedEntity {
 
   static schema = Type.Object({
     id: Zeroable(TermIDImpl.schema),
+    version: Zeroable(VersionNumberImpl.schema),
     lookupName: Type.Optional(NormalizedNameImpl.schema),
     glossaryId: GlossaryIDImpl.schema,
     displayName: DisplayNameImpl.schema,
@@ -40,6 +42,7 @@ export class Term extends TimestampedEntity {
 
   /**
    * @param id The unique ID of the term in the database.
+   * @param version The number for this version of the term.
    * @param glossaryId The ID of the glossary this term belongs to.
    * @param displayName The term's display name.
    * @param description The term's description.
@@ -51,7 +54,8 @@ export class Term extends TimestampedEntity {
    */
   constructor(
     readonly id: TermID,
-    readonly glossaryId: GlossaryID,
+    readonly version: VersionNumber,
+    public glossaryId: GlossaryID,
     displayName: DisplayName,
     public description: MultilineDescription,
     public modifiedBy: UserID,
@@ -103,6 +107,7 @@ export class Term extends TimestampedEntity {
     }
     return new Term(
       fields.id as TermID,
+      fields.version as VersionNumber,
       fields.glossaryId as GlossaryID,
       fields.displayName as DisplayName,
       fields.description as MultilineDescription,

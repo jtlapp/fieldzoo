@@ -69,18 +69,20 @@ export class TermRepo extends TimestampedRepo<Database, "terms", Term> {
         lookupName: term.lookupName,
       });
       delete values["id"];
+      delete values["version"];
       return values;
     };
 
     return new TableMapper(db, "terms", {
       keyColumns: ["id"],
-      insertReturnColumns: super.getInsertReturnColumns(["id"]),
-      updateReturnColumns: super.getUpdateReturnColumns(),
+      insertReturnColumns: super.getInsertReturnColumns(["id", "version"]),
+      updateReturnColumns: super.getUpdateReturnColumns(["version"]),
     }).withTransforms({
       insertTransform: upsertTransform,
       insertReturnTransform: (term: Term, returns) =>
         Term.castFrom(
           super.getInsertReturnValues(term, returns, {
+            // TODO: now that things are more generic, delete this `id`?
             id: returns.id,
             displayName: term.displayName,
             lookupName: term.lookupName,

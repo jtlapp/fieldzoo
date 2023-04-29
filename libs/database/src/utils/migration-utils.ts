@@ -3,7 +3,7 @@
  */
 
 import * as path from "path";
-import { CreateTableBuilder, Kysely } from "kysely";
+import { CreateTableBuilder, Kysely, sql } from "kysely";
 import { createTimestampedTable } from "@fieldzoo/modeling";
 
 /**
@@ -33,4 +33,40 @@ export async function createCollaborativeTable(
       )
     )
   );
+}
+
+/**
+ * Creates a function that updates the `version` column of a table,
+ * intended to be used as a trigger.
+ * @param db Reference to the Kysely DB
+ * @returns A promise that adds the function
+ */
+export function createUpdateVersionFunction(db: Kysely<any>) {
+  return sql
+    .raw(
+      `create or replace function update_version_column()
+          returns trigger as $$
+        begin
+          new."version" = old."version" + 1;
+          return new;
+        end;
+        $$ language 'plpgsql';`
+    )
+    .execute(db);
+}
+
+/**
+ * Adds a `version` trigger to the given table.
+ * @param db Reference to the Kysely DB
+ * @param tableName Name of the table to add the trigger to
+ * @returns A promise that adds the trigger
+ */
+export function addVersionTrigger(db: Kysely<any>, tableName: string) {
+  return sql
+    .raw(
+      `create or replace trigger update_${tableName}_version
+          before update on "${tableName}"
+          for each row execute procedure update_version_column();`
+    )
+    .execute(db);
 }

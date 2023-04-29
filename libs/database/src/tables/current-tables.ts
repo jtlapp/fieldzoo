@@ -28,6 +28,7 @@ export interface Glossaries {
 
 export interface Terms {
   id: Generated<number>;
+  version: number;
   glossaryId: string;
   lookupName: string;
   displayName: string;

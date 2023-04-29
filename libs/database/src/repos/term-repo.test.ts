@@ -54,6 +54,7 @@ it("inserts, updates, and deletes terms", async () => {
 
   const termRepo = new TermRepo(db);
   const insertedTerm = Term.castFrom({
+    version: 0,
     displayName: "Test Term",
     description: "This is a test term",
     glossaryId: glossaryReturn!.uuid,
@@ -74,6 +75,7 @@ it("inserts, updates, and deletes terms", async () => {
   const insertReturn = await termRepo.add(insertedTerm);
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).not.toEqual(0);
+  expect(insertReturn.version).toEqual(1);
   expect(insertReturn.lookupName).toEqual(
     NormalizedNameImpl.castFrom(insertedTerm.displayName)
   );
@@ -86,7 +88,6 @@ it("inserts, updates, and deletes terms", async () => {
     insertedTerm.lookupName,
   ]);
   expectEqualTerms(selection1, insertReturn);
-  expect(selection1!.modifiedAt).toEqual(insertReturn.modifiedAt);
 
   // test updating a term
   const originallyModifiedAt = selection1!.modifiedAt;
@@ -95,6 +96,7 @@ it("inserts, updates, and deletes terms", async () => {
 
   const updateReturn2 = await termRepo.update(selection1!);
   expect(updateReturn2).toBe(true);
+  expect(selection1!.version).toEqual(2);
   expect(selection1!.modifiedAt.getTime()).toBeGreaterThan(
     originallyModifiedAt.getTime()
   );
@@ -104,7 +106,6 @@ it("inserts, updates, and deletes terms", async () => {
     selection1!.lookupName,
   ]);
   expectEqualTerms(selection2, selection1!);
-  expect(selection2!.modifiedAt).toEqual(selection1!.modifiedAt);
 
   // test deleting a term
   const deleted = await termRepo.deleteByID(insertReturn.id);
@@ -119,6 +120,8 @@ it("inserts, updates, and deletes terms", async () => {
 function expectEqualTerms(actual: Term | null, expected: Term) {
   expect(actual).not.toBeNull();
   expect(actual!.id).toEqual(expected.id);
+  expect(actual!.version).toEqual(expected.version);
   expect(actual!.displayName).toEqual(expected.displayName);
   expect(actual!.lookupName).toEqual(expected.lookupName);
+  expect(actual!.modifiedAt).toEqual(expected.modifiedAt);
 }

@@ -1,3 +1,4 @@
+// TODO: rename this file to `migration-00000000.ts`
 import { Kysely } from "kysely";
 
 import {
@@ -5,10 +6,15 @@ import {
   createUpdateModifiedAtFunction,
 } from "@fieldzoo/modeling";
 
-import { createCollaborativeTable } from "../utils/migration-utils";
+import {
+  addVersionTrigger,
+  createCollaborativeTable,
+  createUpdateVersionFunction,
+} from "../utils/migration-utils";
 
 export async function up(db: Kysely<any>): Promise<void> {
   await createUpdateModifiedAtFunction(db);
+  await createUpdateVersionFunction(db);
 
   // users table
 
@@ -36,6 +42,8 @@ export async function up(db: Kysely<any>): Promise<void> {
   await createCollaborativeTable(db, "terms", (tb) =>
     tb
       .addColumn("id", "serial", (col) => col.primaryKey())
+      // TODO: move this to createCollaborativeTable()
+      .addColumn("version", "integer", (col) => col.notNull().defaultTo(1))
       .addColumn("glossaryId", "text", (col) =>
         col.references("glossaries.uuid").onDelete("cascade").notNull()
       )
@@ -47,6 +55,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         "lookupName",
       ])
   );
+  await addVersionTrigger(db, "terms");
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
