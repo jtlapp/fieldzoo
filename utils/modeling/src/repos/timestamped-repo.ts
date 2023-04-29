@@ -2,9 +2,10 @@ import { Selectable } from "kysely";
 
 import { TimestampedEntity } from "../entities/timestamped-entity";
 
+// TODO: revisit how generic this is becoming
 /**
  * Repository for persisting entities with `createdAt` and `modifiedAt`
- * timestamp columns. Several method take a `getters` object to allow
+ * timestamp columns. Several method take a `extraValues` object to allow
  * the caller to assign getter properties, which are not otherwise
  * copied from the provided entity.
  */
@@ -23,41 +24,34 @@ export abstract class TimestampedRepo<
     return ["modifiedAt"].concat(extraColumns) as (keyof Selectable<DB[TB]>)[];
   }
 
-  getUpsertValues(entity: E, getters: object = {}) {
-    const values = { ...entity, ...getters } as any;
+  getUpsertValues(entity: E, extraValues: object = {}) {
+    const values = { ...entity, ...extraValues } as any;
     delete values["createdAt"];
     delete values["modifiedAt"];
     return values;
   }
 
-  getInsertReturnValues(
-    entity: E,
-    returns: { createdAt: Date; modifiedAt: Date },
-    getters: object = {}
-  ) {
+  getInsertReturnValues(entity: E, returns: object, extraValues: object = {}) {
     return {
       ...entity,
-      ...getters,
-      createdAt: returns.createdAt,
-      modifiedAt: returns.modifiedAt,
+      ...returns,
+      ...extraValues,
     };
   }
 
-  getUpdateReturnValues(
-    entity: E,
-    returns: { modifiedAt: Date },
-    getters: object = {}
-  ) {
+  getUpdateReturnValues(entity: E, returns: object, extraValues: object = {}) {
     return {
       ...entity,
-      ...getters,
+      ...returns,
+      ...extraValues,
       createdAt: entity.createdAt,
-      modifiedAt: returns.modifiedAt,
     };
   }
 
-  modifyForUpdate(entity: E, returns: { modifiedAt: Date }): E {
-    entity.modifiedAt = returns.modifiedAt;
+  modifyForUpdate(entity: E, returns: object): E {
+    for (const [key, value] of Object.entries(returns)) {
+      entity[key as keyof E] = value as any;
+    }
     return entity;
   }
 }
