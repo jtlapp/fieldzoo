@@ -1,4 +1,4 @@
-import { Selectable, Selection } from "kysely";
+import { Selectable } from "kysely";
 
 import { TimestampedEntity } from "../entities/timestamped-entity";
 
@@ -22,7 +22,7 @@ export abstract class TimestampedRepo<DB, TB extends keyof DB> {
   getUpsertValues<Entity extends TimestampedEntity>(
     entity: Entity,
     getters: object = {}
-  ): any {
+  ) {
     const values = { ...entity, ...getters } as any;
     delete values["createdAt"];
     delete values["modifiedAt"];
@@ -31,7 +31,7 @@ export abstract class TimestampedRepo<DB, TB extends keyof DB> {
 
   getInsertReturnValues<Entity extends TimestampedEntity>(
     entity: Entity,
-    returns: Partial<Selection<DB, TB, any>>,
+    returns: { createdAt: Date; modifiedAt: Date },
     getters: object = {}
   ) {
     return {
@@ -42,16 +42,10 @@ export abstract class TimestampedRepo<DB, TB extends keyof DB> {
     };
   }
 
-  getUpdateReturnValues<Entity extends TimestampedEntity>(
+  modifyForUpdate<Entity extends TimestampedEntity>(
     entity: Entity,
-    returns: Partial<Selection<DB, TB, any>>,
-    getters: object = {}
-  ) {
-    return {
-      ...entity,
-      ...getters,
-      createdAt: entity.createdAt,
-      modifiedAt: returns.modifiedAt,
-    };
+    returns: { modifiedAt: Date }
+  ): void {
+    entity.modifiedAt = returns.modifiedAt;
   }
 }
