@@ -65,7 +65,6 @@ it("inserts, updates, and deletes glossaries", async () => {
   // test getting a glossary by ID
   const selection1 = await glossaryRepo.getByID(insertReturn.uuid);
   expectEqualGlossaries(selection1, insertReturn);
-  expect(selection1!.modifiedAt).toEqual(insertReturn.modifiedAt);
 
   // test updating a glossary
   const originallyModifiedAt = selection1!.modifiedAt;
@@ -80,7 +79,6 @@ it("inserts, updates, and deletes glossaries", async () => {
 
   const selection2 = await glossaryRepo.getByID(insertReturn.uuid);
   expectEqualGlossaries(selection2, selection1!);
-  expect(selection2!.modifiedAt).toEqual(selection1!.modifiedAt);
 
   // test deleting a glossary
   const deleted = await glossaryRepo.deleteByID(insertReturn.uuid);
@@ -93,4 +91,5 @@ function expectEqualGlossaries(actual: Glossary | null, expected: Glossary) {
   expect(actual).not.toBeNull();
   expect(actual!.uuid).toEqual(expected.uuid);
   expect(actual!.createdAt).toEqual(expected.createdAt);
+  expect(actual!.modifiedAt).toEqual(expected.modifiedAt);
 }

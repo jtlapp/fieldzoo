@@ -53,7 +53,6 @@ it("inserts, updates, and deletes users", async () => {
   // test getting a user by ID
   const selection1 = await userRepo.getByID(insertReturn.id);
   expectEqualUsers(selection1, insertReturn);
-  expect(selection1!.modifiedAt).toEqual(insertReturn.modifiedAt);
 
   // test updating a user
   const originallyModifiedAt = selection1!.modifiedAt;
@@ -68,7 +67,6 @@ it("inserts, updates, and deletes users", async () => {
 
   const selection2 = await userRepo.getByID(insertReturn.id);
   expectEqualUsers(selection2, selection1!);
-  expect(selection2!.modifiedAt).toEqual(selection1!.modifiedAt);
 
   // test deleting a user
   const deleted = await userRepo.deleteByID(insertReturn.id);
@@ -81,4 +79,5 @@ function expectEqualUsers(actual: User | null, expected: User) {
   expect(actual).not.toBeNull();
   expect(actual!.id).toEqual(expected.id);
   expect(actual!.createdAt).toEqual(expected.createdAt);
+  expect(actual!.modifiedAt).toEqual(expected.modifiedAt);
 }
