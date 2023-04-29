@@ -19,8 +19,8 @@ export abstract class TimestampedRepo<
     ) as (keyof Selectable<DB[TB]>)[];
   }
 
-  getUpdateReturnColumns() {
-    return ["modifiedAt"] as (keyof Selectable<DB[TB]>)[];
+  getUpdateReturnColumns(extraColumns: string[] = []) {
+    return ["modifiedAt"].concat(extraColumns) as (keyof Selectable<DB[TB]>)[];
   }
 
   getUpsertValues(entity: E, getters: object = {}) {
