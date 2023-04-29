@@ -39,6 +39,7 @@ export class Term extends TimestampedEntity {
   static #validator = new MultitierValidator(this.schema);
 
   /**
+   * @param id The unique ID of the term in the database.
    * @param glossaryId The ID of the glossary this term belongs to.
    * @param displayName The term's display name.
    * @param description The term's description.
