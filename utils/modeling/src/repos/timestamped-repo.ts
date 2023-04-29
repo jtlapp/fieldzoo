@@ -8,7 +8,11 @@ import { TimestampedEntity } from "../entities/timestamped-entity";
  * the caller to assign getter properties, which are not otherwise
  * copied from the provided entity.
  */
-export abstract class TimestampedRepo<DB, TB extends keyof DB> {
+export abstract class TimestampedRepo<
+  DB,
+  TB extends keyof DB,
+  E extends TimestampedEntity
+> {
   getInsertReturnColumns(extraColumns: string[] = []) {
     return ["createdAt", "modifiedAt"].concat(
       extraColumns
@@ -19,18 +23,15 @@ export abstract class TimestampedRepo<DB, TB extends keyof DB> {
     return ["modifiedAt"] as (keyof Selectable<DB[TB]>)[];
   }
 
-  getUpsertValues<Entity extends TimestampedEntity>(
-    entity: Entity,
-    getters: object = {}
-  ) {
+  getUpsertValues(entity: E, getters: object = {}) {
     const values = { ...entity, ...getters } as any;
     delete values["createdAt"];
     delete values["modifiedAt"];
     return values;
   }
 
-  getInsertReturnValues<Entity extends TimestampedEntity>(
-    entity: Entity,
+  getInsertReturnValues(
+    entity: E,
     returns: { createdAt: Date; modifiedAt: Date },
     getters: object = {}
   ) {
@@ -42,10 +43,7 @@ export abstract class TimestampedRepo<DB, TB extends keyof DB> {
     };
   }
 
-  modifyForUpdate<Entity extends TimestampedEntity>(
-    entity: Entity,
-    returns: { modifiedAt: Date }
-  ): void {
+  modifyForUpdate(entity: E, returns: { modifiedAt: Date }): void {
     entity.modifiedAt = returns.modifiedAt;
   }
 }

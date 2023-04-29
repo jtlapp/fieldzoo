@@ -10,7 +10,11 @@ import { Database } from "../tables/current-tables";
 /**
  * Repository for persisting glossaries.
  */
-export class GlossaryRepo extends TimestampedRepo<Database, "glossaries"> {
+export class GlossaryRepo extends TimestampedRepo<
+  Database,
+  "glossaries",
+  Glossary
+> {
   readonly #table: ReturnType<GlossaryRepo["getMapper"]>;
 
   constructor(readonly db: Kysely<Database>) {

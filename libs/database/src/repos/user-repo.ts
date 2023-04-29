@@ -9,7 +9,7 @@ import { Database } from "../tables/current-tables";
 /**
  * Repository for persisting users.
  */
-export class UserRepo extends TimestampedRepo<Database, "users"> {
+export class UserRepo extends TimestampedRepo<Database, "users", User> {
   readonly #table: ReturnType<UserRepo["getMapper"]>;
 
   constructor(readonly db: Kysely<Database>) {

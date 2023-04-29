@@ -12,7 +12,7 @@ import { TimestampedRepo } from "@fieldzoo/modeling";
  * Repository for persisting terms. Terms have a database-internal ID and a
  * universal key given by the tuple [glossary ID, lookup name].
  */
-export class TermRepo extends TimestampedRepo<Database, "terms"> {
+export class TermRepo extends TimestampedRepo<Database, "terms", Term> {
   readonly #idTable: ReturnType<TermRepo["getIDMapper"]>;
   readonly #keyTable: ReturnType<TermRepo["getKeyMapper"]>;
 
