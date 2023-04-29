@@ -43,7 +43,21 @@ export abstract class TimestampedRepo<
     };
   }
 
-  modifyForUpdate(entity: E, returns: { modifiedAt: Date }): void {
+  getUpdateReturnValues(
+    entity: E,
+    returns: { modifiedAt: Date },
+    getters: object = {}
+  ) {
+    return {
+      ...entity,
+      ...getters,
+      createdAt: entity.createdAt,
+      modifiedAt: returns.modifiedAt,
+    };
+  }
+
+  modifyForUpdate(entity: E, returns: { modifiedAt: Date }): E {
     entity.modifiedAt = returns.modifiedAt;
+    return entity;
   }
 }
