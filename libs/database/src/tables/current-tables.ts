@@ -6,6 +6,7 @@ export interface Database {
   users: Users;
   glossaries: Glossaries;
   terms: Terms;
+  term_versions: TermVersions;
 }
 
 export interface Users {
@@ -36,4 +37,16 @@ export interface Terms {
   modifiedBy: number;
   createdAt: Date;
   modifiedAt: Date;
+}
+
+export interface TermVersions {
+  id: number;
+  version: number;
+  glossaryId: string;
+  displayName: string;
+  description: string;
+  modifiedBy: number;
+  createdAt: Date;
+  modifiedAt: Date;
+  whatChangedLine: string;
 }

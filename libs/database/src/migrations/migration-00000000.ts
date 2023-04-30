@@ -55,10 +55,32 @@ export async function up(db: Kysely<any>): Promise<void> {
       ])
   );
   await addVersionTrigger(db, "terms");
+
+  // term versions table
+
+  await createCollaborativeTable(
+    db,
+    "term_versions",
+    (tb) =>
+      tb
+        .addColumn("id", "integer", (col) =>
+          col.references("terms.id").notNull()
+        )
+        // TODO: move this to createCollaborativeTable()
+        .addColumn("version", "integer", (col) => col.notNull())
+        // glosssaryId need not reference an existing glossary
+        .addColumn("glossaryId", "text", (col) => col.notNull())
+        .addColumn("displayName", "text", (col) => col.notNull())
+        .addColumn("description", "text", (col) => col.notNull())
+        .addColumn("whatChangedLine", "text", (col) => col.notNull())
+        .addUniqueConstraint("id_version_key", ["id", "version"]),
+    false
+  );
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
   await db.schema.dropTable("users").execute();
   await db.schema.dropTable("glossaries").execute();
   await db.schema.dropTable("terms").execute();
+  await db.schema.dropTable("term_versions").execute();
 }

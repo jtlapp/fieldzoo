@@ -24,14 +24,19 @@ export async function createCollaborativeTable(
   tableName: string,
   factory: (
     tb: CreateTableBuilder<string, TimestampedColumns | "modifiedBy">
-  ) => CreateTableBuilder<string, any>
+  ) => CreateTableBuilder<string, any>,
+  withTriggers = true
 ) {
-  await TimestampedTable.create(db, tableName, (tb) =>
-    factory(
-      tb.addColumn("modifiedBy", "integer", (col) =>
-        col.references("users.id").onDelete("cascade").notNull()
-      )
-    )
+  await TimestampedTable.create(
+    db,
+    tableName,
+    (tb) =>
+      factory(
+        tb.addColumn("modifiedBy", "integer", (col) =>
+          col.references("users.id").onDelete("cascade").notNull()
+        )
+      ),
+    withTriggers
   );
 }
 

@@ -1,5 +1,6 @@
 export * from "./entities/glossary";
 export * from "./entities/term";
+export * from "./entities/term-version";
 export * from "./entities/user";
 
 export * from "./values/display-name";
