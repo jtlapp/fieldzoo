@@ -1,6 +1,10 @@
 import { CreateTableBuilder, Kysely, Selectable, sql } from "kysely";
 import { TimestampedEntity } from "../entities/timestamped-entity";
 
+const timestampedColumns = ["createdAt", "modifiedAt"] as const;
+
+export type TimestampedColumns = (typeof timestampedColumns)[number];
+
 /**
  * Utility class for creating tables with `createdAt` and `modifiedAt`
  * timestamp columns.
@@ -16,7 +20,7 @@ export class TimestampedTable {
     db: Kysely<any>,
     tableName: string,
     factory: (
-      tb: CreateTableBuilder<string, "createdAt" | "modifiedAt">
+      tb: CreateTableBuilder<string, TimestampedColumns>
     ) => CreateTableBuilder<string, any>
   ) {
     await factory(
@@ -62,7 +66,7 @@ export class TimestampedTable {
   }
 
   static getInsertReturnColumns<T>(extraColumns: string[] = []) {
-    return ["createdAt", "modifiedAt"].concat(
+    return (timestampedColumns as readonly string[]).concat(
       extraColumns
     ) as (keyof Selectable<T>)[];
   }
@@ -86,8 +90,9 @@ export class TimestampedTable {
 
   static getUpsertValues(entity: object, extraValues: object = {}) {
     const values = { ...entity, ...extraValues } as any;
-    delete values["createdAt"];
-    delete values["modifiedAt"];
+    for (const column of timestampedColumns) {
+      delete values[column];
+    }
     return values;
   }
 }

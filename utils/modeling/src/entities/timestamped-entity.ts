@@ -1,7 +1,5 @@
 import { Type } from "@sinclair/typebox";
 
-export type TimestampedColumns = "createdAt" | "modifiedAt";
-
 /**
  * Class representing a timestamped entity. Timestamps can be initially
  * undefined, as they are assigned after insert or update. This class

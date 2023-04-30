@@ -4,7 +4,7 @@
 
 import * as path from "path";
 import { CreateTableBuilder, Kysely, sql } from "kysely";
-import { TimestampedTable } from "@fieldzoo/modeling";
+import { TimestampedColumns, TimestampedTable } from "@fieldzoo/modeling";
 
 /**
  * Returns the path to the migration files.
@@ -23,7 +23,7 @@ export async function createCollaborativeTable(
   db: Kysely<any>,
   tableName: string,
   factory: (
-    tb: CreateTableBuilder<string, "createdAt" | "modifiedAt" | "modifiedBy">
+    tb: CreateTableBuilder<string, TimestampedColumns | "modifiedBy">
   ) => CreateTableBuilder<string, any>
 ) {
   await TimestampedTable.create(db, tableName, (tb) =>
