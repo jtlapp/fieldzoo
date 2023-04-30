@@ -2,18 +2,17 @@ import { Kysely } from "kysely";
 import { TableMapper } from "kysely-mapper";
 
 import { User, UserID } from "@fieldzoo/model";
-import { TimestampedRepo } from "@fieldzoo/modeling";
+import { TimestampedTable } from "@fieldzoo/modeling";
 
-import { Database } from "../tables/current-tables";
+import { Database, Users } from "../tables/current-tables";
 
 /**
  * Repository for persisting users.
  */
-export class UserRepo extends TimestampedRepo<Database, "users", User> {
+export class UserRepo {
   readonly #table: ReturnType<UserRepo["getMapper"]>;
 
   constructor(readonly db: Kysely<Database>) {
-    super();
     this.#table = this.getMapper(db);
   }
 
@@ -60,25 +59,24 @@ export class UserRepo extends TimestampedRepo<Database, "users", User> {
    */
   private getMapper(db: Kysely<Database>) {
     const upsertTransform = (user: User) => {
-      const values = super.getUpsertValues(user);
+      const values = TimestampedTable.getUpsertValues(user);
       delete values["id"];
       return values;
     };
 
     return new TableMapper(db, "users", {
       keyColumns: ["id"],
-      insertReturnColumns: super.getInsertReturnColumns(["id"]),
-      updateReturnColumns: super.getUpdateReturnColumns(),
+      insertReturnColumns: TimestampedTable.getInsertReturnColumns<Users>([
+        "id",
+      ]),
+      updateReturnColumns: TimestampedTable.getUpdateReturnColumns<Users>(),
     }).withTransforms({
       insertTransform: upsertTransform,
       insertReturnTransform: (user: User, returns) =>
-        User.castFrom(
-          super.getInsertReturnValues(user, returns, { id: returns.id }),
-          false
-        ),
+        User.castFrom({ ...user, ...returns, id: returns.id }, false),
       updateTransform: upsertTransform,
       updateReturnTransform: (user: User, returns) =>
-        super.modifyForUpdate(user, returns),
+        Object.assign(user, returns) as User,
       selectTransform: (row) => User.castFrom(row, false),
       countTransform: (count) => Number(count),
     });

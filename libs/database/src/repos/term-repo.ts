@@ -3,21 +3,20 @@ import { Kysely } from "kysely";
 import { Term, TermID } from "@fieldzoo/model";
 import { TableMapper } from "kysely-mapper";
 
-import { Database } from "../tables/current-tables";
+import { Database, Terms } from "../tables/current-tables";
 import { GlossaryID } from "@fieldzoo/model";
 import { NormalizedName } from "@fieldzoo/model";
-import { TimestampedRepo } from "@fieldzoo/modeling";
+import { TimestampedTable } from "@fieldzoo/modeling";
 
 /**
  * Repository for persisting terms. Terms have a database-internal ID and a
  * universal key given by the tuple [glossary ID, lookup name].
  */
-export class TermRepo extends TimestampedRepo<Database, "terms", Term> {
+export class TermRepo {
   readonly #idTable: ReturnType<TermRepo["getIDMapper"]>;
   readonly #keyTable: ReturnType<TermRepo["getKeyMapper"]>;
 
   constructor(readonly db: Kysely<Database>) {
-    super();
     this.#idTable = this.getIDMapper(db);
     this.#keyTable = this.getKeyMapper(db);
   }
@@ -64,7 +63,7 @@ export class TermRepo extends TimestampedRepo<Database, "terms", Term> {
    */
   private getIDMapper(db: Kysely<Database>) {
     const upsertTransform = (term: Term) => {
-      const values = super.getUpsertValues(term, {
+      const values = TimestampedTable.getUpsertValues(term, {
         displayName: term.displayName,
         lookupName: term.lookupName,
       });
@@ -75,23 +74,28 @@ export class TermRepo extends TimestampedRepo<Database, "terms", Term> {
 
     return new TableMapper(db, "terms", {
       keyColumns: ["id"],
-      insertReturnColumns: super.getInsertReturnColumns(["id", "version"]),
-      updateReturnColumns: super.getUpdateReturnColumns(["version"]),
+      insertReturnColumns: TimestampedTable.getInsertReturnColumns<Terms>([
+        "id",
+        "version",
+      ]),
+      updateReturnColumns: TimestampedTable.getUpdateReturnColumns<Terms>([
+        "version",
+      ]),
     }).withTransforms({
       insertTransform: upsertTransform,
       insertReturnTransform: (term: Term, returns) =>
         Term.castFrom(
-          super.getInsertReturnValues(term, returns, {
-            // TODO: now that things are more generic, delete this `id`?
-            id: returns.id,
+          {
+            ...term,
+            ...returns,
             displayName: term.displayName,
             lookupName: term.lookupName,
-          }),
+          },
           false
         ),
       updateTransform: upsertTransform,
       updateReturnTransform: (term: Term, returns) =>
-        super.modifyForUpdate(term, returns),
+        Object.assign(term, returns) as Term,
       selectTransform: (row) => Term.castFrom(row, false),
     });
   }

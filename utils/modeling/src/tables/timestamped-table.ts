@@ -1,4 +1,5 @@
-import { CreateTableBuilder, Kysely, sql } from "kysely";
+import { CreateTableBuilder, Kysely, Selectable, sql } from "kysely";
+import { TimestampedEntity } from "../entities/timestamped-entity";
 
 /**
  * Utility class for creating tables with `createdAt` and `modifiedAt`
@@ -58,5 +59,35 @@ export class TimestampedTable {
         $$ language 'plpgsql';`
       )
       .execute(db);
+  }
+
+  static getInsertReturnColumns<T>(extraColumns: string[] = []) {
+    return ["createdAt", "modifiedAt"].concat(
+      extraColumns
+    ) as (keyof Selectable<T>)[];
+  }
+
+  static getUpdateReturnColumns<T>(extraColumns: string[] = []) {
+    return ["modifiedAt"].concat(extraColumns) as (keyof Selectable<T>)[];
+  }
+
+  static getUpdateReturnValues(
+    entity: TimestampedEntity,
+    returns: object,
+    extraValues: object = {}
+  ) {
+    return {
+      ...entity,
+      ...returns,
+      ...extraValues,
+      createdAt: entity.createdAt,
+    };
+  }
+
+  static getUpsertValues(entity: object, extraValues: object = {}) {
+    const values = { ...entity, ...extraValues } as any;
+    delete values["createdAt"];
+    delete values["modifiedAt"];
+    return values;
   }
 }

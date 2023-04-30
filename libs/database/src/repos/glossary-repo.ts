@@ -3,22 +3,17 @@ import { TableMapper } from "kysely-mapper";
 
 import { createBase64UUID } from "@fieldzoo/base64-uuid";
 import { Glossary, GlossaryID } from "@fieldzoo/model";
-import { TimestampedRepo } from "@fieldzoo/modeling";
+import { TimestampedTable } from "@fieldzoo/modeling";
 
-import { Database } from "../tables/current-tables";
+import { Database, Glossaries } from "../tables/current-tables";
 
 /**
  * Repository for persisting glossaries.
  */
-export class GlossaryRepo extends TimestampedRepo<
-  Database,
-  "glossaries",
-  Glossary
-> {
+export class GlossaryRepo {
   readonly #table: ReturnType<GlossaryRepo["getMapper"]>;
 
   constructor(readonly db: Kysely<Database>) {
-    super();
     this.#table = this.getMapper(db);
   }
 
@@ -69,23 +64,25 @@ export class GlossaryRepo extends TimestampedRepo<
   private getMapper(db: Kysely<Database>) {
     return new TableMapper(db, "glossaries", {
       keyColumns: ["uuid"],
-      insertReturnColumns: super.getInsertReturnColumns(["uuid"]),
-      updateReturnColumns: super.getUpdateReturnColumns(),
+      insertReturnColumns: TimestampedTable.getInsertReturnColumns<Glossaries>([
+        "uuid",
+      ]),
+      updateReturnColumns:
+        TimestampedTable.getUpdateReturnColumns<Glossaries>(),
     }).withTransforms({
       insertTransform: (glossary: Glossary) =>
-        super.getUpsertValues(glossary, {
+        TimestampedTable.getUpsertValues(glossary, {
           uuid: createBase64UUID(),
         }),
       insertReturnTransform: (glossary: Glossary, returns) =>
         Glossary.castFrom(
-          super.getInsertReturnValues(glossary, returns, {
-            uuid: returns.uuid,
-          }),
+          { ...glossary, ...returns, uuid: returns.uuid },
           false
         ),
-      updateTransform: (glossary: Glossary) => super.getUpsertValues(glossary),
+      updateTransform: (glossary: Glossary) =>
+        TimestampedTable.getUpsertValues(glossary),
       updateReturnTransform: (glossary: Glossary, returns) =>
-        super.modifyForUpdate(glossary, returns),
+        Object.assign(glossary, returns) as Glossary,
       selectTransform: (row) => Glossary.castFrom(row, false),
       countTransform: (count) => Number(count),
     });
