@@ -1,10 +1,7 @@
 // TODO: rename this file to `migration-00000000.ts`
 import { Kysely } from "kysely";
 
-import {
-  createTimestampedTable,
-  createUpdateModifiedAtFunction,
-} from "@fieldzoo/modeling";
+import { TimestampedTable } from "@fieldzoo/modeling";
 
 import {
   addVersionTrigger,
@@ -13,12 +10,12 @@ import {
 } from "../utils/migration-utils";
 
 export async function up(db: Kysely<any>): Promise<void> {
-  await createUpdateModifiedAtFunction(db);
+  await TimestampedTable.createTriggers(db);
   await createUpdateVersionFunction(db);
 
   // users table
 
-  await createTimestampedTable(db, "users", (tb) =>
+  await TimestampedTable.create(db, "users", (tb) =>
     tb
       .addColumn("id", "serial", (col) => col.primaryKey())
       .addColumn("name", "text", (col) => col.notNull())
