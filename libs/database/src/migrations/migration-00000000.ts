@@ -1,4 +1,6 @@
-// TODO: rename this file to `migration-00000000.ts`
+// Note: When renaming migration files, it may be necessary to delete the
+// nx cache via `pnpm clean`. Not sure why old files are sticking around.
+
 import { Kysely } from "kysely";
 
 import { TimestampedTable } from "@fieldzoo/modeling";
