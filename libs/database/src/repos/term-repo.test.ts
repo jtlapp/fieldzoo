@@ -46,7 +46,7 @@ it("inserts, updates, and deletes terms", async () => {
   const glossaryRepo = new GlossaryRepo(db);
   const insertedGlossary = Glossary.castFrom({
     name: "Test Term",
-    description: "This is a test term",
+    description: "This is a test glossary",
     ownerId: userReturn.id,
     modifiedBy: userReturn.id,
   });
