@@ -31,7 +31,7 @@ export class Term extends TimestampedEntity {
     id: Zeroable(TermIDImpl.schema),
     version: Zeroable(VersionNumberImpl.schema),
     lookupName: Type.Optional(NormalizedNameImpl.schema),
-    glossaryId: GlossaryIDImpl.schema,
+    glossaryID: GlossaryIDImpl.schema,
     displayName: DisplayNameImpl.schema,
     description: MultilineDescriptionImpl.schema,
     modifiedBy: UserIDImpl.schema,
@@ -43,7 +43,7 @@ export class Term extends TimestampedEntity {
   /**
    * @param id The unique ID of the term in the database.
    * @param version The number for this version of the term.
-   * @param glossaryId The ID of the glossary this term belongs to.
+   * @param glossaryID The ID of the glossary this term belongs to.
    * @param displayName The term's display name.
    * @param description The term's description.
    * @param modifiedBy The ID of the user who last updated this term.
@@ -55,7 +55,7 @@ export class Term extends TimestampedEntity {
   constructor(
     readonly id: TermID,
     public version: VersionNumber,
-    public glossaryId: GlossaryID,
+    public glossaryID: GlossaryID,
     displayName: DisplayName,
     public description: MultilineDescription,
     public modifiedBy: UserID,
@@ -65,7 +65,7 @@ export class Term extends TimestampedEntity {
   ) {
     super(createdAt, modifiedAt);
     freezeField(this, "id");
-    freezeField(this, "glossaryId");
+    freezeField(this, "glossaryID");
     this.#displayName = displayName;
     this.#lookupName = lookupName;
   }
@@ -108,7 +108,7 @@ export class Term extends TimestampedEntity {
     return new Term(
       fields.id as TermID,
       fields.version as VersionNumber,
-      fields.glossaryId as GlossaryID,
+      fields.glossaryID as GlossaryID,
       fields.displayName as DisplayName,
       fields.description as MultilineDescription,
       fields.modifiedBy as UserID,

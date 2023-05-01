@@ -13,7 +13,7 @@ describe("Glossary entity", () => {
   it("accepts valid glossaries", () => {
     expect(() =>
       Glossary.castFrom({
-        ownerId: 1,
+        ownerID: 1,
         modifiedBy: 1,
         name: "X",
         description: null,
@@ -22,7 +22,7 @@ describe("Glossary entity", () => {
     expect(() =>
       Glossary.castFrom({
         uuid: "",
-        ownerId: 1,
+        ownerID: 1,
         modifiedBy: 1,
         name: "Good Name",
         description: "This\nis\nfine.",
@@ -31,7 +31,7 @@ describe("Glossary entity", () => {
     expect(() =>
       Glossary.castFrom({
         uuid: SAMPLE_UUID,
-        ownerId: 1,
+        ownerID: 1,
         modifiedBy: 1,
         name: "A".repeat(maxNameLength),
         description: "A".repeat(maxDescriptionLength),
@@ -43,7 +43,7 @@ describe("Glossary entity", () => {
     expect(() =>
       Glossary.castFrom({
         uuid: SAMPLE_UUID,
-        ownerId: 1,
+        ownerID: 1,
         modifiedBy: 1,
         name: "",
         description: "This\nis\nfine.",
@@ -52,7 +52,7 @@ describe("Glossary entity", () => {
     expect(() =>
       Glossary.castFrom({
         uuid: SAMPLE_UUID,
-        ownerId: 1,
+        ownerID: 1,
         modifiedBy: 1,
         name: "X  Y",
         description: "This\nis\nfine.",
@@ -61,7 +61,7 @@ describe("Glossary entity", () => {
     expect(() =>
       Glossary.castFrom({
         uuid: SAMPLE_UUID,
-        ownerId: 1,
+        ownerID: 1,
         modifiedBy: 1,
         name: "A".repeat(maxNameLength + 1),
         description: "This\nis\nfine.",
@@ -73,7 +73,7 @@ describe("Glossary entity", () => {
     expect(() =>
       Glossary.castFrom({
         uuid: SAMPLE_UUID,
-        ownerId: 1,
+        ownerID: 1,
         modifiedBy: 1,
         name: "Good Name",
         description: "",
@@ -82,7 +82,7 @@ describe("Glossary entity", () => {
     expect(() =>
       Glossary.castFrom({
         uuid: SAMPLE_UUID,
-        ownerId: 1,
+        ownerID: 1,
         modifiedBy: 1,
         name: "Good Name",
         description: "\n\n",
@@ -91,7 +91,7 @@ describe("Glossary entity", () => {
     expect(() =>
       Glossary.castFrom({
         uuid: SAMPLE_UUID,
-        ownerId: 1,
+        ownerID: 1,
         modifiedBy: 1,
         name: "Good Name",
         description: "A".repeat(maxDescriptionLength + 1),
@@ -102,7 +102,7 @@ describe("Glossary entity", () => {
   it("accepts only valid timestamps", () => {
     testTimestamps("Invalid glossary", (createdAt, modifiedAt) =>
       Glossary.castFrom({
-        ownerId: 1,
+        ownerID: 1,
         modifiedBy: 1,
         name: "Good Name",
         description: "This\nis\nfine.",
@@ -117,7 +117,7 @@ describe("Glossary entity", () => {
       Glossary.castFrom(
         {
           uuid: SAMPLE_UUID,
-          ownerId: 1,
+          ownerID: 1,
           modifiedBy: 1,
           name: "",
           description: "",
@@ -130,7 +130,7 @@ describe("Glossary entity", () => {
   it("cannot change id", () => {
     const glossary = Glossary.castFrom({
       uuid: SAMPLE_UUID,
-      ownerId: 1,
+      ownerID: 1,
       modifiedBy: 1,
       name: "X",
       description: null,

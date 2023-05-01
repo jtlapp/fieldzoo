@@ -106,7 +106,7 @@ export class TermRepo {
    */
   private getKeyMapper(db: Kysely<Database>) {
     return new TableMapper(db, "terms", {
-      keyColumns: ["glossaryId", "lookupName"],
+      keyColumns: ["glossaryID", "lookupName"],
     }).withTransforms({
       selectTransform: (row) => Term.castFrom(row, false),
       insertTransform: () => {

@@ -20,7 +20,7 @@ import { TimestampedColumns, TimestampedEntity } from "@fieldzoo/modeling";
 export class Glossary extends TimestampedEntity {
   static schema = Type.Object({
     uuid: EmptyStringable(GlossaryIDImpl.schema),
-    ownerId: UserIDImpl.schema,
+    ownerID: UserIDImpl.schema,
     name: DisplayNameImpl.schema,
     description: Nullable(MultilineDescriptionImpl.schema),
     modifiedBy: UserIDImpl.schema,
@@ -31,7 +31,7 @@ export class Glossary extends TimestampedEntity {
 
   /**
    * @param uuid The glossary's UUID.
-   * @param ownerId The ID of the user who owns this glossary.
+   * @param ownerID The ID of the user who owns this glossary.
    * @param name The glossary's name.
    * @param description The glossary's description.
    * @param modifiedBy The ID of the user who last updated this glossary.
@@ -40,7 +40,7 @@ export class Glossary extends TimestampedEntity {
    */
   constructor(
     readonly uuid: GlossaryID,
-    public ownerId: UserID,
+    public ownerID: UserID,
     public name: DisplayName,
     public description: MultilineDescription | null,
     public modifiedBy: UserID,
@@ -73,7 +73,7 @@ export class Glossary extends TimestampedEntity {
     }
     return new Glossary(
       fields.uuid as GlossaryID,
-      fields.ownerId as UserID,
+      fields.ownerID as UserID,
       fields.name as DisplayName,
       fields.description as MultilineDescription | null,
       fields.modifiedBy as UserID,

@@ -47,7 +47,7 @@ it("inserts, updates, and deletes terms", async () => {
   const insertedGlossary = Glossary.castFrom({
     name: "Test Glossary",
     description: "This is a test glossary",
-    ownerId: userReturn.id,
+    ownerID: userReturn.id,
     modifiedBy: userReturn.id,
   });
   const glossaryReturn = await glossaryRepo.add(insertedGlossary);
@@ -57,7 +57,7 @@ it("inserts, updates, and deletes terms", async () => {
     version: 0,
     displayName: "Test Term",
     description: "This is a test term",
-    glossaryId: glossaryReturn!.uuid,
+    glossaryID: glossaryReturn!.uuid,
     modifiedBy: userReturn.id,
   });
 
@@ -84,7 +84,7 @@ it("inserts, updates, and deletes terms", async () => {
 
   // test getting a term by key
   const selection1 = await termRepo.getByKey([
-    insertedTerm.glossaryId,
+    insertedTerm.glossaryID,
     insertedTerm.lookupName,
   ]);
   expectEqualTerms(selection1, insertReturn);
@@ -102,7 +102,7 @@ it("inserts, updates, and deletes terms", async () => {
   );
 
   const selection2 = await termRepo.getByKey([
-    selection1!.glossaryId,
+    selection1!.glossaryID,
     selection1!.lookupName,
   ]);
   expectEqualTerms(selection2, selection1!);
@@ -111,7 +111,7 @@ it("inserts, updates, and deletes terms", async () => {
   const deleted = await termRepo.deleteByID(insertReturn.id);
   expect(deleted).toEqual(true);
   const selection3 = await termRepo.getByKey([
-    selection1!.glossaryId,
+    selection1!.glossaryID,
     selection1!.lookupName,
   ]);
   expect(selection3).toBeNull();

@@ -142,7 +142,7 @@ describe("TermVersionRepo", () => {
     const insertedGlossary = Glossary.castFrom({
       name: "Test Glossary",
       description: "This is a test glossary",
-      ownerId: userReturn.id,
+      ownerID: userReturn.id,
       modifiedBy: userReturn.id,
     });
     const glossaryReturn = await glossaryRepo.add(insertedGlossary);
@@ -152,14 +152,14 @@ describe("TermVersionRepo", () => {
         version: 0,
         displayName: "Term1",
         description: "This is test term 1",
-        glossaryId: glossaryReturn!.uuid,
+        glossaryID: glossaryReturn!.uuid,
         modifiedBy: 1,
       },
       {
         version: 0,
         displayName: "Term2",
         description: "This is test term 2",
-        glossaryId: glossaryReturn!.uuid,
+        glossaryID: glossaryReturn!.uuid,
         modifiedBy: 1,
       },
     ];
@@ -187,7 +187,7 @@ function createTermVersion(term: Term, whatChangedLine: string) {
   return TermVersion.castFrom({
     id: term.id,
     version: term.version,
-    glossaryId: term.glossaryId,
+    glossaryID: term.glossaryID,
     displayName: term.displayName,
     description: term.description,
     modifiedBy: term.modifiedBy,

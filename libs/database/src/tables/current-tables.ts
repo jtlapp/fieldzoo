@@ -19,7 +19,7 @@ export interface Users {
 
 export interface Glossaries {
   uuid: string;
-  ownerId: number;
+  ownerID: number;
   name: string;
   description: string | null;
   modifiedBy: number;
@@ -30,7 +30,7 @@ export interface Glossaries {
 export interface Terms {
   id: Generated<number>;
   version: number;
-  glossaryId: string;
+  glossaryID: string;
   lookupName: string;
   displayName: string;
   description: string;
@@ -42,7 +42,7 @@ export interface Terms {
 export interface TermVersions {
   id: number;
   version: number;
-  glossaryId: string;
+  glossaryID: string;
   displayName: string;
   description: string;
   modifiedBy: number;

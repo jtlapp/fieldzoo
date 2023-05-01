@@ -42,7 +42,7 @@ it("inserts, updates, and deletes glossaries", async () => {
   const insertedGlossary = Glossary.castFrom({
     name: "Test Glossary",
     description: "This is a test glossary",
-    ownerId: userReturn.id,
+    ownerID: userReturn.id,
     modifiedBy: userReturn.id,
   });
 

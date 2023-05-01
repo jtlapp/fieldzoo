@@ -30,7 +30,7 @@ export async function up(db: Kysely<any>): Promise<void> {
   await createCollaborativeTable(db, "glossaries", (tb) =>
     tb
       .addColumn("uuid", "text", (col) => col.primaryKey())
-      .addColumn("ownerId", "integer", (col) =>
+      .addColumn("ownerID", "integer", (col) =>
         col.references("users.id").onDelete("cascade").notNull()
       )
       .addColumn("name", "text", (col) => col.notNull())
@@ -44,14 +44,14 @@ export async function up(db: Kysely<any>): Promise<void> {
       .addColumn("id", "serial", (col) => col.primaryKey())
       // TODO: move this to createCollaborativeTable()
       .addColumn("version", "integer", (col) => col.notNull().defaultTo(1))
-      .addColumn("glossaryId", "text", (col) =>
+      .addColumn("glossaryID", "text", (col) =>
         col.references("glossaries.uuid").onDelete("cascade").notNull()
       )
       .addColumn("lookupName", "text", (col) => col.notNull())
       .addColumn("displayName", "text", (col) => col.notNull())
       .addColumn("description", "text", (col) => col.notNull())
-      .addUniqueConstraint("glossaryId_lookupName_key", [
-        "glossaryId",
+      .addUniqueConstraint("glossaryID_lookupName_key", [
+        "glossaryID",
         "lookupName",
       ])
   );
@@ -62,8 +62,8 @@ export async function up(db: Kysely<any>): Promise<void> {
   await createVersionTable(db, "term_versions", (tb) =>
     tb
       .addColumn("id", "integer", (col) => col.references("terms.id").notNull())
-      // glosssaryId need not reference an existing glossary
-      .addColumn("glossaryId", "text", (col) => col.notNull())
+      // glossaryID need not reference an existing glossary
+      .addColumn("glossaryID", "text", (col) => col.notNull())
       .addColumn("displayName", "text", (col) => col.notNull())
       .addColumn("description", "text", (col) => col.notNull())
       .addColumn("whatChangedLine", "text", (col) => col.notNull())
