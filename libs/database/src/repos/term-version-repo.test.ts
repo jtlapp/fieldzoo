@@ -71,7 +71,7 @@ describe("TermVersionRepo", () => {
     expect(selection3).toBeNull();
   });
 
-  it("gets term version summaries", async () => {
+  it("gets term version summaries, which disappear on deletion", async () => {
     const termVersionRepo = new TermVersionRepo(db);
     const termVersions = await setupTest();
     for (const termVersion of termVersions) {
@@ -118,6 +118,15 @@ describe("TermVersionRepo", () => {
       100
     );
     expect(summaries3).toEqual(expectedSummaries);
+
+    // test summaries disappearing on deleting a term version
+    await termVersionRepo.deleteByTermID(termVersions[0].id);
+    const summaries4 = await termVersionRepo.getSummaries(
+      termVersions[0].id,
+      0,
+      100
+    );
+    expect(summaries4).toEqual([]);
   });
 
   async function setupTest() {
