@@ -49,14 +49,14 @@ export class TermVersionRepo {
    * Gets summaries of term versions for a given term ID, sorted by version
    * number, with the highest version number first.
    * @param id ID of the term whose versions are to be retrieved.
-   * @param limit Maximum number of term versions to retrieve.
    * @param offset Number of term versions to skip.
+   * @param limit Maximum number of term versions to retrieve.
    * @returns summaries of the term versions, or an empty array if not found
    */
   async getSummaries(
     termID: TermID,
-    limit: number,
-    offset: number
+    offset: number,
+    limit: number
   ): Promise<TermVersionSummary[]> {
     return (await this.db
       .selectFrom("term_versions")
@@ -76,7 +76,12 @@ export class TermVersionRepo {
       keyColumns: ["id", "version"],
       insertReturnColumns: [],
     }).withTransforms({
-      insertTransform: (termVersion: TermVersion) => termVersion,
+      insertTransform: (termVersion: TermVersion) => ({
+        ...termVersion,
+        // Kysely won't read getters
+        createdAt: termVersion.createdAt,
+        modifiedAt: termVersion.modifiedAt,
+      }),
       insertReturnTransform: (termVersion: TermVersion) => termVersion,
       updateTransform: () => {
         throw Error("TermVersionRepo does not support updates");
