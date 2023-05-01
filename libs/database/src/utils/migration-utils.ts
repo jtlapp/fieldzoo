@@ -13,7 +13,8 @@ export const MIGRATION_FILE_PATH = path.join(__dirname, "../migrations");
 
 /**
  * Creates a table having `createdAt` and `modifiedAt` timestamps, as well
- * as an `modifiedBy` column indicated the user who last modified the row.
+ * as an `modifiedBy` column indicated the user who last modified the row,
+ * and a `version` column for the current version number.
  *
  * @param db Reference to the Kysely DB
  * @param tableName Name of the table to create
