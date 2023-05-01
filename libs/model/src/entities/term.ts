@@ -54,7 +54,7 @@ export class Term extends TimestampedEntity {
    */
   constructor(
     readonly id: TermID,
-    readonly version: VersionNumber,
+    public version: VersionNumber,
     public glossaryId: GlossaryID,
     displayName: DisplayName,
     public description: MultilineDescription,
