@@ -6,7 +6,8 @@ import { TableMapper } from "kysely-mapper";
 import { Database, Terms } from "../tables/table-interfaces";
 import { GlossaryID } from "@fieldzoo/model";
 import { NormalizedName } from "@fieldzoo/model";
-import { TimestampedTable } from "@fieldzoo/modeling";
+
+import { CollaborativeTable } from "../tables/collaborative-table";
 
 /**
  * Repository for persisting terms. Terms have a database-internal ID and a
@@ -63,24 +64,20 @@ export class TermRepo {
    */
   private getIDMapper(db: Kysely<Database>) {
     const upsertTransform = (term: Term) => {
-      const values = TimestampedTable.getUpsertValues(term, {
+      const values = CollaborativeTable.getUpsertValues(term, {
         displayName: term.displayName,
         lookupName: term.lookupName,
       });
       delete values["id"];
-      delete values["version"];
       return values;
     };
 
     return new TableMapper(db, "terms", {
       keyColumns: ["id"],
-      insertReturnColumns: TimestampedTable.getInsertReturnColumns<Terms>([
+      insertReturnColumns: CollaborativeTable.getInsertReturnColumns<Terms>([
         "id",
-        "version",
       ]),
-      updateReturnColumns: TimestampedTable.getUpdateReturnColumns<Terms>([
-        "version",
-      ]),
+      updateReturnColumns: CollaborativeTable.getUpdateReturnColumns<Terms>(),
     }).withTransforms({
       insertTransform: upsertTransform,
       insertReturnTransform: (term: Term, returns) =>

@@ -1,3 +1,5 @@
+export * from "./entities/base/collaborative-entity";
+
 export * from "./entities/glossary";
 export * from "./entities/term";
 export * from "./entities/term-version";

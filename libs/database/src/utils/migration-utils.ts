@@ -20,6 +20,7 @@ export const MIGRATION_FILE_PATH = path.join(__dirname, "../migrations");
  * @param tableName Name of the table to create
  * @returns A Kysely table builder
  */
+// TODO: delete when done
 export async function createCollaborativeTable(
   db: Kysely<any>,
   tableName: string,
@@ -66,6 +67,7 @@ export async function createVersionTable(
  * @param db Reference to the Kysely DB
  * @returns A promise that adds the function
  */
+// TODO: delete when done
 export function createUpdateVersionFunction(db: Kysely<any>) {
   return sql
     .raw(

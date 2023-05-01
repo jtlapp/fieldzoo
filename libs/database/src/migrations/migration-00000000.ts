@@ -5,16 +5,12 @@ import { Kysely } from "kysely";
 
 import { TimestampedTable } from "@fieldzoo/modeling";
 
-import {
-  addVersionTrigger,
-  createCollaborativeTable,
-  createUpdateVersionFunction,
-  createVersionTable,
-} from "../utils/migration-utils";
+import { createVersionTable } from "../utils/migration-utils";
+import { CollaborativeTable } from "../tables/collaborative-table";
 
 export async function up(db: Kysely<any>): Promise<void> {
   await TimestampedTable.createTriggers(db);
-  await createUpdateVersionFunction(db);
+  await CollaborativeTable.createTriggers(db);
 
   // users table
 
@@ -27,7 +23,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   // glossaries table
 
-  await createCollaborativeTable(db, "glossaries", (tb) =>
+  await CollaborativeTable.create(db, "glossaries", (tb) =>
     tb
       .addColumn("uuid", "text", (col) => col.primaryKey())
       .addColumn("ownerID", "integer", (col) =>
@@ -39,7 +35,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   // terms table
 
-  await createCollaborativeTable(db, "terms", (tb) =>
+  await CollaborativeTable.create(db, "terms", (tb) =>
     tb
       .addColumn("id", "serial", (col) => col.primaryKey())
       .addColumn("glossaryID", "text", (col) =>
@@ -53,7 +49,6 @@ export async function up(db: Kysely<any>): Promise<void> {
         "lookupName",
       ])
   );
-  await addVersionTrigger(db, "terms");
 
   // term versions table
 
