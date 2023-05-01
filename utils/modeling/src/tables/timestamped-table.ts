@@ -21,8 +21,7 @@ export class TimestampedTable {
     tableName: string,
     factory: (
       tb: CreateTableBuilder<string, TimestampedColumns>
-    ) => CreateTableBuilder<string, any>,
-    withTriggers = true
+    ) => CreateTableBuilder<string, any>
   ) {
     await factory(
       db.schema
@@ -37,15 +36,13 @@ export class TimestampedTable {
 
     // Add a `modifiedAt` trigger to the table
 
-    if (withTriggers) {
-      await sql
-        .raw(
-          `create or replace trigger update_${tableName}_modifiedAt
+    await sql
+      .raw(
+        `create or replace trigger update_${tableName}_modifiedAt
         before update on "${tableName}"
         for each row execute procedure update_modifiedAt_column();`
-        )
-        .execute(db);
-    }
+      )
+      .execute(db);
   }
 
   /**

@@ -10,28 +10,28 @@ import {
   MultilineDescription,
   MultilineDescriptionImpl,
 } from "../values/multiline-description";
-import { UserID, UserIDImpl } from "../values/user-id";
+import { UserID } from "../values/user-id";
 import { TermID, TermIDImpl } from "../values/term-id";
-import { VersionNumber, VersionNumberImpl } from "../values/version-number";
+import { VersionNumber } from "../values/version-number";
 import {
   WhatChangedLine,
   WhatChangedLineeImpl,
 } from "../values/what-changed-line";
-import { TimestampedEntity } from "@fieldzoo/modeling";
+import { Version } from "./version";
 
 /**
  * Class representing a valid term version
  */
-export class TermVersion extends TimestampedEntity {
+export class TermVersion extends Version {
   static schema = Type.Object({
     id: Zeroable(TermIDImpl.schema),
-    version: Zeroable(VersionNumberImpl.schema),
+    version: super.versionSchema.version,
     glossaryId: GlossaryIDImpl.schema,
     displayName: DisplayNameImpl.schema,
     description: MultilineDescriptionImpl.schema,
-    modifiedBy: UserIDImpl.schema,
-    createdAt: super.timestampedSchema.createdAt,
-    modifiedAt: super.timestampedSchema.modifiedAt,
+    modifiedBy: super.versionSchema.modifiedBy,
+    createdAt: super.versionSchema.createdAt,
+    modifiedAt: super.versionSchema.modifiedAt,
     whatChangedLine: WhatChangedLineeImpl.schema,
   });
   static #validator = new MultitierValidator(this.schema);
@@ -49,16 +49,16 @@ export class TermVersion extends TimestampedEntity {
    */
   constructor(
     readonly id: TermID,
-    readonly version: VersionNumber,
+    version: VersionNumber,
     readonly glossaryId: GlossaryID,
     readonly displayName: DisplayName,
     readonly description: MultilineDescription,
-    readonly modifiedBy: UserID,
+    modifiedBy: UserID,
     createdAt: Date,
     modifiedAt: Date,
     readonly whatChangedLine: WhatChangedLine
   ) {
-    super(createdAt, modifiedAt);
+    super(createdAt, modifiedAt, modifiedBy, version);
     Object.freeze(this);
   }
 

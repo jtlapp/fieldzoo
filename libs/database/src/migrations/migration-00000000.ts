@@ -9,6 +9,7 @@ import {
   addVersionTrigger,
   createCollaborativeTable,
   createUpdateVersionFunction,
+  createVersionTable,
 } from "../utils/migration-utils";
 
 export async function up(db: Kysely<any>): Promise<void> {
@@ -58,23 +59,15 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   // term versions table
 
-  await createCollaborativeTable(
-    db,
-    "term_versions",
-    (tb) =>
-      tb
-        .addColumn("id", "integer", (col) =>
-          col.references("terms.id").notNull()
-        )
-        // TODO: move this to createCollaborativeTable()
-        .addColumn("version", "integer", (col) => col.notNull())
-        // glosssaryId need not reference an existing glossary
-        .addColumn("glossaryId", "text", (col) => col.notNull())
-        .addColumn("displayName", "text", (col) => col.notNull())
-        .addColumn("description", "text", (col) => col.notNull())
-        .addColumn("whatChangedLine", "text", (col) => col.notNull())
-        .addUniqueConstraint("id_version_key", ["id", "version"]),
-    false
+  await createVersionTable(db, "term_versions", (tb) =>
+    tb
+      .addColumn("id", "integer", (col) => col.references("terms.id").notNull())
+      // glosssaryId need not reference an existing glossary
+      .addColumn("glossaryId", "text", (col) => col.notNull())
+      .addColumn("displayName", "text", (col) => col.notNull())
+      .addColumn("description", "text", (col) => col.notNull())
+      .addColumn("whatChangedLine", "text", (col) => col.notNull())
+      .addUniqueConstraint("id_version_key", ["id", "version"])
   );
 }
 

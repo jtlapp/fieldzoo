@@ -76,12 +76,7 @@ export class TermVersionRepo {
       keyColumns: ["id", "version"],
       insertReturnColumns: [],
     }).withTransforms({
-      insertTransform: (termVersion: TermVersion) => ({
-        ...termVersion,
-        // Kysely won't read getters
-        createdAt: termVersion.createdAt,
-        modifiedAt: termVersion.modifiedAt,
-      }),
+      insertTransform: (termVersion: TermVersion) => termVersion,
       insertReturnTransform: (termVersion: TermVersion) => termVersion,
       updateTransform: () => {
         throw Error("TermVersionRepo does not support updates");

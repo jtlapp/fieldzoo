@@ -24,20 +24,37 @@ export async function createCollaborativeTable(
   tableName: string,
   factory: (
     tb: CreateTableBuilder<string, TimestampedColumns | "modifiedBy">
-  ) => CreateTableBuilder<string, any>,
-  withTriggers = true
+  ) => CreateTableBuilder<string, any>
 ) {
-  await TimestampedTable.create(
-    db,
-    tableName,
-    (tb) =>
-      factory(
-        tb.addColumn("modifiedBy", "integer", (col) =>
-          col.references("users.id").onDelete("cascade").notNull()
-        )
-      ),
-    withTriggers
+  await TimestampedTable.create(db, tableName, (tb) =>
+    factory(
+      tb.addColumn("modifiedBy", "integer", (col) =>
+        col.references("users.id").onDelete("cascade").notNull()
+      )
+    )
   );
+}
+
+export async function createVersionTable(
+  db: Kysely<any>,
+  tableName: string,
+  factory: (
+    tb: CreateTableBuilder<
+      string,
+      TimestampedColumns | "modifiedBy" | "version"
+    >
+  ) => CreateTableBuilder<string, any>
+) {
+  await factory(
+    db.schema
+      .createTable(tableName)
+      .addColumn("createdAt", "timestamp", (col) => col.notNull())
+      .addColumn("modifiedAt", "timestamp", (col) => col.notNull())
+      .addColumn("modifiedBy", "integer", (col) =>
+        col.references("users.id").notNull()
+      )
+      .addColumn("version", "integer", (col) => col.notNull())
+  ).execute();
 }
 
 /**
