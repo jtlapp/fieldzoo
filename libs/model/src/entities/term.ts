@@ -7,34 +7,35 @@ import {
 } from "@fieldzoo/multitier-validator";
 import { freezeField } from "@fieldzoo/freeze-field";
 import { Zeroable } from "@fieldzoo/typebox-types";
+import { TimestampedColumns } from "@fieldzoo/modeling";
 
+import { CollaborativeEntity } from "./base/collaborative-entity";
 import { DisplayName, DisplayNameImpl } from "../values/display-name";
 import { GlossaryID, GlossaryIDImpl } from "../values/glossary-id";
 import {
   MultilineDescription,
   MultilineDescriptionImpl,
 } from "../values/multiline-description";
-import { UserID, UserIDImpl } from "../values/user-id";
+import { UserID } from "../values/user-id";
 import { NormalizedName, NormalizedNameImpl } from "../values/normalized-name";
 import { TermID, TermIDImpl } from "../values/term-id";
-import { TimestampedColumns, TimestampedEntity } from "@fieldzoo/modeling";
-import { VersionNumber, VersionNumberImpl } from "../values/version-number";
+import { VersionNumber } from "../values/version-number";
 
 /**
  * Class representing a valid term
  */
-export class Term extends TimestampedEntity {
+export class Term extends CollaborativeEntity {
   #displayName: DisplayName;
   #lookupName?: NormalizedName; // generated on demand
 
   static schema = Type.Object({
     id: Zeroable(TermIDImpl.schema),
-    version: Zeroable(VersionNumberImpl.schema),
+    version: Zeroable(super.collaborativeSchema.version),
     lookupName: Type.Optional(NormalizedNameImpl.schema),
     glossaryID: GlossaryIDImpl.schema,
     displayName: DisplayNameImpl.schema,
     description: MultilineDescriptionImpl.schema,
-    modifiedBy: UserIDImpl.schema,
+    modifiedBy: super.collaborativeSchema.modifiedBy,
     createdAt: super.timestampedSchema.createdAt,
     modifiedAt: super.timestampedSchema.modifiedAt,
   });
@@ -54,16 +55,16 @@ export class Term extends TimestampedEntity {
    */
   constructor(
     readonly id: TermID,
-    public version: VersionNumber,
+    version: VersionNumber,
     public glossaryID: GlossaryID,
     displayName: DisplayName,
     public description: MultilineDescription,
-    public modifiedBy: UserID,
+    modifiedBy: UserID,
     lookupName?: NormalizedName,
     createdAt?: Date,
     modifiedAt?: Date
   ) {
-    super(createdAt, modifiedAt);
+    super(version, modifiedBy, createdAt, modifiedAt);
     freezeField(this, "id");
     freezeField(this, "glossaryID");
     this.#displayName = displayName;
