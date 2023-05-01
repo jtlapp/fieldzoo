@@ -3,7 +3,7 @@ import { Kysely } from "kysely";
 import { TermID, TermVersion } from "@fieldzoo/model";
 import { TableMapper } from "kysely-mapper";
 
-import { Database } from "../tables/current-tables";
+import { Database } from "../tables/table-interfaces";
 import { VersionNumber } from "@fieldzoo/model/src/values/version-number";
 
 /**

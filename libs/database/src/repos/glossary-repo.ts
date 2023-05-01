@@ -5,7 +5,7 @@ import { createBase64UUID } from "@fieldzoo/base64-uuid";
 import { Glossary, GlossaryID } from "@fieldzoo/model";
 import { TimestampedTable } from "@fieldzoo/modeling";
 
-import { Database, Glossaries } from "../tables/current-tables";
+import { Database, Glossaries } from "../tables/table-interfaces";
 
 /**
  * Repository for persisting glossaries.

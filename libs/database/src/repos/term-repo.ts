@@ -3,7 +3,7 @@ import { Kysely } from "kysely";
 import { Term, TermID } from "@fieldzoo/model";
 import { TableMapper } from "kysely-mapper";
 
-import { Database, Terms } from "../tables/current-tables";
+import { Database, Terms } from "../tables/table-interfaces";
 import { GlossaryID } from "@fieldzoo/model";
 import { NormalizedName } from "@fieldzoo/model";
 import { TimestampedTable } from "@fieldzoo/modeling";

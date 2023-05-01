@@ -4,7 +4,7 @@ import { TableMapper } from "kysely-mapper";
 import { User, UserID } from "@fieldzoo/model";
 import { TimestampedTable } from "@fieldzoo/modeling";
 
-import { Database, Users } from "../tables/current-tables";
+import { Database, Users } from "../tables/table-interfaces";
 
 /**
  * Repository for persisting users.

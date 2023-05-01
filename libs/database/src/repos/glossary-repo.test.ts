@@ -9,7 +9,7 @@ import { DatabaseConfig } from "@fieldzoo/database-config";
 import { DisplayNameImpl, Glossary, User } from "@fieldzoo/model";
 
 import { resetTestDB, sleep } from "../utils/database-testing";
-import { Database } from "../tables/current-tables";
+import { Database } from "../tables/table-interfaces";
 import { UserRepo } from "./user-repo";
 import { GlossaryRepo } from "./glossary-repo";
 
