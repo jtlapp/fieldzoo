@@ -1,12 +1,12 @@
 import { Type } from "@sinclair/typebox";
 
-import { VersionNumber, VersionNumberImpl } from "../values/version-number";
-import { UserID, UserIDImpl } from "../values/user-id";
+import { VersionNumber, VersionNumberImpl } from "../../values/version-number";
+import { UserID, UserIDImpl } from "../../values/user-id";
 
 /**
  * Class representing a version entity.
  */
-export class Version {
+export class VersionEntity {
   static versionSchema = {
     createdAt: Type.Date(),
     modifiedAt: Type.Date(),

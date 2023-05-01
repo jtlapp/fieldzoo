@@ -17,12 +17,12 @@ import {
   WhatChangedLine,
   WhatChangedLineeImpl,
 } from "../values/what-changed-line";
-import { Version } from "./version";
+import { VersionEntity } from "./base/version-entity";
 
 /**
  * Class representing a valid term version
  */
-export class TermVersion extends Version {
+export class TermVersion extends VersionEntity {
   static schema = Type.Object({
     id: Zeroable(TermIDImpl.schema),
     version: super.versionSchema.version,
