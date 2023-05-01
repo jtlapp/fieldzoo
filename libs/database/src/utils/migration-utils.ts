@@ -28,9 +28,11 @@ export async function createCollaborativeTable(
 ) {
   await TimestampedTable.create(db, tableName, (tb) =>
     factory(
-      tb.addColumn("modifiedBy", "integer", (col) =>
-        col.references("users.id").onDelete("cascade").notNull()
-      )
+      tb
+        .addColumn("version", "integer", (col) => col.notNull().defaultTo(1))
+        .addColumn("modifiedBy", "integer", (col) =>
+          col.references("users.id").onDelete("cascade").notNull()
+        )
     )
   );
 }

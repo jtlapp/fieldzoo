@@ -42,8 +42,6 @@ export async function up(db: Kysely<any>): Promise<void> {
   await createCollaborativeTable(db, "terms", (tb) =>
     tb
       .addColumn("id", "serial", (col) => col.primaryKey())
-      // TODO: move this to createCollaborativeTable()
-      .addColumn("version", "integer", (col) => col.notNull().defaultTo(1))
       .addColumn("glossaryID", "text", (col) =>
         col.references("glossaries.uuid").onDelete("cascade").notNull()
       )
