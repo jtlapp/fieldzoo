@@ -10,6 +10,8 @@ const minDescriptionLength = Term.schema.properties.description.minLength!;
 const maxDescriptionLength = Term.schema.properties.description.maxLength!;
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
 
+// TODO: genericize the testing of values so code is reusable across entities
+
 describe("Term entity", () => {
   it("accepts valid terms", () => {
     expect(() =>
