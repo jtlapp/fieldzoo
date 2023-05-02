@@ -1,6 +1,11 @@
 import { CreateTableBuilder, Kysely, Selectable, sql } from "kysely";
 
-import { TimestampedTable } from "@fieldzoo/modeling";
+import { TimestampedColumns, TimestampedTable } from "@fieldzoo/modeling";
+
+export type CollaborativeColumns =
+  | TimestampedColumns
+  | "modifiedBy"
+  | "version";
 
 /**
  * Utility class for creating tables with `version`, `modifiedBy`,
