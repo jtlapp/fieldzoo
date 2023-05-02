@@ -2,10 +2,6 @@ import { CreateTableBuilder, Kysely, Selectable, sql } from "kysely";
 
 import { TimestampedTable } from "@fieldzoo/modeling";
 
-const COLLABORATIVE_COLUMNS = ["version"] as const;
-
-export type CollaborativeColumns = (typeof COLLABORATIVE_COLUMNS)[number];
-
 /**
  * Utility class for creating tables with `version`, `modifiedBy`,
  * `createdAt`, and `modifiedAt` columns.
@@ -20,7 +16,7 @@ export class CollaborativeTable {
     db: Kysely<any>,
     tableName: string,
     factory: (
-      tb: CreateTableBuilder<string, CollaborativeColumns | "modifiedBy">
+      tb: CreateTableBuilder<string, "version" | "modifiedBy">
     ) => CreateTableBuilder<string, any>
   ) {
     await TimestampedTable.create(db, tableName, (tb) =>
@@ -66,7 +62,7 @@ export class CollaborativeTable {
 
   static addInsertReturnColumns<T>(toColumns: string[] = []) {
     TimestampedTable.addInsertReturnColumns<T>(toColumns);
-    toColumns.push(...COLLABORATIVE_COLUMNS);
+    toColumns.push("version");
     return toColumns as (keyof Selectable<T>)[];
   }
 
@@ -76,12 +72,8 @@ export class CollaborativeTable {
     return toColumns as (keyof Selectable<T>)[];
   }
 
-  // TODO: look at making this generic across utility tables
-  static getUpsertValues(entity: object, extraValues: object = {}) {
-    const values = { ...entity, ...extraValues } as any;
-    for (const column of COLLABORATIVE_COLUMNS) {
-      delete values[column];
-    }
-    return values;
+  static removeGeneratedValues<V extends Record<string, any>>(values: V) {
+    delete values["version"];
+    return values as any;
   }
 }

@@ -74,11 +74,10 @@ export class TimestampedTable {
     return toColumns as (keyof Selectable<T>)[];
   }
 
-  static getUpsertValues(entity: object, extraValues: object = {}) {
-    const values = { ...entity, ...extraValues } as any;
+  static removeGeneratedValues<V extends Record<string, any>>(values: V) {
     for (const column of TIMESTAMPED_COLUMNS) {
       delete values[column];
     }
-    return values;
+    return values as any;
   }
 }

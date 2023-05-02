@@ -59,7 +59,7 @@ export class UserRepo {
    */
   private getMapper(db: Kysely<Database>) {
     const upsertTransform = (user: User) => {
-      const values = TimestampedTable.getUpsertValues(user);
+      const values = TimestampedTable.removeGeneratedValues({ ...user });
       delete values["id"];
       return values;
     };

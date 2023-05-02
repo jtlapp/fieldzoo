@@ -71,7 +71,8 @@ export class GlossaryRepo {
         TimestampedTable.addUpdateReturnColumns<Glossaries>(),
     }).withTransforms({
       insertTransform: (glossary: Glossary) =>
-        TimestampedTable.getUpsertValues(glossary, {
+        TimestampedTable.removeGeneratedValues({
+          ...glossary,
           uuid: createBase64UUID(),
         }),
       insertReturnTransform: (glossary: Glossary, returns) =>
@@ -80,7 +81,7 @@ export class GlossaryRepo {
           false
         ),
       updateTransform: (glossary: Glossary) =>
-        TimestampedTable.getUpsertValues(glossary),
+        TimestampedTable.removeGeneratedValues(glossary),
       updateReturnTransform: (glossary: Glossary, returns) =>
         Object.assign(glossary, returns) as Glossary,
       selectTransform: (row) => Glossary.castFrom(row, false),

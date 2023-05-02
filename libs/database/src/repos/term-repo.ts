@@ -64,7 +64,8 @@ export class TermRepo {
    */
   private getIDMapper(db: Kysely<Database>) {
     const upsertTransform = (term: Term) => {
-      const values = CollaborativeTable.getUpsertValues(term, {
+      const values = CollaborativeTable.removeGeneratedValues({
+        ...term,
         displayName: term.displayName,
         lookupName: term.lookupName,
       });
