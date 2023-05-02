@@ -2,7 +2,6 @@ import { Type } from "@sinclair/typebox";
 
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
 import { MultitierValidator } from "@fieldzoo/multitier-validator";
-import { Zeroable } from "@fieldzoo/typebox-types";
 
 import { DisplayName, DisplayNameImpl } from "../values/display-name";
 import { GlossaryID, GlossaryIDImpl } from "../values/glossary-id";
@@ -24,7 +23,7 @@ import { VersionEntity } from "./base/version-entity";
  */
 export class TermVersion extends VersionEntity {
   static schema = Type.Object({
-    id: Zeroable(TermIDImpl.schema),
+    id: TermIDImpl.schema,
     version: super.versionSchema.version,
     glossaryID: GlossaryIDImpl.schema,
     displayName: DisplayNameImpl.schema,
