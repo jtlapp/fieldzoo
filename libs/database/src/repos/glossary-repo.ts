@@ -64,11 +64,11 @@ export class GlossaryRepo {
   private getMapper(db: Kysely<Database>) {
     return new TableMapper(db, "glossaries", {
       keyColumns: ["uuid"],
-      insertReturnColumns: TimestampedTable.getInsertReturnColumns<Glossaries>([
+      insertReturnColumns: TimestampedTable.addInsertReturnColumns<Glossaries>([
         "uuid",
       ]),
       updateReturnColumns:
-        TimestampedTable.getUpdateReturnColumns<Glossaries>(),
+        TimestampedTable.addUpdateReturnColumns<Glossaries>(),
     }).withTransforms({
       insertTransform: (glossary: Glossary) =>
         TimestampedTable.getUpsertValues(glossary, {

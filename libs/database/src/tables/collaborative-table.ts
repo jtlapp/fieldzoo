@@ -1,11 +1,8 @@
 import { CreateTableBuilder, Kysely, Selectable, sql } from "kysely";
 
-import { TIMESTAMPED_COLUMNS, TimestampedTable } from "@fieldzoo/modeling";
+import { TimestampedTable } from "@fieldzoo/modeling";
 
-export const COLLABORATIVE_COLUMNS = [
-  ...TIMESTAMPED_COLUMNS,
-  "version",
-] as const;
+const COLLABORATIVE_COLUMNS = ["version"] as const;
 
 export type CollaborativeColumns = (typeof COLLABORATIVE_COLUMNS)[number];
 
@@ -67,20 +64,16 @@ export class CollaborativeTable {
       .execute(db);
   }
 
-  // TODO: look at replacing this with (targetArray, additionalColumns) params
-  static getInsertReturnColumns<T>(extraColumns: string[] = []) {
-    return (COLLABORATIVE_COLUMNS as readonly string[]).concat(
-      extraColumns
-    ) as (keyof Selectable<T>)[];
+  static addInsertReturnColumns<T>(toColumns: string[] = []) {
+    TimestampedTable.addInsertReturnColumns<T>(toColumns);
+    toColumns.push(...COLLABORATIVE_COLUMNS);
+    return toColumns as (keyof Selectable<T>)[];
   }
 
-  // TODO: look at replacing this with (targetArray, additionalColumns) params
-  static getUpdateReturnColumns<T>(extraColumns: string[] = []) {
-    return TimestampedTable.getUpdateReturnColumns<T>([
-      ...extraColumns,
-      // TODO: do this elsehow
-      "version",
-    ]);
+  static addUpdateReturnColumns<T>(toColumns: string[] = []) {
+    TimestampedTable.addUpdateReturnColumns<T>(toColumns);
+    toColumns.push("version");
+    return toColumns as (keyof Selectable<T>)[];
   }
 
   // TODO: look at making this generic across utility tables

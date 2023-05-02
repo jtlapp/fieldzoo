@@ -74,10 +74,10 @@ export class TermRepo {
 
     return new TableMapper(db, "terms", {
       keyColumns: ["id"],
-      insertReturnColumns: CollaborativeTable.getInsertReturnColumns<Terms>([
+      insertReturnColumns: CollaborativeTable.addInsertReturnColumns<Terms>([
         "id",
       ]),
-      updateReturnColumns: CollaborativeTable.getUpdateReturnColumns<Terms>(),
+      updateReturnColumns: CollaborativeTable.addUpdateReturnColumns<Terms>(),
     }).withTransforms({
       insertTransform: upsertTransform,
       insertReturnTransform: (term: Term, returns) =>

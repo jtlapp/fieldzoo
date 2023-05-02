@@ -66,10 +66,10 @@ export class UserRepo {
 
     return new TableMapper(db, "users", {
       keyColumns: ["id"],
-      insertReturnColumns: TimestampedTable.getInsertReturnColumns<Users>([
+      insertReturnColumns: TimestampedTable.addInsertReturnColumns<Users>([
         "id",
       ]),
-      updateReturnColumns: TimestampedTable.getUpdateReturnColumns<Users>(),
+      updateReturnColumns: TimestampedTable.addUpdateReturnColumns<Users>(),
     }).withTransforms({
       insertTransform: upsertTransform,
       insertReturnTransform: (user: User, returns) =>

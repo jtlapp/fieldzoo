@@ -1,6 +1,6 @@
 import { CreateTableBuilder, Kysely, Selectable, sql } from "kysely";
 
-export const TIMESTAMPED_COLUMNS = ["createdAt", "modifiedAt"] as const;
+const TIMESTAMPED_COLUMNS = ["createdAt", "modifiedAt"] as const;
 
 export type TimestampedColumns = (typeof TIMESTAMPED_COLUMNS)[number];
 
@@ -64,14 +64,14 @@ export class TimestampedTable {
       .execute(db);
   }
 
-  static getInsertReturnColumns<T>(extraColumns: string[] = []) {
-    return (TIMESTAMPED_COLUMNS as readonly string[]).concat(
-      extraColumns
-    ) as (keyof Selectable<T>)[];
+  static addInsertReturnColumns<T>(toColumns: string[] = []) {
+    toColumns.push(...TIMESTAMPED_COLUMNS);
+    return toColumns as (keyof Selectable<T>)[];
   }
 
-  static getUpdateReturnColumns<T>(extraColumns: string[] = []) {
-    return ["modifiedAt"].concat(extraColumns) as (keyof Selectable<T>)[];
+  static addUpdateReturnColumns<T>(toColumns: string[] = []) {
+    toColumns.push("modifiedAt");
+    return toColumns as (keyof Selectable<T>)[];
   }
 
   static getUpsertValues(entity: object, extraValues: object = {}) {
