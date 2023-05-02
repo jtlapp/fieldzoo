@@ -484,6 +484,7 @@ importers:
       '@jest/globals': ^29.4.3
       '@sinclair/typebox': ^0.25.24
       '@types/jest': ^29.4.0
+      '@types/node': ^18.14.1
       ajv-formats: ^2.1.1
       eslint-config-custom: workspace:*
       jest: ^29.4.3
@@ -497,8 +498,9 @@ importers:
     devDependencies:
       '@jest/globals': 29.5.0
       '@types/jest': 29.5.0
+      '@types/node': 18.15.11
       eslint-config-custom: link:../../config/eslint-config-custom
-      jest: 29.5.0
+      jest: 29.5.0_@types+node@18.15.11
       jest-presets: link:../../config/jest-presets
       ts-jest: 29.1.0_rgossuqlslmrpogqankdav3e2e
       tsconfig: link:../../config/tsconfig
