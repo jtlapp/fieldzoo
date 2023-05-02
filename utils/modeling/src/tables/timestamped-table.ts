@@ -1,5 +1,4 @@
 import { CreateTableBuilder, Kysely, Selectable, sql } from "kysely";
-import { TimestampedEntity } from "../entities/timestamped-entity";
 
 export const TIMESTAMPED_COLUMNS = ["createdAt", "modifiedAt"] as const;
 
@@ -73,19 +72,6 @@ export class TimestampedTable {
 
   static getUpdateReturnColumns<T>(extraColumns: string[] = []) {
     return ["modifiedAt"].concat(extraColumns) as (keyof Selectable<T>)[];
-  }
-
-  static getUpdateReturnValues(
-    entity: TimestampedEntity,
-    returns: object,
-    extraValues: object = {}
-  ) {
-    return {
-      ...entity,
-      ...returns,
-      ...extraValues,
-      createdAt: entity.createdAt, // TODO: do updates need to return createdAt?
-    };
   }
 
   static getUpsertValues(entity: object, extraValues: object = {}) {

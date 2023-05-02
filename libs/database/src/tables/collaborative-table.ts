@@ -1,7 +1,6 @@
 import { CreateTableBuilder, Kysely, Selectable, sql } from "kysely";
 
 import { TIMESTAMPED_COLUMNS, TimestampedTable } from "@fieldzoo/modeling";
-import { CollaborativeEntity } from "@fieldzoo/model";
 
 export const COLLABORATIVE_COLUMNS = [
   ...TIMESTAMPED_COLUMNS,
@@ -82,22 +81,6 @@ export class CollaborativeTable {
       // TODO: do this elsehow
       "version",
     ]);
-  }
-
-  // TODO: look at replacing this with (targetObject, additionalValues) params
-  static getUpdateReturnValues(
-    entity: CollaborativeEntity,
-    returns: object,
-    extraValues: object = {}
-  ) {
-    return {
-      ...entity,
-      ...returns,
-      ...extraValues,
-      // TODO: don't be redundant with TimestampedTable
-      createdAt: entity.createdAt, // TODO: do updates need to return createdAt?
-      version: entity.version + 1,
-    };
   }
 
   // TODO: look at making this generic across utility tables
