@@ -2,16 +2,13 @@ import { UserIDImpl } from "./user-id";
 import { testNumericID } from "../util/test-numeric-id";
 
 it("accepts only valid user IDs", () => {
-  testUserID(
-    () => false,
-    (value) => UserIDImpl.castFrom(value)
-  );
+  testUserID("Invalid user ID", (value) => UserIDImpl.castFrom(value));
 });
 
 export function testUserID(
-  exclusionCheck: (candidate: any) => boolean,
+  errorSubstring: string,
   test: (value: any) => void,
-  errorSubstring = "Invalid user ID"
+  exclude = (_skip: any) => false
 ) {
-  testNumericID(exclusionCheck, test, errorSubstring);
+  testNumericID(exclude, test, errorSubstring);
 }

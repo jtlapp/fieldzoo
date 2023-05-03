@@ -18,16 +18,13 @@ const INVALID = [
 ];
 
 it("accepts only valid user names", () => {
-  testUserName(
-    () => false,
-    (value) => UserNameImpl.castFrom(value)
-  );
+  testUserName("Invalid user name", (value) => UserNameImpl.castFrom(value));
 });
 
 export function testUserName(
-  exclusionCheck: (candidate: any) => boolean,
+  errorSubstring: string,
   test: (value: any) => void,
-  errorSubstring = "Invalid user name"
+  exclude = (_skip: any) => false
 ) {
-  testValues(VALID, INVALID, exclusionCheck, test, errorSubstring);
+  testValues(VALID, INVALID, exclude, test, errorSubstring);
 }

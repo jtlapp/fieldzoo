@@ -19,16 +19,15 @@ const INVALID = [
 ];
 
 it("accepts only valid email addresses", () => {
-  testEmailAddress(
-    () => false,
-    (value) => EmailAddressImpl.castFrom(value)
+  testEmailAddress("Invalid email address", (value) =>
+    EmailAddressImpl.castFrom(value)
   );
 });
 
 export function testEmailAddress(
-  exclusionCheck: (candidate: any) => boolean,
+  errorSubstring: string,
   test: (value: any) => void,
-  errorSubstring = "Invalid email address"
+  exclude = (_skip: any) => false
 ) {
-  testValues(VALID, INVALID, exclusionCheck, test, errorSubstring);
+  testValues(VALID, INVALID, exclude, test, errorSubstring);
 }
