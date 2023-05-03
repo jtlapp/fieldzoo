@@ -14,7 +14,7 @@ const ERROR_MSG = "Invalid glossary";
 describe("Glossary entity", () => {
   it("accepts only valid glossaries", () => {
     // TODO: revisit whether various castFrom() methods should always
-    // allow ID to be falsy.
+    // allow ID to be falsy. Maybe do this after writing REST APIs.
 
     // undefined ID defaults to 0
     expect(() => createGlossary({ uuid: undefined })).not.toThrow();

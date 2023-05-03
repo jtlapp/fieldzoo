@@ -18,8 +18,6 @@ import {
 } from "../values/what-changed-line";
 import { VersionEntity } from "./base/version-entity";
 
-// TODO: test TermVersion
-
 /**
  * Class representing a valid term version
  */
