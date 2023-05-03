@@ -10,8 +10,13 @@ export const NON_NUMBERS = [
   undefined,
 ];
 
-export const NON_STRINGS = [0, 111, 1.5, true, {}, null, undefined];
+let showingValuesDiagnostics = false;
 
+export function showValuesDiagnostics(show: boolean) {
+  showingValuesDiagnostics = show;
+}
+
+export const NON_STRINGS = [0, 111, 1.5, true, {}, null, undefined];
 export const UNTRIMMED_STRINGS = [
   " ",
   "  ",
@@ -26,19 +31,40 @@ export function testValues(
   validValues: any[],
   invalidValues: any[],
   errorSubstring: string,
-  test: (candidate: any) => void,
+  test: (value: any) => void,
   exclude: (skip: any) => boolean
 ) {
   for (const value of validValues) {
     if (!exclude(value)) {
-      // console.log(`value '${value}' should not throw`);
-      expect(() => test(value)).not.toThrow();
+      expect(() =>
+        showingValuesDiagnostics
+          ? testValueWithDiagnostics(value, test, true)
+          : test(value)
+      ).not.toThrow();
     }
   }
   for (const value of invalidValues) {
     if (!exclude(value)) {
-      // console.log(`value '${value}' should throw`);
-      expect(() => test(value)).toThrow(errorSubstring);
+      expect(() =>
+        showingValuesDiagnostics
+          ? testValueWithDiagnostics(value, test, true)
+          : test(value)
+      ).toThrow(errorSubstring);
     }
+  }
+}
+
+function testValueWithDiagnostics(
+  value: any,
+  test: (value: any) => void,
+  shouldThrow: boolean
+) {
+  try {
+    console.log(`value '${value}' should ${shouldThrow ? "" : "not"} throw`);
+    test(value);
+  } catch (err: any) {
+    // ValidationException.toString() takes whether to show details
+    console.log(`value '${value}' threw ${err.toString(true)}`);
+    throw err;
   }
 }
