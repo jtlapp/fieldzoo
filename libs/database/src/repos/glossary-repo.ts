@@ -3,9 +3,9 @@ import { TableMapper } from "kysely-mapper";
 
 import { createBase64UUID } from "@fieldzoo/base64-uuid";
 import { Glossary, GlossaryID } from "@fieldzoo/model";
-import { TimestampedTable } from "@fieldzoo/modeling";
 
 import { Database, Glossaries } from "../tables/table-interfaces";
+import { CollaborativeTable } from "../tables/collaborative-table";
 
 /**
  * Repository for persisting glossaries.
@@ -64,24 +64,20 @@ export class GlossaryRepo {
   private getMapper(db: Kysely<Database>) {
     return new TableMapper(db, "glossaries", {
       keyColumns: ["uuid"],
-      insertReturnColumns: TimestampedTable.addInsertReturnColumns<Glossaries>([
-        "uuid",
-      ]),
+      insertReturnColumns:
+        CollaborativeTable.addInsertReturnColumns<Glossaries>(["uuid"]),
       updateReturnColumns:
-        TimestampedTable.addUpdateReturnColumns<Glossaries>(),
+        CollaborativeTable.addUpdateReturnColumns<Glossaries>(),
     }).withTransforms({
       insertTransform: (glossary: Glossary) =>
-        TimestampedTable.removeGeneratedValues({
+        CollaborativeTable.removeGeneratedValues({
           ...glossary,
           uuid: createBase64UUID(),
         }),
       insertReturnTransform: (glossary: Glossary, returns) =>
-        Glossary.castFrom(
-          { ...glossary, ...returns, uuid: returns.uuid },
-          false
-        ),
+        Glossary.castFrom({ ...glossary, ...returns }, false),
       updateTransform: (glossary: Glossary) =>
-        TimestampedTable.removeGeneratedValues(glossary),
+        CollaborativeTable.removeGeneratedValues(glossary),
       updateReturnTransform: (glossary: Glossary, returns) =>
         Object.assign(glossary, returns) as Glossary,
       selectTransform: (row) => Glossary.castFrom(row, false),

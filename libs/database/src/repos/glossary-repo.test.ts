@@ -40,7 +40,7 @@ it("inserts, updates, and deletes glossaries", async () => {
 
   const glossaryRepo = new GlossaryRepo(db);
   const insertedGlossary = Glossary.castFrom({
-    version: 1,
+    version: 0,
     name: "Test Glossary",
     description: "This is a test glossary",
     ownerID: userReturn.id,
@@ -60,6 +60,7 @@ it("inserts, updates, and deletes glossaries", async () => {
   const insertReturn = (await glossaryRepo.add(insertedGlossary))!;
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.uuid).not.toEqual("");
+  expect(insertReturn.version).toEqual(1);
   expect(insertReturn.createdAt).toBeInstanceOf(Date);
   expect(insertReturn.modifiedAt).toEqual(insertReturn.createdAt);
 
