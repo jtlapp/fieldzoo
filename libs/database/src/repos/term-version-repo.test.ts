@@ -19,7 +19,7 @@ import { UserRepo } from "./user-repo";
 import { GlossaryRepo } from "./glossary-repo";
 import { TermRepo } from "./term-repo";
 import { TermVersionRepo, TermVersionSummary } from "./term-version-repo";
-import { WhatChangedLineeImpl } from "@fieldzoo/model/src/values/what-changed-line";
+import { WhatChangedLineImpl } from "@fieldzoo/model/src/values/what-changed-line";
 import { VersionNumberImpl } from "@fieldzoo/model/src/values/version-number";
 
 const PATH_TO_ROOT = path.join(__dirname, "../../../..");
@@ -193,6 +193,6 @@ function createTermVersion(term: Term, whatChangedLine: string) {
     modifiedBy: term.modifiedBy,
     createdAt: term.createdAt,
     modifiedAt: term.modifiedAt,
-    whatChangedLine: WhatChangedLineeImpl.castFrom(whatChangedLine),
+    whatChangedLine: WhatChangedLineImpl.castFrom(whatChangedLine),
   });
 }

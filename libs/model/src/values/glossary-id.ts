@@ -1,6 +1,5 @@
-import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
+import { Base64UuidSchema } from "../lib/typebox-schemas";
 import { MultitierValidator } from "@fieldzoo/multitier-validator";
-import { NonEmptyString } from "@fieldzoo/typebox-types";
 
 /**
  * Representation of a glossary ID
@@ -9,10 +8,7 @@ import { NonEmptyString } from "@fieldzoo/typebox-types";
 export type GlossaryID = string & { readonly __validated__: unique symbol };
 
 export class GlossaryIDImpl {
-  static schema = NonEmptyString({
-    minLength: BASE64_UUID_LENGTH,
-    maxLength: BASE64_UUID_LENGTH,
-  });
+  static schema = Base64UuidSchema;
 
   static castFrom(id: string) {
     this.#validator.validate(id, "Invalid glossary ID");

@@ -10,7 +10,7 @@ const ERROR_MSG = "Invalid user";
 
 describe("User entity", () => {
   it("accepts only valid users", () => {
-    // undefined defaults ID to 0
+    // undefined ID defaults to 0
     expect(() => createUser({ id: undefined })).not.toThrow();
     expect(() => createUser({ id: 0 })).not.toThrow();
     testUserID(

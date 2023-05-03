@@ -1,5 +1,5 @@
-import { NON_STRINGS, UNTRIMMED_STRINGS, testValues } from "../util/test-utils";
 import { UserNameImpl } from "./user-name";
+import { NON_STRINGS, UNTRIMMED_STRINGS, testValues } from "../util/test-utils";
 
 const VALID = [
   "Joey",

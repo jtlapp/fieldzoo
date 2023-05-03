@@ -1,5 +1,5 @@
-import { NON_STRINGS, testValues } from "../util/test-utils";
 import { EmailAddressImpl } from "../values/email-address";
+import { NON_STRINGS, testValues } from "../util/test-utils";
 
 const VALID = [
   "a@b.c",
@@ -14,6 +14,7 @@ const INVALID = [
   " a@b.c",
   "a@b.c ",
   "a\ta@b.c",
+  "a\na@b.c",
   "a",
   "a".repeat(EmailAddressImpl.schema.maxLength! - 3) + "@b.c",
 ];

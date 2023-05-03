@@ -9,7 +9,7 @@ export type WhatChangedLine = string & {
   readonly __validated__: unique symbol;
 };
 
-export class WhatChangedLineeImpl {
+export class WhatChangedLineImpl {
   static schema = SingleLineUnicodeString({
     minLength: 1,
     maxLength: 240,

@@ -14,7 +14,7 @@ import { TermID, TermIDImpl } from "../values/term-id";
 import { VersionNumber } from "../values/version-number";
 import {
   WhatChangedLine,
-  WhatChangedLineeImpl,
+  WhatChangedLineImpl,
 } from "../values/what-changed-line";
 import { VersionEntity } from "./base/version-entity";
 
@@ -33,7 +33,7 @@ export class TermVersion extends VersionEntity {
     modifiedBy: super.versionSchema.modifiedBy,
     createdAt: super.versionSchema.createdAt,
     modifiedAt: super.versionSchema.modifiedAt,
-    whatChangedLine: WhatChangedLineeImpl.schema,
+    whatChangedLine: WhatChangedLineImpl.schema,
   });
   static #validator = new MultitierValidator(this.schema);
 

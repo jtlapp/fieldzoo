@@ -2,265 +2,63 @@ import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 
 import { Term } from "./term";
 import { NormalizedNameImpl } from "../values/normalized-name";
-import { DisplayName } from "../values/display-name";
 import { testTimestamps } from "@fieldzoo/modeling";
+import { UnvalidatedFields } from "@fieldzoo/generic-types";
+import { testTermID } from "../values/term-id.test";
+import { testVersionNumber } from "../values/version-number.test";
+import { testGlossaryID } from "../values/glossary-id.test";
+import { testDisplayName } from "../values/display-name.test";
+import { testMultilineDescription } from "../values/multiline-description.test";
+import { DisplayNameImpl } from "../values/display-name";
 
-const maxNameLength = Term.schema.properties.displayName.maxLength!;
-const minDescriptionLength = Term.schema.properties.description.minLength!;
-const maxDescriptionLength = Term.schema.properties.description.maxLength!;
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
 
-// TODO: genericize the testing of values so code is reusable across entities
+const ERROR_MSG = "Invalid term";
 
 describe("Term entity", () => {
-  it("accepts valid terms", () => {
+  it("accepts only valid terms", () => {
+    // undefined ID defaults to 0
+    expect(() => createTerm({ id: undefined })).not.toThrow();
+    expect(() => createTerm({ id: 0 })).not.toThrow();
+    testTermID(
+      ERROR_MSG,
+      (id) => createTerm({ id }),
+      (skip) => [undefined, 0].includes(skip)
+    );
+
+    expect(() => createTerm({ version: 0 })).not.toThrow();
+    testVersionNumber(
+      ERROR_MSG,
+      (version) => createTerm({ version }),
+      (skip) => skip === 0
+    );
+
+    testGlossaryID(ERROR_MSG, (glossaryID) => createTerm({ glossaryID }));
+    testDisplayName(ERROR_MSG, (displayName) => createTerm({ displayName }));
+
+    testDisplayName(
+      ERROR_MSG,
+      (displayName) =>
+        createTerm({
+          displayName,
+          lookupName: NormalizedNameImpl.castFrom(displayName),
+        }),
+      (skip) => typeof skip !== "string"
+    );
     expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        displayName: "Good Name",
-        description: "This\nis\nfine.",
-        modifiedBy: 1,
+      createTerm({
+        lookupName: NormalizedNameImpl.castFrom(
+          DisplayNameImpl.castFrom("Good Name")
+        ),
       })
     ).not.toThrow();
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: normalizeName("Good Name"),
-        displayName: "Good Name",
-        description: "A".repeat(minDescriptionLength),
-        modifiedBy: 1,
-      })
-    ).not.toThrow();
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: "a".repeat(maxNameLength),
-        displayName: "A".repeat(maxNameLength),
-        description: "A".repeat(maxDescriptionLength),
-        modifiedBy: 1,
-      })
-    ).not.toThrow();
-    expect(() =>
-      Term.castFrom({
-        id: 1,
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: normalizeName("Good Name"),
-        displayName: "Good Name",
-        description: "A".repeat(minDescriptionLength),
-        modifiedBy: 1,
-      })
-    ).not.toThrow();
-  });
+    expect(() => createTerm({ lookupName: "wrong-name" })).toThrow(
+      "inconsistent"
+    );
 
-  it("rejects invalid term IDs", () => {
-    expect(() =>
-      Term.castFrom({
-        id: 1.5,
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: normalizeName("Good Name"),
-        displayName: "Good Name",
-        description: "A".repeat(minDescriptionLength),
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-
-    expect(() =>
-      Term.castFrom({
-        id: -1,
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: normalizeName("Good Name"),
-        displayName: "Good Name",
-        description: "A".repeat(minDescriptionLength),
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-  });
-
-  it("rejects invalid versions", () => {
-    expect(() =>
-      Term.castFrom({
-        id: 1,
-        version: 1.5,
-        glossaryID: SAMPLE_UUID,
-        lookupName: normalizeName("Good Name"),
-        displayName: "Good Name",
-        description: "A".repeat(minDescriptionLength),
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-
-    expect(() =>
-      Term.castFrom({
-        id: 1,
-        version: -1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: normalizeName("Good Name"),
-        displayName: "Good Name",
-        description: "A".repeat(minDescriptionLength),
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-  });
-
-  it("rejects invalid glossary IDs", () => {
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: undefined!,
-        lookupName: normalizeName("Good Name"),
-        displayName: "Good Name",
-        description: "This\nis\nfine.",
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: 999 as unknown as string,
-        lookupName: normalizeName("Good Name"),
-        displayName: "Good Name",
-        description: "This\nis\nfine.",
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: "",
-        lookupName: normalizeName("Good Name"),
-        displayName: "Good Name",
-        description: "This\nis\nfine.",
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: "too short",
-        lookupName: normalizeName("Good Name"),
-        displayName: "Good Name",
-        description: "This\nis\nfine.",
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: SAMPLE_UUID + "too long",
-        lookupName: normalizeName("Good Name"),
-        displayName: "Good Name",
-        description: "This\nis\nfine.",
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-  });
-
-  it("rejects invalid lookup names", () => {
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: 999 as unknown as string,
-        displayName: "Good Name",
-        description: "This\nis\nfine.",
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: "",
-        displayName: "Good Name",
-        description: "This\nis\nfine.",
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: "food-name",
-        displayName: "Good Name",
-        description: "This\nis\nfine.",
-        modifiedBy: 1,
-      })
-    ).toThrow("lookupName");
-  });
-
-  it("rejects invalid term names", () => {
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: normalizeName("Good Name"),
-        displayName: "",
-        description: "This\nis\nfine.",
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: normalizeName("Good Name"),
-        displayName: "X  Y",
-        description: "This\nis\nfine.",
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: normalizeName("Good Name"),
-        displayName: "A".repeat(maxNameLength + 1),
-        description: "This\nis\nfine.",
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-  });
-
-  it("rejects invalid term descriptions", () => {
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: normalizeName("Good Name"),
-        displayName: "Good Name",
-        description: "",
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: normalizeName("Good Name"),
-        displayName: "Good Name",
-        description: "\n\n",
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-    expect(() =>
-      Term.castFrom({
-        version: 1,
-        glossaryID: SAMPLE_UUID,
-        lookupName: normalizeName("Good Name"),
-        displayName: "Good Name",
-        description: "A".repeat(maxDescriptionLength + 1),
-        modifiedBy: 1,
-      })
-    ).toThrow("term");
-  });
-
-  it("accepts only valid timestamps", () => {
+    testMultilineDescription(ERROR_MSG, (description) =>
+      createTerm({ description })
+    );
     testTimestamps("Invalid term", (createdAt, modifiedAt) =>
       Term.castFrom({
         version: 1,
@@ -304,19 +102,19 @@ describe("Term entity", () => {
   });
 
   it("cannot be changed", () => {
-    const term = Term.castFrom({
-      version: 1,
-      glossaryID: SAMPLE_UUID,
-      lookupName: normalizeName("X"),
-      displayName: "X",
-      description: "Good description",
-      modifiedBy: 1,
-    });
+    const term = createTerm({});
     expect(() => ((term as any).id = 999)).toThrow("read only");
     expect(() => ((term as any).glossaryID = "abc")).toThrow("read only");
   });
 });
 
-function normalizeName(displayName: string) {
-  return NormalizedNameImpl.castFrom(displayName as DisplayName);
+function createTerm(specifiedFields: Partial<UnvalidatedFields<Term>>) {
+  return Term.castFrom({
+    version: 1,
+    glossaryID: SAMPLE_UUID,
+    displayName: "Good Name",
+    description: "This\nis\nfine.",
+    modifiedBy: 1,
+    ...(specifiedFields as any),
+  });
 }
