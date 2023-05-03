@@ -5,6 +5,7 @@ import { Generated } from "kysely";
 export interface Database {
   users: Users;
   glossaries: Glossaries;
+  glossary_versions: GlossaryVersions;
   terms: Terms;
   term_versions: TermVersions;
 }
