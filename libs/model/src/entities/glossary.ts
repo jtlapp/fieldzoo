@@ -2,7 +2,7 @@ import { Type } from "@sinclair/typebox";
 
 import { SelectivePartial, UnvalidatedFields } from "@fieldzoo/generic-types";
 import { MultitierValidator } from "@fieldzoo/multitier-validator";
-import { EmptyStringable, Nullable } from "@fieldzoo/typebox-types";
+import { EmptyStringable, Nullable, Zeroable } from "@fieldzoo/typebox-types";
 import { freezeField } from "@fieldzoo/freeze-field";
 
 import { DisplayName, DisplayNameImpl } from "../values/display-name";
@@ -12,14 +12,17 @@ import {
   MultilineDescriptionImpl,
 } from "../values/multiline-description";
 import { UserID, UserIDImpl } from "../values/user-id";
-import { TimestampedColumns, TimestampedEntity } from "@fieldzoo/modeling";
+import { TimestampedColumns } from "@fieldzoo/modeling";
+import { VersionNumber } from "../values/version-number";
+import { CollaborativeEntity } from "./base/collaborative-entity";
 
 /**
  * Class representing a valid glossary.
  */
-export class Glossary extends TimestampedEntity {
+export class Glossary extends CollaborativeEntity {
   static schema = Type.Object({
     uuid: EmptyStringable(GlossaryIDImpl.schema),
+    version: Zeroable(super.collaborativeSchema.version),
     ownerID: UserIDImpl.schema,
     name: DisplayNameImpl.schema,
     description: Nullable(MultilineDescriptionImpl.schema),
@@ -31,6 +34,7 @@ export class Glossary extends TimestampedEntity {
 
   /**
    * @param uuid The glossary's UUID.
+   * @param version The number for this version of the glossary.
    * @param ownerID The ID of the user who owns this glossary.
    * @param name The glossary's name.
    * @param description The glossary's description.
@@ -40,14 +44,15 @@ export class Glossary extends TimestampedEntity {
    */
   constructor(
     readonly uuid: GlossaryID,
+    version: VersionNumber,
     public ownerID: UserID,
     public name: DisplayName,
     public description: MultilineDescription | null,
-    public modifiedBy: UserID,
+    modifiedBy: UserID,
     createdAt?: Date,
     modifiedAt?: Date
   ) {
-    super(createdAt, modifiedAt);
+    super(version, modifiedBy, createdAt, modifiedAt);
     freezeField(this, "uuid");
   }
 
@@ -73,6 +78,7 @@ export class Glossary extends TimestampedEntity {
     }
     return new Glossary(
       fields.uuid as GlossaryID,
+      fields.version as VersionNumber,
       fields.ownerID as UserID,
       fields.name as DisplayName,
       fields.description as MultilineDescription | null,

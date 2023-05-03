@@ -11,7 +11,7 @@ import { CollaborativeColumns } from "../tables/collaborative-table";
  */
 export const MIGRATION_FILE_PATH = path.join(__dirname, "../migrations");
 
-export async function createVersionTable(
+export async function createVersionsTable(
   db: Kysely<any>,
   tableName: string,
   factory: (
@@ -27,5 +27,6 @@ export async function createVersionTable(
         col.references("users.id").notNull()
       )
       .addColumn("version", "integer", (col) => col.notNull())
+      .addColumn("whatChangedLine", "text", (col) => col.notNull())
   ).execute();
 }

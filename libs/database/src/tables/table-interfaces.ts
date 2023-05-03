@@ -19,12 +19,25 @@ export interface Users {
 
 export interface Glossaries {
   uuid: string;
+  version: number;
   ownerID: number;
   name: string;
   description: string | null;
   modifiedBy: number;
   createdAt: Date;
   modifiedAt: Date;
+}
+
+export interface GlossaryVersions {
+  uuid: string;
+  version: number;
+  ownerID: number;
+  name: string;
+  description: string | null;
+  modifiedBy: number;
+  createdAt: Date;
+  modifiedAt: Date;
+  whatChangedLine: string;
 }
 
 export interface Terms {

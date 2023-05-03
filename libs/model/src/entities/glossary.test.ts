@@ -7,6 +7,7 @@ import { UnvalidatedFields } from "@fieldzoo/generic-types";
 import { testUserID } from "../values/user-id.test";
 import { testDisplayName } from "../values/display-name.test";
 import { testMultilineDescription } from "../values/multiline-description.test";
+import { testVersionNumber } from "../values/version-number.test";
 
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
 const ERROR_MSG = "Invalid glossary";
@@ -25,6 +26,13 @@ describe("Glossary entity", () => {
       (skip) => [undefined, ""].includes(skip)
     );
 
+    expect(() => createGlossary({ version: 0 })).not.toThrow();
+    testVersionNumber(
+      ERROR_MSG,
+      (version) => createGlossary({ version }),
+      (skip) => skip === 0
+    );
+
     testUserID(ERROR_MSG, (ownerID) => createGlossary({ ownerID }));
     testUserID(ERROR_MSG, (modifiedBy) => createGlossary({ modifiedBy }));
     testDisplayName(ERROR_MSG, (name) => createGlossary({ name }));
@@ -38,6 +46,7 @@ describe("Glossary entity", () => {
 
     testTimestamps("Invalid glossary", (createdAt, modifiedAt) =>
       Glossary.castFrom({
+        version: 1,
         ownerID: 1,
         modifiedBy: 1,
         name: "Good Name",
@@ -53,6 +62,7 @@ describe("Glossary entity", () => {
       Glossary.castFrom(
         {
           uuid: SAMPLE_UUID,
+          version: 1,
           ownerID: 1,
           modifiedBy: 1,
           name: "",
@@ -65,6 +75,7 @@ describe("Glossary entity", () => {
 
   it("cannot change id", () => {
     const glossary = Glossary.castFrom({
+      version: 1,
       uuid: SAMPLE_UUID,
       ownerID: 1,
       modifiedBy: 1,
@@ -78,6 +89,7 @@ describe("Glossary entity", () => {
 function createGlossary(specifiedFields: Partial<UnvalidatedFields<Glossary>>) {
   return Glossary.castFrom({
     uuid: SAMPLE_UUID,
+    version: 1,
     ownerID: 1,
     name: "Good Name",
     description: "This\nis\nfine.",

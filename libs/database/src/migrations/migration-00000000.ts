@@ -5,7 +5,7 @@ import { Kysely } from "kysely";
 
 import { TimestampedTable } from "@fieldzoo/modeling";
 
-import { createVersionTable } from "../utils/migration-utils";
+import { createVersionsTable } from "../utils/migration-utils";
 import { CollaborativeTable } from "../tables/collaborative-table";
 
 export async function up(db: Kysely<any>): Promise<void> {
@@ -33,6 +33,19 @@ export async function up(db: Kysely<any>): Promise<void> {
       .addColumn("description", "text")
   );
 
+  // glossary versions table
+
+  await createVersionsTable(db, "glossary_versions", (tb) =>
+    tb
+      .addColumn("uuid", "text", (col) => col.notNull())
+      .addColumn("ownerID", "integer", (col) =>
+        col.references("users.id").onDelete("cascade").notNull()
+      )
+      .addColumn("name", "text", (col) => col.notNull())
+      .addColumn("description", "text")
+      .addUniqueConstraint("uuid_version_key", ["uuid", "version"])
+  );
+
   // terms table
 
   await CollaborativeTable.create(db, "terms", (tb) =>
@@ -52,14 +65,13 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   // term versions table
 
-  await createVersionTable(db, "term_versions", (tb) =>
+  await createVersionsTable(db, "term_versions", (tb) =>
     tb
       .addColumn("id", "integer", (col) => col.references("terms.id").notNull())
       // glossaryID need not reference an existing glossary
       .addColumn("glossaryID", "text", (col) => col.notNull())
       .addColumn("displayName", "text", (col) => col.notNull())
       .addColumn("description", "text", (col) => col.notNull())
-      .addColumn("whatChangedLine", "text", (col) => col.notNull())
       .addUniqueConstraint("id_version_key", ["id", "version"])
   );
 }
@@ -67,6 +79,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 export async function down(db: Kysely<any>): Promise<void> {
   await db.schema.dropTable("users").execute();
   await db.schema.dropTable("glossaries").execute();
+  await db.schema.dropTable("glossary_versions").execute();
   await db.schema.dropTable("terms").execute();
   await db.schema.dropTable("term_versions").execute();
 }

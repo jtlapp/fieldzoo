@@ -10,10 +10,7 @@ import { MultilineDescription } from "../values/multiline-description";
 import { UserID } from "../values/user-id";
 import { TermID, TermIDImpl } from "../values/term-id";
 import { VersionNumber } from "../values/version-number";
-import {
-  WhatChangedLine,
-  WhatChangedLineImpl,
-} from "../values/what-changed-line";
+import { WhatChangedLine } from "../values/what-changed-line";
 import { VersionEntity } from "./base/version-entity";
 
 /**
@@ -29,7 +26,7 @@ export class TermVersion extends VersionEntity {
     modifiedBy: super.versionSchema.modifiedBy,
     createdAt: super.versionSchema.createdAt,
     modifiedAt: super.versionSchema.modifiedAt,
-    whatChangedLine: WhatChangedLineImpl.schema,
+    whatChangedLine: super.versionSchema.whatChangedLine,
   });
   static #validator = new MultitierValidator(this.schema);
 
@@ -53,9 +50,9 @@ export class TermVersion extends VersionEntity {
     modifiedBy: UserID,
     createdAt: Date,
     modifiedAt: Date,
-    readonly whatChangedLine: WhatChangedLine
+    whatChangedLine: WhatChangedLine
   ) {
-    super(createdAt, modifiedAt, modifiedBy, version);
+    super(createdAt, modifiedAt, modifiedBy, version, whatChangedLine);
     Object.freeze(this);
   }
 
