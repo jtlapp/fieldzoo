@@ -3,12 +3,10 @@ import { Type } from "@sinclair/typebox";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
 import { MultitierValidator } from "@fieldzoo/multitier-validator";
 
-import { DisplayName, DisplayNameImpl } from "../values/display-name";
-import { GlossaryID, GlossaryIDImpl } from "../values/glossary-id";
-import {
-  MultilineDescription,
-  MultilineDescriptionImpl,
-} from "../values/multiline-description";
+import { Term } from "./term";
+import { DisplayName } from "../values/display-name";
+import { GlossaryID } from "../values/glossary-id";
+import { MultilineDescription } from "../values/multiline-description";
 import { UserID } from "../values/user-id";
 import { TermID, TermIDImpl } from "../values/term-id";
 import { VersionNumber } from "../values/version-number";
@@ -25,9 +23,9 @@ export class TermVersion extends VersionEntity {
   static schema = Type.Object({
     id: TermIDImpl.schema,
     version: super.versionSchema.version,
-    glossaryID: GlossaryIDImpl.schema,
-    displayName: DisplayNameImpl.schema,
-    description: MultilineDescriptionImpl.schema,
+    glossaryID: Term.schema.properties.glossaryID,
+    displayName: Term.schema.properties.displayName,
+    description: Term.schema.properties.description,
     modifiedBy: super.versionSchema.modifiedBy,
     createdAt: super.versionSchema.createdAt,
     modifiedAt: super.versionSchema.modifiedAt,
