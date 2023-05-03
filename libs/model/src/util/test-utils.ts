@@ -25,17 +25,17 @@ export const UNTRIMMED_STRINGS = [
 export function testValues(
   validValues: any[],
   invalidValues: any[],
-  exclusionCheck: (candidate: any) => boolean,
+  errorSubstring: string,
   test: (candidate: any) => void,
-  errorSubstring: string
+  exclude: (skip: any) => boolean
 ) {
   for (const value of validValues) {
-    if (!exclusionCheck(value)) {
+    if (!exclude(value)) {
       expect(() => test(value)).not.toThrow();
     }
   }
   for (const value of invalidValues) {
-    if (!exclusionCheck(value)) {
+    if (!exclude(value)) {
       expect(() => test(value)).toThrow(errorSubstring);
     }
   }

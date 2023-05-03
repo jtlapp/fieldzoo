@@ -4,9 +4,9 @@ const VALID = [1, 2, 2000];
 const INVALID = [-1, 0, 1.5, ...NON_NUMBERS];
 
 export function testNumericID(
-  exclusionCheck: (candidate: any) => boolean,
+  errorSubstring: string,
   test: (value: any) => void,
-  errorSubstring: string
+  exclude: (_skip: any) => boolean
 ) {
-  testValues(VALID, INVALID, exclusionCheck, test, errorSubstring);
+  testValues(VALID, INVALID, errorSubstring, test, exclude);
 }

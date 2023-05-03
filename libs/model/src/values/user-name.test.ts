@@ -26,5 +26,5 @@ export function testUserName(
   test: (value: any) => void,
   exclude = (_skip: any) => false
 ) {
-  testValues(VALID, INVALID, exclude, test, errorSubstring);
+  testValues(VALID, INVALID, errorSubstring, test, exclude);
 }

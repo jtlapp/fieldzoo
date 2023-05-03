@@ -10,5 +10,5 @@ export function testUserID(
   test: (value: any) => void,
   exclude = (_skip: any) => false
 ) {
-  testNumericID(exclude, test, errorSubstring);
+  testNumericID(errorSubstring, test, exclude);
 }
