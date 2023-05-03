@@ -12,6 +12,8 @@ import {
   TermVersion,
   User,
 } from "@fieldzoo/model";
+import { WhatChangedLineImpl } from "@fieldzoo/model";
+import { VersionNumberImpl } from "@fieldzoo/model";
 
 import { resetTestDB, sleep } from "../utils/database-testing";
 import { Database } from "../tables/table-interfaces";
@@ -19,8 +21,6 @@ import { UserRepo } from "./user-repo";
 import { GlossaryRepo } from "./glossary-repo";
 import { TermRepo } from "./term-repo";
 import { TermVersionRepo, TermVersionSummary } from "./term-version-repo";
-import { WhatChangedLineImpl } from "@fieldzoo/model/src/values/what-changed-line";
-import { VersionNumberImpl } from "@fieldzoo/model/src/values/version-number";
 
 const PATH_TO_ROOT = path.join(__dirname, "../../../..");
 

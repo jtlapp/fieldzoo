@@ -1,14 +1,14 @@
 import { Kysely } from "kysely";
 
-import { TermID, TermVersion } from "@fieldzoo/model";
 import { TableMapper } from "kysely-mapper";
 
+import { TermID, TermVersion, VersionNumber } from "@fieldzoo/model";
+
 import { Database } from "../tables/table-interfaces";
-import { VersionNumber } from "@fieldzoo/model/src/values/version-number";
 
 /**
  * Repository for persisting term versions. Term versions are uniquely
- * identified via the tuple [database-internal term ID, version].
+ * identified via the tuple [database-internal term ID, version number].
  */
 export class TermVersionRepo {
   readonly #table: ReturnType<TermVersionRepo["getMapper"]>;
@@ -19,8 +19,7 @@ export class TermVersionRepo {
 
   /**
    * Adds a term version to the repository.
-   * @param term Term to add.
-   * @returns A new term instance with its generated ID.
+   * @param termVersion Term version to add.
    */
   async add(termVersion: TermVersion): Promise<void> {
     await this.#table.insert().run(termVersion);
@@ -54,14 +53,14 @@ export class TermVersionRepo {
    * @returns summaries of the term versions, or an empty array if not found
    */
   async getSummaries(
-    termID: TermID,
+    id: TermID,
     offset: number,
     limit: number
   ): Promise<TermVersionSummary[]> {
     return (await this.db
       .selectFrom("term_versions")
       .select(["id", "version", "modifiedBy", "modifiedAt", "whatChangedLine"])
-      .where("id", "=", termID)
+      .where("id", "=", id)
       .orderBy("version", "desc")
       .limit(limit)
       .offset(offset)
