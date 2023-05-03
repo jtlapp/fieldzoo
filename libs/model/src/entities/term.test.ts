@@ -10,6 +10,7 @@ import { testGlossaryID } from "../values/glossary-id.test";
 import { testDisplayName } from "../values/display-name.test";
 import { testMultilineDescription } from "../values/multiline-description.test";
 import { DisplayNameImpl } from "../values/display-name";
+import { testUserID } from "../values/user-id.test";
 
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
 
@@ -70,6 +71,8 @@ describe("Term entity", () => {
         modifiedAt,
       })
     );
+
+    testUserID(ERROR_MSG, (modifiedBy) => createTerm({ modifiedBy }));
   });
 
   it("doesn't validate when assumed valid", () => {

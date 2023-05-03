@@ -31,13 +31,13 @@ export function testValues(
 ) {
   for (const value of validValues) {
     if (!exclude(value)) {
-      console.log(`value '${value}' should not throw`);
+      // console.log(`value '${value}' should not throw`);
       expect(() => test(value)).not.toThrow();
     }
   }
   for (const value of invalidValues) {
     if (!exclude(value)) {
-      console.log(`value '${value}' should throw`);
+      // console.log(`value '${value}' should throw`);
       expect(() => test(value)).toThrow(errorSubstring);
     }
   }
