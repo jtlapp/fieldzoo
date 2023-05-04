@@ -55,13 +55,13 @@ describe("GlossaryVersionRepo", () => {
     // test getting glossary versions by key
     const selection1 = await glossaryVersionRepo.getByKey([
       glossaryVersions[1].uuid,
-      glossaryVersions[1].version,
+      glossaryVersions[1].versionNumber,
     ]);
     expect(selection1).toEqual(glossaryVersions[1]);
 
     const selection2 = await glossaryVersionRepo.getByKey([
       glossaryVersions[2].uuid,
-      glossaryVersions[2].version,
+      glossaryVersions[2].versionNumber,
     ]);
     expect(selection2).toEqual(glossaryVersions[2]);
 
@@ -72,7 +72,7 @@ describe("GlossaryVersionRepo", () => {
     expect(deleted).toEqual(true);
     const selection3 = await glossaryVersionRepo.getByKey([
       glossaryVersions[1].uuid,
-      glossaryVersions[1].version,
+      glossaryVersions[1].versionNumber,
     ]);
     expect(selection3).toBeNull();
   });
@@ -87,14 +87,14 @@ describe("GlossaryVersionRepo", () => {
     const expectedSummaries: GlossaryVersionSummary[] = [
       {
         uuid: glossaryVersions[1].uuid,
-        version: glossaryVersions[1].version,
+        versionNumber: glossaryVersions[1].versionNumber,
         modifiedBy: glossaryVersions[1].modifiedBy,
         modifiedAt: glossaryVersions[1].modifiedAt,
         whatChangedLine: glossaryVersions[1].whatChangedLine,
       },
       {
         uuid: glossaryVersions[0].uuid,
-        version: glossaryVersions[0].version,
+        versionNumber: glossaryVersions[0].versionNumber,
         modifiedBy: glossaryVersions[0].modifiedBy,
         modifiedAt: glossaryVersions[0].modifiedAt,
         whatChangedLine: glossaryVersions[0].whatChangedLine,
@@ -146,14 +146,14 @@ describe("GlossaryVersionRepo", () => {
 
     const rawGlossaries = [
       {
-        version: 0,
+        versionNumber: 0,
         ownerID: userReturn.id,
         name: "Glossary 1",
         description: "This is test glossary 1",
         modifiedBy: userReturn.id,
       },
       {
-        version: 0,
+        versionNumber: 0,
         ownerID: userReturn.id,
         name: "Glossary 2",
         description: "This is test glossary 2",
@@ -172,7 +172,7 @@ describe("GlossaryVersionRepo", () => {
       "What changed 1-1"
     );
     await sleep(20);
-    glossaries[0].version = VersionNumberImpl.castFrom(2);
+    glossaries[0].versionNumber = VersionNumberImpl.castFrom(2);
     glossaries[0].description =
       MultilineDescriptionImpl.castFrom("Description 2");
     await glossaryRepo.update(glossaries[0]);
@@ -193,7 +193,7 @@ describe("GlossaryVersionRepo", () => {
 function createGlossaryVersion(glossary: Glossary, whatChangedLine: string) {
   return GlossaryVersion.castFrom({
     uuid: glossary.uuid,
-    version: glossary.version,
+    versionNumber: glossary.versionNumber,
     ownerID: glossary.ownerID,
     name: glossary.name,
     description: glossary.description,

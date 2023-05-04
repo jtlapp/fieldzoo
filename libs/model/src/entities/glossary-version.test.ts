@@ -16,8 +16,8 @@ const ERROR_MSG = "Invalid glossary version";
 describe("GlossaryVersion entity", () => {
   it("accepts only valid glossary versions", () => {
     testGlossaryID(ERROR_MSG, (uuid) => createGlossaryVersion({ uuid }));
-    testVersionNumber(ERROR_MSG, (version) =>
-      createGlossaryVersion({ version })
+    testVersionNumber(ERROR_MSG, (versionNumber) =>
+      createGlossaryVersion({ versionNumber })
     );
     testUserID(ERROR_MSG, (ownerID) => createGlossaryVersion({ ownerID }));
     testUserID(ERROR_MSG, (modifiedBy) =>
@@ -35,7 +35,7 @@ describe("GlossaryVersion entity", () => {
     testTimestamps("Invalid glossary", (createdAt, modifiedAt) =>
       GlossaryVersion.castFrom({
         uuid: SAMPLE_UUID,
-        version: 1,
+        versionNumber: 1,
         ownerID: 1,
         modifiedBy: 1,
         name: "Good Name",
@@ -56,7 +56,7 @@ describe("GlossaryVersion entity", () => {
       GlossaryVersion.castFrom(
         {
           uuid: SAMPLE_UUID,
-          version: 1,
+          versionNumber: 1,
           ownerID: 1,
           modifiedBy: 1,
           name: "",
@@ -73,8 +73,7 @@ describe("GlossaryVersion entity", () => {
   it("cannot modify", () => {
     const glossaryVersion = GlossaryVersion.castFrom({
       uuid: SAMPLE_UUID,
-      // TODO: rename version column to versionNumber to reduce confusion
-      version: 1,
+      versionNumber: 1,
       ownerID: 1,
       modifiedBy: 1,
       name: "X",
@@ -84,7 +83,9 @@ describe("GlossaryVersion entity", () => {
       whatChangedLine: "Description of what changed",
     });
     expect(() => ((glossaryVersion as any).uuid = "XX")).toThrow("read only");
-    expect(() => ((glossaryVersion as any).version = 100)).toThrow("read only");
+    expect(() => ((glossaryVersion as any).versionNumber = 100)).toThrow(
+      "read only"
+    );
     expect(() => ((glossaryVersion as any).description = "abc")).toThrow(
       "read only"
     );
@@ -96,7 +97,7 @@ function createGlossaryVersion(
 ) {
   return GlossaryVersion.castFrom({
     uuid: SAMPLE_UUID,
-    version: 1,
+    versionNumber: 1,
     ownerID: 1,
     name: "Good Name",
     description: "This\nis\nfine.",

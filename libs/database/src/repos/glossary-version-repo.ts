@@ -64,13 +64,13 @@ export class GlossaryVersionRepo {
       .selectFrom("glossary_versions")
       .select([
         "uuid",
-        "version",
+        "versionNumber",
         "modifiedBy",
         "modifiedAt",
         "whatChangedLine",
       ])
       .where("uuid", "=", uuid)
-      .orderBy("version", "desc")
+      .orderBy("versionNumber", "desc")
       .limit(limit)
       .offset(offset)
       .execute()) as GlossaryVersionSummary[];
@@ -81,7 +81,7 @@ export class GlossaryVersionRepo {
    */
   private getMapper(db: Kysely<Database>) {
     return new TableMapper(db, "glossary_versions", {
-      keyColumns: ["uuid", "version"],
+      keyColumns: ["uuid", "versionNumber"],
       insertReturnColumns: [],
     }).withTransforms({
       insertTransform: (glossaryVersion: GlossaryVersion) => glossaryVersion,
@@ -100,7 +100,7 @@ export class GlossaryVersionRepo {
  */
 export interface GlossaryVersionSummary {
   readonly uuid: GlossaryID;
-  readonly version: VersionNumber;
+  readonly versionNumber: VersionNumber;
   readonly modifiedBy: number;
   readonly modifiedAt: Date;
   readonly whatChangedLine: string;

@@ -15,7 +15,7 @@ export class VersionEntity {
     createdAt: Type.Date(),
     modifiedAt: Type.Date(),
     modifiedBy: UserIDImpl.schema,
-    version: VersionNumberImpl.schema,
+    versionNumber: VersionNumberImpl.schema,
     whatChangedLine: WhatChangedLineImpl.schema,
   };
 
@@ -23,14 +23,14 @@ export class VersionEntity {
    * @param createdAt Date/time at which the entity was created.
    * @param modifiedAt Date/time at which the entity was last modified.
    * @param modifiedBy ID of the user who last modified the entity.
-   * @param version Version number of the entity.
+   * @param versionNumber Version number of the entity.
    * @param whatChangedLine Line describing what changed in this version.
    */
   constructor(
     readonly createdAt: Date,
     readonly modifiedAt: Date,
     readonly modifiedBy: UserID,
-    readonly version: VersionNumber,
+    readonly versionNumber: VersionNumber,
     readonly whatChangedLine: WhatChangedLine
   ) {}
 }

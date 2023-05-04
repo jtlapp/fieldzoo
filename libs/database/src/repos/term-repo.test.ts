@@ -45,7 +45,7 @@ it("inserts, updates, and deletes terms", async () => {
 
   const glossaryRepo = new GlossaryRepo(db);
   const insertedGlossary = Glossary.castFrom({
-    version: 1,
+    versionNumber: 1,
     name: "Test Glossary",
     description: "This is a test glossary",
     ownerID: userReturn.id,
@@ -55,7 +55,7 @@ it("inserts, updates, and deletes terms", async () => {
 
   const termRepo = new TermRepo(db);
   const insertedTerm = Term.castFrom({
-    version: 0,
+    versionNumber: 0,
     displayName: "Test Term",
     description: "This is a test term",
     glossaryID: glossaryReturn!.uuid,
@@ -76,7 +76,7 @@ it("inserts, updates, and deletes terms", async () => {
   const insertReturn = await termRepo.add(insertedTerm);
   expect(insertReturn).not.toBeNull();
   expect(insertReturn.id).not.toEqual(0);
-  expect(insertReturn.version).toEqual(1);
+  expect(insertReturn.versionNumber).toEqual(1);
   expect(insertReturn.lookupName).toEqual(
     NormalizedNameImpl.castFrom(insertedTerm.displayName)
   );
@@ -97,7 +97,7 @@ it("inserts, updates, and deletes terms", async () => {
 
   const updateReturn2 = await termRepo.update(selection1!);
   expect(updateReturn2).toBe(true);
-  expect(selection1!.version).toEqual(2);
+  expect(selection1!.versionNumber).toEqual(2);
   expect(selection1!.modifiedAt.getTime()).toBeGreaterThan(
     originallyModifiedAt.getTime()
   );
@@ -121,7 +121,7 @@ it("inserts, updates, and deletes terms", async () => {
 function expectEqualTerms(actual: Term | null, expected: Term) {
   expect(actual).not.toBeNull();
   expect(actual!.id).toEqual(expected.id);
-  expect(actual!.version).toEqual(expected.version);
+  expect(actual!.versionNumber).toEqual(expected.versionNumber);
   expect(actual!.displayName).toEqual(expected.displayName);
   expect(actual!.lookupName).toEqual(expected.lookupName);
   expect(actual!.modifiedAt).toEqual(expected.modifiedAt);

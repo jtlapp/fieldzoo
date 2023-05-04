@@ -30,7 +30,7 @@ export class Term extends CollaborativeEntity {
 
   static schema = Type.Object({
     id: Zeroable(TermIDImpl.schema),
-    version: Zeroable(super.collaborativeSchema.version),
+    versionNumber: Zeroable(super.collaborativeSchema.versionNumber),
     lookupName: Type.Optional(NormalizedNameImpl.schema),
     glossaryID: GlossaryIDImpl.schema,
     displayName: DisplayNameImpl.schema,
@@ -43,7 +43,7 @@ export class Term extends CollaborativeEntity {
 
   /**
    * @param id The unique ID of the term in the database.
-   * @param version The number for this version of the term.
+   * @param versionNumber The number for this version of the term.
    * @param glossaryID The ID of the glossary this term belongs to.
    * @param displayName The term's display name.
    * @param description The term's description.
@@ -55,7 +55,7 @@ export class Term extends CollaborativeEntity {
    */
   constructor(
     readonly id: TermID,
-    version: VersionNumber,
+    versionNumber: VersionNumber,
     public glossaryID: GlossaryID,
     displayName: DisplayName,
     public description: MultilineDescription,
@@ -64,7 +64,7 @@ export class Term extends CollaborativeEntity {
     createdAt?: Date,
     modifiedAt?: Date
   ) {
-    super(version, modifiedBy, createdAt, modifiedAt);
+    super(versionNumber, modifiedBy, createdAt, modifiedAt);
     freezeField(this, "id");
     freezeField(this, "glossaryID");
     this.#displayName = displayName;
@@ -108,7 +108,7 @@ export class Term extends CollaborativeEntity {
     }
     return new Term(
       fields.id as TermID,
-      fields.version as VersionNumber,
+      fields.versionNumber as VersionNumber,
       fields.glossaryID as GlossaryID,
       fields.displayName as DisplayName,
       fields.description as MultilineDescription,

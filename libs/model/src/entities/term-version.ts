@@ -19,7 +19,7 @@ import { VersionEntity } from "./base/version-entity";
 export class TermVersion extends VersionEntity {
   static schema = Type.Object({
     id: TermIDImpl.schema,
-    version: super.versionSchema.version,
+    versionNumber: super.versionSchema.versionNumber,
     glossaryID: Term.schema.properties.glossaryID,
     displayName: Term.schema.properties.displayName,
     description: Term.schema.properties.description,
@@ -32,7 +32,7 @@ export class TermVersion extends VersionEntity {
 
   /**
    * @param id The unique ID of the term in the database.
-   * @param version The number for this version of the term.
+   * @param versionNumber The number for this version of the term.
    * @param glossaryID The ID of the glossary this term belongs to.
    * @param displayName The term's display name.
    * @param description The term's description.
@@ -43,7 +43,7 @@ export class TermVersion extends VersionEntity {
    */
   constructor(
     readonly id: TermID,
-    version: VersionNumber,
+    versionNumber: VersionNumber,
     readonly glossaryID: GlossaryID,
     readonly displayName: DisplayName,
     readonly description: MultilineDescription,
@@ -52,7 +52,7 @@ export class TermVersion extends VersionEntity {
     modifiedAt: Date,
     whatChangedLine: WhatChangedLine
   ) {
-    super(createdAt, modifiedAt, modifiedBy, version, whatChangedLine);
+    super(createdAt, modifiedAt, modifiedBy, versionNumber, whatChangedLine);
     Object.freeze(this);
   }
 
@@ -71,7 +71,7 @@ export class TermVersion extends VersionEntity {
     }
     return new TermVersion(
       fields.id as TermID,
-      fields.version as VersionNumber,
+      fields.versionNumber as VersionNumber,
       fields.glossaryID as GlossaryID,
       fields.displayName as DisplayName,
       fields.description as MultilineDescription,

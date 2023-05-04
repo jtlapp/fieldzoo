@@ -7,6 +7,6 @@ export class TimestampedVersion {
   constructor(
     readonly createdAt: Date,
     readonly modifiedAt: Date,
-    readonly version: VersionNumber
+    readonly versionNumber: VersionNumber
   ) {}
 }

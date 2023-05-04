@@ -43,7 +43,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       )
       .addColumn("name", "text", (col) => col.notNull())
       .addColumn("description", "text")
-      .addUniqueConstraint("uuid_version_key", ["uuid", "version"])
+      .addUniqueConstraint("uuid_versionNumber_key", ["uuid", "versionNumber"])
   );
 
   // terms table
@@ -72,7 +72,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       .addColumn("glossaryID", "text", (col) => col.notNull())
       .addColumn("displayName", "text", (col) => col.notNull())
       .addColumn("description", "text", (col) => col.notNull())
-      .addUniqueConstraint("id_version_key", ["id", "version"])
+      .addUniqueConstraint("id_versionNumber_key", ["id", "versionNumber"])
   );
 }
 

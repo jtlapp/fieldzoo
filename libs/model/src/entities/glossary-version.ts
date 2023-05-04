@@ -18,7 +18,7 @@ import { VersionNumber } from "../values/version-number";
 export class GlossaryVersion extends VersionEntity {
   static schema = Type.Object({
     uuid: GlossaryIDImpl.schema,
-    version: super.versionSchema.version,
+    versionNumber: super.versionSchema.versionNumber,
     ownerID: Glossary.schema.properties.ownerID,
     name: Glossary.schema.properties.name,
     description: Glossary.schema.properties.description,
@@ -31,7 +31,7 @@ export class GlossaryVersion extends VersionEntity {
 
   /**
    * @param uuid The glossary's UUID.
-   * @param version The number for this version of the glossary.
+   * @param versionNumber The number for this version of the glossary.
    * @param ownerID The ID of the user who owns this glossary.
    * @param name The glossary's name.
    * @param description The glossary's description.
@@ -42,7 +42,7 @@ export class GlossaryVersion extends VersionEntity {
    */
   constructor(
     readonly uuid: GlossaryID,
-    version: VersionNumber,
+    versionNumber: VersionNumber,
     public ownerID: UserID,
     public name: DisplayName,
     public description: MultilineDescription | null,
@@ -51,7 +51,7 @@ export class GlossaryVersion extends VersionEntity {
     modifiedAt: Date,
     whatChangedLine: WhatChangedLine
   ) {
-    super(createdAt, modifiedAt, modifiedBy, version, whatChangedLine);
+    super(createdAt, modifiedAt, modifiedBy, versionNumber, whatChangedLine);
     Object.freeze(this);
   }
 
@@ -67,7 +67,7 @@ export class GlossaryVersion extends VersionEntity {
     }
     return new GlossaryVersion(
       fields.uuid as GlossaryID,
-      fields.version as VersionNumber,
+      fields.versionNumber as VersionNumber,
       fields.ownerID as UserID,
       fields.name as DisplayName,
       fields.description as MultilineDescription | null,

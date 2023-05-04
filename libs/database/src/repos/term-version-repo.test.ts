@@ -51,13 +51,13 @@ describe("TermVersionRepo", () => {
     // test getting term versions by key
     const selection1 = await termVersionRepo.getByKey([
       termVersions[1].id,
-      termVersions[1].version,
+      termVersions[1].versionNumber,
     ]);
     expect(selection1).toEqual(termVersions[1]);
 
     const selection2 = await termVersionRepo.getByKey([
       termVersions[2].id,
-      termVersions[2].version,
+      termVersions[2].versionNumber,
     ]);
     expect(selection2).toEqual(termVersions[2]);
 
@@ -66,7 +66,7 @@ describe("TermVersionRepo", () => {
     expect(deleted).toEqual(true);
     const selection3 = await termVersionRepo.getByKey([
       termVersions[1].id,
-      termVersions[1].version,
+      termVersions[1].versionNumber,
     ]);
     expect(selection3).toBeNull();
   });
@@ -81,14 +81,14 @@ describe("TermVersionRepo", () => {
     const expectedSummaries: TermVersionSummary[] = [
       {
         id: termVersions[1].id,
-        version: termVersions[1].version,
+        versionNumber: termVersions[1].versionNumber,
         modifiedBy: termVersions[1].modifiedBy,
         modifiedAt: termVersions[1].modifiedAt,
         whatChangedLine: termVersions[1].whatChangedLine,
       },
       {
         id: termVersions[0].id,
-        version: termVersions[0].version,
+        versionNumber: termVersions[0].versionNumber,
         modifiedBy: termVersions[0].modifiedBy,
         modifiedAt: termVersions[0].modifiedAt,
         whatChangedLine: termVersions[0].whatChangedLine,
@@ -140,7 +140,7 @@ describe("TermVersionRepo", () => {
 
     const glossaryRepo = new GlossaryRepo(db);
     const insertedGlossary = Glossary.castFrom({
-      version: 1,
+      versionNumber: 1,
       name: "Test Glossary",
       description: "This is a test glossary",
       ownerID: userReturn.id,
@@ -150,14 +150,14 @@ describe("TermVersionRepo", () => {
 
     const rawTerms = [
       {
-        version: 0,
+        versionNumber: 0,
         displayName: "Term1",
         description: "This is test term 1",
         glossaryID: glossaryReturn!.uuid,
         modifiedBy: 1,
       },
       {
-        version: 0,
+        versionNumber: 0,
         displayName: "Term2",
         description: "This is test term 2",
         glossaryID: glossaryReturn!.uuid,
@@ -173,7 +173,7 @@ describe("TermVersionRepo", () => {
 
     const termVersion1_1 = createTermVersion(terms[0], "What changed 1-1");
     await sleep(20);
-    terms[0].version = VersionNumberImpl.castFrom(2);
+    terms[0].versionNumber = VersionNumberImpl.castFrom(2);
     terms[0].description = MultilineDescriptionImpl.castFrom("Description 2");
     await termRepo.update(terms[0]);
 
@@ -187,7 +187,7 @@ describe("TermVersionRepo", () => {
 function createTermVersion(term: Term, whatChangedLine: string) {
   return TermVersion.castFrom({
     id: term.id,
-    version: term.version,
+    versionNumber: term.versionNumber,
     glossaryID: term.glossaryID,
     displayName: term.displayName,
     description: term.description,

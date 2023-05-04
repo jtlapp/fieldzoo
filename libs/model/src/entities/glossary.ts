@@ -22,7 +22,7 @@ import { CollaborativeEntity } from "./base/collaborative-entity";
 export class Glossary extends CollaborativeEntity {
   static schema = Type.Object({
     uuid: EmptyStringable(GlossaryIDImpl.schema),
-    version: Zeroable(super.collaborativeSchema.version),
+    versionNumber: Zeroable(super.collaborativeSchema.versionNumber),
     ownerID: UserIDImpl.schema,
     name: DisplayNameImpl.schema,
     description: Nullable(MultilineDescriptionImpl.schema),
@@ -34,7 +34,7 @@ export class Glossary extends CollaborativeEntity {
 
   /**
    * @param uuid The glossary's UUID.
-   * @param version The number for this version of the glossary.
+   * @param versionNumber The number for this version of the glossary.
    * @param ownerID The ID of the user who owns this glossary.
    * @param name The glossary's name.
    * @param description The glossary's description.
@@ -44,7 +44,7 @@ export class Glossary extends CollaborativeEntity {
    */
   constructor(
     readonly uuid: GlossaryID,
-    version: VersionNumber,
+    versionNumber: VersionNumber,
     public ownerID: UserID,
     public name: DisplayName,
     public description: MultilineDescription | null,
@@ -52,7 +52,7 @@ export class Glossary extends CollaborativeEntity {
     createdAt?: Date,
     modifiedAt?: Date
   ) {
-    super(version, modifiedBy, createdAt, modifiedAt);
+    super(versionNumber, modifiedBy, createdAt, modifiedAt);
     freezeField(this, "uuid");
   }
 
@@ -78,7 +78,7 @@ export class Glossary extends CollaborativeEntity {
     }
     return new Glossary(
       fields.uuid as GlossaryID,
-      fields.version as VersionNumber,
+      fields.versionNumber as VersionNumber,
       fields.ownerID as UserID,
       fields.name as DisplayName,
       fields.description as MultilineDescription | null,

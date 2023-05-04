@@ -26,7 +26,7 @@ export async function createVersionsTable(
       .addColumn("modifiedBy", "integer", (col) =>
         col.references("users.id").notNull()
       )
-      .addColumn("version", "integer", (col) => col.notNull())
+      .addColumn("versionNumber", "integer", (col) => col.notNull())
       .addColumn("whatChangedLine", "text", (col) => col.notNull())
   ).execute();
 }

@@ -26,10 +26,10 @@ describe("Glossary entity", () => {
       (skip) => [undefined, ""].includes(skip)
     );
 
-    expect(() => createGlossary({ version: 0 })).not.toThrow();
+    expect(() => createGlossary({ versionNumber: 0 })).not.toThrow();
     testVersionNumber(
       ERROR_MSG,
-      (version) => createGlossary({ version }),
+      (versionNumber) => createGlossary({ versionNumber }),
       (skip) => skip === 0
     );
 
@@ -46,7 +46,7 @@ describe("Glossary entity", () => {
 
     testTimestamps("Invalid glossary", (createdAt, modifiedAt) =>
       Glossary.castFrom({
-        version: 1,
+        versionNumber: 1,
         ownerID: 1,
         modifiedBy: 1,
         name: "Good Name",
@@ -62,7 +62,7 @@ describe("Glossary entity", () => {
       Glossary.castFrom(
         {
           uuid: SAMPLE_UUID,
-          version: 1,
+          versionNumber: 1,
           ownerID: 1,
           modifiedBy: 1,
           name: "",
@@ -75,7 +75,7 @@ describe("Glossary entity", () => {
 
   it("cannot change id", () => {
     const glossary = Glossary.castFrom({
-      version: 1,
+      versionNumber: 1,
       uuid: SAMPLE_UUID,
       ownerID: 1,
       modifiedBy: 1,
@@ -89,7 +89,7 @@ describe("Glossary entity", () => {
 function createGlossary(specifiedFields: Partial<UnvalidatedFields<Glossary>>) {
   return Glossary.castFrom({
     uuid: SAMPLE_UUID,
-    version: 1,
+    versionNumber: 1,
     ownerID: 1,
     name: "Good Name",
     description: "This\nis\nfine.",

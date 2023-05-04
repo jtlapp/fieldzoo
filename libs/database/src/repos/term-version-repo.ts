@@ -59,9 +59,15 @@ export class TermVersionRepo {
   ): Promise<TermVersionSummary[]> {
     return (await this.db
       .selectFrom("term_versions")
-      .select(["id", "version", "modifiedBy", "modifiedAt", "whatChangedLine"])
+      .select([
+        "id",
+        "versionNumber",
+        "modifiedBy",
+        "modifiedAt",
+        "whatChangedLine",
+      ])
       .where("id", "=", id)
-      .orderBy("version", "desc")
+      .orderBy("versionNumber", "desc")
       .limit(limit)
       .offset(offset)
       .execute()) as TermVersionSummary[];
@@ -72,7 +78,7 @@ export class TermVersionRepo {
    */
   private getMapper(db: Kysely<Database>) {
     return new TableMapper(db, "term_versions", {
-      keyColumns: ["id", "version"],
+      keyColumns: ["id", "versionNumber"],
       insertReturnColumns: [],
     }).withTransforms({
       insertTransform: (termVersion: TermVersion) => termVersion,
@@ -90,7 +96,7 @@ export class TermVersionRepo {
  */
 export interface TermVersionSummary {
   readonly id: TermID;
-  readonly version: VersionNumber;
+  readonly versionNumber: VersionNumber;
   readonly modifiedBy: number;
   readonly modifiedAt: Date;
   readonly whatChangedLine: string;

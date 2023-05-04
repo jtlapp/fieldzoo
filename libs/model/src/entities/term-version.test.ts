@@ -18,7 +18,9 @@ const ERROR_MSG = "Invalid term version";
 describe("TermVersion entity", () => {
   it("accepts only valid term versions", () => {
     testTermID(ERROR_MSG, (id) => createTermVersion({ id }));
-    testVersionNumber(ERROR_MSG, (version) => createTermVersion({ version }));
+    testVersionNumber(ERROR_MSG, (versionNumber) =>
+      createTermVersion({ versionNumber })
+    );
     testGlossaryID(ERROR_MSG, (glossaryID) =>
       createTermVersion({ glossaryID })
     );
@@ -31,7 +33,7 @@ describe("TermVersion entity", () => {
     testTimestamps("Invalid term", (createdAt, modifiedAt) =>
       TermVersion.castFrom({
         id: 1,
-        version: 1,
+        versionNumber: 1,
         glossaryID: SAMPLE_UUID,
         displayName: "Good Name",
         description: "This\nis\nfine.",
@@ -52,7 +54,7 @@ describe("TermVersion entity", () => {
       TermVersion.castFrom(
         {
           id: 1,
-          version: 1,
+          versionNumber: 1,
           glossaryID: SAMPLE_UUID,
           displayName: "",
           description: "",
@@ -79,7 +81,7 @@ function createTermVersion(
 ) {
   return TermVersion.castFrom({
     id: 1,
-    version: 1,
+    versionNumber: 1,
     glossaryID: SAMPLE_UUID,
     displayName: "Good Name",
     description: "This\nis\nfine.",

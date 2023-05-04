@@ -27,10 +27,10 @@ describe("Term entity", () => {
       (skip) => [undefined, 0].includes(skip)
     );
 
-    expect(() => createTerm({ version: 0 })).not.toThrow();
+    expect(() => createTerm({ versionNumber: 0 })).not.toThrow();
     testVersionNumber(
       ERROR_MSG,
-      (version) => createTerm({ version }),
+      (versionNumber) => createTerm({ versionNumber }),
       (skip) => skip === 0
     );
 
@@ -62,7 +62,7 @@ describe("Term entity", () => {
     );
     testTimestamps("Invalid term", (createdAt, modifiedAt) =>
       Term.castFrom({
-        version: 1,
+        versionNumber: 1,
         glossaryID: SAMPLE_UUID,
         displayName: "Good Name",
         description: "This\nis\nfine.",
@@ -79,7 +79,7 @@ describe("Term entity", () => {
     expect(() =>
       Term.castFrom(
         {
-          version: 1,
+          versionNumber: 1,
           glossaryID: SAMPLE_UUID,
           lookupName: "",
           displayName: "",
@@ -92,7 +92,7 @@ describe("Term entity", () => {
     expect(() =>
       Term.castFrom(
         {
-          version: 1,
+          versionNumber: 1,
           glossaryID: SAMPLE_UUID,
           lookupName: "foo",
           displayName: "bar",
@@ -113,7 +113,7 @@ describe("Term entity", () => {
 
 function createTerm(specifiedFields: Partial<UnvalidatedFields<Term>>) {
   return Term.castFrom({
-    version: 1,
+    versionNumber: 1,
     glossaryID: SAMPLE_UUID,
     displayName: "Good Name",
     description: "This\nis\nfine.",
