@@ -73,7 +73,7 @@ export class UserRepo {
     }).withTransforms({
       insertTransform: upsertTransform,
       insertReturnTransform: (user: User, returns) =>
-        User.castFrom({ ...user, ...returns, id: returns.id }, false),
+        User.castFrom({ ...user, ...returns }, false),
       updateTransform: upsertTransform,
       updateReturnTransform: (user: User, returns) =>
         Object.assign(user, returns) as User,
