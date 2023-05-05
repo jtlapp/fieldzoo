@@ -108,7 +108,7 @@ importers:
       eslint-config-prettier: ^8.6.0
       eslint-plugin-react: 7.28.0
     dependencies:
-      eslint-config-next: 13.3.1_voubu7prgxjfsfbgx5d4sqnwiy
+      eslint-config-next: 13.4.1_voubu7prgxjfsfbgx5d4sqnwiy
       eslint-config-prettier: 8.8.0_eslint@8.38.0
       eslint-plugin-react: 7.28.0_eslint@8.38.0
 
@@ -197,13 +197,15 @@ importers:
       '@fieldzoo/modeling': workspace:*
       '@fieldzoo/multitier-validator': workspace:*
       '@fieldzoo/typebox-types': workspace:*
-      '@sinclair/typebox': ^0.25.24
+      '@sinclair/typebox': ^0.28.9
       '@types/jest': ^29.4.0
       '@types/node': ^18.14.1
+      '@zxcvbn-ts/core': ^2.2.1
+      '@zxcvbn-ts/language-common': ^2.0.1
+      '@zxcvbn-ts/language-en': ^2.1.0
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
-      kysely-mapper: ^0.2.5
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
@@ -214,8 +216,10 @@ importers:
       '@fieldzoo/modeling': link:../../utils/modeling
       '@fieldzoo/multitier-validator': link:../../utils/multitier-validator
       '@fieldzoo/typebox-types': link:../../utils/typebox-types
-      '@sinclair/typebox': 0.25.24
-      kysely-mapper: 0.2.5
+      '@sinclair/typebox': 0.28.9
+      '@zxcvbn-ts/core': 2.2.1
+      '@zxcvbn-ts/language-common': 2.0.1
+      '@zxcvbn-ts/language-en': 2.1.0
     devDependencies:
       '@types/jest': 29.5.0
       '@types/node': 18.15.11
@@ -350,7 +354,7 @@ importers:
       '@fieldzoo/generic-types': workspace:*
       '@fieldzoo/multitier-validator': workspace:*
       '@fieldzoo/typebox-types': workspace:*
-      '@sinclair/typebox': ^0.25.24
+      '@sinclair/typebox': ^0.28.9
       '@types/jest': ^29.4.0
       '@types/node': ^18.14.1
       '@types/pg': ^8.6.6
@@ -364,7 +368,7 @@ importers:
       '@fieldzoo/generic-types': link:../generic-types
       '@fieldzoo/multitier-validator': link:../multitier-validator
       '@fieldzoo/typebox-types': link:../typebox-types
-      '@sinclair/typebox': 0.25.24
+      '@sinclair/typebox': 0.28.9
     devDependencies:
       '@types/jest': 29.5.0
       '@types/node': 18.15.11
@@ -408,7 +412,7 @@ importers:
 
   utils/modeling:
     specifiers:
-      '@sinclair/typebox': ^0.25.24
+      '@sinclair/typebox': ^0.28.9
       '@types/jest': ^29.4.0
       '@types/node': ^18.14.1
       eslint-config-custom: workspace:*
@@ -419,7 +423,7 @@ importers:
       tsconfig: workspace:*
       typescript: ^4.9.5
     dependencies:
-      '@sinclair/typebox': 0.25.24
+      '@sinclair/typebox': 0.28.9
       kysely: 0.24.2
     devDependencies:
       '@types/jest': 29.5.0
@@ -433,7 +437,7 @@ importers:
 
   utils/multitier-validator:
     specifiers:
-      '@sinclair/typebox': ^0.25.24
+      '@sinclair/typebox': ^0.28.9
       '@types/jest': ^29.4.0
       es6-error: ^4.1.1
       eslint-config-custom: workspace:*
@@ -443,7 +447,7 @@ importers:
       tsconfig: workspace:*
       typescript: ^4.9.5
     dependencies:
-      '@sinclair/typebox': 0.25.24
+      '@sinclair/typebox': 0.28.9
       es6-error: 4.1.1
     devDependencies:
       '@types/jest': 29.5.0
@@ -484,7 +488,7 @@ importers:
   utils/typebox-types:
     specifiers:
       '@jest/globals': ^29.4.3
-      '@sinclair/typebox': ^0.25.24
+      '@sinclair/typebox': ^0.28.9
       '@types/jest': ^29.4.0
       '@types/node': ^18.14.1
       ajv-formats: ^2.1.1
@@ -495,7 +499,7 @@ importers:
       tsconfig: workspace:*
       typescript: ^4.9.5
     dependencies:
-      '@sinclair/typebox': 0.25.24
+      '@sinclair/typebox': 0.28.9
       ajv-formats: 2.1.1
     devDependencies:
       '@jest/globals': 29.5.0
@@ -1380,8 +1384,8 @@ packages:
     resolution: {integrity: sha512-eD6WCBMFjLFooLM19SIhSkWBHtaFrZFfg2Cxnyl3vS3DAdFRfnx5TY2RxlkuKXdIRCC0ySbtK9JXXt8qLCqzZg==}
     dev: false
 
-  /@next/eslint-plugin-next/13.3.1:
-    resolution: {integrity: sha512-Hpd74UrYGF+bq9bBSRDXRsRfaWkPpcwjhvachy3sr/R/5fY6feC0T0s047pUthyqcaeNsqKOY1nUGQQJNm4WyA==}
+  /@next/eslint-plugin-next/13.4.1:
+    resolution: {integrity: sha512-tVPS/2FKlA3ANCRCYZVT5jdbUKasBU8LG6bYqcNhyORDFTlDYa4cAWQJjZ7msIgLwMQIbL8CAsxrOL8maa/4Lg==}
     dependencies:
       glob: 7.1.7
     dev: false
@@ -1618,6 +1622,11 @@ packages:
 
   /@sinclair/typebox/0.25.24:
     resolution: {integrity: sha512-XJfwUVUKDHF5ugKwIcxEgc9k8b7HbznCp6eUfWgu710hMPNIO4aw4/zB5RogDQz8nd6gyCDpU9O/m6qYEWY6yQ==}
+    dev: true
+
+  /@sinclair/typebox/0.28.9:
+    resolution: {integrity: sha512-m98m37J9CBZ8XinStjpss2ZOW50KG45XB4cAva2NGoQHiGPxhfNL2BzUXYCs6ahXdK7/F1NIjOGh+MPP5dK8Rw==}
+    dev: false
 
   /@sinonjs/commons/2.0.0:
     resolution: {integrity: sha512-uLa0j859mMrg2slwQYdO/AkrOfmH+X6LTVmNTS9CqexuE2IvVORIkSpJLqePAbEnKJ77aMmCwr1NUZ57120Xcg==}
@@ -1907,6 +1916,20 @@ packages:
     dependencies:
       argparse: 2.0.1
     dev: true
+
+  /@zxcvbn-ts/core/2.2.1:
+    resolution: {integrity: sha512-Cg1JyRpCDIF+Dh3nauqygmmCYxogNVZDxSn+9PgkPD1HZ2QiJe4elruVJrGmYRS7muGmZ1hNJq8ySQdPv6GHaw==}
+    dependencies:
+      fastest-levenshtein: 1.0.16
+    dev: false
+
+  /@zxcvbn-ts/language-common/2.0.1:
+    resolution: {integrity: sha512-P+v5MA/UNc9nb3FEOEoDgTyIGQc2vLc6m04pdf5YyuNOzrL0iNANhECk2TUp62JbrjouJVodqhMH0j1a8/24Bg==}
+    dev: false
+
+  /@zxcvbn-ts/language-en/2.1.0:
+    resolution: {integrity: sha512-I3n4AAbArjPAZtwCrk9MQnSrcj5+9rq8sic2rUU44fP5QaR17Vk8zDt61+R9dnP9ZRsj09aAUYML4Ash05qZjQ==}
+    dev: false
 
   /acorn-jsx/5.3.2_acorn@8.8.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -2780,8 +2803,8 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
-  /eslint-config-next/13.3.1_voubu7prgxjfsfbgx5d4sqnwiy:
-    resolution: {integrity: sha512-DieA5djybeE3Q0IqnDXihmhgRSp44x1ywWBBpVRA9pSx+m5Icj8hFclx7ffXlAvb9MMLN6cgj/hqJ4lka/QmvA==}
+  /eslint-config-next/13.4.1_voubu7prgxjfsfbgx5d4sqnwiy:
+    resolution: {integrity: sha512-ajuxjCkW1hvirr0EQZb3/B/bFH52Z7CT89uCtTcICFL9l30i5c8hN4p0LXvTjdOXNPV5fEDcxBgGHgXdzTj1/A==}
     peerDependencies:
       eslint: ^7.23.0 || ^8.0.0
       typescript: '>=3.3.1'
@@ -2789,7 +2812,7 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@next/eslint-plugin-next': 13.3.1
+      '@next/eslint-plugin-next': 13.4.1
       '@rushstack/eslint-patch': 1.2.0
       '@typescript-eslint/parser': 5.57.1_voubu7prgxjfsfbgx5d4sqnwiy
       eslint: 8.38.0
@@ -3198,6 +3221,11 @@ packages:
 
   /fast-levenshtein/2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
+    dev: false
+
+  /fastest-levenshtein/1.0.16:
+    resolution: {integrity: sha512-eRnCtTTtGZFpQCwhJiUOuxPQWRXVKYDn0b2PeHfXL6/Zi53SLAzAHfVhVWK2AryC/WH05kGfxhFIPvTF0SXQzg==}
+    engines: {node: '>= 4.9.1'}
     dev: false
 
   /fastq/1.15.0:
@@ -4430,13 +4458,6 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /kysely-mapper/0.2.5:
-    resolution: {integrity: sha512-Eb1noset4dQGGe9DCi+y9Kt+LaOPJzJdx2rFVjODxQPacym+p+Il8U1YDGyS1ookFhl6AlFpojdQX0aWN4N9gw==}
-    dependencies:
-      kysely: 0.24.2
-      kysely-params: 0.3.6
-    dev: false
-
   /kysely-mapper/0.4.2:
     resolution: {integrity: sha512-uuzJlJYncOZo8TVNLHuODfDGzKFvOZx/WByxzcAxVG4EM2u8dHO0ypJ5FbVQ2ttt2LKknO3sngzkG3+dfeHqLQ==}
     dependencies:
@@ -4446,12 +4467,6 @@ packages:
 
   /kysely-params/0.3.10:
     resolution: {integrity: sha512-yuQurYlJw3NgjjRvo3ytUiVkdgTyeivOE8gxxqD1sgopnSK82cbD0IzRHj0cdSSuInXO8m72loVHmrhtY/foUA==}
-    dependencies:
-      kysely: 0.24.2
-    dev: false
-
-  /kysely-params/0.3.6:
-    resolution: {integrity: sha512-S3nbiEpwsCzS/aP4QZ3MDqcgvKsI/FYeMjDKuaD/NzofViAjfWxj5jegohNAQTGbYiDTDxq2obpxTP1282Lnmw==}
     dependencies:
       kysely: 0.24.2
     dev: false

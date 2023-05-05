@@ -2,7 +2,7 @@ import { BASE64_UUID_LENGTH, BASE64_UUID_REGEX } from "@fieldzoo/base64-uuid";
 import { NonEmptyString } from "@fieldzoo/typebox-types";
 import { TypeSystem } from "@sinclair/typebox/system";
 
-TypeSystem.CreateFormat("BASE64_UUID", (v) => BASE64_UUID_REGEX.test(v));
+TypeSystem.Format("BASE64_UUID", (v) => BASE64_UUID_REGEX.test(v));
 
 export const Base64UuidSchema = NonEmptyString({
   format: "BASE64_UUID",

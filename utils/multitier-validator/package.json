@@ -20,7 +20,7 @@
     "preset": "jest-presets/node"
   },
   "dependencies": {
-    "@sinclair/typebox": "^0.25.24",
+    "@sinclair/typebox": "^0.28.9",
     "es6-error": "^4.1.1"
   },
   "devDependencies": {

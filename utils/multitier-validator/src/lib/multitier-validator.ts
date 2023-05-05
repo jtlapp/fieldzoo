@@ -13,11 +13,7 @@
  */
 
 import type { TSchema } from "@sinclair/typebox";
-import {
-  TypeCheck,
-  TypeCompiler,
-  ValueError,
-} from "@sinclair/typebox/compiler";
+import { TypeCheck, TypeCompiler } from "@sinclair/typebox/compiler";
 
 import { ValidationException } from "./validation-exception";
 
@@ -51,8 +47,7 @@ export class MultitierValidator<S extends TSchema> {
    */
   safeValidate(value: unknown, errorMessage: string): void {
     if (!this.#compiledType.Check(value)) {
-      const firstError: ValueError = this.#compiledType.Errors(value).next()!
-        .value;
+      const firstError = this.#compiledType.Errors(value).First()!;
       throw new ValidationException(errorMessage, [firstError]);
     }
   }

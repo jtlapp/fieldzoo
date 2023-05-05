@@ -25,8 +25,10 @@
     "@fieldzoo/modeling": "workspace:*",
     "@fieldzoo/multitier-validator": "workspace:*",
     "@fieldzoo/typebox-types": "workspace:*",
-    "@sinclair/typebox": "^0.25.24",
-    "kysely-mapper": "^0.2.5"
+    "@sinclair/typebox": "^0.28.9",
+    "@zxcvbn-ts/core": "^2.2.1",
+    "@zxcvbn-ts/language-common": "^2.0.1",
+    "@zxcvbn-ts/language-en": "^2.1.0"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",

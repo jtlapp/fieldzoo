@@ -11,7 +11,7 @@ import { TypeSystem } from "@sinclair/typebox/system";
 
 export type NormalizedName = string & { readonly __validated__: unique symbol };
 
-TypeSystem.CreateFormat("NORMALIZED_NAME", (v) => /^[^\p{Z}\p{C}]+$/u.test(v));
+TypeSystem.Format("NORMALIZED_NAME", (v) => /^[^\p{Z}\p{C}]+$/u.test(v));
 
 export class NormalizedNameImpl {
   static schema = typebox.Type.String({
