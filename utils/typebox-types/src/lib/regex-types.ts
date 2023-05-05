@@ -19,35 +19,33 @@ import {
   USER_NAME_UNICODE_REGEX,
 } from "./regexes";
 
-export function CodeWordString(options: StringOptions<string>) {
+export function CodeWordString(options: StringOptions) {
   return Type.RegEx(CODE_WORD_REGEX, options);
 }
 
-export function EmailString(options: StringOptions<string>) {
+export function EmailString(options: StringOptions) {
   return Type.RegEx(fastFormats.email, options);
 }
 
-export function HostNameString(options: StringOptions<string>) {
+export function HostNameString(options: StringOptions) {
   return Type.RegEx(HOST_NAME_REGEX, options);
 }
 
-TypeSystem.CreateFormat("MULTI_LINE_UNICODE", (v) =>
+TypeSystem.Format("MULTI_LINE_UNICODE", (v) =>
   MULTI_LINE_UNICODE_REGEX.test(v)
 );
-export function MultiLineUnicodeString(options: StringOptions<string>) {
+export function MultiLineUnicodeString(options: StringOptions) {
   return Type.String({ format: "MULTI_LINE_UNICODE", ...options });
 }
 
-TypeSystem.CreateFormat("SINGLE_LINE_UNICODE", (v) =>
+TypeSystem.Format("SINGLE_LINE_UNICODE", (v) =>
   SINGLE_LINE_UNICODE_REGEX.test(v)
 );
-export function SingleLineUnicodeString(options: StringOptions<string>) {
+export function SingleLineUnicodeString(options: StringOptions) {
   return Type.String({ format: "SINGLE_LINE_UNICODE", ...options });
 }
 
-TypeSystem.CreateFormat("USER_NAME_UNICODE", (v) =>
-  USER_NAME_UNICODE_REGEX.test(v)
-);
-export function UserNameUnicodeString(options: StringOptions<string>) {
+TypeSystem.Format("USER_NAME_UNICODE", (v) => USER_NAME_UNICODE_REGEX.test(v));
+export function UserNameUnicodeString(options: StringOptions) {
   return Type.String({ format: "USER_NAME_UNICODE", ...options });
 }
