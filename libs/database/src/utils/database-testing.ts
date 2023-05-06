@@ -23,7 +23,7 @@ const PATH_TO_ROOT = path.join(__dirname, "../../../..");
 
 let db: Kysely<any> | null = null;
 
-export function getDB(): Kysely<any> {
+export function getTestDB(): Kysely<any> {
   if (!db) {
     dotenv.config({ path: path.join(PATH_TO_ROOT, TEST_ENV) });
     db = new Kysely<any>({
@@ -35,7 +35,7 @@ export function getDB(): Kysely<any> {
   return db;
 }
 
-export async function closeDB(): Promise<void> {
+export async function closeTestDB(): Promise<void> {
   if (db) await db.destroy();
 }
 

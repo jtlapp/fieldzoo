@@ -3,15 +3,15 @@ import { join } from "path";
 import type { Kysely } from "kysely";
 
 import { TEST_ENV } from "@fieldzoo/app-config";
-import { getDB, closeDB, resetTestDB } from "@fieldzoo/database";
+import { getTestDB, closeTestDB, resetTestDB } from "@fieldzoo/database";
 import { dropAllTables } from "@fieldzoo/postgres-utils";
 import { getError } from "@fieldzoo/testing-utils";
 
 let db: Kysely<any>;
 
-beforeAll(() => (db = getDB()));
+beforeAll(() => (db = getTestDB()));
 
-afterAll(() => closeDB());
+afterAll(() => closeTestDB());
 
 describe("installer", () => {
   it("should install tables from scratch by default", async () => {
