@@ -1,4 +1,4 @@
-import { DatabaseConfig } from "./database-config";
+import { PostgresConfig } from "./postgres-config";
 
 import { InvalidEnvironmentException } from "./invalid-env-exception";
 
@@ -12,7 +12,7 @@ const ALL_VARS = [
 
 describe("database configuration", () => {
   it("accepts valid configurations", () => {
-    let config = createDatabaseConfig({
+    let config = createPostgresConfig({
       POSTGRES_HOST: "localhost",
       POSTGRES_PORT: "123",
       POSTGRES_DATABASE: "foo",
@@ -27,7 +27,7 @@ describe("database configuration", () => {
       password: "xyz",
     });
 
-    config = createDatabaseConfig({
+    config = createPostgresConfig({
       POSTGRES_HOST: "abc.def.com",
       POSTGRES_PORT: "2001",
       POSTGRES_DATABASE: "_foo123",
@@ -46,7 +46,7 @@ describe("database configuration", () => {
   it("rejects undefined values", () => {
     expect.assertions(ALL_VARS.length + 1);
     try {
-      createDatabaseConfig({
+      createPostgresConfig({
         POSTGRES_HOST: undefined!,
         POSTGRES_PORT: undefined!,
         POSTGRES_DATABASE: undefined!,
@@ -65,7 +65,7 @@ describe("database configuration", () => {
   it("rejects empty strings", () => {
     expect.assertions(ALL_VARS.length + 1);
     try {
-      createDatabaseConfig({
+      createPostgresConfig({
         POSTGRES_HOST: "",
         POSTGRES_PORT: "65536",
         POSTGRES_DATABASE: "",
@@ -84,7 +84,7 @@ describe("database configuration", () => {
   it("rejects invalid values", () => {
     expect.assertions(ALL_VARS.length);
     try {
-      createDatabaseConfig({
+      createPostgresConfig({
         POSTGRES_HOST: "foo foo",
         POSTGRES_PORT: "-1",
         POSTGRES_DATABASE: "bar bar",
@@ -104,7 +104,7 @@ describe("database configuration", () => {
   it("produces friendly error messages", () => {
     expect.assertions(1);
     try {
-      createDatabaseConfig({
+      createPostgresConfig({
         POSTGRES_HOST: "localPOSTGRES_HOST:32",
         POSTGRES_PORT: "125.5",
         POSTGRES_DATABASE: "foo bar",
@@ -139,7 +139,7 @@ describe("database configuration", () => {
   });
 });
 
-function createDatabaseConfig(vars: {
+function createPostgresConfig(vars: {
   POSTGRES_HOST?: string;
   POSTGRES_PORT?: string;
   POSTGRES_DATABASE?: string;
@@ -154,5 +154,5 @@ function createDatabaseConfig(vars: {
       process.env[varName] = value;
     }
   }
-  return new DatabaseConfig();
+  return new PostgresConfig();
 }

@@ -16,7 +16,7 @@ import {
 import ExtendableError from "es6-error";
 
 import {
-  DatabaseConfig,
+  PostgresConfig,
   InvalidEnvironmentException,
 } from "@fieldzoo/env-config";
 import { MIGRATION_FILE_PATH } from "@fieldzoo/database";
@@ -48,7 +48,7 @@ program
   .addHelpText(
     "after",
     `Environment variables (.env):\n${Object.entries(
-      DatabaseConfig.getHelpInfo()
+      PostgresConfig.getHelpInfo()
     )
       .map((entry) => `  ${entry[0]} - ${entry[1]}`)
       .join("\n")}`
@@ -88,7 +88,7 @@ async function commandWrapper(
     }
     db = new Kysely<any>({
       dialect: new PostgresDialect({
-        pool: new Pool(new DatabaseConfig()),
+        pool: new Pool(new PostgresConfig()),
       }),
     });
     await action(db);

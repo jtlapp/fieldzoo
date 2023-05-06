@@ -1,8 +1,6 @@
 /**
- * Module validating and encapsulating a database configuration, capable of
- * creating the configuration from environment variables. It is designed to
- * provide intelligible errors to users who may not be very technical, since
- * non-technical users may attempt to install and run the platform.
+ * Module that populates and validates a Postgres database configuration from
+ * environment variables and providing friendly error messages.
  */
 
 import type { ClientConfig } from "pg";
@@ -22,7 +20,7 @@ import { InvalidEnvironmentException } from "./invalid-env-exception";
  * Configuration governing database access, conforming to the
  * client configuration required by the Postgres `pg` package.
  */
-export class DatabaseConfig implements ClientConfig {
+export class PostgresConfig implements ClientConfig {
   readonly host: string;
   readonly port: number;
   readonly database: string;
@@ -55,9 +53,9 @@ export class DatabaseConfig implements ClientConfig {
       POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD!,
     };
 
-    if (!Value.Check(DatabaseConfig.schema, values)) {
+    if (!Value.Check(PostgresConfig.schema, values)) {
       throw InvalidEnvironmentException.fromTypeBoxErrors(
-        Value.Errors(DatabaseConfig.schema, values)
+        Value.Errors(PostgresConfig.schema, values)
       );
     }
 

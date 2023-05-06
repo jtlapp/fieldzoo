@@ -14,7 +14,7 @@ import {
 } from "kysely";
 
 import { TEST_ENV } from "@fieldzoo/app-config";
-import { DatabaseConfig } from "@fieldzoo/env-config";
+import { PostgresConfig } from "@fieldzoo/env-config";
 import { dropAllTables } from "@fieldzoo/postgres-utils";
 
 import { MIGRATION_FILE_PATH } from "./migration-utils";
@@ -28,7 +28,7 @@ export function getDB(): Kysely<any> {
     dotenv.config({ path: path.join(PATH_TO_ROOT, TEST_ENV) });
     db = new Kysely<any>({
       dialect: new PostgresDialect({
-        pool: new Pool(new DatabaseConfig()),
+        pool: new Pool(new PostgresConfig()),
       }),
     });
   }

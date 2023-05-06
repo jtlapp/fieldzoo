@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 
 import { TEST_ENV } from "@fieldzoo/app-config";
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
-import { DatabaseConfig } from "@fieldzoo/env-config";
+import { PostgresConfig } from "@fieldzoo/env-config";
 import { DisplayNameImpl, Glossary, User } from "@fieldzoo/model";
 
 import { resetTestDB, sleep } from "../utils/database-testing";
@@ -22,7 +22,7 @@ beforeAll(() => {
   dotenv.config({ path: path.join(PATH_TO_ROOT, TEST_ENV) });
   db = new Kysely<Database>({
     dialect: new PostgresDialect({
-      pool: new Pool(new DatabaseConfig()),
+      pool: new Pool(new PostgresConfig()),
     }),
   });
 });
