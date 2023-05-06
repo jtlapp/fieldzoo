@@ -128,6 +128,8 @@ importers:
 
   libs/app-config:
     specifiers:
+      '@fieldzoo/env-config': workspace:*
+      '@sinclair/typebox': ^0.28.9
       '@types/jest': ^29.4.0
       '@types/node': ^18.14.1
       eslint-config-custom: workspace:*
@@ -136,6 +138,9 @@ importers:
       ts-jest: ^29.0.5
       tsconfig: workspace:*
       typescript: ^4.9.5
+    dependencies:
+      '@fieldzoo/env-config': link:../../utils/env-config
+      '@sinclair/typebox': 0.28.9
     devDependencies:
       '@types/jest': 29.5.0
       '@types/node': 18.15.11

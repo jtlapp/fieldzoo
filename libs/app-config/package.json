@@ -26,5 +26,9 @@
     "ts-jest": "^29.0.5",
     "tsconfig": "workspace:*",
     "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "@fieldzoo/env-config": "workspace:*",
+    "@sinclair/typebox": "^0.28.9"
   }
 }
