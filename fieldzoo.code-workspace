@@ -41,8 +41,8 @@
       "path": "utils/base64-uuid"
     },
     {
-      "name": "utils/database-config",
-      "path": "utils/database-config"
+      "name": "utils/env-config",
+      "path": "utils/env-config"
     },
     {
       "name": "utils/freeze-field",

@@ -14,7 +14,7 @@ import {
 } from "kysely";
 
 import { TEST_ENV } from "@fieldzoo/app-config";
-import { DatabaseConfig } from "@fieldzoo/database-config";
+import { DatabaseConfig } from "@fieldzoo/env-config";
 import { dropAllTables } from "@fieldzoo/postgres-utils";
 
 import { MIGRATION_FILE_PATH } from "./migration-utils";

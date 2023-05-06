@@ -4,7 +4,7 @@ import { Kysely, PostgresDialect } from "kysely";
 import * as dotenv from "dotenv";
 
 import { TEST_ENV } from "@fieldzoo/app-config";
-import { DatabaseConfig } from "@fieldzoo/database-config";
+import { DatabaseConfig } from "@fieldzoo/env-config";
 import {
   Glossary,
   MultilineDescriptionImpl,

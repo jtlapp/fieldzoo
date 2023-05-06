@@ -15,7 +15,7 @@
   "dependencies": {
     "@fieldzoo/app-config": "workspace:*",
     "@fieldzoo/database": "workspace:*",
-    "@fieldzoo/database-config": "workspace:*",
+    "@fieldzoo/env-config": "workspace:*",
     "@fieldzoo/postgres-utils": "workspace:*",
     "@fieldzoo/testing-utils": "workspace:*",
     "commander": "^10.0.0",

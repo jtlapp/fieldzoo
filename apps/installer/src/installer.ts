@@ -15,10 +15,7 @@ import {
 } from "kysely";
 import ExtendableError from "es6-error";
 
-import {
-  DatabaseConfig,
-  InvalidEnvironmentError,
-} from "@fieldzoo/database-config";
+import { DatabaseConfig, InvalidEnvironmentError } from "@fieldzoo/env-config";
 import { MIGRATION_FILE_PATH } from "@fieldzoo/database";
 import { dropAllTables, existingTables } from "@fieldzoo/postgres-utils";
 

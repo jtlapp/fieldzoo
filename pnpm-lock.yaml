@@ -18,7 +18,7 @@ importers:
     specifiers:
       '@fieldzoo/app-config': workspace:*
       '@fieldzoo/database': workspace:*
-      '@fieldzoo/database-config': workspace:*
+      '@fieldzoo/env-config': workspace:*
       '@fieldzoo/postgres-utils': workspace:*
       '@fieldzoo/testing-utils': workspace:*
       '@types/jest': ^29.4.0
@@ -39,7 +39,7 @@ importers:
     dependencies:
       '@fieldzoo/app-config': link:../../libs/app-config
       '@fieldzoo/database': link:../../libs/database
-      '@fieldzoo/database-config': link:../../utils/database-config
+      '@fieldzoo/env-config': link:../../utils/env-config
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
       '@fieldzoo/testing-utils': link:../../utils/testing-utils
       commander: 10.0.0
@@ -148,7 +148,7 @@ importers:
     specifiers:
       '@fieldzoo/app-config': workspace:*
       '@fieldzoo/base64-uuid': workspace:*
-      '@fieldzoo/database-config': workspace:*
+      '@fieldzoo/env-config': workspace:*
       '@fieldzoo/model': workspace:*
       '@fieldzoo/modeling': workspace:*
       '@fieldzoo/multitier-validator': workspace:*
@@ -169,7 +169,7 @@ importers:
     dependencies:
       '@fieldzoo/app-config': link:../app-config
       '@fieldzoo/base64-uuid': link:../../utils/base64-uuid
-      '@fieldzoo/database-config': link:../../utils/database-config
+      '@fieldzoo/env-config': link:../../utils/env-config
       '@fieldzoo/model': link:../model
       '@fieldzoo/modeling': link:../../utils/modeling
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
@@ -349,7 +349,7 @@ importers:
       tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
 
-  utils/database-config:
+  utils/env-config:
     specifiers:
       '@fieldzoo/generic-types': workspace:*
       '@fieldzoo/typebox-types': workspace:*

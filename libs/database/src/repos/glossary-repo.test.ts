@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 
 import { TEST_ENV } from "@fieldzoo/app-config";
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
-import { DatabaseConfig } from "@fieldzoo/database-config";
+import { DatabaseConfig } from "@fieldzoo/env-config";
 import { DisplayNameImpl, Glossary, User } from "@fieldzoo/model";
 
 import { resetTestDB, sleep } from "../utils/database-testing";

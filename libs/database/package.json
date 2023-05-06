@@ -21,7 +21,7 @@
   "dependencies": {
     "@fieldzoo/app-config": "workspace:*",
     "@fieldzoo/base64-uuid": "workspace:*",
-    "@fieldzoo/database-config": "workspace:*",
+    "@fieldzoo/env-config": "workspace:*",
     "@fieldzoo/model": "workspace:*",
     "@fieldzoo/modeling": "workspace:*",
     "@fieldzoo/postgres-utils": "workspace:*",
