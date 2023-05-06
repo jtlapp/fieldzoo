@@ -1,4 +1,4 @@
-import { StringOptions, TSchema, Type } from "@sinclair/typebox";
+import { SchemaOptions, StringOptions, TSchema, Type } from "@sinclair/typebox";
 import { TypeSystem } from "@sinclair/typebox/system";
 
 export const EmptyStringable = <T extends TSchema>(type: T) =>
@@ -6,7 +6,7 @@ export const EmptyStringable = <T extends TSchema>(type: T) =>
 
 export const IntegerString = TypeSystem.Type<
   string,
-  { minimum?: number; maximum?: number; maxDigits?: number }
+  { minimum?: number; maximum?: number; maxDigits?: number } & SchemaOptions
 >("Integer String", (options: any, value: any) => {
   if (
     typeof value !== "string" ||

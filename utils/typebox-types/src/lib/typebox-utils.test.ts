@@ -17,7 +17,9 @@ describe("typebox utility schemas", () => {
     expect(check(IntegerString(), "000")).toBe(true);
     expect(check(IntegerString({ minimum: 0, maximum: 0 }), "0")).toBe(true);
     expect(check(IntegerString({ minimum: 0, maximum: 100 }), "50")).toBe(true);
-    expect(check(IntegerString({ maxDigits: 3 }), "100")).toBe(true);
+    expect(
+      check(IntegerString({ maxDigits: 3, message: "Max 3 digits" }), "100")
+    ).toBe(true);
 
     expect(check(IntegerString(), null)).toBe(false);
     expect(check(IntegerString(), undefined)).toBe(false);
