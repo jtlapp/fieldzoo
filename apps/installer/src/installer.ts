@@ -47,10 +47,8 @@ program
   .on("option:env", (value) => (envFileName = value))
   .addHelpText(
     "after",
-    `Environment variables (.env):\n${Object.entries(
-      PostgresConfig.getHelpInfo()
-    )
-      .map((entry) => `  ${entry[0]} - ${entry[1]}`)
+    `\nEnvironment variables (.env):\n${PostgresConfig.getHelpInfo()
+      .map(([envVar, description]) => `  ${envVar} - ${description}`)
       .join("\n")}`
   );
 

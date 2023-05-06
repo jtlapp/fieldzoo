@@ -28,15 +28,26 @@ export class PostgresConfig implements ClientConfig {
   readonly password: string;
 
   static schema = Type.Object({
-    POSTGRES_HOST: HostNameString({ message: "invalid host name" }),
+    POSTGRES_HOST: HostNameString({
+      description: "host of database server (e.g. 'localhost')",
+      message: "invalid host name",
+    }),
     POSTGRES_PORT: IntegerString({
+      description: "port number of database server at host",
       minimum: 0,
       maximum: 65535,
       message: "port must be an integer >= 0 and <= 65535",
     }),
-    POSTGRES_DATABASE: CodeWordString({ message: "invalid database name" }),
-    POSTGRES_USER: CodeWordString({ message: "invalid user" }),
+    POSTGRES_DATABASE: CodeWordString({
+      description: "name of database on database server",
+      message: "invalid database name",
+    }),
+    POSTGRES_USER: CodeWordString({
+      description: "user name with which to login to database",
+      message: "invalid user",
+    }),
     POSTGRES_PASSWORD: NonEmptyString({
+      description: "password for the indicated user",
       message: "password should not be empty",
     }),
   });
@@ -72,13 +83,10 @@ export class PostgresConfig implements ClientConfig {
    * @returns An object mapping environment variable names to text that
    *  can be used to describe the environment variables in help output.
    */
-  static getHelpInfo(): Record<string, string> {
-    return {
-      POSTGRES_HOST: "host of database server (e.g. 'localhost')",
-      POSTGRES_PORT: "port number of database server at host",
-      POSTGRES_DATABASE: "name of database on database server",
-      POSTGRES_USER: "user name with which to login to database",
-      POSTGRES_PASSWORD: "password for this user",
-    };
+  static getHelpInfo(): [string, string][] {
+    return Object.entries(this.schema.properties).map(([key, value]) => [
+      key,
+      value.description!,
+    ]);
   }
 }
