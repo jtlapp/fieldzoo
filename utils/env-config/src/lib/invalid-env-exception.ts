@@ -16,7 +16,7 @@ export interface EnvironmentVariableError {
 /**
  * Class representing one or more problems with one or more environment variables.
  */
-export class InvalidEnvironmentError {
+export class InvalidEnvironmentException {
   readonly message = "Invalid environment variable(s)";
   errors: EnvironmentVariableError[] = [];
 
@@ -32,8 +32,8 @@ export class InvalidEnvironmentError {
 
   static fromTypeBoxErrors(
     errors: ValueErrorIterator
-  ): InvalidEnvironmentError {
-    const envError = new InvalidEnvironmentError();
+  ): InvalidEnvironmentException {
+    const envError = new InvalidEnvironmentException();
     for (const error of errors) {
       envError.add({
         envVarName: error.path.substring(1),

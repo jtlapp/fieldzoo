@@ -16,7 +16,7 @@ import {
   NonEmptyString,
 } from "@fieldzoo/typebox-types";
 
-import { InvalidEnvironmentError } from "./invalid-env-error";
+import { InvalidEnvironmentException } from "./invalid-env-exception";
 
 /**
  * Configuration governing database access, conforming to the
@@ -56,7 +56,7 @@ export class DatabaseConfig implements ClientConfig {
     };
 
     if (!Value.Check(DatabaseConfig.schema, values)) {
-      throw InvalidEnvironmentError.fromTypeBoxErrors(
+      throw InvalidEnvironmentException.fromTypeBoxErrors(
         Value.Errors(DatabaseConfig.schema, values)
       );
     }

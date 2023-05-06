@@ -15,7 +15,10 @@ import {
 } from "kysely";
 import ExtendableError from "es6-error";
 
-import { DatabaseConfig, InvalidEnvironmentError } from "@fieldzoo/env-config";
+import {
+  DatabaseConfig,
+  InvalidEnvironmentException,
+} from "@fieldzoo/env-config";
 import { MIGRATION_FILE_PATH } from "@fieldzoo/database";
 import { dropAllTables, existingTables } from "@fieldzoo/postgres-utils";
 
@@ -93,7 +96,7 @@ async function commandWrapper(
     errored = true;
     if (err instanceof CommandFailure) {
       console.error(`FAILED: ${err.message} (-h for help)\n`);
-    } else if (err instanceof InvalidEnvironmentError) {
+    } else if (err instanceof InvalidEnvironmentException) {
       console.error("FAILED: " + err.toString() + "\n");
     } else {
       throw err;

@@ -1,6 +1,6 @@
 import { DatabaseConfig } from "./database-config";
 
-import { InvalidEnvironmentError } from "./invalid-env-error";
+import { InvalidEnvironmentException } from "./invalid-env-exception";
 
 const ALL_VARS = [
   "POSTGRES_HOST",
@@ -54,7 +54,7 @@ describe("database configuration", () => {
         POSTGRES_PASSWORD: undefined!,
       });
     } catch (e: unknown) {
-      if (!(e instanceof InvalidEnvironmentError)) throw e;
+      if (!(e instanceof InvalidEnvironmentException)) throw e;
       expect(e.errors.length).toEqual(ALL_VARS.length);
       for (const error of e.errors) {
         expect(ALL_VARS).toContain(error.envVarName);
@@ -73,7 +73,7 @@ describe("database configuration", () => {
         POSTGRES_PASSWORD: "",
       });
     } catch (e: unknown) {
-      if (!(e instanceof InvalidEnvironmentError)) throw e;
+      if (!(e instanceof InvalidEnvironmentException)) throw e;
       expect(e.errors.length).toEqual(ALL_VARS.length);
       for (const error of e.errors) {
         expect(ALL_VARS).toContain(error.envVarName);
@@ -92,7 +92,7 @@ describe("database configuration", () => {
         POSTGRES_PASSWORD: "abcdef",
       });
     } catch (e: unknown) {
-      if (!(e instanceof InvalidEnvironmentError)) throw e;
+      if (!(e instanceof InvalidEnvironmentException)) throw e;
       const invalids = ALL_VARS.slice(0, ALL_VARS.length - 1);
       expect(e.errors.length).toEqual(invalids.length);
       for (const error of e.errors) {
@@ -112,7 +112,7 @@ describe("database configuration", () => {
         POSTGRES_PASSWORD: "",
       });
     } catch (e: unknown) {
-      if (!(e instanceof InvalidEnvironmentError)) throw e;
+      if (!(e instanceof InvalidEnvironmentException)) throw e;
       expect(e.errors).toEqual([
         {
           envVarName: "POSTGRES_HOST",
