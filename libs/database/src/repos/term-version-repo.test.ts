@@ -5,16 +5,15 @@ import * as dotenv from "dotenv";
 
 import { TEST_ENV } from "@fieldzoo/app-config";
 import { PostgresConfig } from "@fieldzoo/env-config";
+import { User } from "@fieldzoo/system-model";
 import {
   Glossary,
   MultilineDescriptionImpl,
   Term,
   TermVersion,
-  User,
-} from "@fieldzoo/model";
-import { WhatChangedLineImpl } from "@fieldzoo/model";
-import { VersionNumberImpl } from "@fieldzoo/model";
-
+  VersionNumberImpl,
+  WhatChangedLineImpl,
+} from "@fieldzoo/taxonomic-model";
 import { resetTestDB, sleep } from "../utils/database-testing";
 import { Database } from "../tables/table-interfaces";
 import { UserRepo } from "./user-repo";

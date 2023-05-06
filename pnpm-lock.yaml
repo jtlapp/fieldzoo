@@ -160,10 +160,11 @@ importers:
       '@fieldzoo/app-config': workspace:*
       '@fieldzoo/base64-uuid': workspace:*
       '@fieldzoo/env-config': workspace:*
-      '@fieldzoo/model': workspace:*
       '@fieldzoo/modeling': workspace:*
       '@fieldzoo/multitier-validator': workspace:*
       '@fieldzoo/postgres-utils': workspace:*
+      '@fieldzoo/system-model': workspace:*
+      '@fieldzoo/taxonomic-model': workspace:*
       '@types/jest': ^29.4.0
       '@types/node': ^18.14.1
       '@types/pg': ^8.6.6
@@ -181,9 +182,10 @@ importers:
       '@fieldzoo/app-config': link:../app-config
       '@fieldzoo/base64-uuid': link:../../utils/base64-uuid
       '@fieldzoo/env-config': link:../../utils/env-config
-      '@fieldzoo/model': link:../model
       '@fieldzoo/modeling': link:../../utils/modeling
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
+      '@fieldzoo/system-model': link:../../models/system-model
+      '@fieldzoo/taxonomic-model': link:../../models/taxonomic-model
       dotenv: 16.0.3
       kysely: 0.24.2
       kysely-mapper: 0.4.2
@@ -193,47 +195,6 @@ importers:
       '@types/jest': 29.5.0
       '@types/node': 18.15.11
       '@types/pg': 8.6.6
-      eslint-config-custom: link:../../config/eslint-config-custom
-      jest: 29.5.0_@types+node@18.15.11
-      jest-presets: link:../../config/jest-presets
-      ts-jest: 29.1.0_rgossuqlslmrpogqankdav3e2e
-      tsconfig: link:../../config/tsconfig
-      typescript: 4.9.5
-
-  libs/model:
-    specifiers:
-      '@fieldzoo/base64-uuid': workspace:*
-      '@fieldzoo/freeze-field': workspace:*
-      '@fieldzoo/generic-types': workspace:*
-      '@fieldzoo/modeling': workspace:*
-      '@fieldzoo/multitier-validator': workspace:*
-      '@fieldzoo/typebox-types': workspace:*
-      '@sinclair/typebox': ^0.28.9
-      '@types/jest': ^29.4.0
-      '@types/node': ^18.14.1
-      '@zxcvbn-ts/core': ^2.2.1
-      '@zxcvbn-ts/language-common': ^2.0.1
-      '@zxcvbn-ts/language-en': ^2.1.0
-      eslint-config-custom: workspace:*
-      jest: ^29.4.3
-      jest-presets: workspace:*
-      ts-jest: ^29.0.5
-      tsconfig: workspace:*
-      typescript: ^4.9.5
-    dependencies:
-      '@fieldzoo/base64-uuid': link:../../utils/base64-uuid
-      '@fieldzoo/freeze-field': link:../../utils/freeze-field
-      '@fieldzoo/generic-types': link:../../utils/generic-types
-      '@fieldzoo/modeling': link:../../utils/modeling
-      '@fieldzoo/multitier-validator': link:../../utils/multitier-validator
-      '@fieldzoo/typebox-types': link:../../utils/typebox-types
-      '@sinclair/typebox': 0.28.9
-      '@zxcvbn-ts/core': 2.2.1
-      '@zxcvbn-ts/language-common': 2.0.1
-      '@zxcvbn-ts/language-en': 2.1.0
-    devDependencies:
-      '@types/jest': 29.5.0
-      '@types/node': 18.15.11
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.5.0_@types+node@18.15.11
       jest-presets: link:../../config/jest-presets
@@ -277,6 +238,82 @@ importers:
       tailwind-config: link:../../config/tailwind-config
       tsconfig: link:../../config/tsconfig
       tsup: 6.7.0_uujdqti2krmttzhqvubwnsmcci
+      typescript: 4.9.5
+
+  models/system-model:
+    specifiers:
+      '@fieldzoo/freeze-field': workspace:*
+      '@fieldzoo/generic-types': workspace:*
+      '@fieldzoo/modeling': workspace:*
+      '@fieldzoo/multitier-validator': workspace:*
+      '@fieldzoo/typebox-types': workspace:*
+      '@sinclair/typebox': ^0.28.9
+      '@types/jest': ^29.4.0
+      '@types/node': ^18.14.1
+      '@zxcvbn-ts/core': ^2.2.1
+      '@zxcvbn-ts/language-common': ^2.0.1
+      '@zxcvbn-ts/language-en': ^2.1.0
+      eslint-config-custom: workspace:*
+      jest: ^29.4.3
+      jest-presets: workspace:*
+      ts-jest: ^29.0.5
+      tsconfig: workspace:*
+      typescript: ^4.9.5
+    dependencies:
+      '@fieldzoo/freeze-field': link:../../utils/freeze-field
+      '@fieldzoo/generic-types': link:../../utils/generic-types
+      '@fieldzoo/modeling': link:../../utils/modeling
+      '@fieldzoo/multitier-validator': link:../../utils/multitier-validator
+      '@fieldzoo/typebox-types': link:../../utils/typebox-types
+      '@sinclair/typebox': 0.28.9
+      '@zxcvbn-ts/core': 2.2.1
+      '@zxcvbn-ts/language-common': 2.0.1
+      '@zxcvbn-ts/language-en': 2.1.0
+    devDependencies:
+      '@types/jest': 29.5.0
+      '@types/node': 18.15.11
+      eslint-config-custom: link:../../config/eslint-config-custom
+      jest: 29.5.0_@types+node@18.15.11
+      jest-presets: link:../../config/jest-presets
+      ts-jest: 29.1.0_rgossuqlslmrpogqankdav3e2e
+      tsconfig: link:../../config/tsconfig
+      typescript: 4.9.5
+
+  models/taxonomic-model:
+    specifiers:
+      '@fieldzoo/base64-uuid': workspace:*
+      '@fieldzoo/freeze-field': workspace:*
+      '@fieldzoo/generic-types': workspace:*
+      '@fieldzoo/modeling': workspace:*
+      '@fieldzoo/multitier-validator': workspace:*
+      '@fieldzoo/system-model': workspace:*
+      '@fieldzoo/typebox-types': workspace:*
+      '@sinclair/typebox': ^0.28.9
+      '@types/jest': ^29.4.0
+      '@types/node': ^18.14.1
+      eslint-config-custom: workspace:*
+      jest: ^29.4.3
+      jest-presets: workspace:*
+      ts-jest: ^29.0.5
+      tsconfig: workspace:*
+      typescript: ^4.9.5
+    dependencies:
+      '@fieldzoo/base64-uuid': link:../../utils/base64-uuid
+      '@fieldzoo/freeze-field': link:../../utils/freeze-field
+      '@fieldzoo/generic-types': link:../../utils/generic-types
+      '@fieldzoo/modeling': link:../../utils/modeling
+      '@fieldzoo/multitier-validator': link:../../utils/multitier-validator
+      '@fieldzoo/system-model': link:../system-model
+      '@fieldzoo/typebox-types': link:../../utils/typebox-types
+      '@sinclair/typebox': 0.28.9
+    devDependencies:
+      '@types/jest': 29.5.0
+      '@types/node': 18.15.11
+      eslint-config-custom: link:../../config/eslint-config-custom
+      jest: 29.5.0_@types+node@18.15.11
+      jest-presets: link:../../config/jest-presets
+      ts-jest: 29.1.0_rgossuqlslmrpogqankdav3e2e
+      tsconfig: link:../../config/tsconfig
       typescript: 4.9.5
 
   templates/components-template:

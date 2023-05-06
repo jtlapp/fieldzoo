@@ -2,7 +2,7 @@ import { Kysely } from "kysely";
 import { TableMapper } from "kysely-mapper";
 
 import { createBase64UUID } from "@fieldzoo/base64-uuid";
-import { Glossary, GlossaryID } from "@fieldzoo/model";
+import { Glossary, GlossaryID } from "@fieldzoo/taxonomic-model";
 
 import { Database, Glossaries } from "../tables/table-interfaces";
 import { CollaborativeTable } from "../tables/collaborative-table";

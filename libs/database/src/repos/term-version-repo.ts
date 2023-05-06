@@ -2,7 +2,7 @@ import { Kysely } from "kysely";
 
 import { TableMapper } from "kysely-mapper";
 
-import { TermID, TermVersion, VersionNumber } from "@fieldzoo/model";
+import { TermID, TermVersion, VersionNumber } from "@fieldzoo/taxonomic-model";
 
 import { Database } from "../tables/table-interfaces";
 

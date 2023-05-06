@@ -6,7 +6,8 @@ import * as dotenv from "dotenv";
 import { TEST_ENV } from "@fieldzoo/app-config";
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 import { PostgresConfig } from "@fieldzoo/env-config";
-import { DisplayNameImpl, Glossary, User } from "@fieldzoo/model";
+import { User } from "@fieldzoo/system-model";
+import { DisplayNameImpl, Glossary } from "@fieldzoo/taxonomic-model";
 
 import { resetTestDB, sleep } from "../utils/database-testing";
 import { Database } from "../tables/table-interfaces";

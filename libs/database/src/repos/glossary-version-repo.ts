@@ -1,10 +1,13 @@
 import { Kysely } from "kysely";
 
-import { GlossaryVersion, GlossaryID } from "@fieldzoo/model";
 import { TableMapper } from "kysely-mapper";
 
 import { Database } from "../tables/table-interfaces";
-import { VersionNumber } from "@fieldzoo/model/src/values/version-number";
+import {
+  GlossaryVersion,
+  GlossaryID,
+  VersionNumber,
+} from "@fieldzoo/taxonomic-model";
 
 /**
  * Repository for persisting glossary versions. Glossary versions are uniquely

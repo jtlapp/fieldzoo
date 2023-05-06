@@ -5,13 +5,13 @@ import * as dotenv from "dotenv";
 
 import { TEST_ENV } from "@fieldzoo/app-config";
 import { PostgresConfig } from "@fieldzoo/env-config";
+import { User } from "@fieldzoo/system-model";
 import {
   DisplayNameImpl,
   Glossary,
   NormalizedNameImpl,
   Term,
-  User,
-} from "@fieldzoo/model";
+} from "@fieldzoo/taxonomic-model";
 
 import { resetTestDB, sleep } from "../utils/database-testing";
 import { Database } from "../tables/table-interfaces";

@@ -1,6 +1,7 @@
 packages:
-  - 'apps/*'
-  - 'config/*'
-  - 'libs/*'
-  - 'utils/*'
-  - 'templates/*'
+  - "apps/*"
+  - "config/*"
+  - "libs/*"
+  - "models/*"
+  - "utils/*"
+  - "templates/*"

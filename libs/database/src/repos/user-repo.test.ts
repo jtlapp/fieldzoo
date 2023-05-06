@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 
 import { TEST_ENV } from "@fieldzoo/app-config";
 import { PostgresConfig } from "@fieldzoo/env-config";
-import { User, UserNameImpl } from "@fieldzoo/model";
+import { User, UserNameImpl } from "@fieldzoo/system-model";
 
 import { resetTestDB, sleep } from "../utils/database-testing";
 import { Database } from "../tables/table-interfaces";

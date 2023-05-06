@@ -37,6 +37,14 @@
       "path": "libs/ui"
     },
     {
+      "name": "models/system-model",
+      "path": "models/system-model"
+    },
+    {
+      "name": "models/taxonomic-model",
+      "path": "models/taxonomic-model"
+    },
+    {
       "name": "utils/base64-uuid",
       "path": "utils/base64-uuid"
     },

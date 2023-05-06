@@ -1,5 +1,5 @@
 {
-  "name": "@fieldzoo/database",
+  "name": "@fieldzoo/system-model",
   "version": "0.0.0",
   "private": true,
   "main": "dist/index.js",
@@ -12,30 +12,26 @@
     "build": "tsc",
     "clean": "rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
-    "test": "jest --runInBand",
-    "lint": "TIMING=1 eslint \"src/**/*.ts*\""
+    "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
+    "test": "jest"
   },
   "jest": {
     "preset": "jest-presets/node"
   },
   "dependencies": {
-    "@fieldzoo/app-config": "workspace:*",
-    "@fieldzoo/base64-uuid": "workspace:*",
-    "@fieldzoo/env-config": "workspace:*",
+    "@fieldzoo/freeze-field": "workspace:*",
+    "@fieldzoo/generic-types": "workspace:*",
     "@fieldzoo/modeling": "workspace:*",
-    "@fieldzoo/postgres-utils": "workspace:*",
-    "@fieldzoo/system-model": "workspace:*",
-    "@fieldzoo/taxonomic-model": "workspace:*",
-    "dotenv": "^16.0.3",
-    "kysely": "^0.24.2",
-    "kysely-mapper": "^0.4.2",
-    "pg": "^8.9.0"
+    "@fieldzoo/multitier-validator": "workspace:*",
+    "@fieldzoo/typebox-types": "workspace:*",
+    "@sinclair/typebox": "^0.28.9",
+    "@zxcvbn-ts/core": "^2.2.1",
+    "@zxcvbn-ts/language-common": "^2.0.1",
+    "@zxcvbn-ts/language-en": "^2.1.0"
   },
   "devDependencies": {
-    "@fieldzoo/multitier-validator": "workspace:*",
     "@types/jest": "^29.4.0",
     "@types/node": "^18.14.1",
-    "@types/pg": "^8.6.6",
     "eslint-config-custom": "workspace:*",
     "jest": "^29.4.3",
     "jest-presets": "workspace:*",

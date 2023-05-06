@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 import { TableMapper } from "kysely-mapper";
 
-import { User, UserID } from "@fieldzoo/model";
+import { User, UserID } from "@fieldzoo/system-model";
 import { TimestampedTable } from "@fieldzoo/modeling";
 
 import { Database, Users } from "../tables/table-interfaces";
