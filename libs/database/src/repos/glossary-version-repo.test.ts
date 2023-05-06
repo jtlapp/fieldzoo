@@ -3,7 +3,7 @@ import { Pool } from "pg";
 import { Kysely, PostgresDialect } from "kysely";
 import * as dotenv from "dotenv";
 
-import { DB_ENVVAR_PREFIX, TEST_ENV } from "@fieldzoo/app-config";
+import { TEST_ENV } from "@fieldzoo/app-config";
 import { DatabaseConfig } from "@fieldzoo/database-config";
 import {
   Glossary,
@@ -34,7 +34,7 @@ beforeAll(() => {
   dotenv.config({ path: path.join(PATH_TO_ROOT, TEST_ENV) });
   db = new Kysely<Database>({
     dialect: new PostgresDialect({
-      pool: new Pool(DatabaseConfig.fromEnv(DB_ENVVAR_PREFIX)),
+      pool: new Pool(new DatabaseConfig()),
     }),
   });
 });

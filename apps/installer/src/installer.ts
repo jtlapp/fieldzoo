@@ -15,7 +15,6 @@ import {
 } from "kysely";
 import ExtendableError from "es6-error";
 
-import { DB_ENVVAR_PREFIX } from "@fieldzoo/app-config";
 import {
   DatabaseConfig,
   InvalidEnvironmentError,
@@ -49,7 +48,7 @@ program
   .addHelpText(
     "after",
     `Environment variables (.env):\n${Object.entries(
-      DatabaseConfig.getHelpInfo(DB_ENVVAR_PREFIX)
+      DatabaseConfig.getHelpInfo()
     )
       .map((entry) => `  ${entry[0]} - ${entry[1]}`)
       .join("\n")}`
@@ -89,7 +88,7 @@ async function commandWrapper(
     }
     db = new Kysely<any>({
       dialect: new PostgresDialect({
-        pool: new Pool(DatabaseConfig.fromEnv(DB_ENVVAR_PREFIX)),
+        pool: new Pool(new DatabaseConfig()),
       }),
     });
     await action(db);

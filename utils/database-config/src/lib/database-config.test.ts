@@ -1,182 +1,158 @@
 import { DatabaseConfig } from "./database-config";
 
 import { InvalidEnvironmentError } from "./invalid-env-error";
-import { ValidationException } from "@fieldzoo/multitier-validator";
 
-const ALL_FIELDS = ["host", "port", "database", "user", "password"];
+const ALL_VARS = [
+  "POSTGRES_HOST",
+  "POSTGRES_PORT",
+  "POSTGRES_DATABASE",
+  "POSTGRES_USER",
+  "POSTGRES_PASSWORD",
+];
 
 describe("database configuration", () => {
   it("accepts valid configurations", () => {
-    expect(
-      () =>
-        new DatabaseConfig({
-          host: "localhost",
-          port: 123,
-          database: "foo",
-          user: "bar",
-          password: "xyz",
-        })
-    ).not.toThrow();
-    expect(
-      () =>
-        new DatabaseConfig({
-          host: "abc.def.com",
-          port: 2001,
-          database: "_foo123",
-          user: "_bar123",
-          password: "d kd #$ !",
-        })
-    ).not.toThrow();
+    let config = createDatabaseConfig({
+      POSTGRES_HOST: "localhost",
+      POSTGRES_PORT: "123",
+      POSTGRES_DATABASE: "foo",
+      POSTGRES_USER: "bar",
+      POSTGRES_PASSWORD: "xyz",
+    });
+    expect(config).toEqual({
+      host: "localhost",
+      port: 123,
+      database: "foo",
+      user: "bar",
+      password: "xyz",
+    });
+
+    config = createDatabaseConfig({
+      POSTGRES_HOST: "abc.def.com",
+      POSTGRES_PORT: "2001",
+      POSTGRES_DATABASE: "_foo123",
+      POSTGRES_USER: "_bar123",
+      POSTGRES_PASSWORD: "d kd #$ !",
+    });
+    expect(config).toEqual({
+      host: "abc.def.com",
+      port: 2001,
+      database: "_foo123",
+      user: "_bar123",
+      password: "d kd #$ !",
+    });
   });
 
   it("rejects undefined values", () => {
-    expect.assertions(ALL_FIELDS.length + 1);
+    expect.assertions(ALL_VARS.length + 1);
     try {
-      new DatabaseConfig({
-        host: undefined!,
-        port: undefined!,
-        database: undefined!,
-        user: undefined!,
-        password: undefined!,
+      createDatabaseConfig({
+        POSTGRES_HOST: undefined!,
+        POSTGRES_PORT: undefined!,
+        POSTGRES_DATABASE: undefined!,
+        POSTGRES_USER: undefined!,
+        POSTGRES_PASSWORD: undefined!,
       });
-    } catch (err: unknown) {
-      if (!(err instanceof ValidationException)) throw err;
-      expect(err.details.length).toEqual(ALL_FIELDS.length);
-      for (const detail of err.details) {
-        expect(ALL_FIELDS).toContain(detail.error.path.substring(1));
-      }
-    }
-  });
-
-  it("rejects null values", () => {
-    expect.assertions(ALL_FIELDS.length + 1);
-    try {
-      new DatabaseConfig({
-        host: null!,
-        port: null!,
-        database: null!,
-        user: null!,
-        password: null!,
-      });
-    } catch (err: unknown) {
-      if (!(err instanceof ValidationException)) throw err;
-      expect(err.details.length).toEqual(ALL_FIELDS.length);
-      for (const detail of err.details) {
-        expect(ALL_FIELDS).toContain(detail.error.path.substring(1));
+    } catch (e: unknown) {
+      if (!(e instanceof InvalidEnvironmentError)) throw e;
+      expect(e.errors.length).toEqual(ALL_VARS.length);
+      for (const error of e.errors) {
+        expect(ALL_VARS).toContain(error.envVarName);
       }
     }
   });
 
   it("rejects empty strings", () => {
-    expect.assertions(ALL_FIELDS.length + 1);
+    expect.assertions(ALL_VARS.length + 1);
     try {
-      new DatabaseConfig({
-        host: "",
-        port: 65536,
-        database: "",
-        user: "",
-        password: "",
+      createDatabaseConfig({
+        POSTGRES_HOST: "",
+        POSTGRES_PORT: "65536",
+        POSTGRES_DATABASE: "",
+        POSTGRES_USER: "",
+        POSTGRES_PASSWORD: "",
       });
-    } catch (err: unknown) {
-      if (!(err instanceof ValidationException)) throw err;
-      expect(err.details.length).toEqual(ALL_FIELDS.length);
-      for (const detail of err.details) {
-        expect(ALL_FIELDS).toContain(detail.error.path.substring(1));
+    } catch (e: unknown) {
+      if (!(e instanceof InvalidEnvironmentError)) throw e;
+      expect(e.errors.length).toEqual(ALL_VARS.length);
+      for (const error of e.errors) {
+        expect(ALL_VARS).toContain(error.envVarName);
       }
     }
   });
 
   it("rejects invalid values", () => {
-    expect.assertions(ALL_FIELDS.length);
+    expect.assertions(ALL_VARS.length);
     try {
-      new DatabaseConfig({
-        host: "foo foo",
-        port: -1,
-        database: "bar bar",
-        user: "baz baz ",
-        password: "abcdef",
+      createDatabaseConfig({
+        POSTGRES_HOST: "foo foo",
+        POSTGRES_PORT: "-1",
+        POSTGRES_DATABASE: "bar bar",
+        POSTGRES_USER: "baz baz ",
+        POSTGRES_PASSWORD: "abcdef",
       });
-    } catch (err: unknown) {
-      if (!(err instanceof ValidationException)) throw err;
-      const invalids = ["host", "port", "database", "user"];
-      expect(err.details.length).toEqual(invalids.length);
-      for (const detail of err.details) {
-        expect(invalids).toContain(detail.error.path.substring(1));
+    } catch (e: unknown) {
+      if (!(e instanceof InvalidEnvironmentError)) throw e;
+      const invalids = ALL_VARS.slice(0, ALL_VARS.length - 1);
+      expect(e.errors.length).toEqual(invalids.length);
+      for (const error of e.errors) {
+        expect(ALL_VARS).toContain(error.envVarName);
       }
     }
   });
 
   it("produces friendly error messages", () => {
-    expect.assertions(ALL_FIELDS.length + 1);
+    expect.assertions(1);
     try {
-      new DatabaseConfig({
-        host: "localhost:32",
-        port: 125.5,
-        database: "foo bar",
-        user: "foo bar",
-        password: "",
+      createDatabaseConfig({
+        POSTGRES_HOST: "localPOSTGRES_HOST:32",
+        POSTGRES_PORT: "125.5",
+        POSTGRES_DATABASE: "foo bar",
+        POSTGRES_USER: "foo bar",
+        POSTGRES_PASSWORD: "",
       });
-    } catch (err: unknown) {
-      if (!(err instanceof ValidationException)) throw err;
-      expect(err.details.length).toEqual(ALL_FIELDS.length);
-      expect(err.details[0].toString()).toEqual("invalid host name");
-      expect(err.details[1].toString()).toEqual(
-        "port must be an integer >= 0 and <= 65535"
-      );
-      expect(err.details[2].toString()).toEqual("invalid database name");
-      expect(err.details[3].toString()).toEqual("invalid user");
-      expect(err.details[4].toString()).toEqual("password should not be empty");
-    }
-  });
-
-  it("loads from valid environment variables", () => {
-    process.env.DB_HOST = "my-host.com";
-    process.env.DB_PORT = "1001";
-    process.env.DB_DATABASE = "my_database";
-    process.env.DB_USERNAME = "my_username";
-    process.env.DB_PASSWORD = "xyz";
-
-    const config = DatabaseConfig.fromEnv("DB_");
-    expect(config.host).toEqual(process.env.DB_HOST);
-    expect(config.port).toEqual(parseInt(process.env.DB_PORT));
-    expect(config.database).toEqual(process.env.DB_DATABASE);
-    expect(config.user).toEqual(process.env.DB_USERNAME);
-    expect(config.password).toEqual(process.env.DB_PASSWORD);
-  });
-
-  it("fails to load from invalid environment variables", () => {
-    process.env.DB_HOST = "localhost:1000";
-    process.env.DB_PORT = "";
-    process.env.DB_DATABASE = "my database";
-    process.env.DB_USERNAME = "my user";
-    process.env.DB_PASSWORD = "";
-
-    try {
-      DatabaseConfig.fromEnv("DB_");
-    } catch (err: any) {
-      expect(err).toBeInstanceOf(InvalidEnvironmentError);
-      expect(err.errors).toEqual([
+    } catch (e: unknown) {
+      if (!(e instanceof InvalidEnvironmentError)) throw e;
+      expect(e.errors).toEqual([
         {
-          envVarName: "DB_HOST",
+          envVarName: "POSTGRES_HOST",
           errorMessage: "invalid host name",
         },
         {
-          envVarName: "DB_PORT",
+          envVarName: "POSTGRES_PORT",
           errorMessage: "port must be an integer >= 0 and <= 65535",
         },
         {
-          envVarName: "DB_DATABASE",
+          envVarName: "POSTGRES_DATABASE",
           errorMessage: "invalid database name",
         },
         {
-          envVarName: "DB_USERNAME",
+          envVarName: "POSTGRES_USER",
           errorMessage: "invalid user",
         },
         {
-          envVarName: "DB_PASSWORD",
+          envVarName: "POSTGRES_PASSWORD",
           errorMessage: "password should not be empty",
         },
       ]);
     }
   });
 });
+
+function createDatabaseConfig(vars: {
+  POSTGRES_HOST?: string;
+  POSTGRES_PORT?: string;
+  POSTGRES_DATABASE?: string;
+  POSTGRES_USER?: string;
+  POSTGRES_PASSWORD?: string;
+}) {
+  for (const varName of ALL_VARS) {
+    const value = vars[varName as keyof typeof vars];
+    if (value === undefined) {
+      delete process.env[varName];
+    } else {
+      process.env[varName] = value;
+    }
+  }
+  return new DatabaseConfig();
+}

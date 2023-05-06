@@ -352,7 +352,6 @@ importers:
   utils/database-config:
     specifiers:
       '@fieldzoo/generic-types': workspace:*
-      '@fieldzoo/multitier-validator': workspace:*
       '@fieldzoo/typebox-types': workspace:*
       '@sinclair/typebox': ^0.28.9
       '@types/jest': ^29.4.0
@@ -366,7 +365,6 @@ importers:
       typescript: ^4.9.5
     dependencies:
       '@fieldzoo/generic-types': link:../generic-types
-      '@fieldzoo/multitier-validator': link:../multitier-validator
       '@fieldzoo/typebox-types': link:../typebox-types
       '@sinclair/typebox': 0.28.9
     devDependencies:

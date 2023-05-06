@@ -3,6 +3,8 @@
  * so that all errors can be reported at once instead of only the first error.
  */
 
+import { ValueErrorIterator } from "@sinclair/typebox/errors";
+
 /**
  * Interface representing a single problem with a particular environment variable.
  */
@@ -26,5 +28,18 @@ export class InvalidEnvironmentError {
     return `${this.message}:\n${this.errors
       .map((err) => `  ${err.envVarName}: ${err.errorMessage}`)
       .join("\n")}`;
+  }
+
+  static fromTypeBoxErrors(
+    errors: ValueErrorIterator
+  ): InvalidEnvironmentError {
+    const envError = new InvalidEnvironmentError();
+    for (const error of errors) {
+      envError.add({
+        envVarName: error.path.substring(1),
+        errorMessage: error.schema.message ?? error.message,
+      });
+    }
+    return envError;
   }
 }
