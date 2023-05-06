@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@fieldzoo/env-config": "workspace:*",
-    "@sinclair/typebox": "^0.28.9"
+    "@sinclair/typebox": "^0.28.9",
+    "dotenv": "^16.0.3"
   }
 }

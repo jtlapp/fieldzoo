@@ -61,6 +61,7 @@ importers:
 
   apps/website:
     specifiers:
+      '@fieldzoo/app-config': workspace:*
       '@types/node': ^18.14.1
       '@types/react': ^18.0.28
       '@types/react-dom': ^18.0.11
@@ -77,6 +78,7 @@ importers:
       typescript: ^4.9.5
       ui: workspace:*
     dependencies:
+      '@fieldzoo/app-config': link:../../libs/app-config
       next: 13.4.1_biqbaboplfbrettd7655fr4n2y
       next-auth: 4.22.1_2xek2u27flvv5bywadnu4xxgx4
       react: 18.2.0
@@ -132,6 +134,7 @@ importers:
       '@sinclair/typebox': ^0.28.9
       '@types/jest': ^29.4.0
       '@types/node': ^18.14.1
+      dotenv: ^16.0.3
       eslint-config-custom: workspace:*
       jest: ^29.4.3
       jest-presets: workspace:*
@@ -141,6 +144,7 @@ importers:
     dependencies:
       '@fieldzoo/env-config': link:../../utils/env-config
       '@sinclair/typebox': 0.28.9
+      dotenv: 16.0.3
     devDependencies:
       '@types/jest': 29.5.0
       '@types/node': 18.15.11

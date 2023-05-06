@@ -10,7 +10,7 @@ import { InvalidEnvironmentException } from "@fieldzoo/env-config";
 /**
  * General platform configuration.
  */
-export class PostgresConfig {
+export class PlatformConfig {
   readonly minPasswordStrength: number;
 
   static schema = Type.Object({
@@ -29,9 +29,9 @@ export class PostgresConfig {
       MIN_PASSWORD_STRENGTH: process.env.MIN_PASSWORD_STRENGTH!,
     };
 
-    if (!Value.Check(PostgresConfig.schema, values)) {
+    if (!Value.Check(PlatformConfig.schema, values)) {
       throw InvalidEnvironmentException.fromTypeBoxErrors(
-        Value.Errors(PostgresConfig.schema, values)
+        Value.Errors(PlatformConfig.schema, values)
       );
     }
 

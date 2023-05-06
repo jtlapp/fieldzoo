@@ -1,9 +1,0 @@
-/**
- * Validates and parses environment variables, making them available
- * as typed values. Next.js loads environment variables, but it does
- * not seem to have a way to validate them or expose them as typed.
- *
- * Load this module first thing in `next.config.js`.
- */
-
-import dotenv from "dotenv";
