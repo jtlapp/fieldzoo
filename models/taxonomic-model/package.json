@@ -13,27 +13,39 @@
     "clean": "rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
     "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
-    "test": "jest"
+    "test": "jest --runInBand"
   },
   "jest": {
     "preset": "jest-presets/node"
   },
   "dependencies": {
     "@fieldzoo/base64-uuid": "workspace:*",
+    "@fieldzoo/database": "workspace:*",
+    "@fieldzoo/env-config": "workspace:*",
     "@fieldzoo/freeze-field": "workspace:*",
     "@fieldzoo/generic-types": "workspace:*",
     "@fieldzoo/modeling": "workspace:*",
     "@fieldzoo/multitier-validator": "workspace:*",
     "@fieldzoo/system-model": "workspace:*",
     "@fieldzoo/typebox-types": "workspace:*",
-    "@sinclair/typebox": "^0.28.9"
+    "@sinclair/typebox": "^0.28.9",
+    "kysely": "^0.24.2",
+    "kysely-mapper": "^0.4.2"
   },
+  "@comment devDependencies": [
+    "Depends on @fieldzoo/system-model so it's not simultaneously",
+    "testing with @fieldzoo/system-model and its dependencies"
+  ],
   "devDependencies": {
+    "@fieldzoo/app-config": "workspace:*",
+    "@fieldzoo/system-model": "workspace:*",
     "@types/jest": "^29.4.0",
     "@types/node": "^18.14.1",
+    "@types/pg": "^8.6.6",
     "eslint-config-custom": "workspace:*",
     "jest": "^29.4.3",
     "jest-presets": "workspace:*",
+    "pg": "^8.9.0",
     "ts-jest": "^29.0.5",
     "tsconfig": "workspace:*",
     "typescript": "^4.9.5"

@@ -2,10 +2,10 @@ import { Kysely } from "kysely";
 import { TableMapper } from "kysely-mapper";
 
 import { createBase64UUID } from "@fieldzoo/base64-uuid";
-import { Glossary, GlossaryID } from "@fieldzoo/taxonomic-model";
+import { Database, Glossaries, CollaborativeTable } from "@fieldzoo/database";
 
-import { Database, Glossaries } from "../tables/table-interfaces";
-import { CollaborativeTable } from "../tables/collaborative-table";
+import { Glossary } from "../entities/glossary";
+import { GlossaryID } from "../values/glossary-id";
 
 /**
  * Repository for persisting glossaries.

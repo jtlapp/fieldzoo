@@ -24,7 +24,12 @@
     "kysely": "^0.24.2",
     "pg": "^8.9.0"
   },
+  "@comment devDependencies": [
+    "Depends on @fieldzoo/taxonomic-model so it's not simultaneously",
+    "testing with @fieldzoo/taxonomic-model and its dependencies"
+  ],
   "devDependencies": {
+    "@fieldzoo/taxonomic-model": "workspace:*",
     "@types/jest": "^29.4.0",
     "@types/node": "^18.14.1",
     "@types/pg": "^8.6.6",

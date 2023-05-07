@@ -1,3 +1,5 @@
+export * from "./repos/user-repo";
+
 export * from "./entities/user";
 
 export * from "./values/email-address";

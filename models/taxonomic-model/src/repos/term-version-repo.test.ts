@@ -1,40 +1,19 @@
-import * as path from "path";
-import { Pool } from "pg";
-import { Kysely, PostgresDialect } from "kysely";
-import * as dotenv from "dotenv";
+import { User, UserRepo } from "@fieldzoo/system-model";
+import { getTestDB, closeTestDB, resetTestDB, sleep } from "@fieldzoo/database";
 
-import { TEST_ENV } from "@fieldzoo/app-config";
-import { PostgresConfig } from "@fieldzoo/env-config";
-import { User } from "@fieldzoo/system-model";
-import {
-  Glossary,
-  MultilineDescriptionImpl,
-  Term,
-  TermVersion,
-  VersionNumberImpl,
-  WhatChangedLineImpl,
-} from "@fieldzoo/taxonomic-model";
-import { resetTestDB, sleep } from "../utils/database-testing";
-import { Database } from "../tables/table-interfaces";
-import { UserRepo } from "./user-repo";
+import { Glossary } from "../entities/glossary";
+import { MultilineDescriptionImpl } from "../values/multiline-description";
+import { Term } from "../entities/term";
+import { TermVersion } from "../entities/term-version";
+import { VersionNumberImpl } from "../values/version-number";
+import { WhatChangedLineImpl } from "../values/what-changed-line";
 import { GlossaryRepo } from "./glossary-repo";
 import { TermRepo } from "./term-repo";
 import { TermVersionRepo, TermVersionSummary } from "./term-version-repo";
 
-const PATH_TO_ROOT = path.join(__dirname, "../../../..");
+const db = getTestDB();
 
-let db: Kysely<Database>;
-
-beforeAll(() => {
-  dotenv.config({ path: path.join(PATH_TO_ROOT, TEST_ENV) });
-  db = new Kysely<Database>({
-    dialect: new PostgresDialect({
-      pool: new Pool(new PostgresConfig()),
-    }),
-  });
-});
-
-afterAll(() => db.destroy());
+afterAll(() => closeTestDB());
 
 describe("TermVersionRepo", () => {
   it("inserts, selects, and deletes specific term versions", async () => {

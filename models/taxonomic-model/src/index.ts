@@ -1,5 +1,9 @@
-export * from "./entities/base/collaborative-entity";
+export * from "./repos/term-repo";
+export * from "./repos/glossary-repo";
+export * from "./repos/term-version-repo";
+export * from "./repos/glossary-version-repo";
 
+export * from "./entities/base/collaborative-entity";
 export * from "./entities/glossary";
 export * from "./entities/glossary-version";
 export * from "./entities/term";

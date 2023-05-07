@@ -12,7 +12,6 @@
     "build": "tsc",
     "clean": "rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
-    "test": "jest --runInBand",
     "lint": "TIMING=1 eslint \"src/**/*.ts*\""
   },
   "jest": {
@@ -20,22 +19,17 @@
   },
   "dependencies": {
     "@fieldzoo/app-config": "workspace:*",
-    "@fieldzoo/base64-uuid": "workspace:*",
     "@fieldzoo/env-config": "workspace:*",
-    "@fieldzoo/modeling": "workspace:*",
+    "@fieldzoo/modeling": "workspace:^0.0.0",
     "@fieldzoo/postgres-utils": "workspace:*",
-    "@fieldzoo/system-model": "workspace:*",
-    "@fieldzoo/taxonomic-model": "workspace:*",
-    "dotenv": "^16.0.3",
     "kysely": "^0.24.2",
-    "kysely-mapper": "^0.4.2",
     "pg": "^8.9.0"
   },
   "devDependencies": {
-    "@fieldzoo/multitier-validator": "workspace:*",
     "@types/jest": "^29.4.0",
     "@types/node": "^18.14.1",
     "@types/pg": "^8.6.6",
+    "dotenv": "^16.0.3",
     "eslint-config-custom": "workspace:*",
     "jest": "^29.4.3",
     "jest-presets": "workspace:*",

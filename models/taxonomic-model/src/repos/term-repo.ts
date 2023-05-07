@@ -2,15 +2,12 @@ import { Kysely } from "kysely";
 
 import { TableMapper } from "kysely-mapper";
 
-import { Database, Terms } from "../tables/table-interfaces";
-import {
-  GlossaryID,
-  NormalizedName,
-  Term,
-  TermID,
-} from "@fieldzoo/taxonomic-model";
+import { Database, Terms, CollaborativeTable } from "@fieldzoo/database";
 
-import { CollaborativeTable } from "../tables/collaborative-table";
+import { GlossaryID } from "../values/glossary-id";
+import { NormalizedName } from "../values/normalized-name";
+import { Term } from "../entities/term";
+import { TermID } from "../values/term-id";
 
 /**
  * Repository for persisting terms. Terms have a database-internal ID and a

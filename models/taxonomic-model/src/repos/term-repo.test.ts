@@ -1,38 +1,16 @@
-import * as path from "path";
-import { Pool } from "pg";
-import { Kysely, PostgresDialect } from "kysely";
-import * as dotenv from "dotenv";
+import { User, UserRepo } from "@fieldzoo/system-model";
+import { getTestDB, closeTestDB, resetTestDB, sleep } from "@fieldzoo/database";
 
-import { TEST_ENV } from "@fieldzoo/app-config";
-import { PostgresConfig } from "@fieldzoo/env-config";
-import { User } from "@fieldzoo/system-model";
-import {
-  DisplayNameImpl,
-  Glossary,
-  NormalizedNameImpl,
-  Term,
-} from "@fieldzoo/taxonomic-model";
-
-import { resetTestDB, sleep } from "../utils/database-testing";
-import { Database } from "../tables/table-interfaces";
-import { UserRepo } from "./user-repo";
+import { DisplayNameImpl } from "../values/display-name";
+import { Glossary } from "../entities/glossary";
+import { NormalizedNameImpl } from "../values/normalized-name";
+import { Term } from "../entities/term";
 import { GlossaryRepo } from "./glossary-repo";
 import { TermRepo } from "./term-repo";
 
-const PATH_TO_ROOT = path.join(__dirname, "../../../..");
+const db = getTestDB();
 
-let db: Kysely<Database>;
-
-beforeAll(() => {
-  dotenv.config({ path: path.join(PATH_TO_ROOT, TEST_ENV) });
-  db = new Kysely<Database>({
-    dialect: new PostgresDialect({
-      pool: new Pool(new PostgresConfig()),
-    }),
-  });
-});
-
-afterAll(() => db.destroy());
+afterAll(() => closeTestDB());
 
 it("inserts, updates, and deletes terms", async () => {
   await resetTestDB(db);
