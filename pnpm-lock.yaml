@@ -133,6 +133,7 @@ importers:
   libs/app-config:
     specifiers:
       '@fieldzoo/env-config': workspace:*
+      '@fieldzoo/typebox-types': workspace:*
       '@sinclair/typebox': ^0.28.9
       '@types/jest': ^29.4.0
       '@types/node': ^18.14.1
@@ -145,6 +146,7 @@ importers:
       typescript: ^4.9.5
     dependencies:
       '@fieldzoo/env-config': link:../../utils/env-config
+      '@fieldzoo/typebox-types': link:../../utils/typebox-types
       '@sinclair/typebox': 0.28.9
       dotenv: 16.0.3
     devDependencies:
@@ -161,7 +163,7 @@ importers:
     specifiers:
       '@fieldzoo/app-config': workspace:*
       '@fieldzoo/env-config': workspace:*
-      '@fieldzoo/modeling': workspace:^0.0.0
+      '@fieldzoo/modeling': workspace:*
       '@fieldzoo/postgres-utils': workspace:*
       '@types/jest': ^29.4.0
       '@types/node': ^18.14.1
@@ -234,9 +236,9 @@ importers:
 
   models/system-model:
     specifiers:
-      '@fieldzoo/app-config': workspace:^0.0.0
-      '@fieldzoo/database': workspace:^0.0.0
-      '@fieldzoo/env-config': workspace:^0.0.0
+      '@fieldzoo/app-config': workspace:*
+      '@fieldzoo/database': workspace:*
+      '@fieldzoo/env-config': workspace:*
       '@fieldzoo/freeze-field': workspace:*
       '@fieldzoo/generic-types': workspace:*
       '@fieldzoo/modeling': workspace:*

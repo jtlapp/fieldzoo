@@ -6,6 +6,7 @@ import { Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 
 import { InvalidEnvironmentException } from "@fieldzoo/env-config";
+import { IntegerString } from "@fieldzoo/typebox-types";
 
 /**
  * General platform configuration.
@@ -14,7 +15,7 @@ export class PlatformConfig {
   readonly minPasswordStrength: number;
 
   static schema = Type.Object({
-    MIN_PASSWORD_STRENGTH: Type.Integer({
+    MIN_PASSWORD_STRENGTH: IntegerString({
       description: "logarithm of min. guesses required to crack password",
       minimum: 0,
       message: "must be an integer >= 0",
@@ -35,7 +36,7 @@ export class PlatformConfig {
       );
     }
 
-    this.minPasswordStrength = values.MIN_PASSWORD_STRENGTH;
+    this.minPasswordStrength = parseInt(values.MIN_PASSWORD_STRENGTH);
   }
 
   /**
