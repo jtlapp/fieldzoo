@@ -1,6 +1,6 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 
-import { testTimestamps } from "@fieldzoo/modeling";
+import { testTimestamp } from "@fieldzoo/modeling";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
 import { testUserID } from "@fieldzoo/system-model";
 
@@ -33,18 +33,15 @@ describe("GlossaryVersion entity", () => {
     );
     expect(() => createGlossaryVersion({ description: null })).not.toThrow();
 
-    testTimestamps("Invalid glossary", (createdAt, modifiedAt) =>
-      GlossaryVersion.castFrom({
-        uuid: SAMPLE_UUID,
-        versionNumber: 1,
-        ownerID: 1,
-        modifiedBy: 1,
-        name: "Good Name",
-        description: "This\nis\nfine.",
-        createdAt: createdAt!,
-        modifiedAt: modifiedAt!,
-        whatChangedLine: "Description of what changed",
-      })
+    testTimestamp(
+      ERROR_MSG,
+      (createdAt) => createGlossaryVersion({ createdAt }),
+      (skip) => skip === undefined
+    );
+    testTimestamp(
+      ERROR_MSG,
+      (modifiedAt) => createGlossaryVersion({ modifiedAt }),
+      (skip) => skip === undefined
     );
 
     testWhatChangedLine(ERROR_MSG, (whatChangedLine) =>

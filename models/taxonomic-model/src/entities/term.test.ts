@@ -1,5 +1,5 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
-import { testTimestamps } from "@fieldzoo/modeling";
+import { testTimestamp } from "@fieldzoo/modeling";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
 import { testUserID } from "@fieldzoo/system-model";
 
@@ -60,16 +60,15 @@ describe("Term entity", () => {
     testMultilineDescription(ERROR_MSG, (description) =>
       createTerm({ description })
     );
-    testTimestamps("Invalid term", (createdAt, modifiedAt) =>
-      Term.castFrom({
-        versionNumber: 1,
-        glossaryID: SAMPLE_UUID,
-        displayName: "Good Name",
-        description: "This\nis\nfine.",
-        modifiedBy: 1,
-        createdAt,
-        modifiedAt,
-      })
+    testTimestamp(
+      ERROR_MSG,
+      (createdAt) => createTerm({ createdAt }),
+      (skip) => skip === undefined
+    );
+    testTimestamp(
+      ERROR_MSG,
+      (modifiedAt) => createTerm({ modifiedAt }),
+      (skip) => skip === undefined
     );
 
     testUserID(ERROR_MSG, (modifiedBy) => createTerm({ modifiedBy }));

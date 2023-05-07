@@ -113,6 +113,9 @@ describe("TermVersionRepo", () => {
     const insertedUser = User.castFrom({
       name: "John Doe",
       email: "jdoe@xyz.pdq",
+      accessRevoked: null,
+      passwordHash: null,
+      passwordSalt: null,
     });
     const userReturn = (await userRepo.add(insertedUser))!;
 

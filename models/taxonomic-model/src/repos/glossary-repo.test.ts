@@ -18,6 +18,9 @@ it("inserts, updates, and deletes glossaries", async () => {
   const insertedUser = User.castFrom({
     name: "John Doe",
     email: "jdoe@xyz.pdq",
+    accessRevoked: null,
+    passwordHash: null,
+    passwordSalt: null,
   });
   const userReturn = (await userRepo.add(insertedUser))!;
 

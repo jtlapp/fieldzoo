@@ -15,6 +15,9 @@ it("inserts, updates, and deletes users", async () => {
   const insertedUser = User.castFrom({
     name: "John Doe",
     email: "jdoe@xyz.pdq",
+    accessRevoked: null,
+    passwordHash: null,
+    passwordSalt: null,
   });
   expect(insertedUser.id).toEqual(0);
   expect(() => insertedUser.createdAt).toThrow("no creation date");
@@ -22,7 +25,13 @@ it("inserts, updates, and deletes users", async () => {
 
   // test updating a non-existent user
   const updateReturn1 = await userRepo.update(
-    User.castFrom({ ...insertedUser, id: 1 })
+    User.castFrom({
+      ...insertedUser,
+      id: 1,
+      accessRevoked: null,
+      passwordHash: null,
+      passwordSalt: null,
+    })
   );
   expect(updateReturn1).toBe(false);
 
