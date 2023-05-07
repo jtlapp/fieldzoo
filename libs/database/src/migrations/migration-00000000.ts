@@ -19,7 +19,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       .addColumn("id", "serial", (col) => col.primaryKey())
       .addColumn("name", "text", (col) => col.notNull())
       .addColumn("email", "text", (col) => col.notNull())
-      .addColumn("accessRevoked", "timestamp")
+      .addColumn("accessRevokedAt", "timestamp")
       .addColumn("passwordHash", "text")
       .addColumn("passwordSalt", "text")
   );

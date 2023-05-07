@@ -15,7 +15,7 @@ it("inserts, updates, and deletes users", async () => {
   const insertedUser = User.castFrom({
     name: "John Doe",
     email: "jdoe@xyz.pdq",
-    accessRevoked: null,
+    accessRevokedAt: null,
     passwordHash: null,
     passwordSalt: null,
   });
@@ -28,7 +28,7 @@ it("inserts, updates, and deletes users", async () => {
     User.castFrom({
       ...insertedUser,
       id: 1,
-      accessRevoked: null,
+      accessRevokedAt: null,
       passwordHash: null,
       passwordSalt: null,
     })

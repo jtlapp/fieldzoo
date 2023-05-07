@@ -14,7 +14,7 @@ export interface Users {
   id: Generated<number>;
   name: string;
   email: string;
-  accessRevoked: Date | null;
+  accessRevokedAt: Date | null;
   createdAt: Date;
   modifiedAt: Date;
   passwordHash: string | null;

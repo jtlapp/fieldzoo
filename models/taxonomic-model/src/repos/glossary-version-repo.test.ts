@@ -117,7 +117,7 @@ describe("GlossaryVersionRepo", () => {
     const insertedUser = User.castFrom({
       name: "John Doe",
       email: "jdoe@xyz.pdq",
-      accessRevoked: null,
+      accessRevokedAt: null,
       passwordHash: null,
       passwordSalt: null,
     });

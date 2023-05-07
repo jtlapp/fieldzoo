@@ -40,7 +40,7 @@ export class User extends TimestampedEntity {
     id: Zeroable(UserIDImpl.schema),
     name: UserNameImpl.schema,
     email: EmailAddressImpl.schema,
-    accessRevoked: Nullable(Type.Date()),
+    accessRevokedAt: Nullable(Type.Date()),
     createdAt: super.timestampedSchema.createdAt,
     modifiedAt: super.timestampedSchema.modifiedAt,
   });
@@ -50,7 +50,7 @@ export class User extends TimestampedEntity {
    * @param id User ID. `id` must be 0 for users not yet in the database.
    * @param name User name.
    * @param email User email address.
-   * @param accessRevoked The date/time at which the user's access was revoked,
+   * @param accessRevokedAt The date/time at which the user's access was revoked,
    *  or null if the user's access has not been revoked.
    * @param passwordHash The user's password hash.
    * @param passwordSalt The user's password salt.
@@ -61,7 +61,7 @@ export class User extends TimestampedEntity {
     readonly id: UserID,
     public name: UserName,
     public email: EmailAddress,
-    public accessRevoked: Date | null = null,
+    public accessRevokedAt: Date | null = null,
     passwordHash?: string | null,
     passwordSalt?: string | null,
     createdAt?: Date,
@@ -99,7 +99,7 @@ export class User extends TimestampedEntity {
       fields.id as UserID,
       fields.name as UserName,
       fields.email as EmailAddress,
-      fields.accessRevoked as Date | null,
+      fields.accessRevokedAt as Date | null,
       fields.passwordHash as string | null,
       fields.passwordSalt as string | null,
       fields.createdAt as Date,
@@ -154,7 +154,7 @@ export class User extends TimestampedEntity {
     return new Promise((resolve, reject) => {
       if (
         typeof password != "string" ||
-        this.accessRevoked !== null ||
+        this.accessRevokedAt !== null ||
         this.#passwordHash === null ||
         this.#passwordSalt === null
       ) {

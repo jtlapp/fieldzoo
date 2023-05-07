@@ -18,7 +18,7 @@ it("inserts, updates, and deletes glossaries", async () => {
   const insertedUser = User.castFrom({
     name: "John Doe",
     email: "jdoe@xyz.pdq",
-    accessRevoked: null,
+    accessRevokedAt: null,
     passwordHash: null,
     passwordSalt: null,
   });

@@ -29,10 +29,10 @@ describe("User entity", () => {
     testEmailAddress(ERROR_MSG, (email) => createUser({ email }));
     testTimestamp(
       ERROR_MSG,
-      (accessRevoked) => createUser({ accessRevoked }),
+      (accessRevokedAt) => createUser({ accessRevokedAt }),
       (skip) => skip === null
     );
-    expect(() => createUser({ accessRevoked: null })).not.toThrow();
+    expect(() => createUser({ accessRevokedAt: null })).not.toThrow();
     testTimestamp(
       ERROR_MSG,
       (createdAt) => createUser({ createdAt }),
@@ -52,7 +52,7 @@ describe("User entity", () => {
           id: -1,
           name: "",
           email: "",
-          accessRevoked: "" as any,
+          accessRevokedAt: "" as any,
           passwordHash: 0 as any,
           passwordSalt: 0 as any,
         },
@@ -118,7 +118,7 @@ describe("User entity", () => {
     expect(await user.verifyPassword(STRONG_PASSWORD1)).toBe(false);
 
     // access revoked
-    user.accessRevoked = new Date();
+    user.accessRevokedAt = new Date();
     expect(await user.verifyPassword(STRONG_PASSWORD2)).toBe(false);
   });
 });
@@ -128,7 +128,7 @@ function createUser(specifiedFields: Partial<UnvalidatedFields<User>>) {
     id: 1,
     name: "Joey",
     email: "x@yz.com",
-    accessRevoked: null,
+    accessRevokedAt: null,
     passwordHash: null,
     passwordSalt: null,
     ...specifiedFields,
