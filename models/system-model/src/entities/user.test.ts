@@ -126,7 +126,7 @@ describe("User entity", () => {
     // set password
     await user.setPassword(STRONG_PASSWORD1);
     expect(await user.verifyPassword(STRONG_PASSWORD1)).toBe(true);
-    expect(await user.verifyPassword("foo")).toBe(false);
+    expect(await user.verifyPassword(STRONG_PASSWORD2)).toBe(false);
 
     // change password
     await user.setPassword(STRONG_PASSWORD2);
