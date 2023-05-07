@@ -1,5 +1,6 @@
 import { PostgresConfig } from "./postgres-config";
 
+import { setTestEnvVariables } from "./set-test-env-variables";
 import { InvalidEnvironmentException } from "./invalid-env-exception";
 
 const ALL_VARS = [
@@ -46,13 +47,7 @@ describe("database configuration", () => {
   it("rejects undefined values", () => {
     expect.assertions(ALL_VARS.length + 1);
     try {
-      createPostgresConfig({
-        POSTGRES_HOST: undefined!,
-        POSTGRES_PORT: undefined!,
-        POSTGRES_DATABASE: undefined!,
-        POSTGRES_USER: undefined!,
-        POSTGRES_PASSWORD: undefined!,
-      });
+      createPostgresConfig({});
     } catch (e: unknown) {
       if (!(e instanceof InvalidEnvironmentException)) throw e;
       expect(e.errors.length).toEqual(ALL_VARS.length);
@@ -139,20 +134,7 @@ describe("database configuration", () => {
   });
 });
 
-function createPostgresConfig(vars: {
-  POSTGRES_HOST?: string;
-  POSTGRES_PORT?: string;
-  POSTGRES_DATABASE?: string;
-  POSTGRES_USER?: string;
-  POSTGRES_PASSWORD?: string;
-}) {
-  for (const varName of ALL_VARS) {
-    const value = vars[varName as keyof typeof vars];
-    if (value === undefined) {
-      delete process.env[varName];
-    } else {
-      process.env[varName] = value;
-    }
-  }
+function createPostgresConfig(vars: Record<string, string>) {
+  setTestEnvVariables(ALL_VARS, vars);
   return new PostgresConfig();
 }
