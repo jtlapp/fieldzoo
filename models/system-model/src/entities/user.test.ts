@@ -5,6 +5,8 @@ import { User } from "./user";
 import { testUserName } from "../values/user-name.test";
 import { testUserID } from "../values/user-id.test";
 import { testEmailAddress } from "../values/email-address.test";
+import { testPasswordHash } from "../values/password-hash.test";
+import { testPasswordSalt } from "../values/password-salt.test";
 import { getPlatformConfig } from "@fieldzoo/app-config";
 import { ValidationException } from "@fieldzoo/multitier-validator";
 
@@ -43,6 +45,20 @@ describe("User entity", () => {
       (modifiedAt) => createUser({ modifiedAt }),
       (skip) => skip === undefined
     );
+
+    testPasswordHash(
+      ERROR_MSG,
+      (passwordHash) => createUser({ passwordHash }),
+      (skip) => skip === null
+    );
+    expect(() => createUser({ passwordHash: null })).not.toThrow();
+
+    testPasswordSalt(
+      ERROR_MSG,
+      (passwordSalt) => createUser({ passwordSalt }),
+      (skip) => skip === null
+    );
+    expect(() => createUser({ passwordSalt: null })).not.toThrow();
   });
 
   it("doesn't validate when assumed valid", () => {
@@ -123,7 +139,12 @@ describe("User entity", () => {
   });
 });
 
-function createUser(specifiedFields: Partial<UnvalidatedFields<User>>) {
+function createUser(
+  specifiedFields: Partial<UnvalidatedFields<User>> & {
+    passwordHash?: string | null;
+    passwordSalt?: string | null;
+  }
+) {
   return User.castFrom({
     id: 1,
     name: "Joey",

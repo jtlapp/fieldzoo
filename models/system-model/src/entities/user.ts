@@ -17,8 +17,16 @@ import { TimestampedColumns, TimestampedEntity } from "@fieldzoo/modeling";
 import { UserID, UserIDImpl } from "../values/user-id";
 import { UserName, UserNameImpl } from "../values/user-name";
 import { EmailAddress, EmailAddressImpl } from "../values/email-address";
-
-const PASSWORD_HASH_LENGTH = 64;
+import {
+  PASSWORD_HASH_LENGTH,
+  PasswordHash,
+  PasswordHashImpl,
+} from "../values/password-hash";
+import {
+  PASSWORD_SALT_LENGTH,
+  PasswordSalt,
+  PasswordSaltImpl,
+} from "../values/password-salt";
 
 zxcvbnOptions.setOptions({
   translations: zxcvbnEnPackage.translations,
@@ -41,6 +49,8 @@ export class User extends TimestampedEntity {
     name: UserNameImpl.schema,
     email: EmailAddressImpl.schema,
     accessRevokedAt: Nullable(Type.Date()),
+    passwordHash: Nullable(PasswordHashImpl.schema),
+    passwordSalt: Nullable(PasswordSaltImpl.schema),
     createdAt: super.timestampedSchema.createdAt,
     modifiedAt: super.timestampedSchema.modifiedAt,
   });
@@ -62,8 +72,8 @@ export class User extends TimestampedEntity {
     public name: UserName,
     public email: EmailAddress,
     public accessRevokedAt: Date | null = null,
-    passwordHash?: string | null,
-    passwordSalt?: string | null,
+    passwordHash?: PasswordHash | null,
+    passwordSalt?: PasswordSalt | null,
     createdAt?: Date,
     modifiedAt?: Date
   ) {
@@ -100,8 +110,8 @@ export class User extends TimestampedEntity {
       fields.name as UserName,
       fields.email as EmailAddress,
       fields.accessRevokedAt as Date | null,
-      fields.passwordHash as string | null,
-      fields.passwordSalt as string | null,
+      fields.passwordHash as PasswordHash | null,
+      fields.passwordSalt as PasswordSalt | null,
       fields.createdAt as Date,
       fields.modifiedAt as Date
     );
@@ -133,7 +143,7 @@ export class User extends TimestampedEntity {
       throw new ValidationException("Password not strong enough");
     }
     return new Promise((resolve, reject) => {
-      const salt = crypto.randomBytes(16).toString("hex");
+      const salt = crypto.randomBytes(PASSWORD_SALT_LENGTH).toString("hex");
       crypto.scrypt(password, salt, PASSWORD_HASH_LENGTH, (err, derivedKey) => {
         if (err) return reject(err);
         this.#passwordSalt = salt;
