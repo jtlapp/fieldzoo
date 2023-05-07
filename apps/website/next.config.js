@@ -1,6 +1,7 @@
 // first load and validate environment variables
-require("@fieldzoo/app-config");
+const { loadAndValidateEnvFile } = require("@fieldzoo/app-config");
 
+loadAndValidateEnvFile();
 module.exports = {
   reactStrictMode: true,
 };
