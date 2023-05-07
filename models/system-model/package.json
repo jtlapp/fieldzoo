@@ -19,8 +19,8 @@
     "preset": "jest-presets/node"
   },
   "dependencies": {
-    "@fieldzoo/database": "workspace:^0.0.0",
-    "@fieldzoo/env-config": "workspace:^0.0.0",
+    "@fieldzoo/database": "workspace:*",
+    "@fieldzoo/env-config": "workspace:*",
     "@fieldzoo/freeze-field": "workspace:*",
     "@fieldzoo/generic-types": "workspace:*",
     "@fieldzoo/modeling": "workspace:*",
@@ -34,7 +34,7 @@
     "kysely-mapper": "^0.4.2"
   },
   "devDependencies": {
-    "@fieldzoo/app-config": "workspace:^0.0.0",
+    "@fieldzoo/app-config": "workspace:*",
     "@types/jest": "^29.4.0",
     "@types/node": "^18.14.1",
     "@types/pg": "^8.6.6",

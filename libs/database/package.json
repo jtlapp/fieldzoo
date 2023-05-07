@@ -20,7 +20,7 @@
   "dependencies": {
     "@fieldzoo/app-config": "workspace:*",
     "@fieldzoo/env-config": "workspace:*",
-    "@fieldzoo/modeling": "workspace:^0.0.0",
+    "@fieldzoo/modeling": "workspace:*",
     "@fieldzoo/postgres-utils": "workspace:*",
     "kysely": "^0.24.2",
     "pg": "^8.9.0"
