@@ -13,7 +13,7 @@ const ALL_VARS = [
 
 describe("database configuration", () => {
   it("accepts valid configurations", () => {
-    let config = createPostgresConfig({
+    let config = createConfig({
       POSTGRES_HOST: "localhost",
       POSTGRES_PORT: "123",
       POSTGRES_DATABASE: "foo",
@@ -28,7 +28,7 @@ describe("database configuration", () => {
       password: "xyz",
     });
 
-    config = createPostgresConfig({
+    config = createConfig({
       POSTGRES_HOST: "abc.def.com",
       POSTGRES_PORT: "2001",
       POSTGRES_DATABASE: "_foo123",
@@ -47,7 +47,7 @@ describe("database configuration", () => {
   it("rejects undefined values", () => {
     expect.assertions(ALL_VARS.length + 1);
     try {
-      createPostgresConfig({});
+      createConfig({});
     } catch (e: unknown) {
       if (!(e instanceof InvalidEnvironmentException)) throw e;
       expect(e.errors.length).toEqual(ALL_VARS.length);
@@ -60,7 +60,7 @@ describe("database configuration", () => {
   it("rejects empty strings", () => {
     expect.assertions(ALL_VARS.length + 1);
     try {
-      createPostgresConfig({
+      createConfig({
         POSTGRES_HOST: "",
         POSTGRES_PORT: "65536",
         POSTGRES_DATABASE: "",
@@ -79,7 +79,7 @@ describe("database configuration", () => {
   it("rejects invalid values", () => {
     expect.assertions(ALL_VARS.length);
     try {
-      createPostgresConfig({
+      createConfig({
         POSTGRES_HOST: "foo foo",
         POSTGRES_PORT: "-1",
         POSTGRES_DATABASE: "bar bar",
@@ -99,7 +99,7 @@ describe("database configuration", () => {
   it("produces friendly error messages", () => {
     expect.assertions(1);
     try {
-      createPostgresConfig({
+      createConfig({
         POSTGRES_HOST: "localPOSTGRES_HOST:32",
         POSTGRES_PORT: "125.5",
         POSTGRES_DATABASE: "foo bar",
@@ -134,7 +134,7 @@ describe("database configuration", () => {
   });
 });
 
-function createPostgresConfig(vars: Record<string, string>) {
+function createConfig(vars: Record<string, string>) {
   setTestEnvVariables(ALL_VARS, vars);
   return new PostgresConfig();
 }
