@@ -13,6 +13,7 @@ import { fastFormats } from "ajv-formats/dist/formats";
 
 import {
   CODE_WORD_REGEX,
+  HEX_REGEX,
   HOST_NAME_REGEX,
   MULTI_LINE_UNICODE_REGEX,
   SINGLE_LINE_UNICODE_REGEX,
@@ -25,6 +26,10 @@ export function CodeWordString(options?: StringOptions) {
 
 export function EmailString(options?: StringOptions) {
   return Type.RegEx(fastFormats.email, options);
+}
+
+export function HexString(options?: StringOptions) {
+  return Type.RegEx(HEX_REGEX, options);
 }
 
 export function HostNameString(options?: StringOptions) {

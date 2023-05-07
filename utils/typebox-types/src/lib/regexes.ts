@@ -9,6 +9,11 @@
 export const CODE_WORD_REGEX = /^[_A-Za-z][_A-Za-z0-9]*$/;
 
 /**
+ * Regex matching a hex string.
+ */
+export const HEX_REGEX = /^[0-9a-fA-F]+$/;
+
+/**
  * Regex matching a host name, sans port and protocol.
  * (adapted from https://stackoverflow.com/a/106223/650894)
  */

@@ -4,6 +4,7 @@ import { Value } from "@sinclair/typebox/value";
 import {
   CodeWordString,
   EmailString,
+  HexString,
   HostNameString,
   MultiLineUnicodeString,
   SingleLineUnicodeString,
@@ -31,6 +32,16 @@ describe("regex type schemas", () => {
     expect(check(EmailString(), undefined)).toBe(false);
     expect(check(EmailString(), "")).toBe(false);
     expect(check(EmailString(), " ")).toBe(false);
+    expect(check(CodeWordString(), "a b")).toBe(false);
+  });
+
+  it("HexString", () => {
+    expect(check(HexString(), "0aF9")).toBe(true);
+
+    expect(check(HexString(), null)).toBe(false);
+    expect(check(HexString(), undefined)).toBe(false);
+    expect(check(HexString(), "")).toBe(false);
+    expect(check(HexString(), " ")).toBe(false);
     expect(check(CodeWordString(), "a b")).toBe(false);
   });
 

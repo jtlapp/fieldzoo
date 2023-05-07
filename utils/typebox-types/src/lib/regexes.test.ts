@@ -1,5 +1,6 @@
 import {
   CODE_WORD_REGEX,
+  HEX_REGEX,
   HOST_NAME_REGEX,
   MULTI_LINE_UNICODE_REGEX,
   SINGLE_LINE_UNICODE_REGEX,
@@ -35,6 +36,26 @@ describe("CODE_WORD_REGEX", () => {
     expect(matches("abc-def", regex)).toBe(false);
     expect(matches("*!", regex)).toBe(false);
     expect(matches("abc!", regex)).toBe(false);
+  });
+});
+
+describe("HEX_REGEX", () => {
+  const regex = HEX_REGEX;
+
+  it("accepts valid text", () => {
+    expect(matches("0", regex)).toBe(true);
+    expect(matches("1", regex)).toBe(true);
+    expect(matches("a", regex)).toBe(true);
+    expect(matches("A", regex)).toBe(true);
+    expect(matches("09AF", regex)).toBe(true);
+  });
+
+  it("rejects invalid text", () => {
+    expect(matches("", regex)).toBe(false);
+    expect(matches("G", regex)).toBe(false);
+    expect(matches("g", regex)).toBe(false);
+    expect(matches("09AG", regex)).toBe(false);
+    expect(matches(" 09af", regex)).toBe(false);
   });
 });
 
