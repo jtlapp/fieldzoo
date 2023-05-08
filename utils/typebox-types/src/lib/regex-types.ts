@@ -50,6 +50,11 @@ export function SingleLineUnicodeString(options?: StringOptions) {
   return Type.String({ format: "SINGLE_LINE_UNICODE", ...options });
 }
 
+TypeSystem.Format("URL", (v) => fastFormats.url.test(v));
+export function UrlString(options?: StringOptions) {
+  return Type.String({ format: "URL", ...options });
+}
+
 TypeSystem.Format("USER_NAME_UNICODE", (v) => USER_NAME_UNICODE_REGEX.test(v));
 export function UserNameUnicodeString(options?: StringOptions) {
   return Type.String({ format: "USER_NAME_UNICODE", ...options });

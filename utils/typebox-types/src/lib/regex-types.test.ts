@@ -8,6 +8,7 @@ import {
   HostNameString,
   MultiLineUnicodeString,
   SingleLineUnicodeString,
+  UrlString,
   UserNameUnicodeString,
 } from "./regex-types";
 
@@ -76,6 +77,17 @@ describe("regex type schemas", () => {
     expect(check(SingleLineUnicodeString(), "")).toBe(false);
     expect(check(SingleLineUnicodeString(), " ")).toBe(false);
     expect(check(SingleLineUnicodeString(), " abc ")).toBe(false);
+  });
+
+  it("UrlString", () => {
+    expect(
+      check(UrlString(), "https://def.ghi:3000/a/b?x=32&c=a%20b&d=q+r#frag")
+    ).toBe(true);
+
+    expect(check(UrlString(), null)).toBe(false);
+    expect(check(UrlString(), undefined)).toBe(false);
+    expect(check(UrlString(), "")).toBe(false);
+    expect(check(UrlString(), " ")).toBe(false);
   });
 
   it("UserNameUnicodeString", () => {
