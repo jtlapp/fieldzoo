@@ -74,7 +74,7 @@ The following must be globally installed before installing this package:
 - [Supabase CLI](https://supabase.com/docs/guides/cli)
 - [Nx](https://nx.dev/) (optional, as you can also run Nx via `npx nx`)
 
-First install pnpm globally. You might also install Nx globally, but you can use it locally via `npx nx`. Then to install and build:
+Install and build the repo as follows:
 
 ```bash
 git clone https://github.com/jtlapp/fieldzoo.git
