@@ -64,6 +64,41 @@ I'm not yet decided on whether to use [Cypress](https://www.cypress.io/) or [Pla
 
 I'm also experimenting with techniques for writing robust TypeScript using [Domain-Driven Design (DDD)](https://medium.com/ssense-tech/domain-driven-design-everything-you-always-wanted-to-know-about-it-but-were-afraid-to-ask-a85e7b74497a). This aspect of the solution is likely to evolve until I'm happy with a particular approach.
 
+## Installation
+
+The following must be globally installed before installing this package:
+
+- [Node.js](https://nodejs.org/en) (which also installs npm)
+- [pnpm](https://pnpm.io/)
+- [Docker](https://docs.docker.com/engine/install/)
+- [Supabase CLI](https://supabase.com/docs/guides/cli)
+- [Nx](https://nx.dev/) (optional, as you can also run Nx via `npx nx`)
+
+First install pnpm globally. You might also install Nx globally, but you can use it locally via `npx nx`. Then to install and build:
+
+```bash
+git clone https://github.com/jtlapp/fieldzoo.git
+cd fieldzoo
+pnpm install
+pnpm build
+```
+
+## Testing
+
+To test, you'll first need to acquire a Supabase access token, which you can do after you've created a Supabase account. You'll use this token to login to Supabase .
+
+After building the repo, you can run the tests as follows:
+
+```bash
+cd fieldzoo
+supabase login
+pnpm start-supabase
+pnpm test
+pnpm stop-supabase
+```
+
+Stopping the local supabase server is optional.
+
 ## License
 
 The project is licensed under GPL-3.0, except for the generically useful libraries, which use the MIT license. These generic libraries are found in `utils/` and have their own LICENSE files.

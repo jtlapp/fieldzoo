@@ -16,7 +16,7 @@ import {
 import ExtendableError from "es6-error";
 
 import {
-  PostgresConfig,
+  SupabaseConfig,
   InvalidEnvironmentException,
 } from "@fieldzoo/env-config";
 import { MIGRATION_FILE_PATH } from "@fieldzoo/database";
@@ -47,7 +47,7 @@ program
   .on("option:env", (value) => (envFileName = value))
   .addHelpText(
     "after",
-    `\nEnvironment variables (.env):\n${PostgresConfig.getHelpInfo()
+    `\nEnvironment variables (.env):\n${SupabaseConfig.getHelpInfo()
       .map(([envVar, description]) => `  ${envVar} - ${description}`)
       .join("\n")}`
   );
@@ -86,7 +86,7 @@ async function commandWrapper(
     }
     db = new Kysely<any>({
       dialect: new PostgresDialect({
-        pool: new Pool(new PostgresConfig()),
+        pool: new Pool(new SupabaseConfig()),
       }),
     });
     await action(db);

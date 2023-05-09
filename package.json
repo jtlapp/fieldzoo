@@ -4,19 +4,25 @@
   "scripts": {
     "build": "nx run-many --target=build",
     "test": "nx run-many --target=test",
+    "test-no-cache": "nx run-many --target=test --no-cache",
     "dev": "nx run-many --target=dev",
     "lint": "nx run-many --target=lint",
     "clean": "nx run-many --target=clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{js,ts,tsx,md}\"",
+    "start-supabase": "npx supabase start",
+    "stop-supabase": "npx supabase stop",
     "list-packages": "npx syncpack list",
     "list-mismatches": "npx syncpack list-mismatches",
     "fix-mismatches": "npx syncpack fix-mismatches && pnpm install"
   },
   "devDependencies": {
-    "nx": "15.8.9",
     "prettier": "^2.8.7",
     "prettier-plugin-tailwindcss": "^0.2.5",
+    "supabase": "^1.57.0",
     "syncpack": "^8.5.14"
   },
-  "packageManager": "pnpm@7.15.0"
+  "packageManager": "pnpm@7.15.0",
+  "dependencies": {
+    "nx": "^16.1.3"
+  }
 }
