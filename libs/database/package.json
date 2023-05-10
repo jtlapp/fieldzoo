@@ -30,6 +30,7 @@
     "@types/node": "^18.14.1",
     "@types/pg": "^8.6.6",
     "dotenv": "^16.0.3",
+    "eslint": "^8.40.0",
     "eslint-config-custom": "workspace:*",
     "jest": "^29.4.3",
     "jest-presets": "workspace:*",
