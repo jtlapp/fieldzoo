@@ -14,7 +14,7 @@
     "clean": "rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
     "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
-    "test": "jest --passWithNoTests"
+    "test": "jest"
   },
   "jest": {
     "preset": "jest-presets/node"
@@ -31,6 +31,8 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
+    "@fieldzoo/multitier-validator": "workspace:*",
+    "@fieldzoo/typebox-types": "workspace:*",
     "@sinclair/typebox": "^0.28.9",
     "kysely": "^0.24.2"
   }
