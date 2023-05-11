@@ -50,7 +50,7 @@ export class TimestampedTable {
    * @param db Reference to the Kysely DB
    * @returns A promise that adds the function
    */
-  static createTriggers(db: Kysely<any>) {
+  static createFunctions(db: Kysely<any>) {
     return sql
       .raw(
         `create or replace function update_modifiedAt_column()
@@ -61,6 +61,17 @@ export class TimestampedTable {
         end;
         $$ language 'plpgsql';`
       )
+      .execute(db);
+  }
+
+  /**
+   * Deletes created functions.
+   * @param db Reference to the Kysely DB
+   * @returns A promise that deletes the triggers and functions
+   */
+  static async dropFunctions(db: Kysely<any>) {
+    await sql
+      .raw(`drop function if exists update_modifiedAt_column() cascade;`)
       .execute(db);
   }
 
