@@ -65,3 +65,8 @@ TypeSystem.Format("USER_NAME_UNICODE", (v) => USER_NAME_UNICODE_REGEX.test(v));
 export function UserNameUnicodeString(options?: StringOptions) {
   return Type.String({ format: "USER_NAME_UNICODE", ...options });
 }
+
+export function UuidString(options?: StringOptions) {
+  return Type.String({ format: "UUID", ...options });
+}
+TypeSystem.Format("UUID", (v) => fastFormats.uuid.test(v));

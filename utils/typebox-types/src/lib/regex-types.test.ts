@@ -11,6 +11,7 @@ import {
   UrlString,
   UserHandleString,
   UserNameUnicodeString,
+  UuidString,
 } from "./regex-types";
 
 describe("regex type schemas", () => {
@@ -116,6 +117,25 @@ describe("regex type schemas", () => {
     expect(check(UserNameUnicodeString(), "")).toBe(false);
     expect(check(UserNameUnicodeString(), " ")).toBe(false);
     expect(check(UserNameUnicodeString(), " ab ")).toBe(false);
+  });
+
+  it("UuidString", () => {
+    expect(check(UuidString(), "00000000-0000-0000-0000-000000000000")).toBe(
+      true
+    );
+    expect(check(UuidString(), "ae19AF00-aF09-aF09-aF09-aBcDe129AF00")).toBe(
+      true
+    );
+
+    expect(check(UuidString(), null)).toBe(false);
+    expect(check(UuidString(), undefined)).toBe(false);
+    expect(check(UuidString(), "")).toBe(false);
+    expect(check(UuidString(), " ")).toBe(false);
+    expect(check(UuidString(), "abc")).toBe(false);
+    expect(check(UuidString(), "gggggggg-gggg-gggg-gggg-gggggggggggg")).toBe(
+      false
+    );
+    expect(check(UuidString(), "ae19AF00aF09aF09aF09aBcDe129AF00")).toBe(false);
   });
 });
 
