@@ -4,6 +4,7 @@ import {
   HOST_NAME_REGEX,
   MULTI_LINE_UNICODE_REGEX,
   SINGLE_LINE_UNICODE_REGEX,
+  USER_HANDLE_REGEX,
   USER_NAME_UNICODE_REGEX,
 } from "./regexes";
 
@@ -129,6 +130,35 @@ describe("MULTI_LINE_UNICODE_REGEX", () => {
     expect(matches("Xy ", regex)).toBe(false);
     expect(matches("X\n", regex)).toBe(false);
     expect(matches("X\tY", regex)).toBe(false);
+  });
+});
+
+describe("USER_HANDLE_REGEX", () => {
+  const regex = USER_HANDLE_REGEX;
+
+  it("accepts valid user handles", () => {
+    expect(matches("M", regex)).toBe(true);
+    expect(matches("Mo", regex)).toBe(true);
+    expect(matches("x0", regex)).toBe(true);
+    expect(matches("x_0", regex)).toBe(true);
+    expect(matches("x_0_a1b", regex)).toBe(true);
+    expect(matches("x1_bcd", regex)).toBe(true);
+  });
+
+  it("rejects invalid user handles", () => {
+    expect(matches("", regex)).toBe(false);
+    expect(matches(" M", regex)).toBe(false);
+    expect(matches("M ", regex)).toBe(false);
+    expect(matches("M.", regex)).toBe(false);
+    expect(matches("X..Y", regex)).toBe(false);
+    expect(matches("X Y", regex)).toBe(false);
+    expect(matches("X-Y", regex)).toBe(false);
+    expect(matches("0123", regex)).toBe(false);
+    expect(matches("x_0_", regex)).toBe(false);
+    expect(matches("x__1", regex)).toBe(false);
+    expect(matches("1a", regex)).toBe(false);
+    expect(matches("a\nb", regex)).toBe(false);
+    expect(matches("a\tb", regex)).toBe(false);
   });
 });
 

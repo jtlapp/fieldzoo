@@ -9,6 +9,7 @@ import {
   MultiLineUnicodeString,
   SingleLineUnicodeString,
   UrlString,
+  UserHandleString,
   UserNameUnicodeString,
 } from "./regex-types";
 
@@ -88,6 +89,21 @@ describe("regex type schemas", () => {
     expect(check(UrlString(), undefined)).toBe(false);
     expect(check(UrlString(), "")).toBe(false);
     expect(check(UrlString(), " ")).toBe(false);
+  });
+
+  it("UserHandleString", () => {
+    expect(check(UserHandleString(), "abc")).toBe(true);
+    expect(check(UserHandleString(), "a_b_c")).toBe(true);
+    expect(check(UserHandleString(), "a123")).toBe(true);
+
+    expect(check(UserHandleString(), null)).toBe(false);
+    expect(check(UserHandleString(), undefined)).toBe(false);
+    expect(check(UserHandleString(), "")).toBe(false);
+    expect(check(UserHandleString(), " ")).toBe(false);
+    expect(check(UserHandleString(), " a b ")).toBe(false);
+    expect(check(UserHandleString(), "1a")).toBe(false);
+    expect(check(UserHandleString(), "a-b")).toBe(false);
+    expect(check(UserHandleString(), "a.b")).toBe(false);
   });
 
   it("UserNameUnicodeString", () => {

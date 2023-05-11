@@ -17,6 +17,7 @@ import {
   HOST_NAME_REGEX,
   MULTI_LINE_UNICODE_REGEX,
   SINGLE_LINE_UNICODE_REGEX,
+  USER_HANDLE_REGEX,
   USER_NAME_UNICODE_REGEX,
 } from "./regexes";
 
@@ -53,6 +54,11 @@ export function SingleLineUnicodeString(options?: StringOptions) {
 TypeSystem.Format("URL", (v) => fastFormats.url.test(v));
 export function UrlString(options?: StringOptions) {
   return Type.String({ format: "URL", ...options });
+}
+
+TypeSystem.Format("USER_HANDLE", (v) => USER_HANDLE_REGEX.test(v));
+export function UserHandleString(options?: StringOptions) {
+  return Type.String({ format: "USER_HANDLE", ...options });
 }
 
 TypeSystem.Format("USER_NAME_UNICODE", (v) => USER_NAME_UNICODE_REGEX.test(v));

@@ -34,6 +34,14 @@ export const SINGLE_LINE_UNICODE_REGEX =
   /^[^\p{Z}\p{C}]+(?: [^\p{Z}\p{C}]+)*$/u;
 
 /**
+ * Regex matching a user handle. Unicode characters are not allowed at the
+ * moment because care needs to be taken to ensure that distinct handles are
+ * distinct looking. It's important that people be able to clearly identify
+ * each other's handles.
+ */
+export const USER_HANDLE_REGEX = /^[A-Za-z][A-Za-z0-9]*(_[A-Za-z0-9]+)*$/;
+
+/**
  * Regex matching strings suitable for non-handle user names.
  */
 export const USER_NAME_UNICODE_REGEX =
