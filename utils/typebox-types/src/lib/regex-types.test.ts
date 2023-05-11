@@ -123,7 +123,10 @@ describe("regex type schemas", () => {
     expect(check(UuidString(), "00000000-0000-0000-0000-000000000000")).toBe(
       true
     );
-    expect(check(UuidString(), "ae19AF00-aF09-aF09-aF09-aBcDe129AF00")).toBe(
+    expect(check(UuidString(), "ae19af00-af09-af09-af09-abcde129af00")).toBe(
+      true
+    );
+    expect(check(UuidString(), "AE19AF00-AF09-AF09-AF09-ABCDE129AF00")).toBe(
       true
     );
 
