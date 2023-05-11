@@ -68,6 +68,7 @@ export function UserNameUnicodeString(options?: StringOptions) {
 TypeSystem.Format("USER_NAME_UNICODE", (v) => USER_NAME_UNICODE_REGEX.test(v));
 
 export function UuidString(options?: StringOptions) {
-  return Type.String({ ...options, format: "UUID" });
+  // Include maxLength to test length before testing regex.
+  return Type.String({ ...options, format: "UUID", maxLength: 36 });
 }
 TypeSystem.Format("UUID", (v) => fastFormats.uuid.test(v));
