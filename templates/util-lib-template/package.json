@@ -27,6 +27,6 @@
     "jest-presets": "workspace:*",
     "ts-jest": "^29.0.5",
     "tsconfig": "workspace:*",
-    "typescript": "^4.9.5"
+    "typescript": "5.0.4"
   }
 }

@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",
-    "@types/node": "^18.14.1",
+    "@types/node": "20.1.3",
     "@types/pg": "^8.6.6",
     "eslint": "^8.40.0",
     "eslint-config-custom": "workspace:*",
@@ -34,6 +34,6 @@
     "jest-presets": "workspace:*",
     "ts-jest": "^29.0.5",
     "tsconfig": "workspace:*",
-    "typescript": "^4.9.5"
+    "typescript": "5.0.4"
   }
 }
