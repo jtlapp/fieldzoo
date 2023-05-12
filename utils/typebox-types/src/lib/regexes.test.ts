@@ -2,6 +2,7 @@ import {
   CODE_WORD_REGEX,
   HEX_REGEX,
   HOST_NAME_REGEX,
+  LOCALHOST_URL_REGEX,
   MULTI_LINE_UNICODE_REGEX,
   SINGLE_LINE_UNICODE_REGEX,
   USER_HANDLE_REGEX,
@@ -103,6 +104,22 @@ describe("SINGLE_LINE_UNICODE_REGEX", () => {
     expect(matches("X\n", regex)).toBe(false);
     expect(matches("X\nY", regex)).toBe(false);
     expect(matches("X\tY", regex)).toBe(false);
+  });
+});
+
+describe("LOCALHOST_URL_REGEX", () => {
+  const regex = LOCALHOST_URL_REGEX;
+
+  it("accepts valid text", () => {
+    expect(matches("http://localhost:1234", regex)).toBe(true);
+    expect(matches("https://localhost:1234", regex)).toBe(true);
+    expect(matches("http://localhost:1234/", regex)).toBe(true);
+  });
+
+  it("rejects invalid text", () => {
+    expect(matches("", regex)).toBe(false);
+    expect(matches("foo", regex)).toBe(false);
+    expect(matches("http://localhost", regex)).toBe(false);
   });
 });
 

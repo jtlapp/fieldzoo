@@ -21,6 +21,13 @@ export const HOST_NAME_REGEX =
   /^(([a-zA-Z0-9]|[a-zA-Z0-9][-a-zA-Z0-9]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][-A-Za-z0-9]*[A-Za-z0-9])$/;
 
 /**
+ * Regex for a localhost URL.
+ * (adapted from https://stackoverflow.com/a/106223/650894)
+ */
+export const LOCALHOST_URL_REGEX =
+  /^https?:\/\/localhost:[0-9]{1,5}([-a-zA-Z0-9()@:%_+.~#?&/=]*)$/;
+
+/**
  * Regex matching a one or more lines of Unicode, with first and last lines
  * non-empty, permitting repeating spaces and line feeds ("\n").
  */

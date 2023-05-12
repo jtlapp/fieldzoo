@@ -6,6 +6,7 @@ import {
   EmailString,
   HexString,
   HostNameString,
+  LocalhostUrlString,
   MultiLineUnicodeString,
   SingleLineUnicodeString,
   UrlString,
@@ -58,6 +59,18 @@ describe("regex type schemas", () => {
     expect(check(CodeWordString(), "a b")).toBe(false);
   });
 
+  it("LocalhostUrlString", () => {
+    expect(check(LocalhostUrlString(), "http://localhost:1234")).toBe(true);
+    expect(check(LocalhostUrlString(), "https://localhost:1234")).toBe(true);
+
+    expect(check(LocalhostUrlString(), null)).toBe(false);
+    expect(check(LocalhostUrlString(), undefined)).toBe(false);
+    expect(check(LocalhostUrlString(), "")).toBe(false);
+    expect(check(LocalhostUrlString(), " ")).toBe(false);
+    expect(check(LocalhostUrlString(), "abc")).toBe(false);
+    expect(check(LocalhostUrlString(), "http://localhost")).toBe(false);
+  });
+
   it("MultiLineUnicodeString", () => {
     expect(check(MultiLineUnicodeString(), "abc")).toBe(true);
     expect(check(MultiLineUnicodeString(), "a\nb\nc")).toBe(true);
@@ -90,6 +103,7 @@ describe("regex type schemas", () => {
     expect(check(UrlString(), undefined)).toBe(false);
     expect(check(UrlString(), "")).toBe(false);
     expect(check(UrlString(), " ")).toBe(false);
+    expect(check(UrlString(), "http://localhost:1234")).toBe(false);
   });
 
   it("UserHandleString", () => {

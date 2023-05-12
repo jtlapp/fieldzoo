@@ -16,6 +16,7 @@ import {
   CODE_WORD_REGEX,
   HEX_REGEX,
   HOST_NAME_REGEX,
+  LOCALHOST_URL_REGEX,
   MULTI_LINE_UNICODE_REGEX,
   SINGLE_LINE_UNICODE_REGEX,
   USER_HANDLE_REGEX,
@@ -36,6 +37,10 @@ export function HexString(options?: StringOptions) {
 
 export function HostNameString(options?: StringOptions) {
   return Type.RegEx(HOST_NAME_REGEX, options);
+}
+
+export function LocalhostUrlString(options?: StringOptions) {
+  return Type.RegEx(LOCALHOST_URL_REGEX, options);
 }
 
 export function MultiLineUnicodeString(options?: StringOptions) {
