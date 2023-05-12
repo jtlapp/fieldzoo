@@ -6,6 +6,9 @@ import { TimestampedTable } from "@fieldzoo/modeling";
 import { Database, UserProfiles } from "@fieldzoo/database";
 import { User, READONLY_USER_FIELDS } from "../entities/user";
 import { UserID } from "../values/user-id";
+import { DatabaseError } from "pg";
+import { ValidationException } from "@fieldzoo/multitier-validator";
+import { UserHandleImpl } from "../values/user-handle";
 
 /**
  * Repository for persisted users, combining columns from both the
@@ -16,6 +19,27 @@ export class UserRepo {
 
   constructor(readonly db: Kysely<Database>) {
     this.#table = this.getMapper(db);
+  }
+
+  /**
+   * Indicates whether the provided user handle is valid and unique.
+   * @param handle User handle to check.
+   * @returns true if the handle is valid and unique, false otherwise.
+   */
+  async isHandleAvailable(handle: string): Promise<boolean> {
+    try {
+      return (
+        (await this.db
+          .selectFrom("user_profiles")
+          .where("handle", "=", UserHandleImpl.castFrom(handle, true))
+          .executeTakeFirst()) === undefined
+      );
+    } catch (e: any) {
+      if (e instanceof ValidationException) {
+        return false;
+      }
+      throw e;
+    }
   }
 
   /**
@@ -57,9 +81,18 @@ export class UserRepo {
    * Updates a user, including changing its `modifiedAt` date.
    * @param user User with modified values.
    * @returns Whether the user was found and updated.
+   * @throws ValidationException if the user's handle is already in use.
    */
   async update(user: User): Promise<boolean> {
-    return (await this.#table.update(user.id).returnOne(user)) !== null;
+    try {
+      return (await this.#table.update(user.id).returnOne(user)) !== null;
+    } catch (e: any) {
+      if (e instanceof DatabaseError && e.code === "23505") {
+        // unique_violation
+        throw new ValidationException("User handle is already in use");
+      }
+      throw e;
+    }
   }
 
   /**

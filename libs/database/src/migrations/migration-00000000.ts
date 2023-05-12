@@ -20,7 +20,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         col.primaryKey().references("auth.users.id")
       )
       .addColumn("name", "text")
-      .addColumn("handle", "text")
+      .addColumn("handle", "text", (col) => col.unique())
   );
   await sql
     .raw(
