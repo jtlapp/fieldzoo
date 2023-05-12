@@ -54,9 +54,10 @@ export async function up(db: Kysely<any>): Promise<void> {
   // glossary versions table
 
   await createVersionsTable(db, "glossary_versions", (tb) =>
-    // TODO: shouldn't glossaryID reference glossaries.id?
     tb
-      .addColumn("glossaryID", "text", (col) => col.notNull())
+      .addColumn("glossaryID", "text", (col) =>
+        col.references("glossaries.id").notNull()
+      )
       .addColumn("ownerID", "uuid", (col) =>
         col.references("user_profiles.id").onDelete("cascade").notNull()
       )
