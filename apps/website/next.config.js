@@ -1,7 +1,4 @@
-// first load and validate environment variables
-const { loadAndValidateEnvFile } = require("@fieldzoo/app-config");
+/** @type {import('next').NextConfig} */
+const nextConfig = {}
 
-loadAndValidateEnvFile();
-module.exports = {
-  reactStrictMode: true,
-};
+module.exports = nextConfig
