@@ -1,6 +1,7 @@
 /**
  * Classes reporting invalid environment variables. Allows errors to accumulate,
  * so that all errors can be reported at once instead of only the first error.
+ * Only reports the first error generated for each environment variable.
  */
 
 import { ValueErrorIterator } from "@sinclair/typebox/errors";
@@ -21,7 +22,9 @@ export class InvalidEnvironmentException {
   errors: EnvironmentVariableError[] = [];
 
   add(error: EnvironmentVariableError) {
-    this.errors.push(error);
+    if (!this.errors.find((err) => err.envVarName === error.envVarName)) {
+      this.errors.push(error);
+    }
   }
 
   toString(): string {
