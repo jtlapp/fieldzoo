@@ -8,6 +8,7 @@
     "dev": "nx run-many --target=dev",
     "lint": "nx run-many --target=lint",
     "clean": "nx run-many --target=clean && rm -rf node_modules",
+    "clear-cache": "rm -rdf node_modules/.cache/nx",
     "format": "prettier --write \"**/*.{js,ts,tsx,md}\"",
     "start-supabase": "npx supabase start",
     "stop-supabase": "npx supabase stop",
