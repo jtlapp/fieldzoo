@@ -98,7 +98,7 @@ export class TermVersionRepo {
 export interface TermVersionSummary {
   readonly id: TermID;
   readonly versionNumber: VersionNumber;
-  readonly modifiedBy: number;
+  readonly modifiedBy: string;
   readonly modifiedAt: Date;
   readonly whatChangedLine: string;
 }

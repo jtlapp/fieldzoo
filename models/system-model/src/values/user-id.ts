@@ -1,17 +1,16 @@
-import { Type } from "@sinclair/typebox";
-
 import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import { UuidString } from "@fieldzoo/typebox-types";
 
 /**
- * Representation of a user ID
+ * Representation of a user ID, determined by Supabase (a UUID)
  */
 
-export type UserID = number & { readonly __validated__: unique symbol };
+export type UserID = string & { readonly __validated__: unique symbol };
 
 export class UserIDImpl {
-  static schema = Type.Integer({ minimum: 1 });
+  static schema = UuidString();
 
-  static castFrom(id: number) {
+  static castFrom(id: string) {
     this.#validator.validate(id, "Invalid user ID");
     return id as UserID;
   }

@@ -1,4 +1,8 @@
-import { NON_STRINGS, UNTRIMMED_STRINGS, testValues } from "@fieldzoo/modeling";
+import {
+  NON_STRINGS,
+  UNTRIMMED_STRINGS,
+  testValues,
+} from "@fieldzoo/modeling/dist/testing";
 import { MultitierValidator } from "@fieldzoo/multitier-validator";
 
 import { NormalizedNameImpl } from "../values/normalized-name";

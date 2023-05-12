@@ -30,8 +30,8 @@ export class CollaborativeTable {
           .addColumn("versionNumber", "integer", (col) =>
             col.notNull().defaultTo(1)
           )
-          .addColumn("modifiedBy", "integer", (col) =>
-            col.references("users.id").onDelete("cascade").notNull()
+          .addColumn("modifiedBy", "uuid", (col) =>
+            col.references("user_profiles.id").onDelete("cascade").notNull()
           )
       )
     );

@@ -1,7 +1,7 @@
 // Note: When renaming migration files, it may be necessary to delete the
 // nx cache via `pnpm clean`. Not sure why old files are sticking around.
 
-import { Kysely } from "kysely";
+import { Kysely, sql } from "kysely";
 
 import { TimestampedTable } from "@fieldzoo/modeling";
 
@@ -9,28 +9,43 @@ import { createVersionsTable } from "../utils/migration-utils";
 import { CollaborativeTable } from "../tables/collaborative-table";
 
 export async function up(db: Kysely<any>): Promise<void> {
-  await TimestampedTable.createTriggers(db);
-  await CollaborativeTable.createTriggers(db);
+  await TimestampedTable.createFunctions(db);
+  await CollaborativeTable.createFunctions(db);
 
-  // users table
+  // user_profiles table
 
-  await TimestampedTable.create(db, "users", (tb) =>
+  await TimestampedTable.create(db, "user_profiles", (tb) =>
     tb
-      .addColumn("id", "serial", (col) => col.primaryKey())
-      .addColumn("name", "text", (col) => col.notNull())
-      .addColumn("email", "text", (col) => col.notNull())
-      .addColumn("accessRevokedAt", "timestamp")
-      .addColumn("passwordHash", "text")
-      .addColumn("passwordSalt", "text")
+      .addColumn("id", "uuid", (col) =>
+        col.primaryKey().references("auth.users.id")
+      )
+      .addColumn("name", "text")
+      .addColumn("handle", "text")
   );
+  await sql
+    .raw(
+      `create function public.handle_insert_user()
+        returns trigger as $$
+        begin
+          insert into public.user_profiles (id)
+          values (new.id);
+          return new;
+        end;
+        $$ language plpgsql security definer;
+        
+      create trigger on_auth_user_created
+        after insert on auth.users
+        for each row execute procedure public.handle_insert_user();`
+    )
+    .execute(db);
 
   // glossaries table
 
   await CollaborativeTable.create(db, "glossaries", (tb) =>
     tb
       .addColumn("uuid", "text", (col) => col.primaryKey())
-      .addColumn("ownerID", "integer", (col) =>
-        col.references("users.id").onDelete("cascade").notNull()
+      .addColumn("ownerID", "uuid", (col) =>
+        col.references("user_profiles.id").onDelete("cascade").notNull()
       )
       .addColumn("name", "text", (col) => col.notNull())
       .addColumn("description", "text")
@@ -39,10 +54,11 @@ export async function up(db: Kysely<any>): Promise<void> {
   // glossary versions table
 
   await createVersionsTable(db, "glossary_versions", (tb) =>
+    // TODO: change "uuid" column to "id" to eliminate confusing with uuid type
     tb
       .addColumn("uuid", "text", (col) => col.notNull())
-      .addColumn("ownerID", "integer", (col) =>
-        col.references("users.id").onDelete("cascade").notNull()
+      .addColumn("ownerID", "uuid", (col) =>
+        col.references("user_profiles.id").onDelete("cascade").notNull()
       )
       .addColumn("name", "text", (col) => col.notNull())
       .addColumn("description", "text")
@@ -80,9 +96,16 @@ export async function up(db: Kysely<any>): Promise<void> {
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable("users").execute();
-  await db.schema.dropTable("glossaries").execute();
-  await db.schema.dropTable("glossary_versions").execute();
-  await db.schema.dropTable("terms").execute();
   await db.schema.dropTable("term_versions").execute();
+  await db.schema.dropTable("terms").execute();
+  await db.schema.dropTable("glossary_versions").execute();
+  await db.schema.dropTable("glossaries").execute();
+  await db.schema.dropTable("user_profiles").execute();
+
+  await sql
+    .raw(`drop function if exists public.handle_insert_user() cascade;`)
+    .execute(db);
+
+  await CollaborativeTable.dropFunctions(db);
+  await TimestampedTable.dropFunctions(db);
 }

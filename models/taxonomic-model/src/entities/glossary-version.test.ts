@@ -1,6 +1,6 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 
-import { testTimestamp } from "@fieldzoo/modeling";
+import { testTimestamp } from "@fieldzoo/modeling/dist/testing";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
 import { testUserID } from "@fieldzoo/system-model";
 
@@ -11,6 +11,7 @@ import { testVersionNumber } from "../values/version-number.test";
 import { GlossaryVersion } from "./glossary-version";
 import { testWhatChangedLine } from "../values/what-changed-line.test";
 
+const SAMPLE_USER_ID = "ae19af00-af09-af09-af09-abcde129af00";
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
 const ERROR_MSG = "Invalid glossary version";
 
@@ -55,8 +56,8 @@ describe("GlossaryVersion entity", () => {
         {
           uuid: SAMPLE_UUID,
           versionNumber: 1,
-          ownerID: 1,
-          modifiedBy: 1,
+          ownerID: SAMPLE_USER_ID,
+          modifiedBy: SAMPLE_USER_ID,
           name: "",
           description: "",
           createdAt: new Date(),
@@ -72,8 +73,8 @@ describe("GlossaryVersion entity", () => {
     const glossaryVersion = GlossaryVersion.castFrom({
       uuid: SAMPLE_UUID,
       versionNumber: 1,
-      ownerID: 1,
-      modifiedBy: 1,
+      ownerID: SAMPLE_USER_ID,
+      modifiedBy: SAMPLE_USER_ID,
       name: "X",
       description: null,
       createdAt: new Date(),
@@ -96,10 +97,10 @@ function createGlossaryVersion(
   return GlossaryVersion.castFrom({
     uuid: SAMPLE_UUID,
     versionNumber: 1,
-    ownerID: 1,
+    ownerID: SAMPLE_USER_ID,
     name: "Good Name",
     description: "This\nis\nfine.",
-    modifiedBy: 1,
+    modifiedBy: SAMPLE_USER_ID,
     createdAt: new Date(),
     modifiedAt: new Date(),
     whatChangedLine: "Description of what changed",

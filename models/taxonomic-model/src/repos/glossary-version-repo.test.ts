@@ -1,6 +1,11 @@
-import { User } from "@fieldzoo/system-model";
-import { getTestDB, closeTestDB, resetTestDB, sleep } from "@fieldzoo/database";
-import { UserRepo } from "@fieldzoo/system-model";
+import { UserID } from "@fieldzoo/system-model";
+import {
+  getTestDB,
+  closeTestDB,
+  resetTestDB,
+  sleep,
+  createSupabaseUser,
+} from "@fieldzoo/database";
 
 import { Glossary } from "../entities/glossary";
 import { GlossaryVersion } from "../entities/glossary-version";
@@ -113,30 +118,22 @@ describe("GlossaryVersionRepo", () => {
 
   async function setupTest() {
     await resetTestDB(db);
-    const userRepo = new UserRepo(db);
-    const insertedUser = User.castFrom({
-      name: "John Doe",
-      email: "jdoe@xyz.pdq",
-      accessRevokedAt: null,
-      passwordHash: null,
-      passwordSalt: null,
-    });
-    const userReturn = (await userRepo.add(insertedUser))!;
+    const userID = (await createSupabaseUser("jdoe@xyz.pdq")) as UserID;
 
     const rawGlossaries = [
       {
         versionNumber: 0,
-        ownerID: userReturn.id,
+        ownerID: userID,
         name: "Glossary 1",
         description: "This is test glossary 1",
-        modifiedBy: userReturn.id,
+        modifiedBy: userID,
       },
       {
         versionNumber: 0,
-        ownerID: userReturn.id,
+        ownerID: userID,
         name: "Glossary 2",
         description: "This is test glossary 2",
-        modifiedBy: userReturn.id,
+        modifiedBy: userID,
       },
     ];
 

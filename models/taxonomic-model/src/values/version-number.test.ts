@@ -1,4 +1,4 @@
-import { testNumericID } from "@fieldzoo/modeling";
+import { testNumericID } from "@fieldzoo/modeling/dist/testing";
 
 import { VersionNumberImpl } from "./version-number";
 

@@ -263,9 +263,6 @@ importers:
       '@types/jest': ^29.4.0
       '@types/node': ^18.14.1
       '@types/pg': ^8.6.6
-      '@zxcvbn-ts/core': ^2.2.1
-      '@zxcvbn-ts/language-common': ^2.0.1
-      '@zxcvbn-ts/language-en': ^2.1.0
       eslint: ^8.40.0
       eslint-config-custom: workspace:*
       jest: ^29.4.3
@@ -285,9 +282,6 @@ importers:
       '@fieldzoo/multitier-validator': link:../../utils/multitier-validator
       '@fieldzoo/typebox-types': link:../../utils/typebox-types
       '@sinclair/typebox': 0.28.9
-      '@zxcvbn-ts/core': 2.2.1
-      '@zxcvbn-ts/language-common': 2.0.1
-      '@zxcvbn-ts/language-en': 2.1.0
       kysely: 0.24.2
       kysely-mapper: 0.4.2
     devDependencies:
@@ -515,6 +509,8 @@ importers:
 
   utils/modeling:
     specifiers:
+      '@fieldzoo/multitier-validator': workspace:*
+      '@fieldzoo/typebox-types': workspace:*
       '@sinclair/typebox': ^0.28.9
       '@types/jest': ^29.4.0
       '@types/node': ^18.14.1
@@ -527,6 +523,8 @@ importers:
       tsconfig: workspace:*
       typescript: ^4.9.5
     dependencies:
+      '@fieldzoo/multitier-validator': link:../multitier-validator
+      '@fieldzoo/typebox-types': link:../typebox-types
       '@sinclair/typebox': 0.28.9
       kysely: 0.24.2
     devDependencies:
@@ -2013,20 +2011,6 @@ packages:
       argparse: 2.0.1
     dev: false
 
-  /@zxcvbn-ts/core/2.2.1:
-    resolution: {integrity: sha512-Cg1JyRpCDIF+Dh3nauqygmmCYxogNVZDxSn+9PgkPD1HZ2QiJe4elruVJrGmYRS7muGmZ1hNJq8ySQdPv6GHaw==}
-    dependencies:
-      fastest-levenshtein: 1.0.16
-    dev: false
-
-  /@zxcvbn-ts/language-common/2.0.1:
-    resolution: {integrity: sha512-P+v5MA/UNc9nb3FEOEoDgTyIGQc2vLc6m04pdf5YyuNOzrL0iNANhECk2TUp62JbrjouJVodqhMH0j1a8/24Bg==}
-    dev: false
-
-  /@zxcvbn-ts/language-en/2.1.0:
-    resolution: {integrity: sha512-I3n4AAbArjPAZtwCrk9MQnSrcj5+9rq8sic2rUU44fP5QaR17Vk8zDt61+R9dnP9ZRsj09aAUYML4Ash05qZjQ==}
-    dev: false
-
   /acorn-jsx/5.3.2_acorn@8.8.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -3320,11 +3304,6 @@ packages:
 
   /fast-levenshtein/2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
-
-  /fastest-levenshtein/1.0.16:
-    resolution: {integrity: sha512-eRnCtTTtGZFpQCwhJiUOuxPQWRXVKYDn0b2PeHfXL6/Zi53SLAzAHfVhVWK2AryC/WH05kGfxhFIPvTF0SXQzg==}
-    engines: {node: '>= 4.9.1'}
-    dev: false
 
   /fastq/1.15.0:
     resolution: {integrity: sha512-wBrocU2LCXXa+lWBt8RoIRD89Fi8OdABODa/kEnyeyjS5aZO5/GNvI5sEINADqP/h8M29UHTHUb53sUu5Ihqdw==}

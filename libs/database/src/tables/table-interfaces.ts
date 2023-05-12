@@ -2,32 +2,33 @@
 
 import { Generated } from "kysely";
 
+import { AuthUsers } from "./supabase-tables";
+
 export interface Database {
-  users: Users;
+  "auth.users": AuthUsers;
+  user_profiles: UserProfiles;
   glossaries: Glossaries;
   glossary_versions: GlossaryVersions;
   terms: Terms;
   term_versions: TermVersions;
 }
 
-export interface Users {
-  id: Generated<number>;
-  name: string;
+export interface UserProfiles {
+  id: string;
   email: string;
-  accessRevokedAt: Date | null;
+  name: string | null;
+  handle: string | null;
   createdAt: Date;
   modifiedAt: Date;
-  passwordHash: string | null;
-  passwordSalt: string | null;
 }
 
 export interface Glossaries {
   uuid: string;
   versionNumber: number;
-  ownerID: number;
+  ownerID: string;
   name: string;
   description: string | null;
-  modifiedBy: number;
+  modifiedBy: string;
   createdAt: Date;
   modifiedAt: Date;
 }
@@ -35,10 +36,10 @@ export interface Glossaries {
 export interface GlossaryVersions {
   uuid: string;
   versionNumber: number;
-  ownerID: number;
+  ownerID: string;
   name: string;
   description: string | null;
-  modifiedBy: number;
+  modifiedBy: string;
   createdAt: Date;
   modifiedAt: Date;
   whatChangedLine: string;
@@ -51,7 +52,7 @@ export interface Terms {
   lookupName: string;
   displayName: string;
   description: string;
-  modifiedBy: number;
+  modifiedBy: string;
   createdAt: Date;
   modifiedAt: Date;
 }
@@ -62,7 +63,7 @@ export interface TermVersions {
   glossaryID: string;
   displayName: string;
   description: string;
-  modifiedBy: number;
+  modifiedBy: string;
   createdAt: Date;
   modifiedAt: Date;
   whatChangedLine: string;

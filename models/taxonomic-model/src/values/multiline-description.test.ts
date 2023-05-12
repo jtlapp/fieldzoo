@@ -1,4 +1,8 @@
-import { NON_STRINGS, UNTRIMMED_STRINGS, testValues } from "@fieldzoo/modeling";
+import {
+  NON_STRINGS,
+  UNTRIMMED_STRINGS,
+  testValues,
+} from "@fieldzoo/modeling/dist/testing";
 
 import { MultilineDescriptionImpl } from "../values/multiline-description";
 

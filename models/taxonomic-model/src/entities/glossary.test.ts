@@ -1,6 +1,6 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
-import { testTimestamp } from "@fieldzoo/modeling";
+import { testTimestamp } from "@fieldzoo/modeling/dist/testing";
 import { testUserID } from "@fieldzoo/system-model";
 
 import { Glossary } from "./glossary";
@@ -9,6 +9,7 @@ import { testDisplayName } from "../values/display-name.test";
 import { testMultilineDescription } from "../values/multiline-description.test";
 import { testVersionNumber } from "../values/version-number.test";
 
+const SAMPLE_USER_ID = "ae19af00-af09-af09-af09-abcde129af00";
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
 const ERROR_MSG = "Invalid glossary";
 
@@ -62,8 +63,8 @@ describe("Glossary entity", () => {
         {
           uuid: SAMPLE_UUID,
           versionNumber: 1,
-          ownerID: 1,
-          modifiedBy: 1,
+          ownerID: SAMPLE_USER_ID,
+          modifiedBy: SAMPLE_USER_ID,
           name: "",
           description: "",
         },
@@ -76,8 +77,8 @@ describe("Glossary entity", () => {
     const glossary = Glossary.castFrom({
       versionNumber: 1,
       uuid: SAMPLE_UUID,
-      ownerID: 1,
-      modifiedBy: 1,
+      ownerID: SAMPLE_USER_ID,
+      modifiedBy: SAMPLE_USER_ID,
       name: "X",
       description: null,
     });
@@ -89,10 +90,10 @@ function createGlossary(specifiedFields: Partial<UnvalidatedFields<Glossary>>) {
   return Glossary.castFrom({
     uuid: SAMPLE_UUID,
     versionNumber: 1,
-    ownerID: 1,
+    ownerID: SAMPLE_USER_ID,
     name: "Good Name",
     description: "This\nis\nfine.",
-    modifiedBy: 1,
+    modifiedBy: SAMPLE_USER_ID,
     ...(specifiedFields as any),
   });
 }

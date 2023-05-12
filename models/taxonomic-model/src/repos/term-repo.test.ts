@@ -1,5 +1,11 @@
-import { User, UserRepo } from "@fieldzoo/system-model";
-import { getTestDB, closeTestDB, resetTestDB, sleep } from "@fieldzoo/database";
+import { UserID } from "@fieldzoo/system-model";
+import {
+  getTestDB,
+  closeTestDB,
+  resetTestDB,
+  sleep,
+  createSupabaseUser,
+} from "@fieldzoo/database";
 
 import { DisplayNameImpl } from "../values/display-name";
 import { Glossary } from "../entities/glossary";
@@ -14,23 +20,15 @@ afterAll(() => closeTestDB());
 
 it("inserts, updates, and deletes terms", async () => {
   await resetTestDB(db);
-  const userRepo = new UserRepo(db);
-  const insertedUser = User.castFrom({
-    name: "John Doe",
-    email: "jdoe@xyz.pdq",
-    accessRevokedAt: null,
-    passwordHash: null,
-    passwordSalt: null,
-  });
-  const userReturn = (await userRepo.add(insertedUser))!;
+  const userID = (await createSupabaseUser("jdoe@xyz.pdq")) as UserID;
 
   const glossaryRepo = new GlossaryRepo(db);
   const insertedGlossary = Glossary.castFrom({
     versionNumber: 1,
     name: "Test Glossary",
     description: "This is a test glossary",
-    ownerID: userReturn.id,
-    modifiedBy: userReturn.id,
+    ownerID: userID,
+    modifiedBy: userID,
   });
   const glossaryReturn = await glossaryRepo.add(insertedGlossary);
 
@@ -40,7 +38,7 @@ it("inserts, updates, and deletes terms", async () => {
     displayName: "Test Term",
     description: "This is a test term",
     glossaryID: glossaryReturn!.uuid,
-    modifiedBy: userReturn.id,
+    modifiedBy: userID,
   });
 
   // test updating a non-existent term

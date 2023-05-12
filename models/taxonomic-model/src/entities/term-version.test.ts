@@ -1,5 +1,5 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
-import { testTimestamp } from "@fieldzoo/modeling";
+import { testTimestamp } from "@fieldzoo/modeling/dist/testing";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
 import { testUserID } from "@fieldzoo/system-model";
 
@@ -11,6 +11,7 @@ import { testMultilineDescription } from "../values/multiline-description.test";
 import { testWhatChangedLine } from "../values/what-changed-line.test";
 import { TermVersion } from "./term-version";
 
+const SAMPLE_USER_ID = "ae19af00-af09-af09-af09-abcde129af00";
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
 
 const ERROR_MSG = "Invalid term version";
@@ -55,7 +56,7 @@ describe("TermVersion entity", () => {
           glossaryID: SAMPLE_UUID,
           displayName: "",
           description: "",
-          modifiedBy: 1,
+          modifiedBy: SAMPLE_USER_ID,
           whatChangedLine: null as any,
           createdAt: new Date(),
           modifiedAt: new Date(),
@@ -82,7 +83,7 @@ function createTermVersion(
     glossaryID: SAMPLE_UUID,
     displayName: "Good Name",
     description: "This\nis\nfine.",
-    modifiedBy: 1,
+    modifiedBy: SAMPLE_USER_ID,
     whatChangedLine: "Description of what changed",
     createdAt: new Date(),
     modifiedAt: new Date(),

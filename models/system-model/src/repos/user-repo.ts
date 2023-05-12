@@ -3,12 +3,13 @@ import { TableMapper } from "kysely-mapper";
 
 import { TimestampedTable } from "@fieldzoo/modeling";
 
-import { Database, Users } from "@fieldzoo/database";
-import { User } from "../entities/user";
+import { Database, UserProfiles } from "@fieldzoo/database";
+import { User, READONLY_USER_FIELDS } from "../entities/user";
 import { UserID } from "../values/user-id";
 
 /**
- * Repository for persisting users.
+ * Repository for persisted users, combining columns from both the
+ * `user_profiles` table and Supabase's `auth.users` table.
  */
 export class UserRepo {
   readonly #table: ReturnType<UserRepo["getMapper"]>;
@@ -18,16 +19,8 @@ export class UserRepo {
   }
 
   /**
-   * Adds a user to the repository.
-   * @param user User to add.
-   * @returns A new user instance with its generated ID.
-   */
-  async add(user: User): Promise<User> {
-    return this.#table.insert().returnOne(user);
-  }
-
-  /**
-   * Deletes a user by ID.
+   * Deletes a user by ID. Users are not automatically deleted from this
+   * repository when they are deleted from Supabase.
    * @param id ID of the user to delete.
    * @returns true if the user was deleted, false if the user was not found.
    */
@@ -41,7 +34,23 @@ export class UserRepo {
    * @returns the user, or null if the user was not found.
    */
   async getByID(id: UserID): Promise<User | null> {
-    return this.#table.select(id).returnOne();
+    const result = await this.db
+      .selectFrom("user_profiles")
+      .innerJoin("auth.users", "user_profiles.id", "auth.users.id")
+      .select([
+        "user_profiles.id",
+        "auth.users.email",
+        "user_profiles.name",
+        "user_profiles.handle",
+        "auth.users.last_sign_in_at as lastSignInAt",
+        "auth.users.banned_until as bannedUntil",
+        "user_profiles.createdAt",
+        "user_profiles.modifiedAt",
+        "auth.users.deleted_at as deletedAt",
+      ])
+      .where("user_profiles.id", "=", id)
+      .executeTakeFirst();
+    return result === undefined ? null : User.createFrom(result);
   }
 
   /**
@@ -59,26 +68,24 @@ export class UserRepo {
    * specify the type parameters.
    */
   private getMapper(db: Kysely<Database>) {
-    const upsertTransform = (user: User) => {
-      const values = TimestampedTable.removeGeneratedValues({ ...user });
-      delete values["id"];
-      return values;
-    };
-
-    return new TableMapper(db, "users", {
+    return new TableMapper(db, "user_profiles", {
       keyColumns: ["id"],
-      insertReturnColumns: TimestampedTable.addInsertReturnColumns<Users>([
-        "id",
-      ]),
-      updateReturnColumns: TimestampedTable.addUpdateReturnColumns<Users>(),
+      updateReturnColumns:
+        TimestampedTable.addUpdateReturnColumns<UserProfiles>(),
     }).withTransforms({
-      insertTransform: upsertTransform,
-      insertReturnTransform: (user: User, returns) =>
-        User.castFrom({ ...user, ...returns }, false),
-      updateTransform: upsertTransform,
+      insertTransform: () => {
+        throw Error("Cannot insert users");
+      },
+      updateTransform: (user: User) => {
+        const values = TimestampedTable.removeGeneratedValues({ ...user });
+        READONLY_USER_FIELDS.forEach((field) => delete values[field]);
+        return values;
+      },
       updateReturnTransform: (user: User, returns) =>
         Object.assign(user, returns) as User,
-      selectTransform: (row) => User.castFrom(row, false),
+      selectTransform: () => () => {
+        throw Error("Cannot select users via mapper");
+      },
       countTransform: (count) => Number(count),
     });
   }

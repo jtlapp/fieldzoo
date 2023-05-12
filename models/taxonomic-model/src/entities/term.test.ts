@@ -1,5 +1,5 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
-import { testTimestamp } from "@fieldzoo/modeling";
+import { testTimestamp } from "@fieldzoo/modeling/dist/testing";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
 import { testUserID } from "@fieldzoo/system-model";
 
@@ -12,6 +12,7 @@ import { testDisplayName } from "../values/display-name.test";
 import { testMultilineDescription } from "../values/multiline-description.test";
 import { DisplayNameImpl } from "../values/display-name";
 
+const SAMPLE_USER_ID = "ae19af00-af09-af09-af09-abcde129af00";
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
 
 const ERROR_MSG = "Invalid term";
@@ -83,7 +84,7 @@ describe("Term entity", () => {
           lookupName: "",
           displayName: "",
           description: "",
-          modifiedBy: 1,
+          modifiedBy: SAMPLE_USER_ID,
         },
         false
       )
@@ -96,7 +97,7 @@ describe("Term entity", () => {
           lookupName: "foo",
           displayName: "bar",
           description: "valid",
-          modifiedBy: 1,
+          modifiedBy: SAMPLE_USER_ID,
         },
         false
       )
@@ -116,7 +117,7 @@ function createTerm(specifiedFields: Partial<UnvalidatedFields<Term>>) {
     glossaryID: SAMPLE_UUID,
     displayName: "Good Name",
     description: "This\nis\nfine.",
-    modifiedBy: 1,
+    modifiedBy: SAMPLE_USER_ID,
     ...(specifiedFields as any),
   });
 }
