@@ -19,7 +19,7 @@ const db = getTestDB();
 afterAll(() => closeTestDB());
 
 it("inserts, updates, and deletes users", async () => {
-  await resetTestDB(db);
+  await resetTestDB();
   const userRepo = new UserRepo(db);
   const dummyUser = User.createFrom({
     id: "ae19af00-af09-af09-af09-abcde129af00",

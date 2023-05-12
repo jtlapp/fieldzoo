@@ -41,10 +41,10 @@ export async function closeTestDB(): Promise<void> {
   pool = null;
 }
 
-// TODO: drop db param
-export async function resetTestDB(db: Kysely<any>): Promise<void> {
+export async function resetTestDB(): Promise<void> {
   // Drop any tables already present in the database.
 
+  const db = getTestDB();
   await clearDatabase(db);
   await sql.raw(`delete from auth.identities`).execute(db);
   await sql.raw(`delete from auth.users`).execute(db);

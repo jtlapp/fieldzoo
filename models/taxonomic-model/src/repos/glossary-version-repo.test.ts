@@ -119,7 +119,7 @@ describe("GlossaryVersionRepo", () => {
   });
 
   async function setupTest() {
-    await resetTestDB(db);
+    await resetTestDB();
     const userID = (await createSupabaseUser("jdoe@xyz.pdq")) as UserID;
 
     const rawGlossaries = [

@@ -29,7 +29,7 @@ describe("installer", () => {
   });
 
   it("should decline installation when one is present", async () => {
-    await resetTestDB(db);
+    await resetTestDB();
     const cliPath = join(__dirname, "../dist/installer.js");
     const err = await getError<any>(() =>
       execSync(`node --enable-source-maps ${cliPath} --env ${TEST_ENV}`)

@@ -19,7 +19,7 @@ const db = getTestDB();
 afterAll(() => closeTestDB());
 
 it("inserts, updates, and deletes terms", async () => {
-  await resetTestDB(db);
+  await resetTestDB();
   const userID = (await createSupabaseUser("jdoe@xyz.pdq")) as UserID;
 
   const glossaryRepo = new GlossaryRepo(db);
