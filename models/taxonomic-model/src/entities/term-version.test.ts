@@ -18,7 +18,7 @@ const ERROR_MSG = "Invalid term version";
 
 describe("TermVersion entity", () => {
   it("accepts only valid term versions", () => {
-    testTermID(ERROR_MSG, (id) => createTermVersion({ id }));
+    testTermID(ERROR_MSG, (termID) => createTermVersion({ termID }));
     testVersionNumber(ERROR_MSG, (versionNumber) =>
       createTermVersion({ versionNumber })
     );
@@ -51,7 +51,7 @@ describe("TermVersion entity", () => {
     expect(() =>
       TermVersion.castFrom(
         {
-          id: 1,
+          termID: 1,
           versionNumber: 1,
           glossaryID: SAMPLE_UUID,
           displayName: "",
@@ -68,7 +68,7 @@ describe("TermVersion entity", () => {
 
   it("cannot be changed", () => {
     const term = createTermVersion({});
-    expect(() => ((term as any).id = 999)).toThrow("read only");
+    expect(() => ((term as any).termID = 999)).toThrow("read only");
     expect(() => ((term as any).glossaryID = "abc")).toThrow("read only");
     expect(() => ((term as any).description = "abc")).toThrow("read only");
   });
@@ -78,7 +78,7 @@ function createTermVersion(
   specifiedFields: Partial<UnvalidatedFields<TermVersion>>
 ) {
   return TermVersion.castFrom({
-    id: 1,
+    termID: 1,
     versionNumber: 1,
     glossaryID: SAMPLE_UUID,
     displayName: "Good Name",

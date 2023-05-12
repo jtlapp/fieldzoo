@@ -90,12 +90,14 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await createVersionsTable(db, "term_versions", (tb) =>
     tb
-      .addColumn("id", "integer", (col) => col.references("terms.id").notNull())
+      .addColumn("termID", "integer", (col) =>
+        col.references("terms.id").notNull()
+      )
       // glossaryID need not reference an existing glossary
       .addColumn("glossaryID", "text", (col) => col.notNull())
       .addColumn("displayName", "text", (col) => col.notNull())
       .addColumn("description", "text", (col) => col.notNull())
-      .addUniqueConstraint("id_versionNumber_key", ["id", "versionNumber"])
+      .addUniqueConstraint("id_versionNumber_key", ["termID", "versionNumber"])
   );
 }
 

@@ -33,7 +33,7 @@ export class TermVersionRepo {
    *  ID was not found.
    */
   async deleteByTermID(id: TermID): Promise<boolean> {
-    return this.#table.delete({ id }).run();
+    return this.#table.delete({ termID: id }).run();
   }
 
   /**
@@ -48,26 +48,26 @@ export class TermVersionRepo {
   /**
    * Gets summaries of term versions for a given term ID, sorted by version
    * number, with the highest version number first.
-   * @param id ID of the term whose versions are to be retrieved.
+   * @param termID ID of the term whose versions are to be retrieved.
    * @param offset Number of term versions to skip.
    * @param limit Maximum number of term versions to retrieve.
    * @returns summaries of the term versions, or an empty array if not found
    */
   async getSummaries(
-    id: TermID,
+    termID: TermID,
     offset: number,
     limit: number
   ): Promise<TermVersionSummary[]> {
     return (await this.db
       .selectFrom("term_versions")
       .select([
-        "id",
+        "termID",
         "versionNumber",
         "modifiedBy",
         "modifiedAt",
         "whatChangedLine",
       ])
-      .where("id", "=", id)
+      .where("termID", "=", termID)
       .orderBy("versionNumber", "desc")
       .limit(limit)
       .offset(offset)
@@ -79,7 +79,7 @@ export class TermVersionRepo {
    */
   private getMapper(db: Kysely<Database>) {
     return new TableMapper(db, "term_versions", {
-      keyColumns: ["id", "versionNumber"],
+      keyColumns: ["termID", "versionNumber"],
       insertReturnColumns: [],
     }).withTransforms({
       insertTransform: (termVersion: TermVersion) => termVersion,
@@ -96,7 +96,7 @@ export class TermVersionRepo {
  * Summary of a term version.
  */
 export interface TermVersionSummary {
-  readonly id: TermID;
+  readonly termID: TermID;
   readonly versionNumber: VersionNumber;
   readonly modifiedBy: string;
   readonly modifiedAt: Date;

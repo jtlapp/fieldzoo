@@ -58,8 +58,7 @@ export interface Terms {
 }
 
 export interface TermVersions {
-  // TODO: make this termID
-  id: number;
+  termID: number;
   versionNumber: number;
   glossaryID: string;
   displayName: string;

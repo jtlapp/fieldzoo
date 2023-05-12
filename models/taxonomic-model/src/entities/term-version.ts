@@ -19,7 +19,7 @@ import { VersionEntity } from "./base/version-entity";
  */
 export class TermVersion extends VersionEntity {
   static schema = Type.Object({
-    id: TermIDImpl.schema,
+    termID: TermIDImpl.schema,
     versionNumber: super.versionSchema.versionNumber,
     glossaryID: Term.schema.properties.glossaryID,
     displayName: Term.schema.properties.displayName,
@@ -32,7 +32,7 @@ export class TermVersion extends VersionEntity {
   static #validator = new MultitierValidator(this.schema);
 
   /**
-   * @param id The unique ID of the term in the database.
+   * @param termID The unique ID of the term in the database.
    * @param versionNumber The number for this version of the term.
    * @param glossaryID The ID of the glossary this term belongs to.
    * @param displayName The term's display name.
@@ -43,7 +43,7 @@ export class TermVersion extends VersionEntity {
    * @param whatChangedLine Line describing what changed in this version.
    */
   constructor(
-    readonly id: TermID,
+    readonly termID: TermID,
     versionNumber: VersionNumber,
     readonly glossaryID: GlossaryID,
     readonly displayName: DisplayName,
@@ -71,7 +71,7 @@ export class TermVersion extends VersionEntity {
       this.#validator.safeValidate(fields, "Invalid term version");
     }
     return new TermVersion(
-      fields.id as TermID,
+      fields.termID as TermID,
       fields.versionNumber as VersionNumber,
       fields.glossaryID as GlossaryID,
       fields.displayName as DisplayName,

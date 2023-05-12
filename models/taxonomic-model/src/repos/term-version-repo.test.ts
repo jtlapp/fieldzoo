@@ -34,22 +34,24 @@ describe("TermVersionRepo", () => {
 
     // test getting term versions by key
     const selection1 = await termVersionRepo.getByKey([
-      termVersions[1].id,
+      termVersions[1].termID,
       termVersions[1].versionNumber,
     ]);
     expect(selection1).toEqual(termVersions[1]);
 
     const selection2 = await termVersionRepo.getByKey([
-      termVersions[2].id,
+      termVersions[2].termID,
       termVersions[2].versionNumber,
     ]);
     expect(selection2).toEqual(termVersions[2]);
 
     // test deleting a term version
-    const deleted = await termVersionRepo.deleteByTermID(termVersions[1].id);
+    const deleted = await termVersionRepo.deleteByTermID(
+      termVersions[1].termID
+    );
     expect(deleted).toEqual(true);
     const selection3 = await termVersionRepo.getByKey([
-      termVersions[1].id,
+      termVersions[1].termID,
       termVersions[1].versionNumber,
     ]);
     expect(selection3).toBeNull();
@@ -64,14 +66,14 @@ describe("TermVersionRepo", () => {
 
     const expectedSummaries: TermVersionSummary[] = [
       {
-        id: termVersions[1].id,
+        termID: termVersions[1].termID,
         versionNumber: termVersions[1].versionNumber,
         modifiedBy: termVersions[1].modifiedBy,
         modifiedAt: termVersions[1].modifiedAt,
         whatChangedLine: termVersions[1].whatChangedLine,
       },
       {
-        id: termVersions[0].id,
+        termID: termVersions[0].termID,
         versionNumber: termVersions[0].versionNumber,
         modifiedBy: termVersions[0].modifiedBy,
         modifiedAt: termVersions[0].modifiedAt,
@@ -81,7 +83,7 @@ describe("TermVersionRepo", () => {
 
     // test getting first of multiple version summaries
     const summaries1 = await termVersionRepo.getSummaries(
-      termVersions[0].id,
+      termVersions[0].termID,
       0,
       1
     );
@@ -89,7 +91,7 @@ describe("TermVersionRepo", () => {
 
     // test getting second of multiple version summaries
     const summaries2 = await termVersionRepo.getSummaries(
-      termVersions[0].id,
+      termVersions[0].termID,
       1,
       1
     );
@@ -97,16 +99,16 @@ describe("TermVersionRepo", () => {
 
     // test getting all version summaries
     const summaries3 = await termVersionRepo.getSummaries(
-      termVersions[0].id,
+      termVersions[0].termID,
       0,
       100
     );
     expect(summaries3).toEqual(expectedSummaries);
 
     // test summaries disappearing on deleting a term version
-    await termVersionRepo.deleteByTermID(termVersions[0].id);
+    await termVersionRepo.deleteByTermID(termVersions[0].termID);
     const summaries4 = await termVersionRepo.getSummaries(
-      termVersions[0].id,
+      termVersions[0].termID,
       0,
       100
     );
@@ -165,7 +167,7 @@ describe("TermVersionRepo", () => {
 
 function createTermVersion(term: Term, whatChangedLine: string) {
   return TermVersion.castFrom({
-    id: term.id,
+    termID: term.id,
     versionNumber: term.versionNumber,
     glossaryID: term.glossaryID,
     displayName: term.displayName,
