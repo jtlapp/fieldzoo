@@ -43,7 +43,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await CollaborativeTable.create(db, "glossaries", (tb) =>
     tb
-      .addColumn("uuid", "text", (col) => col.primaryKey())
+      .addColumn("id", "text", (col) => col.primaryKey())
       .addColumn("ownerID", "uuid", (col) =>
         col.references("user_profiles.id").onDelete("cascade").notNull()
       )
@@ -54,15 +54,18 @@ export async function up(db: Kysely<any>): Promise<void> {
   // glossary versions table
 
   await createVersionsTable(db, "glossary_versions", (tb) =>
-    // TODO: change "uuid" column to "id" to eliminate confusing with uuid type
+    // TODO: shouldn't glossaryID reference glossaries.id?
     tb
-      .addColumn("uuid", "text", (col) => col.notNull())
+      .addColumn("glossaryID", "text", (col) => col.notNull())
       .addColumn("ownerID", "uuid", (col) =>
         col.references("user_profiles.id").onDelete("cascade").notNull()
       )
       .addColumn("name", "text", (col) => col.notNull())
       .addColumn("description", "text")
-      .addUniqueConstraint("uuid_versionNumber_key", ["uuid", "versionNumber"])
+      .addUniqueConstraint("uuid_versionNumber_key", [
+        "glossaryID",
+        "versionNumber",
+      ])
   );
 
   // terms table
@@ -71,7 +74,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     tb
       .addColumn("id", "serial", (col) => col.primaryKey())
       .addColumn("glossaryID", "text", (col) =>
-        col.references("glossaries.uuid").onDelete("cascade").notNull()
+        col.references("glossaries.id").onDelete("cascade").notNull()
       )
       .addColumn("lookupName", "text", (col) => col.notNull())
       .addColumn("displayName", "text", (col) => col.notNull())

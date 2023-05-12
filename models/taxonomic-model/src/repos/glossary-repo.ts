@@ -28,21 +28,21 @@ export class GlossaryRepo {
 
   /**
    * Deletes a glossary by ID.
-   * @param uuid UUID of the glossary to delete.
+   * @param id UUID of the glossary to delete.
    * @returns true if the glossary was deleted, false if the glossary
    *  was not found.
    */
-  async deleteByID(uuid: GlossaryID): Promise<boolean> {
-    return this.#table.delete(uuid).run();
+  async deleteByID(id: GlossaryID): Promise<boolean> {
+    return this.#table.delete(id).run();
   }
 
   /**
    * Gets a glossary by ID.
-   * @param uuid UUID of the glossary to get.
+   * @param id UUID of the glossary to get.
    * @returns the glossary, or null if the glossary was not found.
    */
-  async getByID(uuid: GlossaryID): Promise<Glossary | null> {
-    return this.#table.select(uuid).returnOne();
+  async getByID(id: GlossaryID): Promise<Glossary | null> {
+    return this.#table.select(id).returnOne();
   }
 
   /**
@@ -51,9 +51,7 @@ export class GlossaryRepo {
    * @returns Whether the glossary was found and updated.
    */
   async update(glossary: Glossary): Promise<boolean> {
-    return (
-      (await this.#table.update(glossary.uuid).returnOne(glossary)) !== null
-    );
+    return (await this.#table.update(glossary.id).returnOne(glossary)) !== null;
   }
 
   /**
@@ -63,16 +61,16 @@ export class GlossaryRepo {
    */
   private getMapper(db: Kysely<Database>) {
     return new TableMapper(db, "glossaries", {
-      keyColumns: ["uuid"],
+      keyColumns: ["id"],
       insertReturnColumns:
-        CollaborativeTable.addInsertReturnColumns<Glossaries>(["uuid"]),
+        CollaborativeTable.addInsertReturnColumns<Glossaries>(["id"]),
       updateReturnColumns:
         CollaborativeTable.addUpdateReturnColumns<Glossaries>(),
     }).withTransforms({
       insertTransform: (glossary: Glossary) =>
         CollaborativeTable.removeGeneratedValues({
           ...glossary,
-          uuid: createBase64UUID(),
+          id: createBase64UUID(),
         }),
       insertReturnTransform: (glossary: Glossary, returns) =>
         Glossary.castFrom({ ...glossary, ...returns }, false),

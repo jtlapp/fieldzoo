@@ -23,7 +23,7 @@ export interface UserProfiles {
 }
 
 export interface Glossaries {
-  uuid: string;
+  id: string;
   versionNumber: number;
   ownerID: string;
   name: string;
@@ -34,7 +34,7 @@ export interface Glossaries {
 }
 
 export interface GlossaryVersions {
-  uuid: string;
+  glossaryID: string;
   versionNumber: number;
   ownerID: string;
   name: string;
@@ -58,6 +58,7 @@ export interface Terms {
 }
 
 export interface TermVersions {
+  // TODO: make this termID
   id: number;
   versionNumber: number;
   glossaryID: string;

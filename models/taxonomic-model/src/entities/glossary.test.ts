@@ -19,11 +19,11 @@ describe("Glossary entity", () => {
     // allow ID to be falsy. Maybe do this after writing REST APIs.
 
     // undefined ID defaults to 0
-    expect(() => createGlossary({ uuid: undefined })).not.toThrow();
-    expect(() => createGlossary({ uuid: "" })).not.toThrow();
+    expect(() => createGlossary({ id: undefined })).not.toThrow();
+    expect(() => createGlossary({ id: "" })).not.toThrow();
     testGlossaryID(
       ERROR_MSG,
-      (uuid) => createGlossary({ uuid }),
+      (id) => createGlossary({ id }),
       (skip) => [undefined, ""].includes(skip)
     );
 
@@ -61,7 +61,7 @@ describe("Glossary entity", () => {
     expect(() =>
       Glossary.castFrom(
         {
-          uuid: SAMPLE_UUID,
+          id: SAMPLE_UUID,
           versionNumber: 1,
           ownerID: SAMPLE_USER_ID,
           modifiedBy: SAMPLE_USER_ID,
@@ -75,20 +75,20 @@ describe("Glossary entity", () => {
 
   it("cannot change id", () => {
     const glossary = Glossary.castFrom({
+      id: SAMPLE_UUID,
       versionNumber: 1,
-      uuid: SAMPLE_UUID,
       ownerID: SAMPLE_USER_ID,
       modifiedBy: SAMPLE_USER_ID,
       name: "X",
       description: null,
     });
-    expect(() => ((glossary as any).uuid = "XX")).toThrow("read only");
+    expect(() => ((glossary as any).id = "XX")).toThrow("read only");
   });
 });
 
 function createGlossary(specifiedFields: Partial<UnvalidatedFields<Glossary>>) {
   return Glossary.castFrom({
-    uuid: SAMPLE_UUID,
+    id: SAMPLE_UUID,
     versionNumber: 1,
     ownerID: SAMPLE_USER_ID,
     name: "Good Name",

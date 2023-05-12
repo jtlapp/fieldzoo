@@ -132,14 +132,14 @@ describe("TermVersionRepo", () => {
         versionNumber: 0,
         displayName: "Term1",
         description: "This is test term 1",
-        glossaryID: glossaryReturn!.uuid,
+        glossaryID: glossaryReturn!.id,
         modifiedBy: userID,
       },
       {
         versionNumber: 0,
         displayName: "Term2",
         description: "This is test term 2",
-        glossaryID: glossaryReturn!.uuid,
+        glossaryID: glossaryReturn!.id,
         modifiedBy: userID,
       },
     ];

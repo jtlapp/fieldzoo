@@ -35,24 +35,24 @@ describe("GlossaryVersionRepo", () => {
 
     // test getting glossary versions by key
     const selection1 = await glossaryVersionRepo.getByKey([
-      glossaryVersions[1].uuid,
+      glossaryVersions[1].glossaryID,
       glossaryVersions[1].versionNumber,
     ]);
     expect(selection1).toEqual(glossaryVersions[1]);
 
     const selection2 = await glossaryVersionRepo.getByKey([
-      glossaryVersions[2].uuid,
+      glossaryVersions[2].glossaryID,
       glossaryVersions[2].versionNumber,
     ]);
     expect(selection2).toEqual(glossaryVersions[2]);
 
     // test deleting a glossary version
-    const deleted = await glossaryVersionRepo.deleteByGlossaryUUID(
-      glossaryVersions[1].uuid
+    const deleted = await glossaryVersionRepo.deleteByGlossaryID(
+      glossaryVersions[1].glossaryID
     );
     expect(deleted).toEqual(true);
     const selection3 = await glossaryVersionRepo.getByKey([
-      glossaryVersions[1].uuid,
+      glossaryVersions[1].glossaryID,
       glossaryVersions[1].versionNumber,
     ]);
     expect(selection3).toBeNull();
@@ -67,14 +67,14 @@ describe("GlossaryVersionRepo", () => {
 
     const expectedSummaries: GlossaryVersionSummary[] = [
       {
-        uuid: glossaryVersions[1].uuid,
+        glossaryID: glossaryVersions[1].glossaryID,
         versionNumber: glossaryVersions[1].versionNumber,
         modifiedBy: glossaryVersions[1].modifiedBy,
         modifiedAt: glossaryVersions[1].modifiedAt,
         whatChangedLine: glossaryVersions[1].whatChangedLine,
       },
       {
-        uuid: glossaryVersions[0].uuid,
+        glossaryID: glossaryVersions[0].glossaryID,
         versionNumber: glossaryVersions[0].versionNumber,
         modifiedBy: glossaryVersions[0].modifiedBy,
         modifiedAt: glossaryVersions[0].modifiedAt,
@@ -84,7 +84,7 @@ describe("GlossaryVersionRepo", () => {
 
     // test getting first of multiple version summaries
     const summaries1 = await glossaryVersionRepo.getSummaries(
-      glossaryVersions[0].uuid,
+      glossaryVersions[0].glossaryID,
       0,
       1
     );
@@ -92,7 +92,7 @@ describe("GlossaryVersionRepo", () => {
 
     // test getting second of multiple version summaries
     const summaries2 = await glossaryVersionRepo.getSummaries(
-      glossaryVersions[0].uuid,
+      glossaryVersions[0].glossaryID,
       1,
       1
     );
@@ -100,16 +100,18 @@ describe("GlossaryVersionRepo", () => {
 
     // test getting all version summaries
     const summaries3 = await glossaryVersionRepo.getSummaries(
-      glossaryVersions[0].uuid,
+      glossaryVersions[0].glossaryID,
       0,
       100
     );
     expect(summaries3).toEqual(expectedSummaries);
 
     // test summaries disappearing on deleting a glossary version
-    await glossaryVersionRepo.deleteByGlossaryUUID(glossaryVersions[0].uuid);
+    await glossaryVersionRepo.deleteByGlossaryID(
+      glossaryVersions[0].glossaryID
+    );
     const summaries4 = await glossaryVersionRepo.getSummaries(
-      glossaryVersions[0].uuid,
+      glossaryVersions[0].glossaryID,
       0,
       100
     );
@@ -168,7 +170,7 @@ describe("GlossaryVersionRepo", () => {
 
 function createGlossaryVersion(glossary: Glossary, whatChangedLine: string) {
   return GlossaryVersion.castFrom({
-    uuid: glossary.uuid,
+    glossaryID: glossary.id,
     versionNumber: glossary.versionNumber,
     ownerID: glossary.ownerID,
     name: glossary.name,

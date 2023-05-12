@@ -68,7 +68,7 @@ export async function sleep(millis: number): Promise<void> {
 }
 
 export async function createSupabaseUser(email: string): Promise<string> {
-  const uuid = crypto.randomUUID().toLowerCase();
+  const userID = crypto.randomUUID().toLowerCase();
   const timestamp = new Date();
 
   await pool!.query(
@@ -81,7 +81,7 @@ export async function createSupabaseUser(email: string): Promise<string> {
         created_at, updated_at, last_sign_in_at,
         confirmation_token, email_change, email_change_token_new, recovery_token
       ) VALUES (
-        '${uuid}', '00000000-0000-0000-0000-000000000000',
+        '${userID}', '00000000-0000-0000-0000-000000000000',
         '${email}', $1,
         '$2a$10$uFKPCIwHTZMrYF2lmfR1TOsJrNxm5rhJ1PQ/NrBwu7YkC2eXBpMZy',
         'authenticated', 'authenticated',
@@ -98,18 +98,18 @@ export async function createSupabaseUser(email: string): Promise<string> {
         identity_data,
         created_at, updated_at, last_sign_in_at
       ) VALUES (
-        '${uuid}', '${uuid}',
+        '${userID}', '${userID}',
         'email',
-        '{"sub":"${uuid}","email":"${email}"}',
+        '{"sub":"${userID}","email":"${email}"}',
         $1, $1, $1
       )`,
     [timestamp]
   );
-  return uuid;
+  return userID;
 }
 
 export async function updateSupabaseUser(
-  uuid: string,
+  userID: string,
   email: string
 ): Promise<void> {
   const timestamp = new Date();
@@ -119,13 +119,13 @@ export async function updateSupabaseUser(
         email = '${email}',
         updated_at = $1
       WHERE id = $2`,
-    [timestamp, uuid]
+    [timestamp, userID]
   );
   await pool!.query(
     `UPDATE auth.identities SET
-        identity_data = '{"sub":"${uuid}","email":"${email}"}',
+        identity_data = '{"sub":"${userID}","email":"${email}"}',
         updated_at = $1
       WHERE id = $2`,
-    [timestamp, uuid]
+    [timestamp, userID]
   );
 }

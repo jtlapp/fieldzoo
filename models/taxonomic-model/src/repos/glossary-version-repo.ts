@@ -27,13 +27,13 @@ export class GlossaryVersionRepo {
   }
 
   /**
-   * Deletes a glossary version by glossary UUID.
-   * @param uuid UUID of the glossary whose versions are to be deleted.
+   * Deletes a glossary version by glossary ID.
+   * @param id UUID of the glossary whose versions are to be deleted.
    * @returns true if the glossary versions were deleted, false if the
    *  glossary UUID was not found.
    */
-  async deleteByGlossaryUUID(uuid: GlossaryID): Promise<boolean> {
-    return this.#table.delete({ uuid }).run();
+  async deleteByGlossaryID(id: GlossaryID): Promise<boolean> {
+    return this.#table.delete({ glossaryID: id }).run();
   }
 
   /**
@@ -50,27 +50,27 @@ export class GlossaryVersionRepo {
   /**
    * Gets summaries of glossary versions for a given glossary ID, sorted by
    * version number, with the highest version number first.
-   * @param uuid UUID of the glossary whose versions are to be retrieved.
+   * @param id ID of the glossary whose versions are to be retrieved.
    * @param offset Number of glossary versions to skip.
    * @param limit Maximum number of glossary versions to retrieve.
    * @returns summaries of the glossary versions, or an empty array if not
    *  found
    */
   async getSummaries(
-    uuid: GlossaryID,
+    id: GlossaryID,
     offset: number,
     limit: number
   ): Promise<GlossaryVersionSummary[]> {
     return (await this.db
       .selectFrom("glossary_versions")
       .select([
-        "uuid",
+        "glossaryID",
         "versionNumber",
         "modifiedBy",
         "modifiedAt",
         "whatChangedLine",
       ])
-      .where("uuid", "=", uuid)
+      .where("glossaryID", "=", id)
       .orderBy("versionNumber", "desc")
       .limit(limit)
       .offset(offset)
@@ -82,7 +82,7 @@ export class GlossaryVersionRepo {
    */
   private getMapper(db: Kysely<Database>) {
     return new TableMapper(db, "glossary_versions", {
-      keyColumns: ["uuid", "versionNumber"],
+      keyColumns: ["glossaryID", "versionNumber"],
       insertReturnColumns: [],
     }).withTransforms({
       insertTransform: (glossaryVersion: GlossaryVersion) => glossaryVersion,
@@ -100,7 +100,7 @@ export class GlossaryVersionRepo {
  * Summary of a glossary version.
  */
 export interface GlossaryVersionSummary {
-  readonly uuid: GlossaryID;
+  readonly glossaryID: GlossaryID;
   readonly versionNumber: VersionNumber;
   readonly modifiedBy: string;
   readonly modifiedAt: Date;

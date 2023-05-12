@@ -17,7 +17,7 @@ import { VersionNumber } from "../values/version-number";
  */
 export class GlossaryVersion extends VersionEntity {
   static schema = Type.Object({
-    uuid: GlossaryIDImpl.schema,
+    glossaryID: GlossaryIDImpl.schema,
     versionNumber: super.versionSchema.versionNumber,
     ownerID: Glossary.schema.properties.ownerID,
     name: Glossary.schema.properties.name,
@@ -30,7 +30,7 @@ export class GlossaryVersion extends VersionEntity {
   static #validator = new MultitierValidator(this.schema);
 
   /**
-   * @param uuid The glossary's UUID.
+   * @param glossaryID The glossary's UUID.
    * @param versionNumber The number for this version of the glossary.
    * @param ownerID The ID of the user who owns this glossary.
    * @param name The glossary's name.
@@ -41,7 +41,7 @@ export class GlossaryVersion extends VersionEntity {
    * @param whatChangedLine Line describing what changed in this version.
    */
   constructor(
-    readonly uuid: GlossaryID,
+    readonly glossaryID: GlossaryID,
     versionNumber: VersionNumber,
     public ownerID: UserID,
     public name: DisplayName,
@@ -66,7 +66,7 @@ export class GlossaryVersion extends VersionEntity {
       this.#validator.safeValidate(fields, "Invalid glossary version");
     }
     return new GlossaryVersion(
-      fields.uuid as GlossaryID,
+      fields.glossaryID as GlossaryID,
       fields.versionNumber as VersionNumber,
       fields.ownerID as UserID,
       fields.name as DisplayName,

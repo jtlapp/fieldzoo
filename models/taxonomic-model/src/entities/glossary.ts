@@ -21,7 +21,7 @@ import { CollaborativeEntity } from "./base/collaborative-entity";
  */
 export class Glossary extends CollaborativeEntity {
   static schema = Type.Object({
-    uuid: EmptyStringable(GlossaryIDImpl.schema),
+    id: EmptyStringable(GlossaryIDImpl.schema),
     versionNumber: Zeroable(super.collaborativeSchema.versionNumber),
     ownerID: UserIDImpl.schema,
     name: DisplayNameImpl.schema,
@@ -33,7 +33,7 @@ export class Glossary extends CollaborativeEntity {
   static #validator = new MultitierValidator(this.schema);
 
   /**
-   * @param uuid The glossary's UUID.
+   * @param id The glossary's UUID.
    * @param versionNumber The number for this version of the glossary.
    * @param ownerID The ID of the user who owns this glossary.
    * @param name The glossary's name.
@@ -43,7 +43,7 @@ export class Glossary extends CollaborativeEntity {
    * @param modifiedAt The date/time at which the glossary was last modified.
    */
   constructor(
-    readonly uuid: GlossaryID,
+    readonly id: GlossaryID,
     versionNumber: VersionNumber,
     public ownerID: UserID,
     public name: DisplayName,
@@ -53,12 +53,12 @@ export class Glossary extends CollaborativeEntity {
     modifiedAt?: Date
   ) {
     super(versionNumber, modifiedBy, createdAt, modifiedAt);
-    freezeField(this, "uuid");
+    freezeField(this, "id");
   }
 
   /**
    * Cast a new glossary from fields, optionally with validation.
-   * @param fields The glossary's properties. `uuid` is optional, defaulting to
+   * @param fields The glossary's properties. `id` is optional, defaulting to
    *  the empty string for glossaries not yet in the database.
    * @param validate Whether to validate the fields. Defaults to true.
    * @returns A new glossary.
@@ -66,18 +66,18 @@ export class Glossary extends CollaborativeEntity {
   static castFrom(
     fields: SelectivePartial<
       UnvalidatedFields<Glossary>,
-      "uuid" | TimestampedColumns
+      "id" | TimestampedColumns
     >,
     validate = true
   ) {
-    if (fields.uuid === undefined) {
-      fields = { ...fields, uuid: "" };
+    if (fields.id === undefined) {
+      fields = { ...fields, id: "" };
     }
     if (validate) {
       this.#validator.safeValidate(fields, "Invalid glossary");
     }
     return new Glossary(
-      fields.uuid as GlossaryID,
+      fields.id as GlossaryID,
       fields.versionNumber as VersionNumber,
       fields.ownerID as UserID,
       fields.name as DisplayName,

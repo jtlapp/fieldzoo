@@ -35,7 +35,7 @@ it("inserts, updates, and deletes glossaries", async () => {
   const updateReturn1 = await glossaryRepo.update(
     Glossary.castFrom({
       ...insertedGlossary,
-      uuid: SAMPLE_UUID,
+      id: SAMPLE_UUID,
     })
   );
   expect(updateReturn1).toBe(false);
@@ -43,13 +43,13 @@ it("inserts, updates, and deletes glossaries", async () => {
   // test inserting a glossary
   const insertReturn = (await glossaryRepo.add(insertedGlossary))!;
   expect(insertReturn).not.toBeNull();
-  expect(insertReturn.uuid).not.toEqual("");
+  expect(insertReturn.id).not.toEqual("");
   expect(insertReturn.versionNumber).toEqual(1);
   expect(insertReturn.createdAt).toBeInstanceOf(Date);
   expect(insertReturn.modifiedAt).toEqual(insertReturn.createdAt);
 
   // test getting a glossary by ID
-  const selection1 = await glossaryRepo.getByID(insertReturn.uuid);
+  const selection1 = await glossaryRepo.getByID(insertReturn.id);
   expectEqualGlossaries(selection1, insertReturn);
 
   // test updating a glossary
@@ -63,19 +63,19 @@ it("inserts, updates, and deletes glossaries", async () => {
     originallyModifiedAt.getTime()
   );
 
-  const selection2 = await glossaryRepo.getByID(insertReturn.uuid);
+  const selection2 = await glossaryRepo.getByID(insertReturn.id);
   expectEqualGlossaries(selection2, selection1!);
 
   // test deleting a glossary
-  const deleted = await glossaryRepo.deleteByID(insertReturn.uuid);
+  const deleted = await glossaryRepo.deleteByID(insertReturn.id);
   expect(deleted).toEqual(true);
-  const selection3 = await glossaryRepo.getByID(insertReturn.uuid);
+  const selection3 = await glossaryRepo.getByID(insertReturn.id);
   expect(selection3).toEqual(null);
 });
 
 function expectEqualGlossaries(actual: Glossary | null, expected: Glossary) {
   expect(actual).not.toBeNull();
-  expect(actual!.uuid).toEqual(expected.uuid);
+  expect(actual!.id).toEqual(expected.id);
   expect(actual!.createdAt).toEqual(expected.createdAt);
   expect(actual!.modifiedAt).toEqual(expected.modifiedAt);
 }

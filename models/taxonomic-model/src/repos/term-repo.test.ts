@@ -37,7 +37,7 @@ it("inserts, updates, and deletes terms", async () => {
     versionNumber: 0,
     displayName: "Test Term",
     description: "This is a test term",
-    glossaryID: glossaryReturn!.uuid,
+    glossaryID: glossaryReturn!.id,
     modifiedBy: userID,
   });
 

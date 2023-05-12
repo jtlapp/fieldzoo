@@ -17,7 +17,9 @@ const ERROR_MSG = "Invalid glossary version";
 
 describe("GlossaryVersion entity", () => {
   it("accepts only valid glossary versions", () => {
-    testGlossaryID(ERROR_MSG, (uuid) => createGlossaryVersion({ uuid }));
+    testGlossaryID(ERROR_MSG, (glossaryID) =>
+      createGlossaryVersion({ glossaryID })
+    );
     testVersionNumber(ERROR_MSG, (versionNumber) =>
       createGlossaryVersion({ versionNumber })
     );
@@ -54,7 +56,7 @@ describe("GlossaryVersion entity", () => {
     expect(() =>
       GlossaryVersion.castFrom(
         {
-          uuid: SAMPLE_UUID,
+          glossaryID: SAMPLE_UUID,
           versionNumber: 1,
           ownerID: SAMPLE_USER_ID,
           modifiedBy: SAMPLE_USER_ID,
@@ -71,7 +73,7 @@ describe("GlossaryVersion entity", () => {
 
   it("cannot modify", () => {
     const glossaryVersion = GlossaryVersion.castFrom({
-      uuid: SAMPLE_UUID,
+      glossaryID: SAMPLE_UUID,
       versionNumber: 1,
       ownerID: SAMPLE_USER_ID,
       modifiedBy: SAMPLE_USER_ID,
@@ -81,7 +83,9 @@ describe("GlossaryVersion entity", () => {
       modifiedAt: new Date(),
       whatChangedLine: "Description of what changed",
     });
-    expect(() => ((glossaryVersion as any).uuid = "XX")).toThrow("read only");
+    expect(() => ((glossaryVersion as any).glossaryID = "XX")).toThrow(
+      "read only"
+    );
     expect(() => ((glossaryVersion as any).versionNumber = 100)).toThrow(
       "read only"
     );
@@ -95,7 +99,7 @@ function createGlossaryVersion(
   specifiedFields: Partial<UnvalidatedFields<GlossaryVersion>>
 ) {
   return GlossaryVersion.castFrom({
-    uuid: SAMPLE_UUID,
+    glossaryID: SAMPLE_UUID,
     versionNumber: 1,
     ownerID: SAMPLE_USER_ID,
     name: "Good Name",
