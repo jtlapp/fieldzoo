@@ -20,7 +20,7 @@ import {
   InvalidEnvironmentException,
 } from "@fieldzoo/env-config";
 import { MIGRATION_FILE_PATH } from "@fieldzoo/database";
-import { dropAllTables, existingTables } from "@fieldzoo/postgres-utils";
+import { clearDatabase, existingTables } from "@fieldzoo/postgres-utils";
 
 const DEFAULT_ENV_FILE = ".env-admin.local";
 const PATH_TO_ROOT = path.join(__dirname, "../../..");
@@ -125,7 +125,7 @@ async function doReinstall(db: Kysely<any>) {
       "The database does not contain any tables. Use the 'install' command to install the tables."
     );
   }
-  await dropAllTables(db);
+  await clearDatabase(db);
   if (!(await migrateToLatestSchema(db))) {
     throw new CommandFailure("Reinstallation failed");
   }
