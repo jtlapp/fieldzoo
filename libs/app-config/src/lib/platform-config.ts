@@ -6,19 +6,24 @@ import { Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 
 import { InvalidEnvironmentException } from "@fieldzoo/env-config";
-import { IntegerString } from "@fieldzoo/typebox-types";
+import {
+  LocalhostUrlString,
+  NonEmptyString,
+  UrlString,
+} from "@fieldzoo/typebox-types";
 
 /**
  * General platform configuration.
  */
 export class PlatformConfig {
-  readonly minPasswordStrength: number;
-
   static schema = Type.Object({
-    MIN_PASSWORD_STRENGTH: IntegerString({
-      description: "logarithm of min. guesses required to crack password",
-      minimum: 0,
-      message: "must be an integer >= 0",
+    NEXT_PUBLIC_SUPABASE_URL: Type.Union([UrlString(), LocalhostUrlString()], {
+      description: "URL for the Supabase project",
+      message: "must be a URL, possibly localhost",
+    }),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: NonEmptyString({
+      description: "Anonymous key for the Supabase project",
+      message: "must be a non-empty string",
     }),
   });
 
@@ -27,7 +32,8 @@ export class PlatformConfig {
    */
   constructor() {
     const values = {
-      MIN_PASSWORD_STRENGTH: process.env.MIN_PASSWORD_STRENGTH!,
+      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     };
 
     if (!Value.Check(PlatformConfig.schema, values)) {
@@ -36,7 +42,7 @@ export class PlatformConfig {
       );
     }
 
-    this.minPasswordStrength = parseInt(values.MIN_PASSWORD_STRENGTH);
+    // The Supabase client will read the environment variables directly.
   }
 
   /**

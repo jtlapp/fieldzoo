@@ -5,22 +5,17 @@ import {
 
 import { PlatformConfig } from "./platform-config";
 
-const ALL_VARS = ["MIN_PASSWORD_STRENGTH"];
+const ALL_VARS = ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"];
 
 describe("platform configuration", () => {
   it("accepts valid configurations", () => {
-    let config = createConfig({
-      MIN_PASSWORD_STRENGTH: "0",
+    createConfig({
+      NEXT_PUBLIC_SUPABASE_URL: "https://abc.def",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "123",
     });
-    expect(config).toEqual({
-      minPasswordStrength: 0,
-    });
-
-    config = createConfig({
-      MIN_PASSWORD_STRENGTH: "1",
-    });
-    expect(config).toEqual({
-      minPasswordStrength: 1,
+    createConfig({
+      NEXT_PUBLIC_SUPABASE_URL: "http://localhost:54321",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "123",
     });
   });
 
@@ -41,7 +36,8 @@ describe("platform configuration", () => {
     expect.assertions(ALL_VARS.length + 1);
     try {
       createConfig({
-        MIN_PASSWORD_STRENGTH: "",
+        NEXT_PUBLIC_SUPABASE_URL: "",
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
       });
     } catch (e: unknown) {
       if (!(e instanceof InvalidEnvironmentException)) throw e;
@@ -52,33 +48,22 @@ describe("platform configuration", () => {
     }
   });
 
-  it("rejects invalid values", () => {
-    expect.assertions(ALL_VARS.length + 1);
+  it("rejects invalid values, providing friendly error messages", () => {
     try {
       createConfig({
-        MIN_PASSWORD_STRENGTH: "-1",
-      });
-    } catch (e: unknown) {
-      if (!(e instanceof InvalidEnvironmentException)) throw e;
-      expect(e.errors.length).toEqual(ALL_VARS.length);
-      for (const error of e.errors) {
-        expect(ALL_VARS).toContain(error.envVarName);
-      }
-    }
-  });
-
-  it("produces friendly error messages", () => {
-    expect.assertions(1);
-    try {
-      createConfig({
-        MIN_PASSWORD_STRENGTH: "ABC",
+        NEXT_PUBLIC_SUPABASE_URL: "-",
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
       });
     } catch (e: unknown) {
       if (!(e instanceof InvalidEnvironmentException)) throw e;
       expect(e.errors).toEqual([
         {
-          envVarName: "MIN_PASSWORD_STRENGTH",
-          errorMessage: "must be an integer >= 0",
+          envVarName: "NEXT_PUBLIC_SUPABASE_URL",
+          errorMessage: "must be a URL, possibly localhost",
+        },
+        {
+          envVarName: "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+          errorMessage: "must be a non-empty string",
         },
       ]);
     }
