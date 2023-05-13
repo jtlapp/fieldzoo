@@ -24,6 +24,7 @@
   },
   "packageManager": "pnpm@7.15.0",
   "dependencies": {
-    "nx": "^16.1.3"
+    "nx": "16.1.4"
   }
 }
+
