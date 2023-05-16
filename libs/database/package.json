@@ -23,6 +23,7 @@
     "@fieldzoo/modeling": "workspace:*",
     "@fieldzoo/postgres-utils": "workspace:*",
     "kysely": "^0.24.2",
+    "kysely-pg-client": "^0.1.1",
     "pg": "^8.9.0"
   },
   "devDependencies": {

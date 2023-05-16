@@ -4,16 +4,11 @@
 
 import * as crypto from "crypto";
 import * as path from "path";
-import { Pool } from "pg";
+import { Client } from "pg";
 import { promises as fs } from "fs";
 import * as dotenv from "dotenv";
-import {
-  Kysely,
-  Migrator,
-  PostgresDialect,
-  FileMigrationProvider,
-  sql,
-} from "kysely";
+import { Kysely, Migrator, FileMigrationProvider, sql } from "kysely";
+import { PostgresClientDialect } from "kysely-pg-client";
 
 import { TEST_ENV } from "@fieldzoo/app-config";
 import { SupabaseConfig } from "@fieldzoo/env-config";
@@ -24,13 +19,13 @@ import { MIGRATION_FILE_PATH } from "./migration-utils";
 const PATH_TO_ROOT = path.join(__dirname, "../../../..");
 
 let db: Kysely<any> | null = null;
-let pool: Pool | null = null;
+let client: Client | null = null;
 
 export function getTestDB(): Kysely<any> {
   if (!db) {
     dotenv.config({ path: path.join(PATH_TO_ROOT, TEST_ENV) });
-    pool = new Pool(new SupabaseConfig());
-    db = new Kysely<any>({ dialect: new PostgresDialect({ pool }) });
+    client = new Client(new SupabaseConfig());
+    db = new Kysely<any>({ dialect: new PostgresClientDialect({ client }) });
   }
   return db;
 }
@@ -38,7 +33,7 @@ export function getTestDB(): Kysely<any> {
 export async function closeTestDB(): Promise<void> {
   if (db) await db.destroy();
   db = null;
-  pool = null;
+  client = null;
 }
 
 export async function resetTestDB(): Promise<void> {
@@ -71,7 +66,7 @@ export async function createSupabaseUser(email: string): Promise<string> {
   const userID = crypto.randomUUID().toLowerCase();
   const timestamp = new Date();
 
-  await pool!.query(
+  await client!.query(
     `INSERT INTO auth.users (
         id, instance_id,
         email, email_confirmed_at,
@@ -91,7 +86,7 @@ export async function createSupabaseUser(email: string): Promise<string> {
       )`,
     [timestamp]
   );
-  await pool!.query(
+  await client!.query(
     `INSERT INTO auth.identities (
         id, user_id,
         "provider",
@@ -114,14 +109,14 @@ export async function updateSupabaseUser(
 ): Promise<void> {
   const timestamp = new Date();
 
-  await pool!.query(
+  await client!.query(
     `UPDATE auth.users SET
         email = '${email}',
         updated_at = $1
       WHERE id = $2`,
     [timestamp, userID]
   );
-  await pool!.query(
+  await client!.query(
     `UPDATE auth.identities SET
         identity_data = '{"sub":"${userID}","email":"${email}"}',
         updated_at = $1
