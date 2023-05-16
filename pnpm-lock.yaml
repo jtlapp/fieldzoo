@@ -36,7 +36,7 @@ importers:
       jest: ^29.4.3
       jest-presets: workspace:*
       kysely: ^0.24.2
-      kysely-pg-client: ^0.1.1
+      kysely-pg-client: ^0.1.2
       pg: ^8.9.0
       ts-jest: ^29.0.5
       tsconfig: workspace:*
@@ -52,7 +52,7 @@ importers:
       dotenv: 16.0.3
       es6-error: 4.1.1
       kysely: 0.24.2
-      kysely-pg-client: 0.1.1
+      kysely-pg-client: 0.1.2
       pg: 8.10.0
     devDependencies:
       '@fieldzoo/taxonomic-model': link:../../models/taxonomic-model
@@ -189,7 +189,7 @@ importers:
       jest: ^29.4.3
       jest-presets: workspace:*
       kysely: ^0.24.2
-      kysely-pg-client: ^0.1.1
+      kysely-pg-client: ^0.1.2
       pg: ^8.9.0
       ts-jest: ^29.0.5
       tsconfig: workspace:*
@@ -200,7 +200,7 @@ importers:
       '@fieldzoo/modeling': link:../../utils/modeling
       '@fieldzoo/postgres-utils': link:../../utils/postgres-utils
       kysely: 0.24.2
-      kysely-pg-client: 0.1.1
+      kysely-pg-client: 0.1.2
       pg: 8.10.0
     devDependencies:
       '@types/jest': 29.5.0
@@ -4642,8 +4642,8 @@ packages:
       kysely: 0.24.2
     dev: false
 
-  /kysely-pg-client/0.1.1:
-    resolution: {integrity: sha512-JRX0vm6D2sGYUJptNSwyjSQiJEGXROTYyAWRPa1UITTLZMpY2vw6k5z4OFyEmCnuAXXt+8p7MJLdgdgXJTarSA==}
+  /kysely-pg-client/0.1.2:
+    resolution: {integrity: sha512-KsF9NoFlaX6NmQb9iiF1P37inxYIf6DyV8+LGURvDyFAzPcFigVhPZ5Ks0Hwtxz6ZBqbAT9i37ReaxWz1jwQEw==}
     dependencies:
       kysely: 0.24.2
     dev: false
