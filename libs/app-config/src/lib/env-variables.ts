@@ -4,10 +4,10 @@
  * variables, but it does not seem to have a way to validate them or
  * encapulate them as typed values.
  *
- * To facilitate testing, this module can be used with or without
- * the `.env.local` file. It uses the values previously loaded into
- * `process.env`, but you can call `loadAndValidateEnvFile()` to load
- * the environment variables from `.env.local`.
+ * To facilitate testing, this module can be used with or without the
+ * `.env` file. It uses the values previously loaded into`process.env`,
+ * but you can call `loadAndValidateEnvFile()` to load the environment
+ * variables from `.env`.
  *
  * Call `loadAndValidateEnvFile()` first thing in `next.config.js`.
  */
@@ -33,12 +33,12 @@ export function getPlatformConfig(): PlatformConfig {
 }
 
 /**
- * Loads and validates the environment variables from `.env.local`.
- * Exits the application with an error message if any environment
- * variables are invalid.
+ * Loads and validates the environment variables from `.env`. Exits the
+ * application with an error message if any environment variables are
+ * invalid.
  */
 export function loadAndValidateEnvFile(): void {
-  const ENV_FILE = ".env.local";
+  const ENV_FILE = ".env";
   const PATH_TO_ROOT = path.join(__dirname, "../../../..");
   try {
     dotenv.config({ path: path.join(PATH_TO_ROOT, ENV_FILE) });
