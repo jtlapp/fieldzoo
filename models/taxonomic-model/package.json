@@ -32,13 +32,8 @@
     "kysely": "^0.24.2",
     "kysely-mapper": "^0.4.2"
   },
-  "@comment devDependencies": [
-    "Depends on @fieldzoo/system-model so it's not simultaneously",
-    "testing with @fieldzoo/system-model and its dependencies"
-  ],
   "devDependencies": {
     "@fieldzoo/app-config": "workspace:*",
-    "@fieldzoo/system-model": "workspace:*",
     "@types/jest": "^29.4.0",
     "@types/node": "20.1.3",
     "@types/pg": "^8.6.6",

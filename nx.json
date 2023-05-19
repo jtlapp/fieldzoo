@@ -11,9 +11,6 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["{projectRoot}/dist"]
-    },
-    "test": {
-      "dependsOn": ["^test"]
     }
   },
   "defaultBase": "main"
