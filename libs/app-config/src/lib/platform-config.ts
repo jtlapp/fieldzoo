@@ -3,7 +3,7 @@
  */
 
 import { Type } from "@sinclair/typebox";
-import { Value } from "@sinclair/typebox/value";
+import { StandardValidator } from "typebox-validators";
 
 import { InvalidEnvironmentException } from "@fieldzoo/env-config";
 import {
@@ -19,11 +19,11 @@ export class PlatformConfig {
   static schema = Type.Object({
     NEXT_PUBLIC_SUPABASE_URL: Type.Union([UrlString(), LocalhostUrlString()], {
       description: "URL for the Supabase project",
-      message: "must be a URL, possibly localhost",
+      errorMessage: "Must be a URL, possibly localhost",
     }),
     NEXT_PUBLIC_SUPABASE_ANON_KEY: NonEmptyString({
       description: "Anonymous key for the Supabase project",
-      message: "must be a non-empty string",
+      errorMessage: "Must be a non-empty string",
     }),
   });
 
@@ -36,10 +36,11 @@ export class PlatformConfig {
       NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     };
 
-    if (!Value.Check(PlatformConfig.schema, values)) {
-      throw InvalidEnvironmentException.fromTypeBoxErrors(
-        Value.Errors(PlatformConfig.schema, values)
-      );
+    const validator = new StandardValidator(PlatformConfig.schema);
+    try {
+      validator.validate(values);
+    } catch (e: any) {
+      throw InvalidEnvironmentException.fromTypeBoxErrors(e.errors);
     }
 
     // The Supabase client will read the environment variables directly.

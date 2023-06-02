@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import { CompilingStandardValidator } from "typebox-validators";
 
 /**
  * Representation of a term ID
@@ -12,9 +12,9 @@ export class TermIDImpl {
   static schema = Type.Integer({ minimum: 1 });
 
   static castFrom(id: number) {
-    this.#validator.validate(id, "Invalid term ID");
+    this.#validator.assert(id, "Invalid term ID");
     return id as TermID;
   }
 
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 }

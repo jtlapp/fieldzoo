@@ -2,9 +2,9 @@ import { Type } from "@sinclair/typebox";
 
 import { SelectivePartial, UnvalidatedFields } from "@fieldzoo/generic-types";
 import {
-  MultitierValidator,
+  CompilingStandardValidator,
   ValidationException,
-} from "@fieldzoo/multitier-validator";
+} from "typebox-validators";
 import { freezeField } from "@fieldzoo/freeze-field";
 import { Zeroable } from "@fieldzoo/typebox-types";
 import { TimestampedColumns } from "@fieldzoo/modeling";
@@ -39,7 +39,7 @@ export class Term extends CollaborativeEntity {
     createdAt: super.timestampedSchema.createdAt,
     modifiedAt: super.timestampedSchema.modifiedAt,
   });
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 
   /**
    * @param id The unique ID of the term in the database.
@@ -95,7 +95,7 @@ export class Term extends CollaborativeEntity {
       fields = { ...fields, id: 0 };
     }
     if (validate) {
-      this.#validator.safeValidate(fields, "Invalid term");
+      this.#validator.assert(fields, "Invalid term");
       if (
         fields.lookupName !== undefined &&
         fields.lookupName !=

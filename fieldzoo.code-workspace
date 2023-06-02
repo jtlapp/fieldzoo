@@ -61,10 +61,6 @@
       "path": "utils/modeling"
     },
     {
-      "name": "utils/multitier-validator",
-      "path": "utils/multitier-validator"
-    },
-    {
       "name": "utils/postgres-utils",
       "path": "utils/postgres-utils"
     },

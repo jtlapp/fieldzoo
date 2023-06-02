@@ -85,13 +85,13 @@ pnpm build
 
 ## Testing
 
-To test, you'll first need to acquire a Supabase access token, which you can do after you've created a Supabase account. You'll use this token to login to Supabase .
+To test, you'll first need to acquire a Supabase access token, which you can do after you've created a Supabase account. You'll use this token to login to Supabase.
 
-After building the repo, you can run the tests as follows:
+After building the repo and starting the Docker daemon, you can run the tests as follows:
 
 ```bash
 cd fieldzoo
-supabase login
+npx supabase login
 pnpm start-supabase
 pnpm test
 pnpm stop-supabase

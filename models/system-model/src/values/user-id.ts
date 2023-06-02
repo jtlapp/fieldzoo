@@ -1,4 +1,5 @@
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import { CompilingStandardValidator } from "typebox-validators";
+
 import { UuidString } from "@fieldzoo/typebox-types";
 
 /**
@@ -11,9 +12,9 @@ export class UserIDImpl {
   static schema = UuidString();
 
   static castFrom(id: string) {
-    this.#validator.validate(id, "Invalid user ID");
+    this.#validator.assert(id, "Invalid user ID");
     return id as UserID;
   }
 
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 }

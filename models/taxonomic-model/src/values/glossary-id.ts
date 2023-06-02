@@ -1,4 +1,4 @@
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import { CompilingStandardValidator } from "typebox-validators";
 
 import { Base64UuidSchema } from "../lib/typebox-schemas";
 
@@ -12,9 +12,9 @@ export class GlossaryIDImpl {
   static schema = Base64UuidSchema;
 
   static castFrom(id: string) {
-    this.#validator.validate(id, "Invalid glossary ID");
+    this.#validator.assert(id, "Invalid glossary ID");
     return id as GlossaryID;
   }
 
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 }

@@ -1,5 +1,7 @@
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import { CompilingStandardValidator } from "typebox-validators";
+
 import { SingleLineUnicodeString } from "@fieldzoo/typebox-types";
+import { validate } from "@fieldzoo/modeling";
 
 /**
  * Line describing what changed for a version.
@@ -16,9 +18,9 @@ export class WhatChangedLineImpl {
   });
 
   static castFrom(name: string, safely = true) {
-    this.#validator.validate(name, "Invalid what-changed line", safely);
+    validate(this.#validator, name, "Invalid what-changed line", safely);
     return name as WhatChangedLine;
   }
 
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 }

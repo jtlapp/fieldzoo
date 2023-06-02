@@ -1,3 +1,5 @@
+import { ValidationException } from "typebox-validators";
+
 import {
   getTestDB,
   closeTestDB,
@@ -9,11 +11,9 @@ import {
 
 import { User } from "../entities/user";
 import { UserNameImpl } from "../values/user-name";
-
 import { UserRepo } from "./user-repo";
 import { UserID } from "../values/user-id";
 import { UserHandleImpl } from "../values/user-handle";
-import { ValidationException } from "@fieldzoo/multitier-validator";
 
 const db = getTestDB();
 
@@ -103,12 +103,23 @@ it("inserts, updates, and deletes users", async () => {
   const selection4 = await userRepo.getByID(userID2);
   selection4!.handle = selection3!.handle;
   const doUpdate = () => userRepo.update(selection4!);
-  await expect(doUpdate()).rejects.toThrow(ValidationException);
-  await expect(doUpdate()).rejects.toThrow("handle is already in use");
+  await expect(doUpdate()).rejects.toBeInstanceOf(ValidationException);
+  await expect(doUpdate).rejects.toEqual({
+    message: "User handle is already in use",
+    details: [],
+  });
 
   // test deleting a user
+
   const deleted = await userRepo.deleteByID(userID1);
   expect(deleted).toBe(true);
   const selection5 = await userRepo.getByID(userID1);
   expect(selection5).toBeNull();
+});
+
+it("experiment", () => {
+  const fail = () => {
+    throw new ValidationException("foo");
+  };
+  expect(fail).toThrow(ValidationException);
 });

@@ -4,14 +4,19 @@
  * Only reports the first error generated for each environment variable.
  */
 
-import { ValueErrorIterator } from "@sinclair/typebox/errors";
+import { ValueError } from "@sinclair/typebox/errors";
 
 /**
- * Interface representing a single problem with a particular environment variable.
+ * Class representing a single problem with a particular environment variable.
  */
-export interface EnvironmentVariableError {
+export class EnvironmentVariableError {
   envVarName: string;
   errorMessage: string;
+
+  constructor(valueError: Readonly<ValueError>) {
+    this.envVarName = valueError.path.substring(1);
+    this.errorMessage = valueError.schema.message ?? valueError.message;
+  }
 }
 
 /**
@@ -34,14 +39,11 @@ export class InvalidEnvironmentException {
   }
 
   static fromTypeBoxErrors(
-    errors: ValueErrorIterator
+    errors: Readonly<ValueError[]>
   ): InvalidEnvironmentException {
     const envError = new InvalidEnvironmentException();
     for (const error of errors) {
-      envError.add({
-        envVarName: error.path.substring(1),
-        errorMessage: error.schema.message ?? error.message,
-      });
+      envError.add(new EnvironmentVariableError(error));
     }
     return envError;
   }

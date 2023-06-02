@@ -1,5 +1,7 @@
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import { CompilingStandardValidator } from "typebox-validators";
+
 import { SingleLineUnicodeString } from "@fieldzoo/typebox-types";
+import { validate } from "@fieldzoo/modeling";
 
 /**
  * Displayable entity name, not necessarily normalized.
@@ -14,9 +16,9 @@ export class DisplayNameImpl {
   });
 
   static castFrom(name: string, safely = true) {
-    this.#validator.validate(name, "Invalid display name", safely);
+    validate(this.#validator, name, "Invalid display name", safely);
     return name as DisplayName;
   }
 
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 }

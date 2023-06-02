@@ -1,5 +1,8 @@
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import { CompilingStandardValidator } from "typebox-validators";
+
 import { HexString } from "@fieldzoo/typebox-types";
+
+import { validate } from "../utils/modeling-utils";
 
 export const PASSWORD_SALT_LENGTH = 16;
 
@@ -16,9 +19,9 @@ export class PasswordSaltImpl {
   });
 
   static castFrom(name: string, safely = true) {
-    this.#validator.validate(name, "Invalid password salt", safely);
+    validate(this.#validator, name, "Invalid password salt", safely);
     return name as PasswordSalt;
   }
 
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 }

@@ -1,7 +1,7 @@
 import { Type } from "@sinclair/typebox";
 
 import { SelectivePartial, UnvalidatedFields } from "@fieldzoo/generic-types";
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import { CompilingStandardValidator } from "typebox-validators";
 import { EmptyStringable, Nullable, Zeroable } from "@fieldzoo/typebox-types";
 import { freezeField } from "@fieldzoo/freeze-field";
 import { UserID, UserIDImpl } from "@fieldzoo/system-model";
@@ -30,7 +30,7 @@ export class Glossary extends CollaborativeEntity {
     createdAt: super.timestampedSchema.createdAt,
     modifiedAt: super.timestampedSchema.modifiedAt,
   });
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 
   /**
    * @param id The glossary's UUID.
@@ -74,7 +74,7 @@ export class Glossary extends CollaborativeEntity {
       fields = { ...fields, id: "" };
     }
     if (validate) {
-      this.#validator.safeValidate(fields, "Invalid glossary");
+      this.#validator.assert(fields, "Invalid glossary");
     }
     return new Glossary(
       fields.id as GlossaryID,

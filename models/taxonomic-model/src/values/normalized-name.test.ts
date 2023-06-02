@@ -1,9 +1,10 @@
+import { CompilingStandardValidator } from "typebox-validators";
+
 import {
   NON_STRINGS,
   UNTRIMMED_STRINGS,
   testValues,
 } from "@fieldzoo/modeling/dist/testing";
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
 
 import { NormalizedNameImpl } from "../values/normalized-name";
 
@@ -24,12 +25,12 @@ const INVALID = [
 ];
 
 it("accepts only valid normalized names", () => {
-  const validator = new MultitierValidator(NormalizedNameImpl.schema);
+  const validator = new CompilingStandardValidator(NormalizedNameImpl.schema);
 
   testNormalizedName("invalid", (value) =>
     // Because NormalizedNameImpl.castFrom() receives a valid DisplayName, it
     // doesn't need to do validation, so we need to call validate() directly.
-    validator.validate(value, "invalid", false)
+    validator.validate(value, "invalid")
   );
 });
 

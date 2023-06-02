@@ -1,5 +1,7 @@
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import { CompilingStandardValidator } from "typebox-validators";
+
 import { UserHandleString } from "@fieldzoo/typebox-types";
+import { validate } from "@fieldzoo/modeling";
 
 /**
  * User's unique handle
@@ -14,9 +16,9 @@ export class UserHandleImpl {
   });
 
   static castFrom(handle: string, safely = true) {
-    this.#validator.validate(handle, "Invalid user handle", safely);
+    validate(this.#validator, handle, "Invalid user handle", safely);
     return handle as UserHandle;
   }
 
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 }

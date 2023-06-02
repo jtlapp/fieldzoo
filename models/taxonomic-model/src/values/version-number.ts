@@ -1,6 +1,5 @@
 import { Type } from "@sinclair/typebox";
-
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import { CompilingStandardValidator } from "typebox-validators";
 
 /**
  * Representation of an entity version number
@@ -12,9 +11,9 @@ export class VersionNumberImpl {
   static schema = Type.Integer({ minimum: 1 });
 
   static castFrom(versionNumber: number) {
-    this.#validator.validate(versionNumber, "Invalid version number");
+    this.#validator.assert(versionNumber, "Invalid version number");
     return versionNumber as VersionNumber;
   }
 
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 }

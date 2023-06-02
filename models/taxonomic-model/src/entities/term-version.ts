@@ -1,14 +1,13 @@
 import { Type } from "@sinclair/typebox";
+import { CompilingStandardValidator } from "typebox-validators";
 
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import { UserID } from "@fieldzoo/system-model";
 
 import { Term } from "./term";
 import { DisplayName } from "../values/display-name";
 import { GlossaryID } from "../values/glossary-id";
 import { MultilineDescription } from "../values/multiline-description";
-import { UserID } from "@fieldzoo/system-model";
-
 import { TermID, TermIDImpl } from "../values/term-id";
 import { VersionNumber } from "../values/version-number";
 import { WhatChangedLine } from "../values/what-changed-line";
@@ -29,7 +28,7 @@ export class TermVersion extends VersionEntity {
     modifiedAt: super.versionSchema.modifiedAt,
     whatChangedLine: super.versionSchema.whatChangedLine,
   });
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 
   /**
    * @param termID The unique ID of the term in the database.
@@ -68,7 +67,7 @@ export class TermVersion extends VersionEntity {
     validate = true
   ) {
     if (validate) {
-      this.#validator.safeValidate(fields, "Invalid term version");
+      this.#validator.assert(fields, "Invalid term version");
     }
     return new TermVersion(
       fields.termID as TermID,

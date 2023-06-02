@@ -11,7 +11,7 @@ import { Kysely, Migrator, FileMigrationProvider, sql } from "kysely";
 import { PostgresClientDialect } from "kysely-pg-client";
 
 import { TEST_ENV } from "@fieldzoo/app-config";
-import { SupabaseConfig } from "@fieldzoo/env-config";
+import { PostgresConfig } from "@fieldzoo/env-config";
 import { clearDatabase } from "@fieldzoo/postgres-utils";
 
 import { MIGRATION_FILE_PATH } from "./migration-utils";
@@ -24,7 +24,7 @@ let client: Client | null = null;
 export function getTestDB(): Kysely<any> {
   if (!db) {
     dotenv.config({ path: path.join(PATH_TO_ROOT, TEST_ENV) });
-    client = new Client(new SupabaseConfig());
+    client = new Client(new PostgresConfig());
     db = new Kysely<any>({ dialect: new PostgresClientDialect({ client }) });
   }
   return db;

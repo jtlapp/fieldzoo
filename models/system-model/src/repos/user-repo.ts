@@ -1,13 +1,13 @@
 import { Kysely } from "kysely";
 import { TableMapper } from "kysely-mapper";
+import { ValidationException } from "typebox-validators";
+import { DatabaseError } from "pg";
 
 import { TimestampedTable } from "@fieldzoo/modeling";
-
 import { Database, UserProfiles } from "@fieldzoo/database";
+
 import { User, READONLY_USER_FIELDS } from "../entities/user";
 import { UserID } from "../values/user-id";
-import { DatabaseError } from "pg";
-import { ValidationException } from "@fieldzoo/multitier-validator";
 import { UserHandleImpl } from "../values/user-handle";
 
 /**

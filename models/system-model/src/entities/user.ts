@@ -1,7 +1,7 @@
 import { Type } from "@sinclair/typebox";
+import { CompilingStandardValidator } from "typebox-validators";
 
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
 import { freezeField } from "@fieldzoo/freeze-field";
 import { EmailAddress, TimestampedEntity } from "@fieldzoo/modeling";
 
@@ -28,7 +28,7 @@ export class User extends TimestampedEntity {
     name: UserNameImpl.schema,
     handle: UserHandleImpl.schema,
   });
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 
   /**
    * @param id User ID, as assigned by Supabase.
@@ -68,7 +68,7 @@ export class User extends TimestampedEntity {
       Omit<UnvalidatedFields<User>, (typeof READONLY_USER_FIELDS)[number]>
     >
   ) {
-    User.#validator.safeValidate(fields, "Invalid user");
+    User.#validator.assert(fields, "Invalid user");
     this.name = fields.name as UserName;
     this.handle = fields.handle as UserHandle;
   }

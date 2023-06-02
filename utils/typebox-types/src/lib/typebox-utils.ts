@@ -1,13 +1,15 @@
 import { SchemaOptions, StringOptions, TSchema, Type } from "@sinclair/typebox";
 import { TypeSystem } from "@sinclair/typebox/system";
 
-export const EmptyStringable = <T extends TSchema>(type: T) =>
-  Type.Union([type, Type.Literal("")]);
+export const EmptyStringable = <T extends TSchema>(
+  type: T,
+  options?: StringOptions
+) => Type.Union([type, Type.Literal("")], options);
 
 export const IntegerString = TypeSystem.Type<
   string,
   { minimum?: number; maximum?: number; maxDigits?: number } & SchemaOptions
->("Integer String", (options: any, value: any) => {
+>("IntegerString", (options, value) => {
   if (
     typeof value !== "string" ||
     (options.maxDigits !== undefined && value.length > options.maxDigits) ||

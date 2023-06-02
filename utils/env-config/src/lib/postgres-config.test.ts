@@ -3,17 +3,52 @@ import { PostgresConfig } from "./postgres-config";
 import { setTestEnvVariables } from "./set-test-env-variables";
 import { InvalidEnvironmentException } from "./invalid-env-exception";
 
-const ALL_VARS = [
-  "POSTGRES_HOST",
-  "POSTGRES_PORT",
+const COMMON_VARS = [
   "POSTGRES_DATABASE",
   "POSTGRES_USER",
   "POSTGRES_PASSWORD",
+  "POSTGRES_MAX_CONNECTIONS",
 ];
+const URL_VARS = ["POSTGRES_URL", ...COMMON_VARS];
+const HOST_VARS = ["POSTGRES_HOST", "POSTGRES_PORT", ...COMMON_VARS];
+const ALL_VARS = [...new Set([...URL_VARS, ...HOST_VARS]).values()];
 
 describe("database configuration", () => {
   it("accepts valid configurations", () => {
     let config = createConfig({
+      POSTGRES_URL: "localhost:123",
+      POSTGRES_DATABASE: "foo",
+      POSTGRES_USER: "bar",
+      POSTGRES_PASSWORD: "xyz",
+      POSTGRES_MAX_CONNECTIONS: "1",
+    });
+    expect(config).toEqual({
+      connectionString: "localhost:123",
+      host: undefined,
+      port: undefined,
+      database: "foo",
+      user: "bar",
+      password: "xyz",
+      max: 1,
+    });
+
+    config = createConfig({
+      POSTGRES_URL: "abc.def.com:2001",
+      POSTGRES_DATABASE: "_foo123",
+      POSTGRES_USER: "_bar123",
+      POSTGRES_PASSWORD: "d kd #$ !",
+    });
+    expect(config).toEqual({
+      connectionString: "abc.def.com:2001",
+      host: undefined,
+      port: undefined,
+      database: "_foo123",
+      user: "_bar123",
+      password: "d kd #$ !",
+      max: undefined,
+    });
+
+    config = createConfig({
       POSTGRES_HOST: "localhost",
       POSTGRES_PORT: "123",
       POSTGRES_DATABASE: "foo",
@@ -21,11 +56,13 @@ describe("database configuration", () => {
       POSTGRES_PASSWORD: "xyz",
     });
     expect(config).toEqual({
+      connectinString: undefined,
       host: "localhost",
       port: 123,
       database: "foo",
       user: "bar",
       password: "xyz",
+      max: undefined,
     });
 
     config = createConfig({
@@ -34,34 +71,76 @@ describe("database configuration", () => {
       POSTGRES_DATABASE: "_foo123",
       POSTGRES_USER: "_bar123",
       POSTGRES_PASSWORD: "d kd #$ !",
+      POSTGRES_MAX_CONNECTIONS: "10",
     });
     expect(config).toEqual({
+      connectinString: undefined,
       host: "abc.def.com",
       port: 2001,
       database: "_foo123",
       user: "_bar123",
       password: "d kd #$ !",
+      max: 10,
     });
   });
 
-  it("rejects undefined values", () => {
-    expect.assertions(ALL_VARS.length + 1);
+  it("rejects undefined values (url)", () => {
+    const varCount = URL_VARS.length - 2;
+    expect.assertions(varCount + 1);
     try {
-      createConfig({});
+      createConfig({ POSTGRES_URL: "localhost:123" });
     } catch (e: unknown) {
       if (!(e instanceof InvalidEnvironmentException)) throw e;
-      expect(e.errors.length).toEqual(ALL_VARS.length);
+      expect(e.errors.length).toEqual(varCount);
       for (const error of e.errors) {
-        expect(ALL_VARS).toContain(error.envVarName);
+        expect(URL_VARS).toContain(error.envVarName);
       }
     }
   });
 
-  it("rejects empty strings", () => {
-    expect.assertions(ALL_VARS.length + 1);
+  it("rejects undefined values (host)", () => {
+    const varCount = HOST_VARS.length - 2;
+    expect.assertions(varCount + 1);
+    try {
+      createConfig({ POSTGRES_HOST: "localhost" });
+    } catch (e: unknown) {
+      if (!(e instanceof InvalidEnvironmentException)) throw e;
+      expect(e.errors.length).toEqual(varCount);
+      for (const error of e.errors) {
+        expect(HOST_VARS).toContain(error.envVarName);
+      }
+    }
+  });
+
+  it("rejects empty strings (url)", () => {
+    const varCount = 5;
+    expect.assertions(varCount + 2);
     try {
       createConfig({
-        POSTGRES_HOST: "",
+        POSTGRES_URL: "",
+        POSTGRES_DATABASE: "",
+        POSTGRES_USER: "",
+        POSTGRES_PASSWORD: "",
+        POSTGRES_MAX_CONNECTIONS: "",
+      });
+    } catch (e: unknown) {
+      if (!(e instanceof InvalidEnvironmentException)) throw e;
+      expect(e.errors.length).toEqual(varCount);
+      for (const error of e.errors) {
+        expect(URL_VARS).toContain(error.envVarName);
+      }
+      expect(
+        e.errors.find((e) => e.envVarName === "POSTGRES_MAX_CONNECTIONS")
+      ).toBeDefined();
+    }
+  });
+
+  it("rejects empty strings (host + port)", () => {
+    const varCount = 5;
+    expect.assertions(varCount + 2);
+    try {
+      createConfig({
+        POSTGRES_HOST: "localhost:123",
         POSTGRES_PORT: "65536",
         POSTGRES_DATABASE: "",
         POSTGRES_USER: "",
@@ -69,15 +148,19 @@ describe("database configuration", () => {
       });
     } catch (e: unknown) {
       if (!(e instanceof InvalidEnvironmentException)) throw e;
-      expect(e.errors.length).toEqual(ALL_VARS.length);
+      expect(e.errors.length).toEqual(varCount);
       for (const error of e.errors) {
-        expect(ALL_VARS).toContain(error.envVarName);
+        expect(HOST_VARS).toContain(error.envVarName);
       }
+      expect(
+        e.errors.find((e) => e.envVarName === "POSTGRES_MAX_CONNECTIONS")
+      ).not.toBeDefined();
     }
   });
 
   it("rejects invalid values", () => {
-    expect.assertions(ALL_VARS.length);
+    const varCount = 5;
+    expect.assertions(varCount + 2);
     try {
       createConfig({
         POSTGRES_HOST: "foo foo",
@@ -85,18 +168,41 @@ describe("database configuration", () => {
         POSTGRES_DATABASE: "bar bar",
         POSTGRES_USER: "baz baz ",
         POSTGRES_PASSWORD: "abcdef",
+        POSTGRES_MAX_CONNECTIONS: "0",
       });
     } catch (e: unknown) {
       if (!(e instanceof InvalidEnvironmentException)) throw e;
-      const invalids = ALL_VARS.slice(0, ALL_VARS.length - 1);
-      expect(e.errors.length).toEqual(invalids.length);
+      expect(e.errors.length).toEqual(varCount);
       for (const error of e.errors) {
-        expect(ALL_VARS).toContain(error.envVarName);
+        expect(HOST_VARS).toContain(error.envVarName);
       }
+      expect(
+        e.errors.find((e) => e.envVarName === "POSTGRES_MAX_CONNECTIONS")
+      ).toBeDefined();
     }
   });
 
-  it("produces friendly error messages", () => {
+  it("produces friendly error messages (no URL, host, or port)", () => {
+    expect.assertions(1);
+    try {
+      createConfig({
+        POSTGRES_URL: "",
+        POSTGRES_DATABASE: "foo",
+        POSTGRES_USER: "bar",
+        POSTGRES_PASSWORD: "xyz",
+      });
+    } catch (e: unknown) {
+      if (!(e instanceof InvalidEnvironmentException)) throw e;
+      expect(e.errors).toEqual([
+        {
+          envVarName: "POSTGRES_URL",
+          errorMessage: "Invalid database server URL",
+        },
+      ]);
+    }
+  });
+
+  it("produces friendly error messages (host + port)", () => {
     expect.assertions(1);
     try {
       createConfig({
@@ -105,29 +211,34 @@ describe("database configuration", () => {
         POSTGRES_DATABASE: "foo bar",
         POSTGRES_USER: "foo bar",
         POSTGRES_PASSWORD: "",
+        POSTGRES_MAX_CONNECTIONS: "ABC",
       });
     } catch (e: unknown) {
       if (!(e instanceof InvalidEnvironmentException)) throw e;
       expect(e.errors).toEqual([
         {
           envVarName: "POSTGRES_HOST",
-          errorMessage: "invalid host name",
+          errorMessage: "Invalid host name",
         },
         {
           envVarName: "POSTGRES_PORT",
-          errorMessage: "port must be an integer >= 0 and <= 65535",
+          errorMessage: "Port must be an integer >= 0 and <= 65535",
         },
         {
           envVarName: "POSTGRES_DATABASE",
-          errorMessage: "invalid database name",
+          errorMessage: "Invalid database name",
         },
         {
           envVarName: "POSTGRES_USER",
-          errorMessage: "invalid user",
+          errorMessage: "Invalid user",
         },
         {
           envVarName: "POSTGRES_PASSWORD",
-          errorMessage: "password should not be empty",
+          errorMessage: "Password should not be empty",
+        },
+        {
+          envVarName: "POSTGRES_MAX_CONNECTIONS",
+          errorMessage: "Max connections must be an integer >= 1",
         },
       ]);
     }

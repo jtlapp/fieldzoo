@@ -1,5 +1,8 @@
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import { CompilingStandardValidator } from "typebox-validators";
+
 import { EmailString } from "@fieldzoo/typebox-types";
+
+import { validate } from "../utils/modeling-utils";
 
 /**
  * Email address string.
@@ -11,9 +14,9 @@ export class EmailAddressImpl {
   static schema = EmailString({ maxLength: 100 });
 
   static castFrom(name: string, safely = true) {
-    this.#validator.validate(name, "Invalid email address", safely);
+    validate(this.#validator, name, "Invalid email address", safely);
     return name as EmailAddress;
   }
 
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 }

@@ -42,12 +42,12 @@ describe("invalid environment exception", () => {
         minimum: 1,
       }),
     });
-    const error = InvalidEnvironmentException.fromTypeBoxErrors(
-      Value.Errors(schema, {
+    const error = InvalidEnvironmentException.fromTypeBoxErrors([
+      ...Value.Errors(schema, {
         FOO: "foo",
         BAR: 0,
-      })
-    );
+      }),
+    ]);
 
     expect(error.errors).toEqual([
       {
@@ -80,9 +80,9 @@ describe("invalid environment exception", () => {
         }
       ),
     });
-    const error = InvalidEnvironmentException.fromTypeBoxErrors(
-      Value.Errors(schema, { FOO: "0" })
-    );
+    const error = InvalidEnvironmentException.fromTypeBoxErrors([
+      ...Value.Errors(schema, { FOO: "0" }),
+    ]);
 
     expect(error.errors).toEqual([
       {

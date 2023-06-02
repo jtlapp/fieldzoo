@@ -1,7 +1,7 @@
 import { Type } from "@sinclair/typebox";
+import { CompilingStandardValidator } from "typebox-validators";
 
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
 import { UserID } from "@fieldzoo/system-model";
 
 import { DisplayName } from "../values/display-name";
@@ -27,7 +27,7 @@ export class GlossaryVersion extends VersionEntity {
     modifiedAt: super.versionSchema.modifiedAt,
     whatChangedLine: super.versionSchema.whatChangedLine,
   });
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 
   /**
    * @param glossaryID The glossary's UUID.
@@ -63,7 +63,7 @@ export class GlossaryVersion extends VersionEntity {
    */
   static castFrom(fields: UnvalidatedFields<GlossaryVersion>, validate = true) {
     if (validate) {
-      this.#validator.safeValidate(fields, "Invalid glossary version");
+      this.#validator.assert(fields, "Invalid glossary version");
     }
     return new GlossaryVersion(
       fields.glossaryID as GlossaryID,

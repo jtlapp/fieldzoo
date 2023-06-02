@@ -1,5 +1,7 @@
-import { MultitierValidator } from "@fieldzoo/multitier-validator";
+import { CompilingStandardValidator } from "typebox-validators";
+
 import { MultiLineUnicodeString } from "@fieldzoo/typebox-types";
+import { validate } from "@fieldzoo/modeling";
 
 /**
  * Multiline unicode description
@@ -13,9 +15,9 @@ export class MultilineDescriptionImpl {
   static schema = MultiLineUnicodeString({ minLength: 1, maxLength: 1000 });
 
   static castFrom(description: string, safely = true) {
-    this.#validator.validate(description, "Invalid description", safely);
+    validate(this.#validator, description, "Invalid description", safely);
     return description as MultilineDescription;
   }
 
-  static #validator = new MultitierValidator(this.schema);
+  static #validator = new CompilingStandardValidator(this.schema);
 }
