@@ -1,25 +1,26 @@
 import Head from "next/head";
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import Link from "next/link";
+import { useSession } from "@supabase/auth-helpers-react";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
 export default function Home() {
   const session = useSession();
   const supabase = useSupabaseClient();
+  const logout = () => async () => {
+    await supabase.auth.signOut();
+  };
 
   return (
-    <div className="container" style={{ padding: "50px 0 100px 0" }}>
+    <div className="container mx-auto text-slate-50">
       <Head>
         <title>FieldZoo Demo</title>
       </Head>
       {!session ? (
-        <Auth
-          supabaseClient={supabase}
-          appearance={{ theme: ThemeSupa }}
-          theme="dark"
-        />
+        <Link href="/auth/login">Login</Link>
       ) : (
-        <p>Account page will go here.</p>
+        <Link href="#" onClick={logout()}>
+          Logout
+        </Link>
       )}
     </div>
   );
