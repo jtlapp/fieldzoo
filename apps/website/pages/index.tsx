@@ -1,12 +1,16 @@
 import Head from "next/head";
-import Link from "next/link";
 import { useSession } from "@supabase/auth-helpers-react";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   const session = useSession();
   const supabase = useSupabaseClient();
-  const logout = () => async () => {
+  const login = () => {
+    router.push("/auth/login");
+  };
+  const logout = async () => {
     await supabase.auth.signOut();
   };
 
@@ -16,11 +20,13 @@ export default function Home() {
         <title>FieldZoo Demo</title>
       </Head>
       {!session ? (
-        <Link href="/auth/login">Login</Link>
+        <button className="btn-sm btn-secondary" onClick={login}>
+          Login
+        </button>
       ) : (
-        <Link href="#" onClick={logout()}>
+        <button className="btn-sm btn-secondary" onClick={logout}>
           Logout
-        </Link>
+        </button>
       )}
     </div>
   );
