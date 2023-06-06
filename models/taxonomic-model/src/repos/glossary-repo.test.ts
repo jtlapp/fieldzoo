@@ -28,6 +28,7 @@ it("inserts, updates, and deletes glossaries", async () => {
     name: "Test Glossary",
     description: "This is a test glossary",
     ownerID: userID,
+    visibility: 1,
     modifiedBy: userID,
   });
 

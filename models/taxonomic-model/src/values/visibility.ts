@@ -12,24 +12,15 @@ export const Visibility = {
   Listed: 1,
   Readable: MAX_VISIBILITY,
 } as const;
+export type Visibility = (typeof Visibility)[keyof typeof Visibility];
 
-export type VersionNumber = number & { readonly __validated__: unique symbol };
+export class VisibilityImpl {
+  static schema = Type.Integer({ minimum: 0, maximum: MAX_VISIBILITY });
 
-export class VersionNumberImpl {
-  static schema = Type.Integer({ minimum: 1 });
-
-  static castFrom(versionNumber: number) {
-    this.#validator.assert(versionNumber, "Invalid version number");
-    return versionNumber as VersionNumber;
+  static castFrom(visibility: number) {
+    this.#validator.assert(visibility, "Invalid visibility");
+    return visibility as Visibility;
   }
 
   static #validator = new CompilingStandardValidator(this.schema);
-}
-
-function foo(v: V2) {
-  console.log(v);
-}
-
-function bar(n: number) {
-  foo(n);
 }

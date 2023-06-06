@@ -15,6 +15,7 @@ import {
 } from "../values/multiline-description";
 import { VersionNumber } from "../values/version-number";
 import { CollaborativeEntity } from "./base/collaborative-entity";
+import { Visibility, VisibilityImpl } from "../values/visibility";
 
 /**
  * Class representing a valid glossary.
@@ -26,6 +27,7 @@ export class Glossary extends CollaborativeEntity {
     ownerID: UserIDImpl.schema,
     name: DisplayNameImpl.schema,
     description: Nullable(MultilineDescriptionImpl.schema),
+    visibility: VisibilityImpl.schema,
     modifiedBy: UserIDImpl.schema,
     createdAt: super.timestampedSchema.createdAt,
     modifiedAt: super.timestampedSchema.modifiedAt,
@@ -48,6 +50,7 @@ export class Glossary extends CollaborativeEntity {
     public ownerID: UserID,
     public name: DisplayName,
     public description: MultilineDescription | null,
+    public visibility: Visibility,
     modifiedBy: UserID,
     createdAt?: Date,
     modifiedAt?: Date
@@ -64,10 +67,10 @@ export class Glossary extends CollaborativeEntity {
    * @returns A new glossary.
    */
   static castFrom(
-    fields: SelectivePartial<
-      UnvalidatedFields<Glossary>,
-      "id" | TimestampedColumns
-    >,
+    fields: Omit<
+      SelectivePartial<UnvalidatedFields<Glossary>, "id" | TimestampedColumns>,
+      "visibility"
+    > & { visibility: number | Visibility },
     validate = true
   ) {
     if (fields.id === undefined) {
@@ -82,6 +85,7 @@ export class Glossary extends CollaborativeEntity {
       fields.ownerID as UserID,
       fields.name as DisplayName,
       fields.description as MultilineDescription | null,
+      fields.visibility as Visibility,
       fields.modifiedBy as UserID,
       fields.createdAt as Date,
       fields.modifiedAt as Date

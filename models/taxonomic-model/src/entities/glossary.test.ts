@@ -8,6 +8,7 @@ import { testGlossaryID } from "../values/glossary-id.test";
 import { testDisplayName } from "../values/display-name.test";
 import { testMultilineDescription } from "../values/multiline-description.test";
 import { testVersionNumber } from "../values/version-number.test";
+import { Visibility } from "../values/visibility";
 
 const SAMPLE_USER_ID = "ae19af00-af09-af09-af09-abcde129af00";
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
@@ -64,9 +65,10 @@ describe("Glossary entity", () => {
           id: SAMPLE_UUID,
           versionNumber: 1,
           ownerID: SAMPLE_USER_ID,
-          modifiedBy: SAMPLE_USER_ID,
           name: "",
           description: "",
+          visibility: -1 as Visibility,
+          modifiedBy: SAMPLE_USER_ID,
         },
         false
       )
@@ -78,9 +80,10 @@ describe("Glossary entity", () => {
       id: SAMPLE_UUID,
       versionNumber: 1,
       ownerID: SAMPLE_USER_ID,
-      modifiedBy: SAMPLE_USER_ID,
       name: "X",
       description: null,
+      visibility: Visibility.Private,
+      modifiedBy: SAMPLE_USER_ID,
     });
     expect(() => ((glossary as any).id = "XX")).toThrow("read only");
   });
@@ -93,6 +96,7 @@ function createGlossary(specifiedFields: Partial<UnvalidatedFields<Glossary>>) {
     ownerID: SAMPLE_USER_ID,
     name: "Good Name",
     description: "This\nis\nfine.",
+    visibility: Visibility.Private,
     modifiedBy: SAMPLE_USER_ID,
     ...(specifiedFields as any),
   });

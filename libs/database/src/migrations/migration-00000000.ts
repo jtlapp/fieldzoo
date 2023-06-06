@@ -49,6 +49,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       )
       .addColumn("name", "text", (col) => col.notNull())
       .addColumn("description", "text")
+      .addColumn("visibility", "integer", (col) => col.notNull())
   );
 
   // glossary versions table
