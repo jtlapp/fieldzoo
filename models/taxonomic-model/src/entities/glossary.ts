@@ -41,6 +41,7 @@ export class Glossary extends CollaborativeEntity {
    * @param name The glossary's name.
    * @param description The glossary's description.
    * @param modifiedBy The ID of the user who last updated this glossary.
+   * @param visibility The glossary's visibility.
    * @param createdAt The date/time at which the glossary was created.
    * @param modifiedAt The date/time at which the glossary was last modified.
    */
