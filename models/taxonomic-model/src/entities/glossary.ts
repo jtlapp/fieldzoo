@@ -67,10 +67,10 @@ export class Glossary extends CollaborativeEntity {
    * @returns A new glossary.
    */
   static castFrom(
-    fields: Omit<
-      SelectivePartial<UnvalidatedFields<Glossary>, "id" | TimestampedColumns>,
-      "visibility"
-    > & { visibility: number | Visibility },
+    fields: SelectivePartial<
+      UnvalidatedFields<Glossary>,
+      "id" | TimestampedColumns
+    >,
     validate = true
   ) {
     if (fields.id === undefined) {

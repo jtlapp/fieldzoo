@@ -40,6 +40,7 @@ export interface GlossaryVersions {
   ownerID: string;
   name: string;
   description: string | null;
+  visibility: number;
   modifiedBy: string;
   createdAt: Date;
   modifiedAt: Date;

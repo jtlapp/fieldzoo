@@ -11,6 +11,7 @@ import { VersionEntity } from "./base/version-entity";
 import { Glossary } from "./glossary";
 import { WhatChangedLine } from "../values/what-changed-line";
 import { VersionNumber } from "../values/version-number";
+import { Visibility } from "../values/visibility";
 
 /**
  * Class representing a valid glossary.
@@ -22,6 +23,7 @@ export class GlossaryVersion extends VersionEntity {
     ownerID: Glossary.schema.properties.ownerID,
     name: Glossary.schema.properties.name,
     description: Glossary.schema.properties.description,
+    visibility: Glossary.schema.properties.visibility,
     modifiedBy: super.versionSchema.modifiedBy,
     createdAt: super.versionSchema.createdAt,
     modifiedAt: super.versionSchema.modifiedAt,
@@ -35,6 +37,7 @@ export class GlossaryVersion extends VersionEntity {
    * @param ownerID The ID of the user who owns this glossary.
    * @param name The glossary's name.
    * @param description The glossary's description.
+   * @param visibility The glossary's visibility.
    * @param modifiedBy The ID of the user who last updated this glossary.
    * @param createdAt The date/time at which the glossary was created.
    * @param modifiedAt The date/time at which the glossary was last modified.
@@ -46,6 +49,7 @@ export class GlossaryVersion extends VersionEntity {
     public ownerID: UserID,
     public name: DisplayName,
     public description: MultilineDescription | null,
+    public visibility: Visibility,
     modifiedBy: UserID,
     createdAt: Date,
     modifiedAt: Date,
@@ -71,6 +75,7 @@ export class GlossaryVersion extends VersionEntity {
       fields.ownerID as UserID,
       fields.name as DisplayName,
       fields.description as MultilineDescription | null,
+      fields.visibility as Visibility,
       fields.modifiedBy as UserID,
       fields.createdAt as Date,
       fields.modifiedAt as Date,

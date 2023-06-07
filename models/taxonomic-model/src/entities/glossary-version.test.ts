@@ -10,6 +10,7 @@ import { testMultilineDescription } from "../values/multiline-description.test";
 import { testVersionNumber } from "../values/version-number.test";
 import { GlossaryVersion } from "./glossary-version";
 import { testWhatChangedLine } from "../values/what-changed-line.test";
+import { Visibility } from "../values/visibility";
 
 const SAMPLE_USER_ID = "ae19af00-af09-af09-af09-abcde129af00";
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
@@ -62,6 +63,7 @@ describe("GlossaryVersion entity", () => {
           modifiedBy: SAMPLE_USER_ID,
           name: "",
           description: "",
+          visibility: -1 as any,
           createdAt: new Date(),
           modifiedAt: new Date(),
           whatChangedLine: 92 as any,
@@ -79,6 +81,7 @@ describe("GlossaryVersion entity", () => {
       modifiedBy: SAMPLE_USER_ID,
       name: "X",
       description: null,
+      visibility: Visibility.Private,
       createdAt: new Date(),
       modifiedAt: new Date(),
       whatChangedLine: "Description of what changed",
@@ -104,6 +107,7 @@ function createGlossaryVersion(
     ownerID: SAMPLE_USER_ID,
     name: "Good Name",
     description: "This\nis\nfine.",
+    visibility: Visibility.Private,
     modifiedBy: SAMPLE_USER_ID,
     createdAt: new Date(),
     modifiedAt: new Date(),

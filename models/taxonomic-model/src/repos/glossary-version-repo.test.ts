@@ -17,6 +17,7 @@ import {
   GlossaryVersionRepo,
   GlossaryVersionSummary,
 } from "./glossary-version-repo";
+import { Visibility } from "../values/visibility";
 
 const db = getTestDB();
 
@@ -129,6 +130,7 @@ describe("GlossaryVersionRepo", () => {
         name: "Glossary 1",
         description: "This is test glossary 1",
         modifiedBy: userID,
+        visibility: Visibility.Private,
       },
       {
         versionNumber: 0,
@@ -136,6 +138,7 @@ describe("GlossaryVersionRepo", () => {
         name: "Glossary 2",
         description: "This is test glossary 2",
         modifiedBy: userID,
+        visibility: Visibility.Private,
       },
     ];
 
@@ -175,6 +178,7 @@ function createGlossaryVersion(glossary: Glossary, whatChangedLine: string) {
     ownerID: glossary.ownerID,
     name: glossary.name,
     description: glossary.description,
+    visibility: glossary.visibility,
     modifiedBy: glossary.modifiedBy,
     createdAt: glossary.createdAt,
     modifiedAt: glossary.modifiedAt,

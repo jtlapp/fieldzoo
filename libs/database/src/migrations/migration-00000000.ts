@@ -5,7 +5,7 @@ import { Kysely, sql } from "kysely";
 
 import { TimestampedTable } from "@fieldzoo/modeling";
 
-import { createVersionsTable } from "../utils/migration-utils";
+import { VersionsTable } from "../tables/versions-table";
 import { CollaborativeTable } from "../tables/collaborative-table";
 
 export async function up(db: Kysely<any>): Promise<void> {
@@ -54,7 +54,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   // glossary versions table
 
-  await createVersionsTable(db, "glossary_versions", (tb) =>
+  await VersionsTable.create(db, "glossary_versions", (tb) =>
     tb
       .addColumn("glossaryID", "text", (col) =>
         col.references("glossaries.id").notNull()
@@ -64,6 +64,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       )
       .addColumn("name", "text", (col) => col.notNull())
       .addColumn("description", "text")
+      .addColumn("visibility", "integer", (col) => col.notNull())
       .addUniqueConstraint("uuid_versionNumber_key", [
         "glossaryID",
         "versionNumber",
@@ -89,7 +90,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   // term versions table
 
-  await createVersionsTable(db, "term_versions", (tb) =>
+  await VersionsTable.create(db, "term_versions", (tb) =>
     tb
       .addColumn("termID", "integer", (col) =>
         col.references("terms.id").notNull()

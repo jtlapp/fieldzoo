@@ -16,6 +16,7 @@ import { WhatChangedLineImpl } from "../values/what-changed-line";
 import { GlossaryRepo } from "./glossary-repo";
 import { TermRepo } from "./term-repo";
 import { TermVersionRepo, TermVersionSummary } from "./term-version-repo";
+import { Visibility } from "../values/visibility";
 
 const db = getTestDB();
 
@@ -124,6 +125,7 @@ describe("TermVersionRepo", () => {
       versionNumber: 1,
       name: "Test Glossary",
       description: "This is a test glossary",
+      visibility: Visibility.Private,
       ownerID: userID,
       modifiedBy: userID,
     });
