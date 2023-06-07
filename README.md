@@ -83,6 +83,19 @@ pnpm install
 pnpm build
 ```
 
+This platform uses the following environment variables in `.env` (for production and development) and `.env.test` (for the test suite):
+
+```
+NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=key-goes-here
+
+POSTGRES_URL=postgresql://postgres:postgres@localhost:54422/postgres
+POSTGRES_DATABASE=fieldzoo_test
+POSTGRES_USER=fieldzoo_tester
+POSTGRES_PASSWORD=password
+POSTGRES_MAX_CONNECTIONS=1
+```
+
 ## Testing
 
 To test, you'll first need to acquire a Supabase access token, which you can do after you've created a Supabase account. You'll use this token to login to Supabase.
