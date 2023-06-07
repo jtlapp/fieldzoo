@@ -90,14 +90,13 @@ To test, you'll first need to acquire a Supabase access token, which you can do 
 After building the repo and starting the Docker daemon, you can run the tests as follows:
 
 ```bash
-cd fieldzoo
-npx supabase login
-pnpm start-supabase
+cd fieldzoo/
+pnpm start-test-instance
 pnpm test
-pnpm stop-supabase
+pnpm stop-test-instance
 ```
 
-Stopping the local supabase server is optional.
+Stopping the supabase instance is optional.
 
 ## License
 

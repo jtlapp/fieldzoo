@@ -17,6 +17,14 @@
       "path": "config"
     },
     {
+      "name": "instances/test-instance",
+      "path": "instances/test-instance"
+    },
+    {
+      "name": "instances/dev-instance",
+      "path": "instances/dev-instance"
+    },
+    {
       "name": "libs/app-config",
       "path": "libs/app-config"
     },

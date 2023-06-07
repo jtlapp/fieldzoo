@@ -14,8 +14,10 @@
     "clean": "nx run-many -t clean && rm -rf node_modules",
     "clear-cache": "rm -rdf node_modules/.cache/nx",
     "format": "prettier --write \"**/*.{js,ts,tsx,md}\"",
-    "start-supabase": "npx supabase start",
-    "stop-supabase": "npx supabase stop",
+    "start-dev-instance": "(cd instances/dev-instance && npx supabase start)",
+    "stop-dev-instance": "(cd instances/dev-instance && npx supabase stop)",
+    "start-test-instance": "(cd instances/test-instance && npx supabase start)",
+    "stop-test-instance": "(cd instances/test-instance && npx supabase stop)",
     "list-packages": "npx syncpack list",
     "list-mismatches": "npx syncpack list-mismatches",
     "fix-mismatches": "npx syncpack fix-mismatches && pnpm install"
@@ -24,7 +26,6 @@
     "nx": "16.2.1",
     "prettier": "^2.8.7",
     "prettier-plugin-tailwindcss": "^0.2.5",
-    "supabase": "^1.57.0",
     "syncpack": "^8.5.14"
   },
   "packageManager": "pnpm@7.15.0"
