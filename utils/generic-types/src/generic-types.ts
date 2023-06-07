@@ -4,6 +4,22 @@
 export type ClassType<T> = { new (): T };
 
 /**
+ * Transforms constant types into their underlying primitive types,
+ * leaving complex types unchanged.
+ */
+export type Deconst<T> = T extends number
+  ? number
+  : T extends string
+  ? string
+  : T extends boolean
+  ? boolean
+  : T extends bigint
+  ? bigint
+  : T extends symbol
+  ? symbol
+  : T;
+
+/**
  * Type consisting of all public non-function properties of T, where
  * public properties are those beginning with neither `#` nor `_`.
  */
@@ -40,9 +56,9 @@ export type SelectivePartial<T, K extends keyof T> = Omit<T, K> &
 export type Unvalidated<V> = V extends object ? Omit<V, "__validated__"> : V;
 
 /**
- * Removes the `__validated__` symbol from all public non-function
- * properties of a type.
+ * Removes the validation type constraints from the fields of an object type,
+ * converting them to the most generic types having the same structure.
  */
 export type UnvalidatedFields<O> = {
-  [K in keyof Fields<O>]: Unvalidated<O[K]>;
+  [K in keyof Fields<O>]: Deconst<Unvalidated<O[K]>>;
 };
