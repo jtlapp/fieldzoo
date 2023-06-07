@@ -18,7 +18,7 @@ import {
 import { MIGRATION_FILE_PATH } from "@fieldzoo/database";
 import { clearDatabase, existingTables } from "@fieldzoo/postgres-utils";
 
-const DEFAULT_ENV_FILE = ".env.admin";
+const DEFAULT_ENV_FILE = ".env";
 const PATH_TO_ROOT = path.join(__dirname, "../../..");
 
 /** Root-relative path name of .env file having DB credentials */
