@@ -87,7 +87,7 @@ pnpm build
 
 To test, you'll first need to acquire a Supabase access token, which you can do after you've created a Supabase account. You'll use this token to login to Supabase.
 
-After building the repo and starting the Docker daemon, you can run the tests as follows:
+The test instance gets its environment from `.env.test`. After building the repo and starting the Docker daemon, you can run the tests as follows:
 
 ```bash
 cd fieldzoo/
@@ -97,6 +97,15 @@ pnpm stop-test-instance
 ```
 
 Stopping the supabase instance is optional.
+
+The development instance gets its environment from `.env`. Run it as follows:
+
+```bash
+cd fieldzoo/
+pnpm start-dev-instance
+nx run website:dev
+pnpm stop-dev-instance
+```
 
 ## License
 
