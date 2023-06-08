@@ -61,6 +61,7 @@ export class PostgresConfig implements ClientConfig, PoolConfig {
       })
     ),
   });
+
   /**
    * Constructs the database configuration from environment variables.
    */
