@@ -3,15 +3,14 @@ import { PostgresConfig } from "./postgres-config";
 import { setTestEnvVariables } from "./set-test-env-variables";
 import { InvalidEnvironmentException } from "./invalid-env-exception";
 
-const COMMON_VARS = [
+const ENV_VARS = [
+  "POSTGRES_HOST",
+  "POSTGRES_PORT",
   "POSTGRES_DATABASE",
   "POSTGRES_USER",
   "POSTGRES_PASSWORD",
   "POSTGRES_MAX_CONNECTIONS",
 ];
-const URL_VARS = ["POSTGRES_URL", ...COMMON_VARS];
-const HOST_VARS = ["POSTGRES_HOST", "POSTGRES_PORT", ...COMMON_VARS];
-const ALL_VARS = [...new Set([...URL_VARS, ...HOST_VARS]).values()];
 
 describe("database configuration", () => {
   it("accepts valid configurations", () => {
@@ -52,7 +51,7 @@ describe("database configuration", () => {
   });
 
   it("rejects undefined values", () => {
-    const varCount = HOST_VARS.length - 2;
+    const varCount = ENV_VARS.length - 2;
     expect.assertions(varCount + 1);
     try {
       createConfig({ POSTGRES_HOST: "localhost" });
@@ -60,7 +59,7 @@ describe("database configuration", () => {
       if (!(e instanceof InvalidEnvironmentException)) throw e;
       expect(e.errors.length).toEqual(varCount);
       for (const error of e.errors) {
-        expect(HOST_VARS).toContain(error.envVarName);
+        expect(ENV_VARS).toContain(error.envVarName);
       }
     }
   });
@@ -80,7 +79,7 @@ describe("database configuration", () => {
       if (!(e instanceof InvalidEnvironmentException)) throw e;
       expect(e.errors.length).toEqual(varCount);
       for (const error of e.errors) {
-        expect(HOST_VARS).toContain(error.envVarName);
+        expect(ENV_VARS).toContain(error.envVarName);
       }
       expect(
         e.errors.find((e) => e.envVarName === "POSTGRES_MAX_CONNECTIONS")
@@ -104,7 +103,7 @@ describe("database configuration", () => {
       if (!(e instanceof InvalidEnvironmentException)) throw e;
       expect(e.errors.length).toEqual(varCount);
       for (const error of e.errors) {
-        expect(HOST_VARS).toContain(error.envVarName);
+        expect(ENV_VARS).toContain(error.envVarName);
       }
       expect(
         e.errors.find((e) => e.envVarName === "POSTGRES_MAX_CONNECTIONS")
@@ -156,6 +155,6 @@ describe("database configuration", () => {
 });
 
 function createConfig(vars: Record<string, string>) {
-  setTestEnvVariables(ALL_VARS, vars);
+  setTestEnvVariables(ENV_VARS, vars);
   return new PostgresConfig();
 }
