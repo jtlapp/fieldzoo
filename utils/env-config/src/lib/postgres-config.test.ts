@@ -16,39 +16,6 @@ const ALL_VARS = [...new Set([...URL_VARS, ...HOST_VARS]).values()];
 describe("database configuration", () => {
   it("accepts valid configurations", () => {
     let config = createConfig({
-      POSTGRES_URL: "localhost:123",
-      POSTGRES_DATABASE: "foo",
-      POSTGRES_USER: "bar",
-      POSTGRES_PASSWORD: "xyz",
-      POSTGRES_MAX_CONNECTIONS: "1",
-    });
-    expect(config).toEqual({
-      connectionString: "localhost:123",
-      host: undefined,
-      port: undefined,
-      database: "foo",
-      user: "bar",
-      password: "xyz",
-      max: 1,
-    });
-
-    config = createConfig({
-      POSTGRES_URL: "abc.def.com:2001",
-      POSTGRES_DATABASE: "_foo123",
-      POSTGRES_USER: "_bar123",
-      POSTGRES_PASSWORD: "d kd #$ !",
-    });
-    expect(config).toEqual({
-      connectionString: "abc.def.com:2001",
-      host: undefined,
-      port: undefined,
-      database: "_foo123",
-      user: "_bar123",
-      password: "d kd #$ !",
-      max: undefined,
-    });
-
-    config = createConfig({
       POSTGRES_HOST: "localhost",
       POSTGRES_PORT: "123",
       POSTGRES_DATABASE: "foo",
@@ -84,21 +51,7 @@ describe("database configuration", () => {
     });
   });
 
-  it("rejects undefined values (url)", () => {
-    const varCount = URL_VARS.length - 2;
-    expect.assertions(varCount + 1);
-    try {
-      createConfig({ POSTGRES_URL: "localhost:123" });
-    } catch (e: unknown) {
-      if (!(e instanceof InvalidEnvironmentException)) throw e;
-      expect(e.errors.length).toEqual(varCount);
-      for (const error of e.errors) {
-        expect(URL_VARS).toContain(error.envVarName);
-      }
-    }
-  });
-
-  it("rejects undefined values (host)", () => {
+  it("rejects undefined values", () => {
     const varCount = HOST_VARS.length - 2;
     expect.assertions(varCount + 1);
     try {
@@ -112,30 +65,7 @@ describe("database configuration", () => {
     }
   });
 
-  it("rejects empty strings (url)", () => {
-    const varCount = 5;
-    expect.assertions(varCount + 2);
-    try {
-      createConfig({
-        POSTGRES_URL: "",
-        POSTGRES_DATABASE: "",
-        POSTGRES_USER: "",
-        POSTGRES_PASSWORD: "",
-        POSTGRES_MAX_CONNECTIONS: "",
-      });
-    } catch (e: unknown) {
-      if (!(e instanceof InvalidEnvironmentException)) throw e;
-      expect(e.errors.length).toEqual(varCount);
-      for (const error of e.errors) {
-        expect(URL_VARS).toContain(error.envVarName);
-      }
-      expect(
-        e.errors.find((e) => e.envVarName === "POSTGRES_MAX_CONNECTIONS")
-      ).toBeDefined();
-    }
-  });
-
-  it("rejects empty strings (host + port)", () => {
+  it("rejects empty strings", () => {
     const varCount = 5;
     expect.assertions(varCount + 2);
     try {
@@ -182,27 +112,7 @@ describe("database configuration", () => {
     }
   });
 
-  it("produces friendly error messages (no URL, host, or port)", () => {
-    expect.assertions(1);
-    try {
-      createConfig({
-        POSTGRES_URL: "",
-        POSTGRES_DATABASE: "foo",
-        POSTGRES_USER: "bar",
-        POSTGRES_PASSWORD: "xyz",
-      });
-    } catch (e: unknown) {
-      if (!(e instanceof InvalidEnvironmentException)) throw e;
-      expect(e.errors).toEqual([
-        {
-          envVarName: "POSTGRES_URL",
-          errorMessage: "Invalid database server URL",
-        },
-      ]);
-    }
-  });
-
-  it("produces friendly error messages (host + port)", () => {
+  it("produces friendly error messages", () => {
     expect.assertions(1);
     try {
       createConfig({

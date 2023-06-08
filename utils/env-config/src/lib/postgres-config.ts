@@ -5,16 +5,11 @@
  */
 
 import type { ClientConfig, PoolConfig } from "pg";
-import {
-  HeterogeneousUnionValidator,
-  TypeIdentifyingKey,
-  ValidationException,
-} from "typebox-validators";
+import { StandardValidator, ValidationException } from "typebox-validators";
 
 import { Type } from "@sinclair/typebox";
 import {
   CodeWordString,
-  EmptyStringable,
   HostNameString,
   IntegerString,
   NonEmptyString,
@@ -27,7 +22,6 @@ import { InvalidEnvironmentException } from "./invalid-env-exception";
  * client configuration required by the Postgres `pg` package.
  */
 export class PostgresConfig implements ClientConfig, PoolConfig {
-  readonly connectionString: string;
   readonly host: string;
   readonly port: number;
   readonly database: string;
@@ -35,7 +29,18 @@ export class PostgresConfig implements ClientConfig, PoolConfig {
   readonly password: string;
   readonly max?: number;
 
-  static baseSchema = Type.Object({
+  static schema = Type.Object({
+    POSTGRES_HOST: HostNameString({
+      description: "Host of database server (e.g. 'localhost')",
+      errorMessage: "Invalid host name",
+    }),
+    POSTGRES_PORT: IntegerString({
+      description: "Port number of database server at host",
+      minimum: 0,
+      maximum: 65535,
+      errorMessage: "Port must be an integer >= 0 and <= 65535",
+    }),
+
     POSTGRES_DATABASE: CodeWordString({
       description: "Name of database on database server",
       errorMessage: "Invalid database name",
@@ -56,56 +61,11 @@ export class PostgresConfig implements ClientConfig, PoolConfig {
       })
     ),
   });
-
-  static schema = Type.Union(
-    [
-      Type.Object({
-        POSTGRES_URL: TypeIdentifyingKey(
-          Type.String({
-            description: "URL of the database server",
-            minLength: 1,
-            errorMessage: `Invalid database server URL`,
-          })
-        ),
-        POSTGRES_HOST: EmptyStringable(Type.Undefined(), {
-          errorMessage: "Cannot be set along with POSTGRES_URL",
-        }),
-        POSTGRES_PORT: EmptyStringable(Type.Undefined(), {
-          errorMessage: "Cannot be set along with POSTGRES_URL",
-        }),
-        ...PostgresConfig.baseSchema.properties,
-      }),
-      Type.Object({
-        POSTGRES_HOST: TypeIdentifyingKey(
-          HostNameString({
-            description: "Host of database server (e.g. 'localhost')",
-            errorMessage: "Invalid host name",
-          })
-        ),
-        POSTGRES_PORT: IntegerString({
-          description: "Port number of database server at host",
-          minimum: 0,
-          maximum: 65535,
-          errorMessage: "Port must be an integer >= 0 and <= 65535",
-        }),
-        POSTGRES_URL: EmptyStringable(Type.Undefined(), {
-          errorMessage: "Cannot be set along with POSTGRES_HOST",
-        }),
-        ...PostgresConfig.baseSchema.properties,
-      }),
-    ],
-    {
-      errorMessage:
-        "Must specify either POSTGRES_URL or POSTGRES_HOST/POSTGRES_PORT",
-    }
-  );
-
   /**
    * Constructs the database configuration from environment variables.
    */
   constructor() {
     const values = {
-      POSTGRES_URL: process.env.POSTGRES_URL!,
       POSTGRES_HOST: process.env.POSTGRES_HOST!,
       POSTGRES_PORT: process.env.POSTGRES_PORT!,
       POSTGRES_DATABASE: process.env.POSTGRES_DATABASE!,
@@ -114,7 +74,7 @@ export class PostgresConfig implements ClientConfig, PoolConfig {
       POSTGRES_MAX_CONNECTIONS: process.env.POSTGRES_MAX_CONNECTIONS,
     };
 
-    const validator = new HeterogeneousUnionValidator(PostgresConfig.schema);
+    const validator = new StandardValidator(PostgresConfig.schema);
     try {
       validator.validate(values);
     } catch (e: any) {
@@ -122,7 +82,6 @@ export class PostgresConfig implements ClientConfig, PoolConfig {
       throw InvalidEnvironmentException.fromTypeBoxErrors(e.details);
     }
 
-    this.connectionString = values.POSTGRES_URL;
     this.host = values.POSTGRES_HOST;
     this.port = values.POSTGRES_PORT
       ? parseInt(values.POSTGRES_PORT)
@@ -142,17 +101,8 @@ export class PostgresConfig implements ClientConfig, PoolConfig {
    *  can be used to describe the environment variables in help output.
    */
   static getHelpInfo(): [string, string][] {
-    const properties = [
-      ...Object.entries(this.schema.anyOf[0].properties),
-      ...Object.entries(this.schema.anyOf[1].properties),
-    ];
-    const lines = properties
+    return Object.entries(this.schema.properties)
       .map(([key, value]) => [key, value.description])
       .filter(([_key, value]) => !!value) as [string, string][];
-    lines.push([
-      "*",
-      "specify either POSTGRES_URL or POSTGRES_HOST/POSTGRES_PORT",
-    ]);
-    return lines;
   }
 }
