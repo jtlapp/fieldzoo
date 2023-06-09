@@ -7,6 +7,7 @@ import { CompilingStandardValidator } from "typebox-validators";
 
 const MAX_VISIBILITY = 2;
 
+// TODO: look at making this an enum, basing on AccessLevel
 export const Visibility = {
   Private: 0,
   Listed: 1,
