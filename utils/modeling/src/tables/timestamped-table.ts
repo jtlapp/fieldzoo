@@ -35,6 +35,7 @@ export class TimestampedTable {
 
     // Add a `modifiedAt` trigger to the table
 
+    // TODO: apparently bad for DB performance; look into using `NOW()`
     await sql
       .raw(
         `create or replace trigger update_${tableName}_modifiedAt
