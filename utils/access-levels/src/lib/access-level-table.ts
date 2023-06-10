@@ -78,8 +78,12 @@ export class AccessLevelTable<
     await db.schema.dropTable(this.tableName).execute();
   }
 
-  getTableName() {
-    return `${this.config.resourceTableName}_access_levels`;
+  /**
+   * Returns the name of the access level table.
+   * @returns The name of the access level table.
+   */
+  getTableName<DB, TB extends keyof DB & string>(): TB {
+    return this.tableName as TB;
   }
 
   /**
