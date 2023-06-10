@@ -51,10 +51,10 @@ describe("AccessLevelTable", () => {
       .insertInto("users")
       .values({ handle: "user4", name: "User 4" })
       .execute();
-    // user4 owns no posts, has read access to post 2, write access to post 3
+    // user5 owns no posts, has read access to post 2, write access to post 3
     await db
       .insertInto("users")
-      .values({ handle: "user4", name: "User 4" })
+      .values({ handle: "user5", name: "User 5" })
       .execute();
 
     // posts
@@ -191,5 +191,35 @@ describe("AccessLevelTable", () => {
       .restrictQuery(db, AccessLevel.Write, 4, queryForPost2)
       .executeTakeFirst();
     expect(row).toBeUndefined();
+  });
+
+  it("deletes access level rows when user is deleted", async () => {
+    const query = db
+      .selectFrom(accessLevelTable.getTableName())
+      .select("resourceKey")
+      .where("userKey", "=", 5);
+
+    let rows = await query.execute();
+    expect(rows).toHaveLength(2);
+
+    await db.deleteFrom("users").where("id", "=", 5).execute();
+
+    rows = await query.execute();
+    expect(rows).toHaveLength(0);
+  });
+
+  it("deletes access level rows when resource is deleted", async () => {
+    const query = db
+      .selectFrom(accessLevelTable.getTableName())
+      .select("userKey")
+      .where("resourceKey", "=", 3);
+
+    let rows = await query.execute();
+    expect(rows).toHaveLength(1);
+
+    await db.deleteFrom("posts").where("postID", "=", 3).execute();
+
+    rows = await query.execute();
+    expect(rows).toHaveLength(0);
   });
 });
