@@ -10,7 +10,8 @@ export interface AccessLevelTableConfig<
   UserKeyDT extends KeyDataType,
   ResourceKeyDT extends KeyDataType
 > {
-  userTableDotKeyColumn: string;
+  userTableName: string;
+  userKeyColumn: string;
   userKeyDataType: UserKeyDT;
   resourceTableName: string;
   resourceKeyColumn: string;

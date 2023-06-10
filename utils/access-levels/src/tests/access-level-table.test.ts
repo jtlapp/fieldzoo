@@ -19,7 +19,8 @@ describe("AccessLevelTable", () => {
     "integer",
     "integer"
   >({
-    userTableDotKeyColumn: "users.id",
+    userTableName: "users",
+    userKeyColumn: "id",
     userKeyDataType: "integer",
     resourceTableName: "posts",
     resourceKeyColumn: "postID",

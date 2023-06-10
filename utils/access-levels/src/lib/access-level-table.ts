@@ -30,14 +30,22 @@ export class AccessLevelTable<
     AccessLevelTableConfig<UserKeyDT, ResourceKeyDT>
   >;
   private readonly tableName: string;
-  private readonly resourceTableDotKeyColumn: string;
-  private readonly resourceTableDotOwnerKeyColumn: string;
+  private readonly foreignUserKeyColumn: string;
+  private readonly foreignResourceKeyColumn: string;
+  private readonly foreignResourceOwnerKeyColumn: string;
+  private readonly internalUserKeyColumn: string;
+  private readonly internalResourceKeyColumn: string;
+  private readonly internalAccessLevelColumn: string;
 
   constructor(config: AccessLevelTableConfig<UserKeyDT, ResourceKeyDT>) {
     this.config = { ...config };
-    this.resourceTableDotKeyColumn = `${config.resourceTableName}.${config.resourceKeyColumn}`;
-    this.resourceTableDotOwnerKeyColumn = `${config.resourceTableName}.${config.ownerKeyColumn}`;
+    this.foreignUserKeyColumn = `${config.userTableName}.${config.userKeyColumn}`;
+    this.foreignResourceKeyColumn = `${config.resourceTableName}.${config.resourceKeyColumn}`;
+    this.foreignResourceOwnerKeyColumn = `${config.resourceTableName}.${config.ownerKeyColumn}`;
     this.tableName = `${config.resourceTableName}_access_levels`;
+    this.internalUserKeyColumn = `${this.tableName}.userKey`;
+    this.internalResourceKeyColumn = `${this.tableName}.resourceKey`;
+    this.internalAccessLevelColumn = `${this.tableName}.accessLevel`;
   }
 
   /**
@@ -49,15 +57,12 @@ export class AccessLevelTable<
     await db.schema
       .createTable(this.tableName)
       .addColumn("userKey", this.config.userKeyDataType, (col) =>
-        col
-          .notNull()
-          .references(this.config.userTableDotKeyColumn)
-          .onDelete("cascade")
+        col.notNull().references(this.foreignUserKeyColumn).onDelete("cascade")
       )
       .addColumn("resourceKey", this.config.resourceKeyDataType, (col) =>
         col
           .notNull()
-          .references(this.resourceTableDotKeyColumn)
+          .references(this.foreignResourceKeyColumn)
           .onDelete("cascade")
       )
       .addColumn("accessLevel", "integer", (col) => col.notNull())
@@ -112,30 +117,30 @@ export class AccessLevelTable<
     qb: QB
   ): QB {
     const ref = db.dynamic.ref.bind(db.dynamic);
-    const resourceTableDotOwnerKeyColumnRef = ref(
-      this.resourceTableDotOwnerKeyColumn
+    const foreignResourceOwnerKeyColumnRef = ref(
+      this.foreignResourceOwnerKeyColumn
     );
     // pick a QB just to satisfy the type checker
     const selectQB = qb as SelectQueryBuilder<DB, TB, any>;
 
     // TODO: cache the string cat refs
     return selectQB
-      .where(resourceTableDotOwnerKeyColumnRef, "=", userKey)
+      .where(foreignResourceOwnerKeyColumnRef, "=", userKey)
       .unionAll(
         selectQB
           .innerJoin(this.tableName as keyof DB & string, (join) =>
             join
-              .on(ref(`${this.tableName}.userKey`), "=", userKey)
+              .on(ref(this.internalUserKeyColumn), "=", userKey)
               .onRef(
-                ref(`${this.tableName}.resourceKey`),
+                ref(this.internalResourceKeyColumn),
                 "=",
-                ref(this.resourceTableDotKeyColumn)
+                ref(this.foreignResourceKeyColumn)
               )
           )
           // Including the contrary condition prevents UNION ALL duplicates
           // and allows the database to short-circuit if 1st condition holds.
-          .where(resourceTableDotOwnerKeyColumnRef, "!=", userKey)
-          .where(ref(`${this.tableName}.accessLevel`), ">=", minimumAccessLevel)
+          .where(foreignResourceOwnerKeyColumnRef, "!=", userKey)
+          .where(ref(this.internalAccessLevelColumn), ">=", minimumAccessLevel)
       ) as QB;
   }
 
