@@ -12,10 +12,6 @@ import {
 
 type KeyType<T extends KeyDataType> = T extends "integer" ? number : string;
 
-// TODO: I think I'd rather set the JS key types and infer the data types,
-// but that's not possible because multiple data types can map to the same JS type.
-// For nominal typing, I do need to set the JS types.
-
 /**
  * Class representing an access level table for the given resource table,
  * associating user/resource combinations with the user's access level to
@@ -24,7 +20,9 @@ type KeyType<T extends KeyDataType> = T extends "integer" ? number : string;
 export class AccessLevelTable<
   AccessLevel extends number,
   UserKeyDT extends KeyDataType,
-  ResourceKeyDT extends KeyDataType
+  UserKey extends KeyType<UserKeyDT>,
+  ResourceKeyDT extends KeyDataType,
+  ResourceKey extends KeyType<ResourceKeyDT>
 > {
   private readonly config: Readonly<
     AccessLevelTableConfig<UserKeyDT, ResourceKeyDT>
@@ -114,7 +112,7 @@ export class AccessLevelTable<
   >(
     db: Kysely<any>,
     minimumAccessLevel: AccessLevel,
-    userKey: KeyType<UserKeyDT>,
+    userKey: UserKey,
     qb: QB
   ): QB {
     const ref = db.dynamic.ref.bind(db.dynamic);
@@ -155,8 +153,8 @@ export class AccessLevelTable<
    */
   async setAccessLevel(
     db: Kysely<any>,
-    userKey: KeyType<UserKeyDT>,
-    resourceKey: KeyType<ResourceKeyDT>,
+    userKey: UserKey,
+    resourceKey: ResourceKey,
     accessLevel: AccessLevel
   ) {
     if (accessLevel === 0) {
@@ -175,29 +173,6 @@ export class AccessLevelTable<
         })
         .execute();
     }
-  }
-
-  /**
-   * Returns the access level of a user to the given resource.
-   * @param db Database instance.
-   * @param userKey Key of user to check access for.
-   * @param resourceKey Key of resource to check access for.
-   * @returns The access level of the user to the resource, or `null` if no
-   *  access level has been assigned to the user for this resource.
-   */
-  async getAccessLevel(
-    db: Kysely<any>,
-    userKey: KeyType<UserKeyDT>,
-    resourceKey: KeyType<ResourceKeyDT>
-  ): Promise<AccessLevel | null> {
-    // TODO: what about case where user owns the resource?
-    const result = await db
-      .selectFrom(this.tableName as keyof any & string)
-      .select("accessLevel")
-      .where("userKey", "=", userKey)
-      .where("resourceKey", "=", resourceKey)
-      .executeTakeFirst();
-    return result?.accessLevel ?? null;
   }
 
   // TODO: Is there a way for me to type check this, maybe in a test?

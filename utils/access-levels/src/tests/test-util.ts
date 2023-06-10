@@ -67,3 +67,5 @@ export async function createDB() {
 export async function destroyDB<DB>(db: Kysely<DB>) {
   return db.destroy();
 }
+
+export function ignore(_description: string, _: () => void) {}

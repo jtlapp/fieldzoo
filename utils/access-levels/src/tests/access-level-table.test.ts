@@ -1,13 +1,17 @@
 import { Kysely } from "kysely";
 
 import { AccessLevelTable } from "../lib/access-level-table";
-import { Database, createDB, destroyDB } from "./test-util";
+import { Database, createDB, destroyDB, ignore } from "./test-util";
 
-enum AccessLevel {
-  None,
-  Read,
-  Write,
-}
+type AccessLevel = number & { readonly __brand: unique symbol };
+const AccessLevel = {
+  None: 0 as AccessLevel,
+  Read: 1 as AccessLevel,
+  Write: 2 as AccessLevel,
+} as const;
+
+type UserID = number & { readonly __brand: unique symbol };
+type PostID = number & { readonly __brand: unique symbol };
 
 // TODO: test update
 // TODO: test delete
@@ -17,7 +21,9 @@ describe("AccessLevelTable", () => {
   const accessLevelTable = new AccessLevelTable<
     AccessLevel,
     "integer",
-    "integer"
+    UserID,
+    "integer",
+    PostID
   >({
     userTableName: "users",
     userKeyColumn: "id",
@@ -77,9 +83,24 @@ describe("AccessLevelTable", () => {
       .execute();
 
     // access level assignments
-    await accessLevelTable.setAccessLevel(db, 4, 1, AccessLevel.Read);
-    await accessLevelTable.setAccessLevel(db, 5, 2, AccessLevel.Read);
-    await accessLevelTable.setAccessLevel(db, 5, 3, AccessLevel.Write);
+    await accessLevelTable.setAccessLevel(
+      db,
+      4 as UserID,
+      1 as PostID,
+      AccessLevel.Read
+    );
+    await accessLevelTable.setAccessLevel(
+      db,
+      5 as UserID,
+      2 as PostID,
+      AccessLevel.Read
+    );
+    await accessLevelTable.setAccessLevel(
+      db,
+      5 as UserID,
+      3 as PostID,
+      AccessLevel.Write
+    );
   });
   afterEach(async () => {
     await accessLevelTable.drop(db);
@@ -89,7 +110,7 @@ describe("AccessLevelTable", () => {
   it("grants no access when no rights", async () => {
     const query = db.selectFrom("posts").select("title");
     const rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 1, query)
+      .restrictQuery(db, AccessLevel.Write, 1 as UserID, query)
       .execute();
     expect(rows).toHaveLength(0);
   });
@@ -97,13 +118,13 @@ describe("AccessLevelTable", () => {
   it("grants access to the resource owner", async () => {
     const query = db.selectFrom("posts").select("title");
     let rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 2, query)
+      .restrictQuery(db, AccessLevel.Write, 2 as UserID, query)
       .execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 1");
 
     rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 3, query)
+      .restrictQuery(db, AccessLevel.Write, 3 as UserID, query)
       .execute();
     expect(rows).toHaveLength(2);
     expect(rows[0].title).toBe("Post 2");
@@ -116,7 +137,7 @@ describe("AccessLevelTable", () => {
     // user sees posts to which it has sufficient access
 
     let rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Read, 4, query)
+      .restrictQuery(db, AccessLevel.Read, 4 as UserID, query)
       .execute();
     expect(rows).toHaveLength(2);
     expect(rows[0].title).toBe("Post 4");
@@ -125,16 +146,21 @@ describe("AccessLevelTable", () => {
     // user does not see posts to which it does not have sufficient access
 
     rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 4, query)
+      .restrictQuery(db, AccessLevel.Write, 4 as UserID, query)
       .execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 4");
 
     // setting access level to 0 removes access
 
-    await accessLevelTable.setAccessLevel(db, 4, 1, AccessLevel.None);
+    await accessLevelTable.setAccessLevel(
+      db,
+      4 as UserID,
+      1 as PostID,
+      AccessLevel.None
+    );
     rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Read, 4, query)
+      .restrictQuery(db, AccessLevel.Read, 4 as UserID, query)
       .execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 4");
@@ -144,14 +170,14 @@ describe("AccessLevelTable", () => {
     const query = db.selectFrom("posts").select("title");
 
     let rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Read, 5, query)
+      .restrictQuery(db, AccessLevel.Read, 5 as UserID, query)
       .execute();
     expect(rows).toHaveLength(2);
     expect(rows[0].title).toBe("Post 2");
     expect(rows[1].title).toBe("Post 3");
 
     rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 5, query)
+      .restrictQuery(db, AccessLevel.Write, 5 as UserID, query)
       .execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 3");
@@ -167,7 +193,7 @@ describe("AccessLevelTable", () => {
     // one post returned if user has sufficient access, returning array
 
     let rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Read, 4, queryForPost1)
+      .restrictQuery(db, AccessLevel.Read, 4 as UserID, queryForPost1)
       .execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 1");
@@ -175,21 +201,21 @@ describe("AccessLevelTable", () => {
     // no post returned if user does not have sufficient access, returning array
 
     rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 4, queryForPost1)
+      .restrictQuery(db, AccessLevel.Write, 4 as UserID, queryForPost1)
       .execute();
     expect(rows).toHaveLength(0);
 
     // one post returned if user is owner, returning single row
 
     let row = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 4, queryForPost4)
+      .restrictQuery(db, AccessLevel.Write, 4 as UserID, queryForPost4)
       .executeTakeFirst();
     expect(row?.title).toBe("Post 4");
 
     // no post returned if user has no access, returning single row
 
     row = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 4, queryForPost2)
+      .restrictQuery(db, AccessLevel.Write, 4 as UserID, queryForPost2)
       .executeTakeFirst();
     expect(row).toBeUndefined();
   });
@@ -222,5 +248,93 @@ describe("AccessLevelTable", () => {
 
     rows = await query.execute();
     expect(rows).toHaveLength(0);
+  });
+
+  ignore("constructor requires agreement on key column data types", () => {
+    new AccessLevelTable<AccessLevel, "integer", UserID, "integer", PostID>({
+      userTableName: "users",
+      userKeyColumn: "handle",
+      // @ts-expect-error - user key not of correct data type
+      userKeyDataType: "string",
+      resourceTableName: "posts",
+      resourceKeyColumn: "postID",
+      resourceKeyDataType: "integer",
+      ownerKeyColumn: "ownerID",
+    });
+    new AccessLevelTable<AccessLevel, "integer", UserID, "text", string>({
+      userTableName: "users",
+      userKeyColumn: "id",
+      userKeyDataType: "integer",
+      resourceTableName: "posts",
+      resourceKeyColumn: "title",
+      // @ts-expect-error - resource key not of correct data type
+      resourceKeyDataType: "integer",
+      ownerKeyColumn: "ownerID",
+    });
+  });
+
+  ignore(
+    "constructor requires key types to be consistent with data types",
+    () => {
+      // @ts-expect-error - user key not of correct type
+      new AccessLevelTable<AccessLevel, "integer", string, "integer", PostID>({
+        userTableName: "users",
+        userKeyColumn: "id",
+        userKeyDataType: "integer",
+        resourceTableName: "posts",
+        resourceKeyColumn: "postID",
+        resourceKeyDataType: "integer",
+        ownerKeyColumn: "ownerID",
+      });
+      // @ts-expect-error - user key not of correct type
+      new AccessLevelTable<AccessLevel, "text", number, "integer", PostID>({
+        userTableName: "users",
+        userKeyColumn: "id",
+        userKeyDataType: "text",
+        resourceTableName: "posts",
+        resourceKeyColumn: "postID",
+        resourceKeyDataType: "integer",
+        ownerKeyColumn: "ownerID",
+      });
+      // @ts-expect-error - resource key not of correct type
+      new AccessLevelTable<AccessLevel, "integer", number, "integer", string>({
+        userTableName: "users",
+        userKeyColumn: "id",
+        userKeyDataType: "integer",
+        resourceTableName: "posts",
+        resourceKeyColumn: "postID",
+        resourceKeyDataType: "integer",
+        ownerKeyColumn: "ownerID",
+      });
+      // @ts-expect-error - resource key not of correct type
+      new AccessLevelTable<AccessLevel, "integer", number, "string", PostID>({
+        userTableName: "users",
+        userKeyColumn: "id",
+        userKeyDataType: "integer",
+        resourceTableName: "posts",
+        resourceKeyColumn: "postID",
+        resourceKeyDataType: "string",
+        ownerKeyColumn: "ownerID",
+      });
+    }
+  );
+
+  ignore("restrictQuery() requires provided key types", () => {
+    accessLevelTable.restrictQuery(
+      db,
+      AccessLevel.Read,
+      // @ts-expect-error - user key not of correct type
+      1,
+      db.selectFrom("posts")
+    );
+  });
+
+  ignore("setAccessLevel() requires provided key types", () => {
+    // @ts-expect-error - user key not of correct type
+    accessLevelTable.setAccessLevel(db, 1, 1 as PostID, AccessLevel.Read);
+    // @ts-expect-error - resource key not of correct type
+    accessLevelTable.setAccessLevel(db, 1 as UserID, 1, AccessLevel.Read);
+    // @ts-expect-error - access level not of correct type
+    accessLevelTable.setAccessLevel(db, 1 as UserID, 1 as PostID, 0);
   });
 });
