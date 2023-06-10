@@ -5,10 +5,10 @@ import {
   UpdateQueryBuilder,
 } from "kysely";
 
-/**
- * Postgres data type for the user and resource key columns.
- */
-export type KeyDataType = "integer" | "text" | "uuid";
+import {
+  KeyDataType,
+  AccessLevelTableConfig,
+} from "./access-level-table-config";
 
 type KeyType<T extends KeyDataType> = T extends "integer" ? number : string;
 
@@ -26,21 +26,18 @@ export class AccessLevelTable<
   UserKeyDT extends KeyDataType,
   ResourceKeyDT extends KeyDataType
 > {
+  private readonly config: Readonly<
+    AccessLevelTableConfig<UserKeyDT, ResourceKeyDT>
+  >;
   private readonly tableName: string;
   private readonly resourceTableDotKeyColumn: string;
   private readonly resourceTableDotOwnerKeyColumn: string;
 
-  constructor(
-    readonly userTableDotKeyColumn: string,
-    readonly userKeyDataType: UserKeyDT,
-    readonly resourceTableName: string,
-    readonly resourceKeyColumn: string,
-    readonly resourceKeyDataType: ResourceKeyDT,
-    readonly ownerKeyColumn: string
-  ) {
-    this.resourceTableDotKeyColumn = `${resourceTableName}.${resourceKeyColumn}`;
-    this.resourceTableDotOwnerKeyColumn = `${resourceTableName}.${ownerKeyColumn}`;
-    this.tableName = `${resourceTableName}_access_levels`;
+  constructor(config: AccessLevelTableConfig<UserKeyDT, ResourceKeyDT>) {
+    this.config = { ...config };
+    this.resourceTableDotKeyColumn = `${config.resourceTableName}.${config.resourceKeyColumn}`;
+    this.resourceTableDotOwnerKeyColumn = `${config.resourceTableName}.${config.ownerKeyColumn}`;
+    this.tableName = `${config.resourceTableName}_access_levels`;
   }
 
   /**
@@ -51,10 +48,13 @@ export class AccessLevelTable<
   async create(db: Kysely<any>) {
     await db.schema
       .createTable(this.tableName)
-      .addColumn("userKey", this.userKeyDataType, (col) =>
-        col.notNull().references(this.userTableDotKeyColumn).onDelete("cascade")
+      .addColumn("userKey", this.config.userKeyDataType, (col) =>
+        col
+          .notNull()
+          .references(this.config.userTableDotKeyColumn)
+          .onDelete("cascade")
       )
-      .addColumn("resourceKey", this.resourceKeyDataType, (col) =>
+      .addColumn("resourceKey", this.config.resourceKeyDataType, (col) =>
         col
           .notNull()
           .references(this.resourceTableDotKeyColumn)
@@ -79,7 +79,7 @@ export class AccessLevelTable<
   }
 
   getTableName() {
-    return `${this.resourceTableName}_access_levels`;
+    return `${this.config.resourceTableName}_access_levels`;
   }
 
   /**

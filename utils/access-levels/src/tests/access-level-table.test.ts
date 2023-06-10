@@ -18,7 +18,14 @@ describe("AccessLevelTable", () => {
     AccessLevel,
     "integer",
     "integer"
-  >("users.id", "integer", "posts", "postID", "integer", "ownerId");
+  >({
+    userTableDotKeyColumn: "users.id",
+    userKeyDataType: "integer",
+    resourceTableName: "posts",
+    resourceKeyColumn: "postID",
+    resourceKeyDataType: "integer",
+    ownerKeyColumn: "ownerID",
+  });
 
   beforeEach(async () => {
     db = await createDB();
