@@ -16,9 +16,9 @@ export class AccessLevelTable<
   AccessLevel extends number,
   ResourceTableName extends string,
   UserKeyDT extends KeyDataType,
-  UserKey extends KeyType<UserKeyDT>,
   ResourceKeyDT extends KeyDataType,
-  ResourceKey extends KeyType<ResourceKeyDT>
+  UserKey extends KeyType<UserKeyDT> = KeyType<UserKeyDT>,
+  ResourceKey extends KeyType<ResourceKeyDT> = KeyType<ResourceKeyDT>
 > {
   private readonly config: Readonly<
     AccessLevelTableConfig<ResourceTableName, UserKeyDT, ResourceKeyDT>
@@ -114,6 +114,7 @@ export class AccessLevelTable<
       this.foreignResourceOwnerKeyColumn
     );
 
+    // TODO: return permissions (but should this be a separate method?)
     return qb.where(foreignResourceOwnerKeyColumnRef, "=", userKey).unionAll(
       qb
         .innerJoin(this.tableName as keyof DB & string, (join) =>

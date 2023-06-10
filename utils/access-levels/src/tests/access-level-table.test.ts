@@ -23,8 +23,8 @@ describe("AccessLevelTable", () => {
     AccessLevel,
     "posts",
     "integer",
-    UserID,
     "integer",
+    UserID,
     PostID
   >({
     userTableName: "users",
@@ -257,8 +257,8 @@ describe("AccessLevelTable", () => {
       AccessLevel,
       "posts",
       "integer",
-      UserID,
       "integer",
+      UserID,
       PostID
     >({
       userTableName: "users",
@@ -274,8 +274,8 @@ describe("AccessLevelTable", () => {
       AccessLevel,
       "posts",
       "integer",
-      UserID,
       "text",
+      UserID,
       string
     >({
       userTableName: "users",
@@ -334,6 +334,45 @@ describe("AccessLevelTable", () => {
       });
     }
   );
+
+  ignore("correctly defaults UserKey and ResourceKey types", () => {
+    const table1 = new AccessLevelTable<
+      AccessLevel,
+      "posts",
+      "integer",
+      "integer"
+    >({
+      userTableName: "users",
+      userKeyColumn: "id",
+      userKeyDataType: "integer",
+      resourceTableName: "posts",
+      resourceKeyColumn: "postID",
+      resourceKeyDataType: "integer",
+      ownerKeyColumn: "ownerID",
+    });
+    // @ts-expect-error - user key not of correct type
+    table1.guardSelect(db, AccessLevel.Read, "invalid", db.selectFrom("posts"));
+    // @ts-expect-error - user key not of correct type
+    table1.setAccessLevel(db, "invalid", 1, AccessLevel.Read);
+    // @ts-expect-error - resource key not of correct type
+    table1.setAccessLevel(db, 1, "invalid", AccessLevel.Read);
+
+    const table2 = new AccessLevelTable<AccessLevel, "posts", "text", "uuid">({
+      userTableName: "users",
+      userKeyColumn: "id",
+      userKeyDataType: "text",
+      resourceTableName: "posts",
+      resourceKeyColumn: "postID",
+      resourceKeyDataType: "uuid",
+      ownerKeyColumn: "ownerID",
+    });
+    // @ts-expect-error - user key not of correct type
+    table2.guardSelect(db, AccessLevel.Read, 1, db.selectFrom("posts"));
+    // @ts-expect-error - user key not of correct type
+    table2.setAccessLevel(db, 1, "valid", AccessLevel.Read);
+    // @ts-expect-error - resource key not of correct type
+    table2.setAccessLevel(db, "valid", 1, AccessLevel.Read);
+  });
 
   ignore("guardSelect() must use the correct resource table", () => {
     accessLevelTable.guardSelect(
