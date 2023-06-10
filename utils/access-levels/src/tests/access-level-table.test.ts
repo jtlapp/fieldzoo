@@ -18,8 +18,10 @@ type PostID = number & { readonly __brand: unique symbol };
 
 describe("AccessLevelTable", () => {
   let db: Kysely<Database>;
+  // TODO: revise construction so that the values that can be inferred are inferred
   const accessLevelTable = new AccessLevelTable<
     AccessLevel,
+    "posts",
     "integer",
     UserID,
     "integer",
@@ -110,7 +112,7 @@ describe("AccessLevelTable", () => {
   it("grants no access when no rights", async () => {
     const query = db.selectFrom("posts").select("title");
     const rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 1 as UserID, query)
+      .guardSelect(db, AccessLevel.Write, 1 as UserID, query)
       .execute();
     expect(rows).toHaveLength(0);
   });
@@ -118,13 +120,13 @@ describe("AccessLevelTable", () => {
   it("grants access to the resource owner", async () => {
     const query = db.selectFrom("posts").select("title");
     let rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 2 as UserID, query)
+      .guardSelect(db, AccessLevel.Write, 2 as UserID, query)
       .execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 1");
 
     rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 3 as UserID, query)
+      .guardSelect(db, AccessLevel.Write, 3 as UserID, query)
       .execute();
     expect(rows).toHaveLength(2);
     expect(rows[0].title).toBe("Post 2");
@@ -137,7 +139,7 @@ describe("AccessLevelTable", () => {
     // user sees posts to which it has sufficient access
 
     let rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Read, 4 as UserID, query)
+      .guardSelect(db, AccessLevel.Read, 4 as UserID, query)
       .execute();
     expect(rows).toHaveLength(2);
     expect(rows[0].title).toBe("Post 4");
@@ -146,7 +148,7 @@ describe("AccessLevelTable", () => {
     // user does not see posts to which it does not have sufficient access
 
     rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 4 as UserID, query)
+      .guardSelect(db, AccessLevel.Write, 4 as UserID, query)
       .execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 4");
@@ -160,7 +162,7 @@ describe("AccessLevelTable", () => {
       AccessLevel.None
     );
     rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Read, 4 as UserID, query)
+      .guardSelect(db, AccessLevel.Read, 4 as UserID, query)
       .execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 4");
@@ -170,14 +172,14 @@ describe("AccessLevelTable", () => {
     const query = db.selectFrom("posts").select("title");
 
     let rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Read, 5 as UserID, query)
+      .guardSelect(db, AccessLevel.Read, 5 as UserID, query)
       .execute();
     expect(rows).toHaveLength(2);
     expect(rows[0].title).toBe("Post 2");
     expect(rows[1].title).toBe("Post 3");
 
     rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 5 as UserID, query)
+      .guardSelect(db, AccessLevel.Write, 5 as UserID, query)
       .execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 3");
@@ -193,7 +195,7 @@ describe("AccessLevelTable", () => {
     // one post returned if user has sufficient access, returning array
 
     let rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Read, 4 as UserID, queryForPost1)
+      .guardSelect(db, AccessLevel.Read, 4 as UserID, queryForPost1)
       .execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 1");
@@ -201,21 +203,21 @@ describe("AccessLevelTable", () => {
     // no post returned if user does not have sufficient access, returning array
 
     rows = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 4 as UserID, queryForPost1)
+      .guardSelect(db, AccessLevel.Write, 4 as UserID, queryForPost1)
       .execute();
     expect(rows).toHaveLength(0);
 
     // one post returned if user is owner, returning single row
 
     let row = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 4 as UserID, queryForPost4)
+      .guardSelect(db, AccessLevel.Write, 4 as UserID, queryForPost4)
       .executeTakeFirst();
     expect(row?.title).toBe("Post 4");
 
     // no post returned if user has no access, returning single row
 
     row = await accessLevelTable
-      .restrictQuery(db, AccessLevel.Write, 4 as UserID, queryForPost2)
+      .guardSelect(db, AccessLevel.Write, 4 as UserID, queryForPost2)
       .executeTakeFirst();
     expect(row).toBeUndefined();
   });
@@ -251,7 +253,14 @@ describe("AccessLevelTable", () => {
   });
 
   ignore("constructor requires agreement on key column data types", () => {
-    new AccessLevelTable<AccessLevel, "integer", UserID, "integer", PostID>({
+    new AccessLevelTable<
+      AccessLevel,
+      "posts",
+      "integer",
+      UserID,
+      "integer",
+      PostID
+    >({
       userTableName: "users",
       userKeyColumn: "handle",
       // @ts-expect-error - user key not of correct data type
@@ -261,7 +270,14 @@ describe("AccessLevelTable", () => {
       resourceKeyDataType: "integer",
       ownerKeyColumn: "ownerID",
     });
-    new AccessLevelTable<AccessLevel, "integer", UserID, "text", string>({
+    new AccessLevelTable<
+      AccessLevel,
+      "posts",
+      "integer",
+      UserID,
+      "text",
+      string
+    >({
       userTableName: "users",
       userKeyColumn: "id",
       userKeyDataType: "integer",
@@ -319,8 +335,18 @@ describe("AccessLevelTable", () => {
     }
   );
 
-  ignore("restrictQuery() requires provided key types", () => {
-    accessLevelTable.restrictQuery(
+  ignore("guardSelect() must use the correct resource table", () => {
+    accessLevelTable.guardSelect(
+      db,
+      AccessLevel.Read,
+      1 as UserID,
+      // @ts-expect-error - incorrect resource table
+      db.selectFrom("users")
+    );
+  });
+
+  ignore("guardSelect() requires provided key types", () => {
+    accessLevelTable.guardSelect(
       db,
       AccessLevel.Read,
       // @ts-expect-error - user key not of correct type
