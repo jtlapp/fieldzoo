@@ -29,6 +29,7 @@ export class AccessLevelTable<
   private readonly config: Readonly<
     AccessLevelTableConfig<UserKeyDT, ResourceKeyDT>
   >;
+  // cache values to improve performance
   private readonly tableName: string;
   private readonly foreignUserKeyColumn: string;
   private readonly foreignResourceKeyColumn: string;
