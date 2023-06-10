@@ -16,9 +16,16 @@ export interface Posts {
   title: string;
 }
 
+export interface PostAccessLevels {
+  userKey: number;
+  resourceKey: number;
+  accessLevel: number;
+}
+
 export interface Database {
   users: Users;
   posts: Posts;
+  posts_access_levels: PostAccessLevels;
 }
 
 export async function createTables(db: Kysely<Database>) {
