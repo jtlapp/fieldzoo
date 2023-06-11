@@ -2,10 +2,9 @@ import { Kysely, SelectQueryBuilder } from "kysely";
 
 import {
   KeyDataType,
+  KeyType,
   AccessLevelTableConfig,
 } from "./access-level-table-config";
-
-type KeyType<T extends KeyDataType> = T extends "integer" ? number : string;
 
 /**
  * Class representing an access level table for the given resource table,
@@ -13,15 +12,22 @@ type KeyType<T extends KeyDataType> = T extends "integer" ? number : string;
  * the resource.
  */
 export class AccessLevelTable<
-  AccessLevel extends number,
   ResourceTableName extends string,
   UserKeyDT extends KeyDataType,
   ResourceKeyDT extends KeyDataType,
+  AccessLevel extends number,
   UserKey extends KeyType<UserKeyDT> = KeyType<UserKeyDT>,
   ResourceKey extends KeyType<ResourceKeyDT> = KeyType<ResourceKeyDT>
 > {
   private readonly config: Readonly<
-    AccessLevelTableConfig<ResourceTableName, UserKeyDT, ResourceKeyDT>
+    AccessLevelTableConfig<
+      ResourceTableName,
+      UserKeyDT,
+      ResourceKeyDT,
+      AccessLevel,
+      UserKey,
+      ResourceKey
+    >
   >;
   // cache values to improve performance
   private readonly tableName: string;
@@ -33,7 +39,14 @@ export class AccessLevelTable<
   private readonly internalAccessLevelColumn: string;
 
   constructor(
-    config: AccessLevelTableConfig<ResourceTableName, UserKeyDT, ResourceKeyDT>
+    config: AccessLevelTableConfig<
+      ResourceTableName,
+      UserKeyDT,
+      ResourceKeyDT,
+      AccessLevel,
+      UserKey,
+      ResourceKey
+    >
   ) {
     this.config = { ...config };
     this.foreignUserKeyColumn = `${config.userTableName}.${config.userKeyColumn}`;
@@ -93,7 +106,7 @@ export class AccessLevelTable<
    * so that it only returns rows where the user has the given minimum access
    * level. The resource owner always has full access to the resource.
    * @param db Database instance.
-   * @param minimumAccessLevel Minimum access level required to access the
+   * @param minRequiredAccessLevel Minimum access level required to access the
    *  resource.
    * @param userKey Key of user to check access for.
    * @param qb Query builder to modify.
@@ -105,7 +118,7 @@ export class AccessLevelTable<
     QB extends SelectQueryBuilder<DB, keyof DB & ResourceTableName, O>
   >(
     db: Kysely<DB>,
-    minimumAccessLevel: AccessLevel,
+    minRequiredAccessLevel: AccessLevel,
     userKey: UserKey,
     qb: QB
   ): QB {
@@ -113,7 +126,6 @@ export class AccessLevelTable<
     const foreignResourceOwnerKeyColumnRef = ref(
       this.foreignResourceOwnerKeyColumn
     );
-
     // TODO: return permissions (but should this be a separate method?)
     return qb.where(foreignResourceOwnerKeyColumnRef, "=", userKey).unionAll(
       qb
@@ -129,7 +141,11 @@ export class AccessLevelTable<
         // Including the contrary condition prevents UNION ALL duplicates
         // and allows the database to short-circuit if 1st condition holds.
         .where(foreignResourceOwnerKeyColumnRef, "!=", userKey)
-        .where(ref(this.internalAccessLevelColumn), ">=", minimumAccessLevel)
+        .where(
+          ref(this.internalAccessLevelColumn),
+          ">=",
+          minRequiredAccessLevel
+        )
     ) as QB;
   }
 

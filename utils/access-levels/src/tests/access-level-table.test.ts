@@ -18,15 +18,7 @@ type PostID = number & { readonly __brand: unique symbol };
 
 describe("AccessLevelTable", () => {
   let db: Kysely<Database>;
-  // TODO: revise construction so that the values that can be inferred are inferred
-  const accessLevelTable = new AccessLevelTable<
-    AccessLevel,
-    "posts",
-    "integer",
-    "integer",
-    UserID,
-    PostID
-  >({
+  const accessLevelTable = new AccessLevelTable({
     userTableName: "users",
     userKeyColumn: "id",
     userKeyDataType: "integer",
@@ -34,6 +26,9 @@ describe("AccessLevelTable", () => {
     resourceKeyColumn: "postID",
     resourceKeyDataType: "integer",
     ownerKeyColumn: "ownerID",
+    sampleAccessLevel: AccessLevel.None,
+    sampleUserKey: 1 as UserID,
+    sampleResourceKey: 1 as PostID,
   });
 
   beforeEach(async () => {
@@ -252,39 +247,25 @@ describe("AccessLevelTable", () => {
     expect(rows).toHaveLength(0);
   });
 
-  ignore("constructor requires agreement on key column data types", () => {
-    new AccessLevelTable<
-      AccessLevel,
-      "posts",
-      "integer",
-      "integer",
-      UserID,
-      PostID
-    >({
+  ignore("invalid key data types", () => {
+    new AccessLevelTable({
       userTableName: "users",
-      userKeyColumn: "handle",
-      // @ts-expect-error - user key not of correct data type
+      userKeyColumn: "id",
+      // @ts-expect-error - invalid key data type
       userKeyDataType: "string",
       resourceTableName: "posts",
       resourceKeyColumn: "postID",
       resourceKeyDataType: "integer",
       ownerKeyColumn: "ownerID",
     });
-    new AccessLevelTable<
-      AccessLevel,
-      "posts",
-      "integer",
-      "text",
-      UserID,
-      string
-    >({
+    new AccessLevelTable({
       userTableName: "users",
       userKeyColumn: "id",
       userKeyDataType: "integer",
       resourceTableName: "posts",
-      resourceKeyColumn: "title",
-      // @ts-expect-error - resource key not of correct data type
-      resourceKeyDataType: "integer",
+      resourceKeyColumn: "postID",
+      // @ts-expect-error - invalid key data type
+      resourceKeyDataType: "string",
       ownerKeyColumn: "ownerID",
     });
   });
@@ -292,8 +273,7 @@ describe("AccessLevelTable", () => {
   ignore(
     "constructor requires key types to be consistent with data types",
     () => {
-      // @ts-expect-error - user key not of correct type
-      new AccessLevelTable<AccessLevel, "integer", string, "integer", PostID>({
+      new AccessLevelTable({
         userTableName: "users",
         userKeyColumn: "id",
         userKeyDataType: "integer",
@@ -301,9 +281,10 @@ describe("AccessLevelTable", () => {
         resourceKeyColumn: "postID",
         resourceKeyDataType: "integer",
         ownerKeyColumn: "ownerID",
+        // @ts-expect-error - user key not of correct type
+        sampleUserKey: "invalid",
       });
-      // @ts-expect-error - user key not of correct type
-      new AccessLevelTable<AccessLevel, "text", number, "integer", PostID>({
+      new AccessLevelTable({
         userTableName: "users",
         userKeyColumn: "id",
         userKeyDataType: "text",
@@ -311,9 +292,11 @@ describe("AccessLevelTable", () => {
         resourceKeyColumn: "postID",
         resourceKeyDataType: "integer",
         ownerKeyColumn: "ownerID",
+        // @ts-expect-error - user key not of correct type
+        sampleUserKey: 1 as UserID,
       });
-      // @ts-expect-error - resource key not of correct type
-      new AccessLevelTable<AccessLevel, "integer", number, "integer", string>({
+
+      new AccessLevelTable({
         userTableName: "users",
         userKeyColumn: "id",
         userKeyDataType: "integer",
@@ -321,27 +304,25 @@ describe("AccessLevelTable", () => {
         resourceKeyColumn: "postID",
         resourceKeyDataType: "integer",
         ownerKeyColumn: "ownerID",
+        // @ts-expect-error - resource key not of correct type
+        sampleResourceKey: "invalid",
       });
-      // @ts-expect-error - resource key not of correct type
-      new AccessLevelTable<AccessLevel, "integer", number, "string", PostID>({
+      new AccessLevelTable({
         userTableName: "users",
         userKeyColumn: "id",
         userKeyDataType: "integer",
         resourceTableName: "posts",
         resourceKeyColumn: "postID",
-        resourceKeyDataType: "string",
+        resourceKeyDataType: "text",
         ownerKeyColumn: "ownerID",
+        // @ts-expect-error - resource key not of correct type
+        sampleResourceKey: 1 as PostID,
       });
     }
   );
 
   ignore("correctly defaults UserKey and ResourceKey types", () => {
-    const table1 = new AccessLevelTable<
-      AccessLevel,
-      "posts",
-      "integer",
-      "integer"
-    >({
+    const table1 = new AccessLevelTable({
       userTableName: "users",
       userKeyColumn: "id",
       userKeyDataType: "integer",
@@ -349,6 +330,7 @@ describe("AccessLevelTable", () => {
       resourceKeyColumn: "postID",
       resourceKeyDataType: "integer",
       ownerKeyColumn: "ownerID",
+      sampleAccessLevel: AccessLevel.None,
     });
     // @ts-expect-error - user key not of correct type
     table1.guardSelect(db, AccessLevel.Read, "invalid", db.selectFrom("posts"));
@@ -357,7 +339,7 @@ describe("AccessLevelTable", () => {
     // @ts-expect-error - resource key not of correct type
     table1.setAccessLevel(db, 1, "invalid", AccessLevel.Read);
 
-    const table2 = new AccessLevelTable<AccessLevel, "posts", "text", "uuid">({
+    const table2 = new AccessLevelTable({
       userTableName: "users",
       userKeyColumn: "id",
       userKeyDataType: "text",
@@ -365,6 +347,7 @@ describe("AccessLevelTable", () => {
       resourceKeyColumn: "postID",
       resourceKeyDataType: "uuid",
       ownerKeyColumn: "ownerID",
+      sampleAccessLevel: AccessLevel.None,
     });
     // @ts-expect-error - user key not of correct type
     table2.guardSelect(db, AccessLevel.Read, 1, db.selectFrom("posts"));
