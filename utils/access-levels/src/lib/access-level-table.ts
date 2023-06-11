@@ -130,7 +130,7 @@ export class AccessLevelTable<
       this.foreignResourceOwnerKeyColumn
     );
 
-    const query = qb
+    return qb
       .select(sql.lit(this.config.ownerAccessLevel).as("accessLevel"))
       .where(foreignResourceOwnerKeyColumnRef, "=", userKey)
       .unionAll(
@@ -158,12 +158,6 @@ export class AccessLevelTable<
             minRequiredAccessLevel
           )
       ) as QB;
-    // TODO: delete
-    console.log(
-      "**** query",
-      (query as unknown as SelectQueryBuilder<any, any, any>).compile()
-    );
-    return query;
   }
 
   /**
@@ -208,6 +202,7 @@ export class AccessLevelTable<
     ) as QB;
   }
 
+  // TODO: delete if I don't use
   selectReturningAccessLevel<DB, TB extends keyof DB & ResourceTableName>(
     db: Kysely<DB>,
     minRequiredAccessLevel: AccessLevel,
@@ -216,9 +211,17 @@ export class AccessLevelTable<
     const resourceTableName = this.config.resourceTableName as unknown as TB;
     const ref = db.dynamic.ref.bind(db.dynamic);
 
-    const query = db
+    return db
       .selectFrom(resourceTableName)
       .selectAll(resourceTableName as ExtractTableAlias<DB, TB>)
+      .select(
+        db.fn
+          .coalesce(
+            ref(this.internalAccessLevelColumn),
+            sql.lit(this.config.ownerAccessLevel)
+          )
+          .as("accessLevel")
+      )
       .leftJoin(this.tableName as keyof DB & string, (join) =>
         join
           .on(ref(this.internalUserKeyColumn), "=", userKey)
@@ -234,12 +237,6 @@ export class AccessLevelTable<
             this.internalAccessLevelColumn
           )} >= ${minRequiredAccessLevel}`
       );
-    // TODO: delete
-    console.log(
-      "**** query",
-      (query as unknown as SelectQueryBuilder<any, any, any>).compile()
-    );
-    return query;
   }
 
   /**
