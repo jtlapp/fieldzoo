@@ -12,7 +12,10 @@ import {
 export function testGuardingSelect<
   UserID extends number,
   PostID extends number
->(guardFuncName: "guardRead" | "guardQuery", checkAccessLevel: boolean) {
+>(
+  guardFuncName: "guardSelectingAccessLevel" | "guardQuery",
+  checkAccessLevel: boolean
+) {
   let db: Kysely<Database>;
   const accessLevelTable = new AccessLevelTable({
     ownerAccessLevel: AccessLevel.Write,
@@ -287,17 +290,20 @@ export function testGuardingSelect<
     expect(rows).toHaveLength(0);
   });
 
-  ignore("guardRead() must use the correct resource table", () => {
-    guard(
-      db,
-      AccessLevel.Read,
-      1 as UserID,
-      // @ts-expect-error - incorrect resource table
-      db.selectFrom("users")
-    );
-  });
+  ignore(
+    "guardSelectingAccessLevel() must use the correct resource table",
+    () => {
+      guard(
+        db,
+        AccessLevel.Read,
+        1 as UserID,
+        // @ts-expect-error - incorrect resource table
+        db.selectFrom("users")
+      );
+    }
+  );
 
-  ignore("guardRead() requires provided key types", () => {
+  ignore("guardSelectingAccessLevel() requires provided key types", () => {
     guard(
       db,
       AccessLevel.Read,

@@ -105,6 +105,48 @@ export class AccessLevelTable<
   }
 
   /**
+   * Modifies a query builder that queries the resource of this table so that
+   * it only returns rows where the user has the requested minimum access
+   * level. The resource owner always has full access to the resource.
+   * @param db Database instance.
+   * @param minRequiredAccessLevel Minimum access level required to access the
+   *  resource.
+   * @param userKey Key of user to check access for.
+   * @param qb Query builder to modify.
+   * @returns The modified query builder.
+   */
+  guardQuery<DB, QB extends WhereInterface<DB, keyof DB & ResourceTableName>>(
+    db: Kysely<any>,
+    minRequiredAccessLevel: AccessLevel,
+    userKey: UserKey,
+    qb: QB
+  ): QB {
+    const ref = db.dynamic.ref.bind(db.dynamic);
+    return qb.where(({ or, cmpr, exists }) =>
+      or([
+        cmpr(ref(this.config.resourceOwnerKeyColumn), "=", userKey),
+        exists(
+          // reference prefixed columns to avoid conflicts
+          db
+            .selectFrom(this.tableName)
+            .selectAll()
+            .where(ref(this.internalUserKeyColumn), "=", userKey)
+            .whereRef(
+              ref(this.internalResourceKeyColumn),
+              "=",
+              ref(this.foreignResourceKeyColumn)
+            )
+            .where(
+              ref(this.internalAccessLevelColumn),
+              ">=",
+              minRequiredAccessLevel
+            )
+        ),
+      ])
+    ) as QB;
+  }
+
+  /**
    * Modifies a SELECT query builder that queries the resource of this table
    * so that it only returns rows where the user has the requested minimum
    * access level. The resource owner always has full access to the resource.
@@ -115,7 +157,7 @@ export class AccessLevelTable<
    * @param qb Query builder to modify.
    * @returns The modified query builder.
    */
-  guardRead<
+  guardSelectingAccessLevel<
     DB,
     O,
     QB extends SelectQueryBuilder<DB, keyof DB & ResourceTableName, O>
@@ -160,50 +202,8 @@ export class AccessLevelTable<
       ) as QB;
   }
 
-  /**
-   * Modifies a query builder that queries the resource of this table so that
-   * it only returns rows where the user has the requested minimum access
-   * level. The resource owner always has full access to the resource.
-   * @param db Database instance.
-   * @param minRequiredAccessLevel Minimum access level required to access the
-   *  resource.
-   * @param userKey Key of user to check access for.
-   * @param qb Query builder to modify.
-   * @returns The modified query builder.
-   */
-  guardQuery<DB, QB extends WhereInterface<DB, keyof DB & ResourceTableName>>(
-    db: Kysely<any>,
-    minRequiredAccessLevel: AccessLevel,
-    userKey: UserKey,
-    qb: QB
-  ): QB {
-    const ref = db.dynamic.ref.bind(db.dynamic);
-    return qb.where(({ or, cmpr, exists }) =>
-      or([
-        cmpr(ref(this.config.resourceOwnerKeyColumn), "=", userKey),
-        exists(
-          // reference prefixed columns to avoid conflicts
-          db
-            .selectFrom(this.tableName)
-            .selectAll()
-            .where(ref(this.internalUserKeyColumn), "=", userKey)
-            .whereRef(
-              ref(this.internalResourceKeyColumn),
-              "=",
-              ref(this.foreignResourceKeyColumn)
-            )
-            .where(
-              ref(this.internalAccessLevelColumn),
-              ">=",
-              minRequiredAccessLevel
-            )
-        ),
-      ])
-    ) as QB;
-  }
-
   // TODO: delete if I don't use
-  selectReturningAccessLevel<DB, TB extends keyof DB & ResourceTableName>(
+  selectReturningAccessLevel2<DB, TB extends keyof DB & ResourceTableName>(
     db: Kysely<DB>,
     minRequiredAccessLevel: AccessLevel,
     userKey: UserKey
