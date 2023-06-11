@@ -21,6 +21,9 @@ export interface AccessLevelTableConfig<
   UserKey extends KeyType<UserKeyDT> = KeyType<UserKeyDT>,
   ResourceKey extends KeyType<ResourceKeyDT> = KeyType<ResourceKeyDT>
 > {
+  /** Owner's access level, used for reporting access level of owner. */
+  ownerAccessLevel: AccessLevel;
+
   /** Name of the users table. */
   userTableName: string;
   /** Name of the key column of the users table. */
@@ -35,10 +38,8 @@ export interface AccessLevelTableConfig<
   /** Data type of the key column of the resources table. */
   resourceKeyDataType: ResourceKeyDT;
   /** Name of the owner key column of the resources table. */
-  ownerKeyColumn: string;
+  resourceOwnerKeyColumn: string;
 
-  /** Sample access level used for inferring a nominal access level type. */
-  sampleAccessLevel?: AccessLevel;
   /** Sample user key used for inferring a nominal user key type. */
   sampleUserKey?: UserKey;
   /** Sample resource key used for inferring a nominal resource key type. */

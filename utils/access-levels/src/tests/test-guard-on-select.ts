@@ -10,18 +10,19 @@ import {
 } from "./test-util";
 
 export function testGuardOnSelect<UserID extends number, PostID extends number>(
-  guardFuncName: "guardRead" | "guardQuery"
+  guardFuncName: "guardRead" | "guardQuery",
+  checkAccessLevel: boolean
 ) {
   let db: Kysely<Database>;
   const accessLevelTable = new AccessLevelTable({
+    ownerAccessLevel: AccessLevel.Write,
     userTableName: "users",
     userKeyColumn: "id",
     userKeyDataType: "integer",
     resourceTableName: "posts",
     resourceKeyColumn: "postID",
     resourceKeyDataType: "integer",
-    ownerKeyColumn: "ownerID",
-    sampleAccessLevel: AccessLevel.None,
+    resourceOwnerKeyColumn: "ownerID",
     sampleUserKey: 1 as UserID,
     sampleResourceKey: 1 as PostID,
   });
@@ -30,7 +31,11 @@ export function testGuardOnSelect<UserID extends number, PostID extends number>(
     accessLevel: AccessLevel,
     userKey: UserID,
     query: SelectQueryBuilder<Database, "posts", Selectable<Database["posts"]>>
-  ) => SelectQueryBuilder<Database, "posts", Selectable<Database["posts"]>>;
+  ) => SelectQueryBuilder<
+    Database,
+    "posts",
+    Selectable<Database["posts"] & { accessLevel?: number }>
+  >;
 
   beforeEach(async () => {
     db = await createDB();
@@ -121,12 +126,19 @@ export function testGuardOnSelect<UserID extends number, PostID extends number>(
     let rows = await guard(db, AccessLevel.Write, 2 as UserID, query).execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 1");
+    if (checkAccessLevel) {
+      expect(rows[0].accessLevel).toBe(AccessLevel.Write);
+    }
 
     rows = await guard(db, AccessLevel.Write, 3 as UserID, query).execute();
     expect(rows).toHaveLength(2);
     rows.sort((a, b) => a.title.localeCompare(b.title));
     expect(rows[0].title).toBe("Post 2");
     expect(rows[1].title).toBe("Post 3");
+    if (checkAccessLevel) {
+      expect(rows[0].accessLevel).toBe(AccessLevel.Write);
+      expect(rows[1].accessLevel).toBe(AccessLevel.Write);
+    }
   });
 
   it("grants access to users by access level, but no higher", async () => {
@@ -135,17 +147,23 @@ export function testGuardOnSelect<UserID extends number, PostID extends number>(
     // user sees posts to which it has sufficient access
 
     let rows = await guard(db, AccessLevel.Read, 4 as UserID, query).execute();
-    console.log("**** rows", rows);
     expect(rows).toHaveLength(2);
     rows.sort((a, b) => a.title.localeCompare(b.title));
     expect(rows[0].title).toBe("Post 1");
     expect(rows[1].title).toBe("Post 4");
+    if (checkAccessLevel) {
+      expect(rows[0].accessLevel).toBe(AccessLevel.Read);
+      expect(rows[1].accessLevel).toBe(AccessLevel.Write);
+    }
 
     // user does not see posts to which it does not have sufficient access
 
     rows = await guard(db, AccessLevel.Write, 4 as UserID, query).execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 4");
+    if (checkAccessLevel) {
+      expect(rows[0].accessLevel).toBe(AccessLevel.Write);
+    }
 
     // setting access level to 0 removes access
 
@@ -158,6 +176,9 @@ export function testGuardOnSelect<UserID extends number, PostID extends number>(
     rows = await guard(db, AccessLevel.Read, 4 as UserID, query).execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 4");
+    if (checkAccessLevel) {
+      expect(rows[0].accessLevel).toBe(AccessLevel.Write);
+    }
   });
 
   it("grants access to assigned access level and lower", async () => {
@@ -168,10 +189,17 @@ export function testGuardOnSelect<UserID extends number, PostID extends number>(
     rows.sort((a, b) => a.title.localeCompare(b.title));
     expect(rows[0].title).toBe("Post 2");
     expect(rows[1].title).toBe("Post 3");
+    if (checkAccessLevel) {
+      expect(rows[0].accessLevel).toBe(AccessLevel.Read);
+      expect(rows[1].accessLevel).toBe(AccessLevel.Write);
+    }
 
     rows = await guard(db, AccessLevel.Write, 5 as UserID, query).execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 3");
+    if (checkAccessLevel) {
+      expect(rows[0].accessLevel).toBe(AccessLevel.Write);
+    }
   });
 
   it("returns a single row or none when query restricted to single row", async () => {
@@ -191,6 +219,9 @@ export function testGuardOnSelect<UserID extends number, PostID extends number>(
     ).execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 1");
+    if (checkAccessLevel) {
+      expect(rows[0].accessLevel).toBe(AccessLevel.Read);
+    }
 
     // no post returned if user does not have sufficient access, returning array
 
@@ -211,6 +242,9 @@ export function testGuardOnSelect<UserID extends number, PostID extends number>(
       queryForPost4
     ).executeTakeFirst();
     expect(row?.title).toBe("Post 4");
+    if (checkAccessLevel) {
+      expect(row?.accessLevel).toBe(AccessLevel.Write);
+    }
 
     // no post returned if user has no access, returning single row
 

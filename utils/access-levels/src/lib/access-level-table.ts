@@ -1,10 +1,13 @@
-import { Kysely, SelectQueryBuilder, WhereInterface } from "kysely";
+import { Kysely, SelectQueryBuilder, WhereInterface, sql } from "kysely";
 
 import {
   KeyDataType,
   KeyType,
   AccessLevelTableConfig,
 } from "./access-level-table-config";
+import { ExtractTableAlias } from "kysely/dist/cjs/parser/table-parser";
+
+// TODO: look at using sql.id or sql.ref intead of catting
 
 /**
  * Class representing an access level table for the given resource table,
@@ -51,7 +54,7 @@ export class AccessLevelTable<
     this.config = { ...config };
     this.foreignUserKeyColumn = `${config.userTableName}.${config.userKeyColumn}`;
     this.foreignResourceKeyColumn = `${config.resourceTableName}.${config.resourceKeyColumn}`;
-    this.foreignResourceOwnerKeyColumn = `${config.resourceTableName}.${config.ownerKeyColumn}`;
+    this.foreignResourceOwnerKeyColumn = `${config.resourceTableName}.${config.resourceOwnerKeyColumn}`;
     this.tableName = `${config.resourceTableName}_access_levels`;
     this.internalUserKeyColumn = `${this.tableName}.userKey`;
     this.internalResourceKeyColumn = `${this.tableName}.resourceKey`;
@@ -126,8 +129,9 @@ export class AccessLevelTable<
     const foreignResourceOwnerKeyColumnRef = ref(
       this.foreignResourceOwnerKeyColumn
     );
-    // TODO: return permissions (but should this be a separate method?)
+
     const query = qb
+      .select(sql.lit(this.config.ownerAccessLevel).as("accessLevel"))
       .where(foreignResourceOwnerKeyColumnRef, "=", userKey)
       .unionAll(
         qb
@@ -139,6 +143,11 @@ export class AccessLevelTable<
                 "=",
                 ref(this.foreignResourceKeyColumn)
               )
+          )
+          .select(
+            sql
+              .ref<AccessLevel>(this.internalAccessLevelColumn)
+              .as("accessLevel")
           )
           // Including the contrary condition prevents UNION ALL duplicates
           // and allows the database to short-circuit if 1st condition holds.
@@ -177,7 +186,7 @@ export class AccessLevelTable<
     const ref = db.dynamic.ref.bind(db.dynamic);
     return qb.where(({ or, cmpr, exists }) =>
       or([
-        cmpr(ref(this.config.ownerKeyColumn), "=", userKey),
+        cmpr(ref(this.config.resourceOwnerKeyColumn), "=", userKey),
         exists(
           // reference prefixed columns to avoid conflicts
           db
@@ -197,6 +206,40 @@ export class AccessLevelTable<
         ),
       ])
     ) as QB;
+  }
+
+  selectReturningAccessLevel<DB, TB extends keyof DB & ResourceTableName>(
+    db: Kysely<DB>,
+    minRequiredAccessLevel: AccessLevel,
+    userKey: UserKey
+  ) {
+    const resourceTableName = this.config.resourceTableName as unknown as TB;
+    const ref = db.dynamic.ref.bind(db.dynamic);
+
+    const query = db
+      .selectFrom(resourceTableName)
+      .selectAll(resourceTableName as ExtractTableAlias<DB, TB>)
+      .leftJoin(this.tableName as keyof DB & string, (join) =>
+        join
+          .on(ref(this.internalUserKeyColumn), "=", userKey)
+          .onRef(
+            ref(this.internalResourceKeyColumn),
+            "=",
+            ref(this.foreignResourceKeyColumn)
+          )
+      )
+      .where(
+        sql`${sql.ref(this.foreignResourceOwnerKeyColumn)} = ${userKey} or
+          ${sql.ref(
+            this.internalAccessLevelColumn
+          )} >= ${minRequiredAccessLevel}`
+      );
+    // TODO: delete
+    console.log(
+      "**** query",
+      (query as unknown as SelectQueryBuilder<any, any, any>).compile()
+    );
+    return query;
   }
 
   /**
