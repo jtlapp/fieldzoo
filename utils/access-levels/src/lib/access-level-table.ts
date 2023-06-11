@@ -1,4 +1,4 @@
-import { Kysely, SelectQueryBuilder } from "kysely";
+import { Kysely, SelectQueryBuilder, WhereInterface } from "kysely";
 
 import {
   KeyDataType,
@@ -103,8 +103,8 @@ export class AccessLevelTable<
 
   /**
    * Modifies a SELECT query builder that queries the resource of this table
-   * so that it only returns rows where the user has the given minimum access
-   * level. The resource owner always has full access to the resource.
+   * so that it only returns rows where the user has the requested minimum
+   * access level. The resource owner always has full access to the resource.
    * @param db Database instance.
    * @param minRequiredAccessLevel Minimum access level required to access the
    *  resource.
@@ -127,70 +127,77 @@ export class AccessLevelTable<
       this.foreignResourceOwnerKeyColumn
     );
     // TODO: return permissions (but should this be a separate method?)
-    return qb.where(foreignResourceOwnerKeyColumnRef, "=", userKey).unionAll(
-      qb
-        .innerJoin(this.tableName as keyof DB & string, (join) =>
-          join
-            .on(ref(this.internalUserKeyColumn), "=", userKey)
-            .onRef(
+    const query = qb
+      .where(foreignResourceOwnerKeyColumnRef, "=", userKey)
+      .unionAll(
+        qb
+          .innerJoin(this.tableName as keyof DB & string, (join) =>
+            join
+              .on(ref(this.internalUserKeyColumn), "=", userKey)
+              .onRef(
+                ref(this.internalResourceKeyColumn),
+                "=",
+                ref(this.foreignResourceKeyColumn)
+              )
+          )
+          // Including the contrary condition prevents UNION ALL duplicates
+          // and allows the database to short-circuit if 1st condition holds.
+          .where(foreignResourceOwnerKeyColumnRef, "!=", userKey)
+          .where(
+            ref(this.internalAccessLevelColumn),
+            ">=",
+            minRequiredAccessLevel
+          )
+      ) as QB;
+    // TODO: delete
+    console.log(
+      "**** query",
+      (query as unknown as SelectQueryBuilder<any, any, any>).compile()
+    );
+    return query;
+  }
+
+  /**
+   * Modifies a query builder that queries the resource of this table so that
+   * it only returns rows where the user has the requested minimum access
+   * level. The resource owner always has full access to the resource.
+   * @param db Database instance.
+   * @param minRequiredAccessLevel Minimum access level required to access the
+   *  resource.
+   * @param userKey Key of user to check access for.
+   * @param qb Query builder to modify.
+   * @returns The modified query builder.
+   */
+  guardQuery<DB, QB extends WhereInterface<DB, keyof DB & ResourceTableName>>(
+    db: Kysely<any>,
+    minRequiredAccessLevel: AccessLevel,
+    userKey: UserKey,
+    qb: QB
+  ): QB {
+    const ref = db.dynamic.ref.bind(db.dynamic);
+    return qb.where(({ or, cmpr, exists }) =>
+      or([
+        cmpr(ref(this.config.ownerKeyColumn), "=", userKey),
+        exists(
+          // reference prefixed columns to avoid conflicts
+          db
+            .selectFrom(this.tableName)
+            .selectAll()
+            .where(ref(this.internalUserKeyColumn), "=", userKey)
+            .whereRef(
               ref(this.internalResourceKeyColumn),
               "=",
               ref(this.foreignResourceKeyColumn)
             )
-        )
-        // Including the contrary condition prevents UNION ALL duplicates
-        // and allows the database to short-circuit if 1st condition holds.
-        .where(foreignResourceOwnerKeyColumnRef, "!=", userKey)
-        .where(
-          ref(this.internalAccessLevelColumn),
-          ">=",
-          minRequiredAccessLevel
-        )
+            .where(
+              ref(this.internalAccessLevelColumn),
+              ">=",
+              minRequiredAccessLevel
+            )
+        ),
+      ])
     ) as QB;
   }
-
-  // guardUpdate<
-  //   DB,
-  //   TB extends keyof DB & string,
-  //   O,
-  //   QB extends UpdateQueryBuilder<DB, any, TB, O>
-  // >(
-  //   db: Kysely<any>,
-  //   minimumAccessLevel: AccessLevel,
-  //   userKey: UserKey,
-  //   qb: QB
-  // ): QB {
-  //   const ref = db.dynamic.ref.bind(db.dynamic);
-  //   const foreignResourceOwnerKeyColumnRef = ref(
-  //     this.foreignResourceOwnerKeyColumn
-  //   );
-
-  //   return qb.where(({ or, cmpr }) =>
-  //     or([
-  //       cmpr(foreignResourceOwnerKeyColumnRef, "=", userKey),
-  //       cmpr(
-  //         // TODO: what does this do? do I even need a join?
-  //         db
-  //           .selectFrom(this.config.resourceTableName)
-  //           .select("accessLevel")
-  //           .innerJoin(this.tableName as keyof DB & string, (join) =>
-  //             join
-  //               .on(ref(this.internalUserKeyColumn), "=", userKey)
-  //               .onRef(
-  //                 ref(this.internalResourceKeyColumn),
-  //                 "=",
-  //                 ref(this.foreignResourceKeyColumn)
-  //               )
-  //           )
-  //           // Including the contrary condition prevents UNION ALL duplicates
-  //           // and allows the database to short-circuit if 1st condition holds.
-  //           .where(foreignResourceOwnerKeyColumnRef, "!=", userKey),
-  //         ">=",
-  //         minimumAccessLevel
-  //       ),
-  //     ])
-  //   ) as QB;
-  // }
 
   /**
    * Sets the access level of a user to the given resource. Setting an access

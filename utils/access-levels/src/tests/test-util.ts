@@ -1,6 +1,13 @@
 import Sqlite3 from "better-sqlite3";
 import { Generated, Kysely, SqliteDialect } from "kysely";
 
+export type AccessLevel = number & { readonly __brand: unique symbol };
+export const AccessLevel = {
+  None: 0 as AccessLevel,
+  Read: 1 as AccessLevel,
+  Write: 2 as AccessLevel,
+} as const;
+
 // list tables after those they depend on
 const TABLE_NAMES = ["posts", "users"];
 
