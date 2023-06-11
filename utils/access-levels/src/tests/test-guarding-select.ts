@@ -9,10 +9,10 @@ import {
   ignore,
 } from "./test-util";
 
-export function testGuardOnSelect<UserID extends number, PostID extends number>(
-  guardFuncName: "guardRead" | "guardQuery",
-  checkAccessLevel: boolean
-) {
+export function testGuardingSelect<
+  UserID extends number,
+  PostID extends number
+>(guardFuncName: "guardRead" | "guardQuery", checkAccessLevel: boolean) {
   let db: Kysely<Database>;
   const accessLevelTable = new AccessLevelTable({
     ownerAccessLevel: AccessLevel.Write,

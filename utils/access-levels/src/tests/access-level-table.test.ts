@@ -1,6 +1,6 @@
 import { AccessLevelTable } from "../lib/access-level-table";
 import { ignore } from "./test-util";
-import { testGuardOnSelect } from "./test-guard-on-select";
+import { testGuardingSelect } from "./test-guarding-select";
 
 type AccessLevel = number & { readonly __brand: unique symbol };
 const AccessLevel = {
@@ -17,11 +17,11 @@ type PostID = number & { readonly __brand: unique symbol };
 
 describe("AccessLevelTable", () => {
   describe("guardRead()", () => {
-    testGuardOnSelect<UserID, PostID>("guardRead", true);
+    testGuardingSelect<UserID, PostID>("guardRead", true);
   });
 
   describe("guardQuery()", () => {
-    testGuardOnSelect<UserID, PostID>("guardQuery", false);
+    testGuardingSelect<UserID, PostID>("guardQuery", false);
   });
 
   ignore("invalid key data types", () => {
