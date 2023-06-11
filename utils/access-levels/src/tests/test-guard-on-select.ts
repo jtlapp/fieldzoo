@@ -105,8 +105,8 @@ export function testGuardOnSelect<UserID extends number, PostID extends number>(
     await destroyDB(db);
   });
 
-  it.only("grants no access when no rights", async () => {
-    const query = db.selectFrom("posts").selectAll();
+  it("grants no access when no rights", async () => {
+    const query = db.selectFrom("posts").selectAll("posts");
     const rows = await guard(
       db,
       AccessLevel.Write,
@@ -117,7 +117,7 @@ export function testGuardOnSelect<UserID extends number, PostID extends number>(
   });
 
   it("grants access to the resource owner", async () => {
-    const query = db.selectFrom("posts").selectAll();
+    const query = db.selectFrom("posts").selectAll("posts");
     let rows = await guard(db, AccessLevel.Write, 2 as UserID, query).execute();
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 1");
@@ -130,7 +130,7 @@ export function testGuardOnSelect<UserID extends number, PostID extends number>(
   });
 
   it("grants access to users by access level, but no higher", async () => {
-    const query = db.selectFrom("posts").selectAll();
+    const query = db.selectFrom("posts").selectAll("posts");
 
     // user sees posts to which it has sufficient access
 
@@ -161,7 +161,7 @@ export function testGuardOnSelect<UserID extends number, PostID extends number>(
   });
 
   it("grants access to assigned access level and lower", async () => {
-    const query = db.selectFrom("posts").selectAll();
+    const query = db.selectFrom("posts").selectAll("posts");
 
     let rows = await guard(db, AccessLevel.Read, 5 as UserID, query).execute();
     expect(rows).toHaveLength(2);
@@ -176,7 +176,7 @@ export function testGuardOnSelect<UserID extends number, PostID extends number>(
 
   it("returns a single row or none when query restricted to single row", async () => {
     const queryForPost = (postID: number) =>
-      db.selectFrom("posts").selectAll().where("postID", "=", postID);
+      db.selectFrom("posts").selectAll("posts").where("postID", "=", postID);
     const queryForPost1 = queryForPost(1);
     const queryForPost2 = queryForPost(2);
     const queryForPost4 = queryForPost(4);
