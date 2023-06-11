@@ -112,7 +112,7 @@ export class AccessLevelTable<
    * @param qb Query builder to modify.
    * @returns The modified query builder.
    */
-  guardSelect<
+  guardRead<
     DB,
     O,
     QB extends SelectQueryBuilder<DB, keyof DB & ResourceTableName, O>
