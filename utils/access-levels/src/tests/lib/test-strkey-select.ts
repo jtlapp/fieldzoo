@@ -70,7 +70,10 @@ export function testGuardingStrKeySelect<
   it("grants access by resource owner and access level", async () => {
     await createAccessTestDB();
     const query = strKeyDB.selectFrom("posts").selectAll("posts");
-    const rows = await strKeyGuard(
+
+    // requiring read access
+
+    let rows = await strKeyGuard(
       strKeyDB,
       AccessLevel.Read,
       "u1" as UserID,
@@ -84,6 +87,21 @@ export function testGuardingStrKeySelect<
     if (checkAccessLevel) {
       expect(rows[0].accessLevel).toBe(AccessLevel.Write);
       expect(rows[1].accessLevel).toBe(AccessLevel.Read);
+    }
+
+    // requiring write access
+
+    rows = await strKeyGuard(
+      strKeyDB,
+      AccessLevel.Write,
+      "u1" as UserID,
+      query
+    ).execute();
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0].title).toBe("Post 1");
+    if (checkAccessLevel) {
+      expect(rows[0].accessLevel).toBe(AccessLevel.Write);
     }
   });
 

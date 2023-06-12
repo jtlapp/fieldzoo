@@ -348,19 +348,18 @@ export function testGuardingIntKeySelect<
 
   it("conveys access to a joined table, returning no resource columns", async () => {
     await createIndirectAccessTestDB();
-    const results = await (
+    const query = intKeyDB
+      .selectFrom("posts")
+      .innerJoin("comments", (join) =>
+        join.onRef("comments.postID", "=", "posts.postID")
+      )
+      .select(["comments.commentID", "comments.comment"]);
+
+    // requiring read access
+
+    let results = await (
       intKeyAccessLevelTable[guardFuncName].bind(intKeyAccessLevelTable) as any
-    )(
-      intKeyDB,
-      AccessLevel.Read,
-      1 as UserID,
-      intKeyDB
-        .selectFrom("posts")
-        .innerJoin("comments", (join) =>
-          join.onRef("comments.postID", "=", "posts.postID")
-        )
-        .select(["comments.commentID", "comments.comment"])
-    ).execute();
+    )(intKeyDB, AccessLevel.Read, 1 as UserID, query).execute();
     results.sort((a: any, b: any) => a.commentID - b.commentID);
 
     if (checkAccessLevel) {
@@ -374,23 +373,37 @@ export function testGuardingIntKeySelect<
         { commentID: 2, comment: "Comment 2" },
       ]);
     }
+
+    // requiring write access
+
+    results = await (
+      intKeyAccessLevelTable[guardFuncName].bind(intKeyAccessLevelTable) as any
+    )(intKeyDB, AccessLevel.Write, 1 as UserID, query).execute();
+    results.sort((a: any, b: any) => a.commentID - b.commentID);
+
+    if (checkAccessLevel) {
+      expect(results).toEqual([
+        { commentID: 1, comment: "Comment 1", accessLevel: AccessLevel.Write },
+      ]);
+    } else {
+      expect(results).toEqual([{ commentID: 1, comment: "Comment 1" }]);
+    }
   });
 
   it("conveys access to a joined table, returning some resource columns", async () => {
     await createIndirectAccessTestDB();
-    const results = await (
+    const query = intKeyDB
+      .selectFrom("posts")
+      .innerJoin("comments", (join) =>
+        join.onRef("comments.postID", "=", "posts.postID")
+      )
+      .select(["comments.commentID", "comments.comment", "posts.title"]);
+
+    // requiring read access
+
+    let results = await (
       intKeyAccessLevelTable[guardFuncName].bind(intKeyAccessLevelTable) as any
-    )(
-      intKeyDB,
-      AccessLevel.Read,
-      1 as UserID,
-      intKeyDB
-        .selectFrom("posts")
-        .innerJoin("comments", (join) =>
-          join.onRef("comments.postID", "=", "posts.postID")
-        )
-        .select(["comments.commentID", "comments.comment", "posts.title"])
-    ).execute();
+    )(intKeyDB, AccessLevel.Read, 1 as UserID, query).execute();
     results.sort((a: any, b: any) => a.commentID - b.commentID);
 
     if (checkAccessLevel) {
@@ -412,6 +425,27 @@ export function testGuardingIntKeySelect<
       expect(results).toEqual([
         { commentID: 1, comment: "Comment 1", title: "Post 1" },
         { commentID: 2, comment: "Comment 2", title: "Post 2" },
+      ]);
+    }
+
+    // requiring write access
+
+    results = await (
+      intKeyAccessLevelTable[guardFuncName].bind(intKeyAccessLevelTable) as any
+    )(intKeyDB, AccessLevel.Write, 1 as UserID, query).execute();
+
+    if (checkAccessLevel) {
+      expect(results).toEqual([
+        {
+          commentID: 1,
+          comment: "Comment 1",
+          title: "Post 1",
+          accessLevel: AccessLevel.Write,
+        },
+      ]);
+    } else {
+      expect(results).toEqual([
+        { commentID: 1, comment: "Comment 1", title: "Post 1" },
       ]);
     }
   });
