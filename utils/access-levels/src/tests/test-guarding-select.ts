@@ -44,48 +44,31 @@ export function testGuardingSelect<
     db = await createDB();
     await accessLevelTable.create(db);
 
-    // user1 has no access to any posts
     await db
       .insertInto("users")
-      .values({ handle: "user1", name: "User 1" })
-      .execute();
-    // user1 owns post 1, but no assigned access levels
-    await db
-      .insertInto("users")
-      .values({ handle: "user2", name: "User 2" })
-      .execute();
-    // user2 owns post 2 and post 3, but no assigned access levels
-    await db
-      .insertInto("users")
-      .values({ handle: "user3", name: "User 3" })
-      .execute();
-    // user4 owns post 4 and has read access to post 1
-    await db
-      .insertInto("users")
-      .values({ handle: "user4", name: "User 4" })
-      .execute();
-    // user5 owns no posts, has read access to post 2, write access to post 3
-    await db
-      .insertInto("users")
-      .values({ handle: "user5", name: "User 5" })
+      .values([
+        // user1 has no access to any posts
+        { handle: "user1", name: "User 1" },
+        // user2 owns post 1, but no assigned access levels
+        { handle: "user2", name: "User 2" },
+        // user3 owns post 2 and post 3, but no assigned access levels
+        { handle: "user3", name: "User 3" },
+        // user4 owns post 4 and has read access to post 1
+        { handle: "user4", name: "User 4" },
+        // user5 owns no posts, has read access to post 2, write access to post 3
+        { handle: "user5", name: "User 5" },
+      ])
       .execute();
 
     // posts
     await db
       .insertInto("posts")
-      .values({ ownerID: 2, title: "Post 1" })
-      .execute();
-    await db
-      .insertInto("posts")
-      .values({ ownerID: 3, title: "Post 2" })
-      .execute();
-    await db
-      .insertInto("posts")
-      .values({ ownerID: 3, title: "Post 3" })
-      .execute();
-    await db
-      .insertInto("posts")
-      .values({ ownerID: 4, title: "Post 4" })
+      .values([
+        { ownerID: 2, title: "Post 1" },
+        { ownerID: 3, title: "Post 2" },
+        { ownerID: 3, title: "Post 3" },
+        { ownerID: 4, title: "Post 4" },
+      ])
       .execute();
 
     // access level assignments
@@ -135,7 +118,7 @@ export function testGuardingSelect<
 
     rows = await guard(db, AccessLevel.Write, 3 as UserID, query).execute();
     expect(rows).toHaveLength(2);
-    rows.sort((a, b) => a.title.localeCompare(b.title));
+    rows.sort((a, b) => a.postID - b.postID);
     expect(rows[0].title).toBe("Post 2");
     expect(rows[1].title).toBe("Post 3");
     if (checkAccessLevel) {
@@ -151,7 +134,7 @@ export function testGuardingSelect<
 
     let rows = await guard(db, AccessLevel.Read, 4 as UserID, query).execute();
     expect(rows).toHaveLength(2);
-    rows.sort((a, b) => a.title.localeCompare(b.title));
+    rows.sort((a, b) => a.postID - b.postID);
     expect(rows[0].title).toBe("Post 1");
     expect(rows[1].title).toBe("Post 4");
     if (checkAccessLevel) {
@@ -189,7 +172,7 @@ export function testGuardingSelect<
 
     let rows = await guard(db, AccessLevel.Read, 5 as UserID, query).execute();
     expect(rows).toHaveLength(2);
-    rows.sort((a, b) => a.title.localeCompare(b.title));
+    rows.sort((a, b) => a.postID - b.postID);
     expect(rows[0].title).toBe("Post 2");
     expect(rows[1].title).toBe("Post 3");
     if (checkAccessLevel) {
