@@ -1,12 +1,12 @@
 /**
  * Postgres data type for the user and resource key columns.
  */
-export type KeyDataType = "integer" | "text" | "uuid";
+export type KeyDataType = "integer" | "serial" | "text" | "uuid";
 
 /**
  * JavaScript type associated with Posgres data types.
  */
-export type KeyType<T extends KeyDataType> = T extends "integer"
+export type KeyType<T extends KeyDataType> = T extends "integer" | "serial"
   ? number
   : string;
 

@@ -4,7 +4,7 @@ import { AccessLevelTable } from "../../lib/access-level-table";
 import { AccessLevel, createDB } from "./test-util";
 
 export async function createIntKeyDB() {
-  return createDB("integer");
+  return createDB("serial");
 }
 
 export function getIntKeyAccessLevelTable<
@@ -15,10 +15,10 @@ export function getIntKeyAccessLevelTable<
     ownerAccessLevel: AccessLevel.Write,
     userTableName: "users",
     userKeyColumn: "id",
-    userKeyDataType: "integer",
+    userKeyDataType: "serial",
     resourceTableName: "posts",
     resourceKeyColumn: "postID",
-    resourceKeyDataType: "integer",
+    resourceKeyDataType: "serial",
     resourceOwnerKeyColumn: "ownerID",
     sampleUserKey: 1 as UserID,
     sampleResourceKey: 1 as PostID,
