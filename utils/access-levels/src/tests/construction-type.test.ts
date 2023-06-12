@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { AccessLevelTable } from "../lib/access-level-table";
-import { AccessLevel, ignore } from "./test-util";
+import { AccessLevel, ignore } from "./lib/test-util";
 
 type UserID = number & { readonly __brand: unique symbol };
 type PostID = number & { readonly __brand: unique symbol };

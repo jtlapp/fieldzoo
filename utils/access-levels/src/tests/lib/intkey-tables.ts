@@ -1,7 +1,7 @@
 import { Generated } from "kysely";
 
+import { AccessLevelTable } from "../../lib/access-level-table";
 import { AccessLevel, createDB } from "./test-util";
-import { AccessLevelTable } from "../lib/access-level-table";
 
 export async function createIntKeyDB() {
   return createDB("integer");

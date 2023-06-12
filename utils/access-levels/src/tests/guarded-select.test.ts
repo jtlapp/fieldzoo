@@ -1,10 +1,10 @@
 import { Kysely } from "kysely";
 
-import { IntKeyDB, getIntKeyAccessLevelTable } from "./intkey-tables";
-import { AccessLevel, ignore } from "./test-util";
-import { testGuardingIntKeySelect } from "./test-intkey-select";
-import { testGuardingStrKeySelect } from "./test-strkey-select";
-import { StrKeyDB, getStrKeyAccessLevelTable } from "./strkey-tables";
+import { IntKeyDB, getIntKeyAccessLevelTable } from "./lib/intkey-tables";
+import { AccessLevel, ignore } from "./lib/test-util";
+import { testGuardingIntKeySelect } from "./lib/test-intkey-select";
+import { testGuardingStrKeySelect } from "./lib/test-strkey-select";
+import { StrKeyDB, getStrKeyAccessLevelTable } from "./lib/strkey-tables";
 
 type IntUserID = number & { readonly __brand: unique symbol };
 type IntPostID = number & { readonly __brand: unique symbol };

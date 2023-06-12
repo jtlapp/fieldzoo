@@ -1,6 +1,6 @@
 import { Kysely, SelectQueryBuilder, Selectable } from "kysely";
 
-import { AccessLevelTable } from "../lib/access-level-table";
+import { AccessLevelTable } from "../../lib/access-level-table";
 import {
   IntKeyDB,
   createIntKeyDB,
