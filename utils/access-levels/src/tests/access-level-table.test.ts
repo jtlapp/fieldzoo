@@ -20,7 +20,7 @@ describe("AccessLevelTable", () => {
   describe("guardSelectingAccessLevel()", () => {
     testGuardingSelect<UserID, PostID>("guardSelectingAccessLevel", true);
 
-    ignore("ensure accepts valid base queries", () => {
+    ignore("ensure accepts valid base query types", () => {
       const db = null as unknown as Kysely<Database>;
       const accessLevelTable = getIntKeyAccessLevelTable();
 
@@ -55,7 +55,7 @@ describe("AccessLevelTable", () => {
   describe("guardQuery()", () => {
     testGuardingSelect<UserID, PostID>("guardQuery", false);
 
-    ignore("ensure accepts valid base queries", () => {
+    ignore("ensure accepts valid base query types", () => {
       const db = null as unknown as Kysely<Database>;
       const accessLevelTable = getIntKeyAccessLevelTable();
 
