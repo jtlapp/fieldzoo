@@ -5,7 +5,6 @@ import {
   KeyType,
   AccessLevelTableConfig,
 } from "./access-level-table-config";
-import { ExtractTableAlias } from "kysely/dist/cjs/parser/table-parser";
 
 // TODO: look at using sql.id or sql.ref instead of catting
 
@@ -206,43 +205,6 @@ export class AccessLevelTable<
       ) as QB;
   }
 
-  // TODO: delete if I don't use
-  selectReturningAccessLevel2<DB, TB extends keyof DB & ResourceTableName>(
-    db: Kysely<DB>,
-    minRequiredAccessLevel: AccessLevel,
-    userKey: UserKey
-  ) {
-    const resourceTableName = this.config.resourceTableName as unknown as TB;
-    const ref = db.dynamic.ref.bind(db.dynamic);
-
-    return db
-      .selectFrom(resourceTableName)
-      .selectAll(resourceTableName as ExtractTableAlias<DB, TB>)
-      .select(
-        db.fn
-          .coalesce(
-            ref(this.internalAccessLevelColumn),
-            sql.lit(this.config.ownerAccessLevel)
-          )
-          .as("accessLevel")
-      )
-      .leftJoin(this.tableName as keyof DB & string, (join) =>
-        join
-          .on(ref(this.internalUserKeyColumn), "=", userKey)
-          .onRef(
-            ref(this.internalResourceKeyColumn),
-            "=",
-            ref(this.foreignResourceKeyColumn)
-          )
-      )
-      .where(
-        sql`${sql.ref(this.foreignResourceOwnerKeyColumn)} = ${userKey} or
-          ${sql.ref(
-            this.internalAccessLevelColumn
-          )} >= ${minRequiredAccessLevel}`
-      );
-  }
-
   /**
    * Sets the access level of a user to the given resource. Setting an access
    * level of 0 removes the user's access level assignment.
@@ -275,5 +237,42 @@ export class AccessLevelTable<
     }
   }
 
-  // TODO: Is there a way for me to type check this, maybe in a test?
+  // Alternative implementation using a left join instead of a union. Keeping
+  // around for possible performance testing later.
+
+  // guardSelectingAccessLevel<DB, TB extends keyof DB & ResourceTableName>(
+  //   db: Kysely<DB>,
+  //   minRequiredAccessLevel: AccessLevel,
+  //   userKey: UserKey
+  // ) {
+  //   const resourceTableName = this.config.resourceTableName as unknown as TB;
+  //   const ref = db.dynamic.ref.bind(db.dynamic);
+
+  //   return db
+  //     .selectFrom(resourceTableName)
+  //     .selectAll(resourceTableName as ExtractTableAlias<DB, TB>)
+  //     .select(
+  //       db.fn
+  //         .coalesce(
+  //           ref(this.internalAccessLevelColumn),
+  //           sql.lit(this.config.ownerAccessLevel)
+  //         )
+  //         .as("accessLevel")
+  //     )
+  //     .leftJoin(this.tableName as keyof DB & string, (join) =>
+  //       join
+  //         .on(ref(this.internalUserKeyColumn), "=", userKey)
+  //         .onRef(
+  //           ref(this.internalResourceKeyColumn),
+  //           "=",
+  //           ref(this.foreignResourceKeyColumn)
+  //         )
+  //     )
+  //     .where(
+  //       sql`${sql.ref(this.foreignResourceOwnerKeyColumn)} = ${userKey} or
+  //         ${sql.ref(
+  //           this.internalAccessLevelColumn
+  //         )} >= ${minRequiredAccessLevel}`
+  //     );
+  // }
 }
