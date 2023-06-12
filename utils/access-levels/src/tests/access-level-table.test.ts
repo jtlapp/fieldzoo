@@ -1,14 +1,11 @@
-import { AccessLevelTable } from "../lib/access-level-table";
-import { ignore } from "./test-util";
-import { testGuardingSelect } from "./test-guarding-select";
 import { Kysely } from "kysely";
 
-type AccessLevel = number & { readonly __brand: unique symbol };
-const AccessLevel = {
-  None: 0 as AccessLevel,
-  Read: 1 as AccessLevel,
-  Write: 2 as AccessLevel,
-} as const;
+import { AccessLevelTable } from "../lib/access-level-table";
+import { AccessLevel, Database, ignore } from "./test-util";
+import {
+  getIntKeyAccessLevelTable,
+  testGuardingSelect,
+} from "./test-guarding-select";
 
 type UserID = number & { readonly __brand: unique symbol };
 type PostID = number & { readonly __brand: unique symbol };
@@ -22,10 +19,72 @@ type PostID = number & { readonly __brand: unique symbol };
 describe("AccessLevelTable", () => {
   describe("guardSelectingAccessLevel()", () => {
     testGuardingSelect<UserID, PostID>("guardSelectingAccessLevel", true);
+
+    ignore("ensure accepts valid base queries", () => {
+      const db = null as unknown as Kysely<Database>;
+      const accessLevelTable = getIntKeyAccessLevelTable();
+
+      accessLevelTable.guardSelectingAccessLevel(
+        db,
+        AccessLevel.Write,
+        1 as UserID,
+        db.selectFrom("posts").selectAll("posts")
+      );
+
+      accessLevelTable.guardSelectingAccessLevel(
+        db,
+        AccessLevel.Write,
+        1 as UserID,
+        db.selectFrom("posts").select("posts.title")
+      );
+
+      accessLevelTable.guardSelectingAccessLevel(
+        db,
+        AccessLevel.Write,
+        1 as UserID,
+        db
+          .selectFrom("posts")
+          .innerJoin("comments", (join) =>
+            join.onRef("comments.postID", "=", "posts.postID")
+          )
+          .select(["comments.commentID", "comments.comment", "posts.title"])
+      );
+    });
   });
 
   describe("guardQuery()", () => {
     testGuardingSelect<UserID, PostID>("guardQuery", false);
+
+    ignore("ensure accepts valid base queries", () => {
+      const db = null as unknown as Kysely<Database>;
+      const accessLevelTable = getIntKeyAccessLevelTable();
+
+      accessLevelTable.guardQuery(
+        db,
+        AccessLevel.Write,
+        1 as UserID,
+        db.selectFrom("posts").selectAll("posts")
+      );
+
+      accessLevelTable.guardQuery(
+        db,
+        AccessLevel.Write,
+        1 as UserID,
+        db.selectFrom("posts").select("posts.title")
+      );
+
+      accessLevelTable.guardQuery(
+        db,
+        AccessLevel.Write,
+        1 as UserID,
+        db
+          .selectFrom("posts")
+          .innerJoin("comments", (join) =>
+            join.onRef("comments.postID", "=", "posts.postID")
+          )
+          .select(["comments.commentID", "comments.comment", "posts.title"])
+      );
+    });
   });
 
   ignore("invalid key data types", () => {

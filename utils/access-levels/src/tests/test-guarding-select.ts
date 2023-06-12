@@ -9,15 +9,11 @@ import {
   ignore,
 } from "./test-util";
 
-export function testGuardingSelect<
+export function getIntKeyAccessLevelTable<
   UserID extends number,
   PostID extends number
->(
-  guardFuncName: "guardSelectingAccessLevel" | "guardQuery",
-  checkAccessLevel: boolean
-) {
-  let db: Kysely<Database>;
-  const accessLevelTable = new AccessLevelTable({
+>() {
+  return new AccessLevelTable({
     ownerAccessLevel: AccessLevel.Write,
     userTableName: "users",
     userKeyColumn: "id",
@@ -29,6 +25,17 @@ export function testGuardingSelect<
     sampleUserKey: 1 as UserID,
     sampleResourceKey: 1 as PostID,
   });
+}
+
+export function testGuardingSelect<
+  UserID extends number,
+  PostID extends number
+>(
+  guardFuncName: "guardSelectingAccessLevel" | "guardQuery",
+  checkAccessLevel: boolean
+) {
+  let db: Kysely<Database>;
+  const accessLevelTable = getIntKeyAccessLevelTable<UserID, PostID>();
   const guard = accessLevelTable[guardFuncName].bind(accessLevelTable) as (
     db: Kysely<Database>,
     accessLevel: AccessLevel,
@@ -426,6 +433,7 @@ export function testGuardingSelect<
   });
 
   ignore("setAccessLevel() requires provided key types", () => {
+    const accessLevelTable = getIntKeyAccessLevelTable<UserID, PostID>();
     // @ts-expect-error - user key not of correct type
     accessLevelTable.setAccessLevel(db, 1, 1 as PostID, AccessLevel.Read);
     // @ts-expect-error - resource key not of correct type
