@@ -7,7 +7,9 @@ import {
 } from "./access-level-table-config";
 import { ExtractTableAlias } from "kysely/dist/cjs/parser/table-parser";
 
-// TODO: look at using sql.id or sql.ref intead of catting
+// TODO: look at using sql.id or sql.ref instead of catting
+
+// TODO: support public access levels
 
 /**
  * Class representing an access level table for the given resource table,

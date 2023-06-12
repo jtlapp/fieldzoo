@@ -13,7 +13,11 @@ const AccessLevel = {
 type UserID = number & { readonly __brand: unique symbol };
 type PostID = number & { readonly __brand: unique symbol };
 
-// TODO: make sure guard funcs require query on resource as input (test)
+// TODO: test update and delete
+
+// TODO: make sure guard funcs require query on resource as input (test);
+//   consider revising how the guard functions work. Can the guard functions
+//   create the initial queries?
 
 describe("AccessLevelTable", () => {
   describe("guardSelectingAccessLevel()", () => {
@@ -24,6 +28,8 @@ describe("AccessLevelTable", () => {
     testGuardingSelect<UserID, PostID>("guardQuery", false);
 
     it("conveys access to a joined table", async () => {
+      // TODO: if this also works on guardSelectingAccessLevel(), move to that file
+
       const db = await createDB();
       const accessLevelTable = new AccessLevelTable({
         ownerAccessLevel: AccessLevel.Write,
