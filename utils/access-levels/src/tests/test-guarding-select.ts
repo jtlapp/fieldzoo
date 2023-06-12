@@ -40,7 +40,7 @@ export function testGuardingSelect<
     Selectable<Database["posts"] & { accessLevel?: number }>
   >;
 
-  beforeEach(async () => {
+  async function createDirectAccessTestDB() {
     db = await createDB();
     await accessLevelTable.create(db);
 
@@ -90,13 +90,66 @@ export function testGuardingSelect<
       3 as PostID,
       AccessLevel.Write
     );
-  });
+  }
+
+  async function createIndirectAccessTestDB() {
+    db = await createDB();
+    const accessLevelTable = new AccessLevelTable({
+      ownerAccessLevel: AccessLevel.Write,
+      userTableName: "users",
+      userKeyColumn: "id",
+      userKeyDataType: "integer",
+      resourceTableName: "posts",
+      resourceKeyColumn: "postID",
+      resourceKeyDataType: "integer",
+      resourceOwnerKeyColumn: "ownerID",
+      sampleUserKey: 1 as UserID,
+      sampleResourceKey: 1 as PostID,
+    });
+    await accessLevelTable.create(db);
+
+    // user1 owns post 1, has read access to post 2, and no access to post 3
+    await db
+      .insertInto("users")
+      .values([
+        { handle: "user1", name: "User 1" },
+        { handle: "user2", name: "User 2" },
+      ])
+      .execute();
+    await db
+      .insertInto("posts")
+      .values([
+        { ownerID: 1, title: "Post 1" },
+        { ownerID: 2, title: "Post 2" },
+        { ownerID: 2, title: "Post 3" },
+      ])
+      .execute();
+    await db
+      .insertInto("comments")
+      .values([
+        { postID: 1, comment: "Comment 1" },
+        { postID: 2, comment: "Comment 2" },
+        { postID: 3, comment: "Comment 3" },
+      ])
+      .execute();
+    await accessLevelTable.setAccessLevel(
+      db,
+      1 as UserID,
+      2 as PostID,
+      AccessLevel.Read
+    );
+  }
+
   afterEach(async () => {
-    await accessLevelTable.drop(db);
-    await destroyDB(db);
+    if (db) {
+      await accessLevelTable.drop(db);
+      await destroyDB(db);
+      db = undefined as any;
+    }
   });
 
   it("grants no access when no rights", async () => {
+    await createDirectAccessTestDB();
     const query = db.selectFrom("posts").selectAll("posts");
     const rows = await guard(
       db,
@@ -108,6 +161,7 @@ export function testGuardingSelect<
   });
 
   it("grants access to the resource owner", async () => {
+    await createDirectAccessTestDB();
     const query = db.selectFrom("posts").selectAll("posts");
     let rows = await guard(db, AccessLevel.Write, 2 as UserID, query).execute();
     expect(rows).toHaveLength(1);
@@ -128,6 +182,7 @@ export function testGuardingSelect<
   });
 
   it("grants access to users by access level, but no higher", async () => {
+    await createDirectAccessTestDB();
     const query = db.selectFrom("posts").selectAll("posts");
 
     // user sees posts to which it has sufficient access
@@ -168,6 +223,7 @@ export function testGuardingSelect<
   });
 
   it("grants access to assigned access level and lower", async () => {
+    await createDirectAccessTestDB();
     const query = db.selectFrom("posts").selectAll("posts");
 
     let rows = await guard(db, AccessLevel.Read, 5 as UserID, query).execute();
@@ -189,6 +245,7 @@ export function testGuardingSelect<
   });
 
   it("returns a single row or none when query restricted to single row", async () => {
+    await createDirectAccessTestDB();
     const queryForPost = (postID: number) =>
       db.selectFrom("posts").selectAll("posts").where("postID", "=", postID);
     const queryForPost1 = queryForPost(1);
@@ -244,6 +301,7 @@ export function testGuardingSelect<
   });
 
   it("deletes access level rows when user is deleted", async () => {
+    await createDirectAccessTestDB();
     const query = db
       .selectFrom(accessLevelTable.getTableName())
       .select("resourceKey")
@@ -259,6 +317,7 @@ export function testGuardingSelect<
   });
 
   it("deletes access level rows when resource is deleted", async () => {
+    await createDirectAccessTestDB();
     const query = db
       .selectFrom(accessLevelTable.getTableName())
       .select("userKey")
@@ -271,6 +330,76 @@ export function testGuardingSelect<
 
     rows = await query.execute();
     expect(rows).toHaveLength(0);
+  });
+
+  it("conveys access to a joined table, returning no resource columns", async () => {
+    await createIndirectAccessTestDB();
+    const results = await (
+      accessLevelTable[guardFuncName].bind(accessLevelTable) as any
+    )(
+      db,
+      AccessLevel.Read,
+      1 as UserID,
+      db
+        .selectFrom("posts")
+        .innerJoin("comments", (join) =>
+          join.onRef("comments.postID", "=", "posts.postID")
+        )
+        .select(["comments.commentID", "comments.comment"])
+    ).execute();
+    results.sort((a: any, b: any) => a.commentID - b.commentID);
+
+    if (checkAccessLevel) {
+      expect(results).toEqual([
+        { commentID: 1, comment: "Comment 1", accessLevel: AccessLevel.Write },
+        { commentID: 2, comment: "Comment 2", accessLevel: AccessLevel.Read },
+      ]);
+    } else {
+      expect(results).toEqual([
+        { commentID: 1, comment: "Comment 1" },
+        { commentID: 2, comment: "Comment 2" },
+      ]);
+    }
+  });
+
+  it("conveys access to a joined table, returning some resource columns", async () => {
+    await createIndirectAccessTestDB();
+    const results = await (
+      accessLevelTable[guardFuncName].bind(accessLevelTable) as any
+    )(
+      db,
+      AccessLevel.Read,
+      1 as UserID,
+      db
+        .selectFrom("posts")
+        .innerJoin("comments", (join) =>
+          join.onRef("comments.postID", "=", "posts.postID")
+        )
+        .select(["comments.commentID", "comments.comment", "posts.title"])
+    ).execute();
+    results.sort((a: any, b: any) => a.commentID - b.commentID);
+
+    if (checkAccessLevel) {
+      expect(results).toEqual([
+        {
+          commentID: 1,
+          comment: "Comment 1",
+          title: "Post 1",
+          accessLevel: AccessLevel.Write,
+        },
+        {
+          commentID: 2,
+          comment: "Comment 2",
+          title: "Post 2",
+          accessLevel: AccessLevel.Read,
+        },
+      ]);
+    } else {
+      expect(results).toEqual([
+        { commentID: 1, comment: "Comment 1", title: "Post 1" },
+        { commentID: 2, comment: "Comment 2", title: "Post 2" },
+      ]);
+    }
   });
 
   ignore(
