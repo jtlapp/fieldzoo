@@ -2,73 +2,128 @@ import { Kysely } from "kysely";
 
 import { IntKeyDB, getIntKeyAccessLevelTable } from "./intkey-tables";
 import { AccessLevel, ignore } from "./test-util";
-import { testGuardingSelect } from "./test-guarding-select";
+import { testGuardingIntKeySelect } from "./test-intkey-select";
+import { testGuardingStrKeySelect } from "./test-strkey-select";
+import { StrKeyDB, getStrKeyAccessLevelTable } from "./strkey-tables";
 
-type UserID = number & { readonly __brand: unique symbol };
-type PostID = number & { readonly __brand: unique symbol };
+type IntUserID = number & { readonly __brand: unique symbol };
+type IntPostID = number & { readonly __brand: unique symbol };
+
+type StrUserID = string & { readonly __brand: unique symbol };
+type StrPostID = string & { readonly __brand: unique symbol };
 
 describe("AccessLevelTable guarded select", () => {
   describe("guardSelectingAccessLevel()", () => {
-    testGuardingSelect<UserID, PostID>("guardSelectingAccessLevel", true);
-
-    ignore("ensure accepts valid base query types", () => {
-      const db = null as unknown as Kysely<IntKeyDB>;
-      const accessLevelTable = getIntKeyAccessLevelTable();
-
-      accessLevelTable.guardSelectingAccessLevel(
-        db,
-        AccessLevel.Write,
-        1 as UserID,
-        db.selectFrom("posts").selectAll("posts")
+    describe("usage with integer keys", () => {
+      testGuardingIntKeySelect<IntUserID, IntPostID>(
+        "guardSelectingAccessLevel"
       );
 
-      accessLevelTable.guardSelectingAccessLevel(
-        db,
-        AccessLevel.Write,
-        1 as UserID,
-        db.selectFrom("posts").select("posts.title")
+      ignore("ensure accepts valid base query types", () => {
+        const intKeyDB = null as unknown as Kysely<IntKeyDB>;
+        const intKeyAccessLevelTable = getIntKeyAccessLevelTable();
+
+        intKeyAccessLevelTable.guardSelectingAccessLevel(
+          intKeyDB,
+          AccessLevel.Write,
+          1 as IntUserID,
+          intKeyDB.selectFrom("posts").selectAll("posts")
+        );
+
+        intKeyAccessLevelTable.guardSelectingAccessLevel(
+          intKeyDB,
+          AccessLevel.Write,
+          1 as IntUserID,
+          intKeyDB.selectFrom("posts").select("posts.title")
+        );
+
+        intKeyAccessLevelTable.guardSelectingAccessLevel(
+          intKeyDB,
+          AccessLevel.Write,
+          1 as IntUserID,
+          intKeyDB
+            .selectFrom("posts")
+            .innerJoin("comments", (join) =>
+              join.onRef("comments.postID", "=", "posts.postID")
+            )
+            .select(["comments.commentID", "comments.comment", "posts.title"])
+        );
+      });
+    });
+
+    describe("usage with string keys", () => {
+      testGuardingStrKeySelect<StrUserID, StrPostID>(
+        "guardSelectingAccessLevel"
       );
 
-      accessLevelTable.guardSelectingAccessLevel(
-        db,
-        AccessLevel.Write,
-        1 as UserID,
-        db
-          .selectFrom("posts")
-          .innerJoin("comments", (join) =>
-            join.onRef("comments.postID", "=", "posts.postID")
-          )
-          .select(["comments.commentID", "comments.comment", "posts.title"])
-      );
+      ignore("ensure accepts valid base query types", () => {
+        const strKeyDB = null as unknown as Kysely<StrKeyDB>;
+        const strKeyAccessLevelTable = getStrKeyAccessLevelTable();
+
+        strKeyAccessLevelTable.guardSelectingAccessLevel(
+          strKeyDB,
+          AccessLevel.Write,
+          "u1" as StrUserID,
+          strKeyDB
+            .selectFrom("posts")
+            .innerJoin("comments", (join) =>
+              join.onRef("comments.postID", "=", "posts.postID")
+            )
+            .select(["comments.commentID", "comments.comment", "posts.title"])
+        );
+      });
     });
   });
 
   describe("guardQuery()", () => {
-    testGuardingSelect<UserID, PostID>("guardQuery", false);
+    describe("usage with integer keys", () => {
+      testGuardingIntKeySelect<IntUserID, IntPostID>("guardQuery");
+
+      ignore("ensure accepts valid base query types", () => {
+        const intKeyDB = null as unknown as Kysely<IntKeyDB>;
+        const intKeyAccessLevelTable = getIntKeyAccessLevelTable();
+
+        intKeyAccessLevelTable.guardQuery(
+          intKeyDB,
+          AccessLevel.Write,
+          1 as IntUserID,
+          intKeyDB.selectFrom("posts").selectAll("posts")
+        );
+
+        intKeyAccessLevelTable.guardQuery(
+          intKeyDB,
+          AccessLevel.Write,
+          1 as IntUserID,
+          intKeyDB.selectFrom("posts").select("posts.title")
+        );
+
+        intKeyAccessLevelTable.guardQuery(
+          intKeyDB,
+          AccessLevel.Write,
+          1 as IntUserID,
+          intKeyDB
+            .selectFrom("posts")
+            .innerJoin("comments", (join) =>
+              join.onRef("comments.postID", "=", "posts.postID")
+            )
+            .select(["comments.commentID", "comments.comment", "posts.title"])
+        );
+      });
+    });
+  });
+
+  describe("usage with string keys", () => {
+    testGuardingStrKeySelect<StrUserID, StrPostID>("guardQuery");
 
     ignore("ensure accepts valid base query types", () => {
-      const db = null as unknown as Kysely<IntKeyDB>;
-      const accessLevelTable = getIntKeyAccessLevelTable();
+      const strKeyDB = null as unknown as Kysely<StrKeyDB>;
+      const strKeyAccessLevelTable = getStrKeyAccessLevelTable();
 
-      accessLevelTable.guardQuery(
-        db,
+      strKeyAccessLevelTable.guardQuery(
+        strKeyDB,
         AccessLevel.Write,
-        1 as UserID,
-        db.selectFrom("posts").selectAll("posts")
-      );
-
-      accessLevelTable.guardQuery(
-        db,
-        AccessLevel.Write,
-        1 as UserID,
-        db.selectFrom("posts").select("posts.title")
-      );
-
-      accessLevelTable.guardQuery(
-        db,
-        AccessLevel.Write,
-        1 as UserID,
-        db
+        "u1" as StrUserID,
+        strKeyDB
           .selectFrom("posts")
           .innerJoin("comments", (join) =>
             join.onRef("comments.postID", "=", "posts.postID")

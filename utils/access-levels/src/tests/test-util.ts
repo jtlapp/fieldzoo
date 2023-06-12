@@ -1,5 +1,5 @@
 import Sqlite3 from "better-sqlite3";
-import { Kysely, SqliteDialect, sql } from "kysely";
+import { ColumnDefinitionBuilder, Kysely, SqliteDialect, sql } from "kysely";
 
 export type AccessLevel = number & { readonly __brand: unique symbol };
 export const AccessLevel = {
@@ -15,7 +15,7 @@ export async function createTables(db: Kysely<any>, keyDataType: string) {
   await db.schema
     .createTable("users")
     .addColumn("id", sql.id(keyDataType), (col) =>
-      col.autoIncrement().primaryKey()
+      autoIncrement(keyDataType, col).primaryKey()
     )
     .addColumn("handle", "varchar(255)", (col) => col.notNull())
     .addColumn("name", "varchar(255)", (col) => col.notNull())
@@ -24,7 +24,7 @@ export async function createTables(db: Kysely<any>, keyDataType: string) {
   await db.schema
     .createTable("posts")
     .addColumn("postID", sql.id(keyDataType), (col) =>
-      col.autoIncrement().primaryKey()
+      autoIncrement(keyDataType, col).primaryKey()
     )
     .addColumn("ownerID", sql.id(keyDataType), (col) =>
       col.references("users.id").onDelete("cascade").notNull()
@@ -44,6 +44,13 @@ export async function createTables(db: Kysely<any>, keyDataType: string) {
     .execute();
 
   return db;
+}
+
+function autoIncrement<CB extends ColumnDefinitionBuilder>(
+  keyDataType: string,
+  col: CB
+) {
+  return keyDataType == "integer" ? col.autoIncrement() : col;
 }
 
 export async function dropTables(db: Kysely<any>): Promise<void> {

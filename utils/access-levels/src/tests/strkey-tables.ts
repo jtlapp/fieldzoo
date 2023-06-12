@@ -4,7 +4,7 @@ import { AccessLevel, createDB } from "./test-util";
 import { AccessLevelTable } from "../lib/access-level-table";
 
 export async function createStrKeyDB() {
-  return createDB("varchar(255)");
+  return createDB("text");
 }
 
 export function getStrKeyAccessLevelTable<

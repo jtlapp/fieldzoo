@@ -8,13 +8,12 @@ import {
 } from "./intkey-tables";
 import { AccessLevel, destroyDB, ignore } from "./test-util";
 
-export function testGuardingSelect<
+export function testGuardingIntKeySelect<
   UserID extends number,
   PostID extends number
->(
-  guardFuncName: "guardSelectingAccessLevel" | "guardQuery",
-  checkAccessLevel: boolean
-) {
+>(guardFuncName: "guardQuery" | "guardSelectingAccessLevel") {
+  const checkAccessLevel = guardFuncName == "guardSelectingAccessLevel";
+
   let intKeyDB: Kysely<IntKeyDB>;
   const intKeyAccessLevelTable = getIntKeyAccessLevelTable<UserID, PostID>();
   const intKeyGuard = intKeyAccessLevelTable[guardFuncName].bind(
@@ -451,6 +450,14 @@ export function testGuardingSelect<
       1,
       intKeyDB.selectFrom("posts")
     );
+
+    intKeyGuard(
+      intKeyDB,
+      AccessLevel.Read,
+      // @ts-expect-error - user key not of correct type
+      "u1",
+      intKeyDB.selectFrom("posts")
+    );
   });
 
   ignore("setAccessLevel() requires provided key types", () => {
@@ -464,11 +471,27 @@ export function testGuardingSelect<
     );
     intKeyAccessLevelTable.setAccessLevel(
       intKeyDB,
+      // @ts-expect-error - user key not of correct type
+      "u1",
+      1 as PostID,
+      AccessLevel.Read
+    );
+
+    intKeyAccessLevelTable.setAccessLevel(
+      intKeyDB,
       1 as UserID,
       // @ts-expect-error - resource key not of correct type
       1,
       AccessLevel.Read
     );
+    intKeyAccessLevelTable.setAccessLevel(
+      intKeyDB,
+      1 as UserID,
+      // @ts-expect-error - resource key not of correct type
+      "p1",
+      AccessLevel.Read
+    );
+
     intKeyAccessLevelTable.setAccessLevel(
       intKeyDB,
       1 as UserID,
