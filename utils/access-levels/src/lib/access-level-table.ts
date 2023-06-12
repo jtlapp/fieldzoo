@@ -112,7 +112,8 @@ export class AccessLevelTable<
    * @param minRequiredAccessLevel Minimum access level required to access the
    *  resource.
    * @param userKey Key of user to check access for.
-   * @param qb Query builder to modify.
+   * @param qb Query builder to modify, which must query at least in part from
+   *  the resource table, though it need not select any columns.
    * @returns The modified query builder.
    */
   guardQuery<DB, QB extends WhereInterface<DB, keyof DB & ResourceTableName>>(
@@ -154,7 +155,8 @@ export class AccessLevelTable<
    * @param minRequiredAccessLevel Minimum access level required to access the
    *  resource.
    * @param userKey Key of user to check access for.
-   * @param qb Query builder to modify.
+   * @param qb Query builder to modify, which must select from the resource
+   *  table, though it need not select any columns.
    * @returns The modified query builder.
    */
   guardSelectingAccessLevel<
