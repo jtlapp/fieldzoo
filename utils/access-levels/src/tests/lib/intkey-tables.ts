@@ -35,6 +35,7 @@ interface Posts {
   postID: Generated<number>;
   ownerID: number;
   title: string;
+  value?: string;
 }
 
 interface PostAccessLevels {
@@ -47,6 +48,7 @@ interface Comments {
   commentID: Generated<number>;
   postID: number;
   comment: string;
+  value?: string;
 }
 
 export interface IntKeyDB {

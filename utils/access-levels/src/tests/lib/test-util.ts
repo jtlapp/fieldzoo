@@ -30,6 +30,7 @@ export async function createTables(db: Kysely<any>, keyDataType: string) {
       col.references("users.id").onDelete("cascade").notNull()
     )
     .addColumn("title", "varchar(255)", (col) => col.unique().notNull())
+    .addColumn("value", "varchar(255)")
     .execute();
 
   await db.schema
@@ -41,6 +42,7 @@ export async function createTables(db: Kysely<any>, keyDataType: string) {
       col.references("posts.postID").onDelete("cascade").notNull()
     )
     .addColumn("comment", "text", (col) => col.notNull())
+    .addColumn("value", "varchar(255)")
     .execute();
 
   return db;
