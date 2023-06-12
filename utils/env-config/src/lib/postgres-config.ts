@@ -96,6 +96,16 @@ export class PostgresConfig implements ClientConfig, PoolConfig {
   }
 
   /**
+   * Returns a connection string URL for connecting to the database.
+   * @returns A connection string URL for connecting to the database.
+   */
+  getConnectionUrl(): string {
+    return `postgres://${encodeURI(this.user)}:${encodeURI(
+      this.password
+    )}@${encodeURI(this.host)}:${this.port}/${encodeURI(this.database)}`;
+  }
+
+  /**
    * Returns help information for the expected environment variables.
    *
    * @returns An object mapping environment variable names to text that

@@ -152,6 +152,20 @@ describe("database configuration", () => {
       ]);
     }
   });
+
+  it("produces a connection string", () => {
+    const config = createConfig({
+      POSTGRES_HOST: "abc.def.com",
+      POSTGRES_PORT: "2001",
+      POSTGRES_DATABASE: "_foo123",
+      POSTGRES_USER: "_bar123",
+      POSTGRES_PASSWORD: "d kd #$ !",
+      POSTGRES_MAX_CONNECTIONS: "10",
+    });
+    expect(config.getConnectionUrl()).toEqual(
+      "postgres://_bar123:d%20kd%20#$%20!@abc.def.com:2001/_foo123"
+    );
+  });
 });
 
 function createConfig(vars: Record<string, string>) {
