@@ -1,16 +1,16 @@
 import { Kysely } from "kysely";
 
 import { AccessLevelTable } from "../lib/access-level-table";
-import { AccessLevel, Database, ignore } from "./test-util";
-import {
-  getIntKeyAccessLevelTable,
-  testGuardingSelect,
-} from "./test-guarding-select";
+import { IntKeyDB, getIntKeyAccessLevelTable } from "./intkey-tables";
+import { AccessLevel, ignore } from "./test-util";
+import { testGuardingSelect } from "./test-guarding-select";
 
 type UserID = number & { readonly __brand: unique symbol };
 type PostID = number & { readonly __brand: unique symbol };
 
-// TODO: test update and delete
+// TODO: test update
+// TODO: test delete
+// TODO: test insert
 
 // TODO: make sure guard funcs require query on resource as input (test);
 //   consider revising how the guard functions work. Can the guard functions
@@ -21,7 +21,7 @@ describe("AccessLevelTable", () => {
     testGuardingSelect<UserID, PostID>("guardSelectingAccessLevel", true);
 
     ignore("ensure accepts valid base query types", () => {
-      const db = null as unknown as Kysely<Database>;
+      const db = null as unknown as Kysely<IntKeyDB>;
       const accessLevelTable = getIntKeyAccessLevelTable();
 
       accessLevelTable.guardSelectingAccessLevel(
@@ -56,7 +56,7 @@ describe("AccessLevelTable", () => {
     testGuardingSelect<UserID, PostID>("guardQuery", false);
 
     ignore("ensure accepts valid base query types", () => {
-      const db = null as unknown as Kysely<Database>;
+      const db = null as unknown as Kysely<IntKeyDB>;
       const accessLevelTable = getIntKeyAccessLevelTable();
 
       accessLevelTable.guardQuery(

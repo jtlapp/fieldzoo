@@ -1,0 +1,57 @@
+import { Generated } from "kysely";
+
+import { AccessLevel, createDB } from "./test-util";
+import { AccessLevelTable } from "../lib/access-level-table";
+
+export async function createIntKeyDB() {
+  return createDB("integer");
+}
+
+export function getIntKeyAccessLevelTable<
+  UserID extends number,
+  PostID extends number
+>() {
+  return new AccessLevelTable({
+    ownerAccessLevel: AccessLevel.Write,
+    userTableName: "users",
+    userKeyColumn: "id",
+    userKeyDataType: "integer",
+    resourceTableName: "posts",
+    resourceKeyColumn: "postID",
+    resourceKeyDataType: "integer",
+    resourceOwnerKeyColumn: "ownerID",
+    sampleUserKey: 1 as UserID,
+    sampleResourceKey: 1 as PostID,
+  });
+}
+
+interface Users {
+  id: Generated<number>;
+  handle: string;
+  name: string;
+}
+
+interface Posts {
+  postID: Generated<number>;
+  ownerID: number;
+  title: string;
+}
+
+interface PostAccessLevels {
+  userKey: number;
+  resourceKey: number;
+  accessLevel: number;
+}
+
+interface Comments {
+  commentID: Generated<number>;
+  postID: number;
+  comment: string;
+}
+
+export interface IntKeyDB {
+  users: Users;
+  posts: Posts;
+  posts_access_levels: PostAccessLevels;
+  comments: Comments;
+}

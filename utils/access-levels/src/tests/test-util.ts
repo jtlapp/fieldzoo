@@ -1,5 +1,5 @@
 import Sqlite3 from "better-sqlite3";
-import { Generated, Kysely, SqliteDialect } from "kysely";
+import { Kysely, SqliteDialect, sql } from "kysely";
 
 export type AccessLevel = number & { readonly __brand: unique symbol };
 export const AccessLevel = {
@@ -11,49 +11,22 @@ export const AccessLevel = {
 // list tables after those they depend on
 const TABLE_NAMES = ["comments", "posts", "users"];
 
-export interface Users {
-  id: Generated<number>;
-  handle: string;
-  name: string;
-}
-
-export interface Posts {
-  postID: Generated<number>;
-  ownerID: number;
-  title: string;
-}
-
-export interface PostAccessLevels {
-  userKey: number;
-  resourceKey: number;
-  accessLevel: number;
-}
-
-export interface Comments {
-  commentID: Generated<number>;
-  postID: number;
-  comment: string;
-}
-
-export interface Database {
-  users: Users;
-  posts: Posts;
-  posts_access_levels: PostAccessLevels;
-  comments: Comments;
-}
-
-export async function createTables(db: Kysely<Database>) {
+export async function createTables(db: Kysely<any>, keyDataType: string) {
   await db.schema
     .createTable("users")
-    .addColumn("id", "integer", (col) => col.autoIncrement().primaryKey())
+    .addColumn("id", sql.id(keyDataType), (col) =>
+      col.autoIncrement().primaryKey()
+    )
     .addColumn("handle", "varchar(255)", (col) => col.notNull())
     .addColumn("name", "varchar(255)", (col) => col.notNull())
     .execute();
 
   await db.schema
     .createTable("posts")
-    .addColumn("postID", "integer", (col) => col.autoIncrement().primaryKey())
-    .addColumn("ownerID", "integer", (col) =>
+    .addColumn("postID", sql.id(keyDataType), (col) =>
+      col.autoIncrement().primaryKey()
+    )
+    .addColumn("ownerID", sql.id(keyDataType), (col) =>
       col.references("users.id").onDelete("cascade").notNull()
     )
     .addColumn("title", "varchar(255)", (col) => col.unique().notNull())
@@ -64,7 +37,7 @@ export async function createTables(db: Kysely<Database>) {
     .addColumn("commentID", "integer", (col) =>
       col.autoIncrement().primaryKey()
     )
-    .addColumn("postID", "integer", (col) =>
+    .addColumn("postID", sql.id(keyDataType), (col) =>
       col.references("posts.postID").onDelete("cascade").notNull()
     )
     .addColumn("comment", "text", (col) => col.notNull())
@@ -73,19 +46,19 @@ export async function createTables(db: Kysely<Database>) {
   return db;
 }
 
-export async function dropTables(db: Kysely<Database>): Promise<void> {
+export async function dropTables(db: Kysely<any>): Promise<void> {
   for (const table of TABLE_NAMES) {
     await db.schema.dropTable(table).ifExists().execute();
   }
 }
 
-export async function createDB() {
-  const db = new Kysely<Database>({
+export async function createDB(keyDataType: string) {
+  const db = new Kysely<any>({
     dialect: new SqliteDialect({
       database: new Sqlite3(":memory:"),
     }),
   });
-  await createTables(db);
+  await createTables(db, keyDataType);
   return db;
 }
 
