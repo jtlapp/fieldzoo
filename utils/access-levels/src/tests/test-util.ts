@@ -9,7 +9,7 @@ export const AccessLevel = {
 } as const;
 
 // list tables after those they depend on
-const TABLE_NAMES = ["posts", "users"];
+const TABLE_NAMES = ["comments", "posts", "users"];
 
 export interface Users {
   id: Generated<number>;
@@ -29,10 +29,17 @@ export interface PostAccessLevels {
   accessLevel: number;
 }
 
+export interface Comments {
+  commentID: Generated<number>;
+  postID: number;
+  comment: string;
+}
+
 export interface Database {
   users: Users;
   posts: Posts;
   posts_access_levels: PostAccessLevels;
+  comments: Comments;
 }
 
 export async function createTables(db: Kysely<Database>) {
@@ -50,6 +57,17 @@ export async function createTables(db: Kysely<Database>) {
       col.references("users.id").onDelete("cascade").notNull()
     )
     .addColumn("title", "varchar(255)", (col) => col.unique().notNull())
+    .execute();
+
+  await db.schema
+    .createTable("comments")
+    .addColumn("commentID", "integer", (col) =>
+      col.autoIncrement().primaryKey()
+    )
+    .addColumn("postID", "integer", (col) =>
+      col.references("posts.postID").onDelete("cascade").notNull()
+    )
+    .addColumn("comment", "text", (col) => col.notNull())
     .execute();
 
   return db;
