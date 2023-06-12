@@ -1,6 +1,5 @@
 import { Kysely, SelectQueryBuilder, Selectable } from "kysely";
 
-import { AccessLevelTable } from "../../lib/access-level-table";
 import {
   IntKeyDB,
   createIntKeyDB,
@@ -83,18 +82,6 @@ export function testGuardingIntKeySelect<
 
   async function createIndirectAccessTestDB() {
     intKeyDB = await createIntKeyDB();
-    const intKeyAccessLevelTable = new AccessLevelTable({
-      ownerAccessLevel: AccessLevel.Write,
-      userTableName: "users",
-      userKeyColumn: "id",
-      userKeyDataType: "integer",
-      resourceTableName: "posts",
-      resourceKeyColumn: "postID",
-      resourceKeyDataType: "integer",
-      resourceOwnerKeyColumn: "ownerID",
-      sampleUserKey: 1 as UserID,
-      sampleResourceKey: 1 as PostID,
-    });
     await intKeyAccessLevelTable.create(intKeyDB);
 
     // user1 owns post 1, has read access to post 2, and no access to post 3
@@ -461,7 +448,6 @@ export function testGuardingIntKeySelect<
   });
 
   ignore("setAccessLevel() requires provided key types", () => {
-    const intKeyAccessLevelTable = getIntKeyAccessLevelTable<UserID, PostID>();
     intKeyAccessLevelTable.setAccessLevel(
       intKeyDB,
       // @ts-expect-error - user key not of correct type

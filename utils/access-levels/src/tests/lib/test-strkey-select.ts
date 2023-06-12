@@ -106,7 +106,6 @@ export function testGuardingStrKeySelect<
   });
 
   ignore("setAccessLevel() requires provided key types", () => {
-    const strKeyAccessLevelTable = getStrKeyAccessLevelTable<UserID, PostID>();
     strKeyAccessLevelTable.setAccessLevel(
       strKeyDB,
       // @ts-expect-error - user key not of correct type
