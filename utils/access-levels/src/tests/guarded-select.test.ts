@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 
 import { IntKeyDB, getIntKeyAccessLevelTable } from "./lib/intkey-tables";
-import { AccessLevel, ignore } from "./lib/test-util";
+import { AccessLevel, createDatabase, ignore } from "./lib/test-util";
 import { testGuardingIntKeySelect } from "./lib/test-intkey-select";
 import { testGuardingStrKeySelect } from "./lib/test-strkey-select";
 import { StrKeyDB, getStrKeyAccessLevelTable } from "./lib/strkey-tables";
@@ -11,6 +11,10 @@ type IntPostID = number & { readonly __brand: unique symbol };
 
 type StrUserID = string & { readonly __brand: unique symbol };
 type StrPostID = string & { readonly __brand: unique symbol };
+
+beforeAll(async () => {
+  await createDatabase();
+});
 
 describe("AccessLevelTable guarded select", () => {
   describe("guardSelectingAccessLevel()", () => {

@@ -5,13 +5,17 @@ import {
   createIntKeyDB,
   getIntKeyAccessLevelTable,
 } from "./lib/intkey-tables";
-import { AccessLevel, destroyDB } from "./lib/test-util";
+import { AccessLevel, createDatabase, destroyDB } from "./lib/test-util";
 
 type UserID = number & { readonly __brand: unique symbol };
 type PostID = number & { readonly __brand: unique symbol };
 
 let intKeyDB: Kysely<IntKeyDB>;
 const intKeyAccessLevelTable = getIntKeyAccessLevelTable();
+
+beforeAll(async () => {
+  await createDatabase();
+});
 
 beforeEach(async () => {
   intKeyDB = await createIntKeyDB();

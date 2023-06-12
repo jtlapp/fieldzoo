@@ -14,6 +14,8 @@ export const AccessLevel = {
 
 dotenv.config({ path: path.join(__dirname, "../../../../../.env.test") });
 
+const tables = ["comments", "posts", "users"];
+
 export async function createTables(db: Kysely<any>, keyDataType: string) {
   // TODO: does the user need to specify "serial"? I'd rather that be "integer".
   const refKeyType = keyDataType == "serial" ? "integer" : keyDataType;
@@ -48,32 +50,36 @@ export async function createTables(db: Kysely<any>, keyDataType: string) {
   return db;
 }
 
-export async function createDB(keyDataType: string) {
-  try {
-    const postgresConfig = new PostgresConfig();
-    // TODO: creating the database every time slows down testing
-    const postgresDB = new Kysely<any>({
-      dialect: new PostgresDialect({ pool: new Pool(postgresConfig) }),
-    });
-    await sql`drop database if exists accesslevels_test`.execute(postgresDB);
-    await sql`create database accesslevels_test`.execute(postgresDB);
-    await postgresDB.destroy();
-
-    const testDB = new Kysely<any>({
-      dialect: new PostgresDialect({
-        pool: new Pool({ ...postgresConfig, database: "accesslevels_test" }),
-      }),
-    });
-    await createTables(testDB, keyDataType);
-    return testDB;
-  } catch (e: any) {
-    // TODO: delete this
-    console.log(e);
-    throw e;
+async function dropTables(db: Kysely<any>) {
+  for (const table of tables) {
+    await db.schema.dropTable(table).execute();
   }
 }
 
+export async function createDatabase() {
+  const postgresConfig = new PostgresConfig();
+  const postgresDB = new Kysely<any>({
+    dialect: new PostgresDialect({ pool: new Pool(postgresConfig) }),
+  });
+  await sql`drop database if exists accesslevels_test`.execute(postgresDB);
+  await sql`create database accesslevels_test`.execute(postgresDB);
+  await postgresDB.destroy();
+}
+
+export async function createDB(keyDataType: string) {
+  const postgresConfig = new PostgresConfig();
+  const testDB = new Kysely<any>({
+    dialect: new PostgresDialect({
+      pool: new Pool({ ...postgresConfig, database: "accesslevels_test" }),
+    }),
+  });
+  await createTables(testDB, keyDataType);
+  return testDB;
+}
+
 export async function destroyDB<DB>(db: Kysely<DB>) {
+  // doesn't drop the database itself
+  await dropTables(db);
   return db.destroy();
 }
 
