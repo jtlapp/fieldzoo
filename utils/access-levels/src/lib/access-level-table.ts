@@ -1,10 +1,21 @@
-import { Kysely, SelectQueryBuilder, WhereInterface, sql } from "kysely";
+import {
+  InsertQueryBuilder,
+  InsertResult,
+  Insertable,
+  Kysely,
+  SelectQueryBuilder,
+  Selectable,
+  WhereInterface,
+  sql,
+} from "kysely";
 
 import {
   KeyDataType,
   KeyType,
   AccessLevelTableConfig,
 } from "./access-level-table-config";
+
+// TODO: consider renaming class to "QueryGuard" or similar
 
 // TODO: look at using sql.id or sql.ref instead of catting
 
@@ -106,6 +117,100 @@ export class AccessLevelTable<
   }
 
   /**
+   * Inserts a row into the indicated table
+   */
+  // TODO: restrict resourceReferenceColumn to columns of the right type
+  // TODO: make the args more manageable
+  guardInsert<DB, TB extends keyof DB & string>(
+    db: Kysely<DB>,
+    minRequiredAccessLevel: AccessLevel,
+    userKey: UserKey,
+    // TODO: look into accepting a query that I parse to get the values,
+    //  but only do so after fixing the other query methods
+    intoTable: TB,
+    values: Insertable<DB[TB]>,
+    resourceReferenceColumn: keyof Insertable<DB[TB]> & string
+  ): InsertQueryBuilder<DB, TB, InsertResult>;
+
+  guardInsert<
+    DB,
+    TB extends keyof DB & string,
+    R extends keyof Selectable<DB[TB]> & string
+  >(
+    db: Kysely<DB>,
+    minRequiredAccessLevel: AccessLevel,
+    userKey: UserKey,
+    intoTable: TB,
+    values: Insertable<DB[TB]>,
+    resourceReferenceColumn: keyof Insertable<DB[TB]> & string,
+    returning: R
+  ): InsertQueryBuilder<DB, TB, Pick<Selectable<DB[TB]>, R>>;
+
+  guardInsert<
+    DB,
+    TB extends keyof DB & string,
+    R extends (keyof Selectable<DB[TB]> & string)[]
+  >(
+    db: Kysely<DB>,
+    minRequiredAccessLevel: AccessLevel,
+    userKey: UserKey,
+    intoTable: TB,
+    values: Insertable<DB[TB]>,
+    resourceReferenceColumn: keyof Insertable<DB[TB]> & string,
+    returning: R
+  ): InsertQueryBuilder<DB, TB, Pick<Selectable<DB[TB]>, R[number]>>;
+
+  guardInsert<DB, TB extends keyof DB & string>(
+    db: Kysely<DB>,
+    minRequiredAccessLevel: AccessLevel,
+    userKey: UserKey,
+    intoTable: TB,
+    values: Insertable<DB[TB]>,
+    resourceReferenceColumn: keyof Insertable<DB[TB]> & string,
+    returning: "*"
+  ): InsertQueryBuilder<DB, TB, Selectable<DB[TB]>>;
+
+  guardInsert<DB, TB extends keyof DB & string>(
+    db: Kysely<DB>,
+    minRequiredAccessLevel: AccessLevel,
+    userKey: UserKey,
+    intoTable: TB,
+    values: Insertable<DB[TB]>,
+    resourceReferenceColumn: keyof Insertable<DB[TB]> & string,
+    returning?:
+      | Readonly<keyof Selectable<DB[TB]> & string>
+      | Readonly<(keyof Selectable<DB[TB]> & string)[]>
+      | "*"
+  ) {
+    const query = db
+      .insertInto(intoTable)
+      .columns(Object.keys(values) as (keyof DB[TB] & string)[])
+      .expression(
+        sql`select ${sql.join(Object.values(values))} where exists (
+          select 1 from ${sql.table(this.config.resourceTableName)}
+            where ${sql.ref(this.foreignResourceKeyColumn)} = ${sql.lit(
+          values[resourceReferenceColumn]
+        )} and (  
+            ${sql.ref(this.foreignResourceOwnerKeyColumn)} = ${userKey} or
+              exists (select 1 from ${sql.table(this.tableName)}
+                where ${sql.ref(this.internalUserKeyColumn)} = ${userKey} and
+                  ${sql.ref(this.internalResourceKeyColumn)} = ${sql.ref(
+          this.foreignResourceKeyColumn
+        )} and
+                  ${sql.ref(this.internalAccessLevelColumn)} >= ${sql.lit(
+          minRequiredAccessLevel
+        )})))`
+      );
+    return returning === undefined
+      ? query
+      : returning == "*"
+      ? query.returningAll()
+      : Array.isArray(returning)
+      ? query.returning(returning)
+      : query.returning(returning as keyof Selectable<DB[TB]> & string);
+  }
+
+  /**
    * Modifies a query builder that queries the resource of this table so that
    * it only returns rows where the user has the requested minimum access
    * level. The resource owner always has full access to the resource.
@@ -118,7 +223,7 @@ export class AccessLevelTable<
    * @returns The modified query builder.
    */
   guardQuery<DB, QB extends WhereInterface<DB, keyof DB & ResourceTableName>>(
-    db: Kysely<any>,
+    db: Kysely<any>, // TODO: should this be `any`?
     minRequiredAccessLevel: AccessLevel,
     userKey: UserKey,
     qb: QB
@@ -131,7 +236,7 @@ export class AccessLevelTable<
           // reference prefixed columns to avoid conflicts
           db
             .selectFrom(this.tableName)
-            .selectAll()
+            .selectAll() // TODO: select a literal
             .where(ref(this.internalUserKeyColumn), "=", userKey)
             .whereRef(
               ref(this.internalResourceKeyColumn),

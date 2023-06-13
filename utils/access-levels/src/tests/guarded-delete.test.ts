@@ -62,6 +62,7 @@ afterEach(async () => {
 });
 
 describe("AccessLevelTable guarded delete", () => {
+  // TODO: choose better parenthesized qualifier
   it("directly delete rows in the resource table (all accessible)", async () => {
     const posts1 = await intKeyDB.selectFrom("posts").selectAll().execute();
     expect(posts1).toHaveLength(3);
