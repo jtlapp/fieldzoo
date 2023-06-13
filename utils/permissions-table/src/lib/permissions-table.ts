@@ -1,4 +1,4 @@
-import { Kysely, sql } from "kysely";
+import { Kysely, SelectQueryBuilder, sql } from "kysely";
 
 import {
   KeyDataType,
@@ -109,40 +109,46 @@ export class PermissionsTable<
     userKey: UserKey,
     resourceKey: ResourceKey
   ): Promise<Permissions> {
-    const query = this.getPermissionsQuery(db, userKey, resourceKey, "=");
+    const query = this.getPermissionsQuery(
+      db,
+      userKey,
+      (query, resourceKeyColumn) =>
+        query.where(db.dynamic.ref(resourceKeyColumn), "=", resourceKey)
+    );
     const result = await query.executeTakeFirst();
     return result === undefined
       ? (0 as Permissions)
       : (result.permissions as Permissions);
   }
 
-  // async getPermissionsWhere<DB, TB extends keyof DB & ResourceTableName, O>(
-  //   db: Kysely<DB>,
-  //   userKey: UserKey,
-  //   queryModifier: (
-  //     query: SelectQueryBuilder<
-  //       DB,
-  //       TB,
-  //       PermissionsResult<Permissions, ResourceKey>
-  //     >,
-  //     resourceKeyColumn: string
-  //   ) => SelectQueryBuilder<DB, TB, O>
-  // ): Promise<O[]> {
-  //   const query = this.getPermissionsQuery(db, userKey, [], "in");
-  //   return queryModifier(query).execute() as Promise<
-  //     PermissionsResult<Permissions, ResourceKey>[]
-  //   >;
-  // }
+  async getPermissionsWhere<DB, TB extends keyof DB & ResourceTableName, O>(
+    db: Kysely<DB>,
+    userKey: UserKey,
+    queryModifier: (
+      query: SelectQueryBuilder<
+        DB,
+        TB,
+        PermissionsResult<Permissions, ResourceKey>
+      >,
+      resourceKeyColumn: string
+    ) => SelectQueryBuilder<DB, TB, O>
+  ): Promise<O[]> {
+    const query = this.getPermissionsQuery(db, userKey, queryModifier);
+    return query.execute();
+  }
 
   async getMultiplePermissions<DB>(
     db: Kysely<DB>,
     userKey: UserKey,
     resourceKeys: ResourceKey[]
   ): Promise<PermissionsResult<Permissions, ResourceKey>[]> {
-    const query = this.getPermissionsQuery(db, userKey, resourceKeys, "in");
-    return query.execute() as Promise<
-      PermissionsResult<Permissions, ResourceKey>[]
-    >;
+    const query = this.getPermissionsQuery(
+      db,
+      userKey,
+      (query, resourceKeyColumn) =>
+        query.where(db.dynamic.ref(resourceKeyColumn), "in", resourceKeys)
+    );
+    return query.execute();
   }
 
   /**
@@ -185,30 +191,42 @@ export class PermissionsTable<
     }
   }
 
-  private getPermissionsQuery<DB>(
+  private getPermissionsQuery<DB, TB extends keyof DB & ResourceTableName, O>(
     db: Kysely<DB>,
     userKey: UserKey,
-    resourceKeys: ResourceKey | ResourceKey[],
-    resourceKeyComparer: "=" | "in"
+    queryModifier: (
+      query: SelectQueryBuilder<
+        DB,
+        TB,
+        PermissionsResult<Permissions, ResourceKey>
+      >,
+      resourceKeyColumn: string
+    ) => SelectQueryBuilder<DB, TB, O>
   ) {
     const ref = db.dynamic.ref.bind(db.dynamic);
     const foreignResourceOwnerKeyColumnRef = ref(
       this.foreignResourceOwnerKeyColumn
     );
 
-    return db
-      .selectFrom(this.config.resourceTableName as unknown as keyof DB & string)
-      .select([
-        sql.ref(this.foreignResourceKeyColumn).as("resourceKey"),
-        sql.lit(this.config.ownerPermissions).as("permissions"),
-      ])
-      .where(foreignResourceOwnerKeyColumnRef, "=", userKey)
-      .where(
-        ref(this.foreignResourceKeyColumn),
-        resourceKeyComparer,
-        resourceKeys
-      )
-      .unionAll(
+    return queryModifier(
+      db
+        .selectFrom(this.config.resourceTableName as unknown as TB)
+        .select([
+          sql.ref(this.foreignResourceKeyColumn).as("resourceKey"),
+          sql.lit(this.config.ownerPermissions).as("permissions"),
+        ])
+        .where(
+          foreignResourceOwnerKeyColumnRef,
+          "=",
+          userKey
+        ) as SelectQueryBuilder<
+        DB,
+        TB,
+        PermissionsResult<Permissions, ResourceKey>
+      >,
+      this.foreignResourceKeyColumn
+    ).unionAll(
+      queryModifier(
         db
           .selectFrom(this.tableName as keyof DB & string)
           .select([
@@ -220,13 +238,18 @@ export class PermissionsTable<
           // Including the contrary condition prevents UNION ALL duplicates
           // and allows the database to short-circuit if 1st condition holds.
           .where(foreignResourceOwnerKeyColumnRef, "!=", userKey)
-          .where(ref(this.internalUserKeyColumn), "=", userKey)
           .where(
-            ref(this.internalResourceKeyColumn),
-            resourceKeyComparer,
-            resourceKeys
-          )
-      );
+            ref(this.internalUserKeyColumn),
+            "=",
+            userKey
+          ) as SelectQueryBuilder<
+          DB,
+          TB,
+          PermissionsResult<Permissions, ResourceKey>
+        >,
+        this.internalResourceKeyColumn
+      )
+    );
   }
 
   // Alternative implementation using a left join instead of a union. Keeping
