@@ -65,12 +65,12 @@
       "path": "utils/generic-types"
     },
     {
-      "name": "utils/access-levels",
-      "path": "utils/access-levels"
-    },
-    {
       "name": "utils/modeling",
       "path": "utils/modeling"
+    },
+    {
+      "name": "utils/permissions-table",
+      "path": "utils/permissions-table"
     },
     {
       "name": "utils/postgres-utils",

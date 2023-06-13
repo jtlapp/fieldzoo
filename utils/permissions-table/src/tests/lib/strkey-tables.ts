@@ -1,17 +1,17 @@
 import { Generated } from "kysely";
 
-import { AccessLevelTable } from "../../lib/access-level-table";
+import { PermissionsTable } from "../../lib/access-level-table";
 import { AccessLevel, createDB } from "./test-util";
 
 export async function createStrKeyDB() {
   return createDB("text");
 }
 
-export function getStrKeyAccessLevelTable<
+export function getStrKeyPermissionsTable<
   UserID extends string,
   PostID extends string
 >() {
-  return new AccessLevelTable({
+  return new PermissionsTable({
     ownerAccessLevel: AccessLevel.Write,
     userTableName: "users",
     userKeyColumn: "id",
@@ -41,7 +41,7 @@ interface Posts {
 interface PostAccessLevels {
   userKey: string;
   resourceKey: string;
-  accessLevel: number;
+  permissions: number;
 }
 
 interface Comments {
@@ -54,6 +54,6 @@ interface Comments {
 export interface StrKeyDB {
   users: Users;
   posts: Posts;
-  posts_access_levels: PostAccessLevels;
+  posts_permissions: PostAccessLevels;
   comments: Comments;
 }

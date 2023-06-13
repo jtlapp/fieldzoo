@@ -3,26 +3,28 @@
  */
 export type KeyDataType = "integer" | "serial" | "text" | "uuid";
 
+// TODO: Might be more intelligable referring to "ID" rather than "Key"
+
 /**
- * JavaScript type associated with Posgres data types.
+ * JavaScript type associated with Postgres data types.
  */
 export type KeyType<T extends KeyDataType> = T extends "integer" | "serial"
   ? number
   : string;
 
 /**
- * Configuration for an access level table.
+ * Configuration for a permissions table.
  */
-export interface AccessLevelTableConfig<
+export interface PermissionsTableConfig<
   ResourceTableName extends string,
   UserKeyDT extends KeyDataType,
   ResourceKeyDT extends KeyDataType,
-  AccessLevel extends number = number,
+  Permissions extends number = number,
   UserKey extends KeyType<UserKeyDT> = KeyType<UserKeyDT>,
   ResourceKey extends KeyType<ResourceKeyDT> = KeyType<ResourceKeyDT>
 > {
-  /** Owner's access level, used for reporting access level of owner. */
-  ownerAccessLevel: AccessLevel;
+  /** Owner's permissions, used for returning permissions of owner. */
+  ownerPermissions: Permissions;
 
   /** Name of the users table. */
   userTableName: string;
@@ -31,7 +33,7 @@ export interface AccessLevelTableConfig<
   /** Data type of the key column of the users table. */
   userKeyDataType: UserKeyDT;
 
-  /** Name of the resources table. */
+  /** Name of the permissions-governed resources table. */
   resourceTableName: ResourceTableName;
   /** Name of the key column of the resources table. */
   resourceKeyColumn: string;

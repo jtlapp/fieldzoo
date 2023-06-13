@@ -3,7 +3,7 @@ import { Kysely, SelectQueryBuilder, Selectable } from "kysely";
 import {
   IntKeyDB,
   createIntKeyDB,
-  getIntKeyAccessLevelTable,
+  getIntKeyPermissionsTable,
 } from "./intkey-tables";
 import { AccessLevel, destroyDB, ignore } from "./test-util";
 
@@ -14,32 +14,32 @@ export function testGuardingIntKeySelect<
   const checkAccessLevel = guardFuncName == "guardSelectingAccessLevel";
 
   let intKeyDB: Kysely<IntKeyDB>;
-  const intKeyAccessLevelTable = getIntKeyAccessLevelTable<UserID, PostID>();
-  const intKeyGuard = intKeyAccessLevelTable[guardFuncName].bind(
-    intKeyAccessLevelTable
+  const intKeyPermissionsTable = getIntKeyPermissionsTable<UserID, PostID>();
+  const intKeyGuard = intKeyPermissionsTable[guardFuncName].bind(
+    intKeyPermissionsTable
   ) as (
     db: Kysely<IntKeyDB>,
-    accessLevel: AccessLevel,
+    permissions: AccessLevel,
     userKey: UserID,
     query: SelectQueryBuilder<IntKeyDB, "posts", Selectable<IntKeyDB["posts"]>>
   ) => SelectQueryBuilder<
     IntKeyDB,
     "posts",
-    Selectable<IntKeyDB["posts"] & { accessLevel?: number }>
+    Selectable<IntKeyDB["posts"] & { permissions?: number }>
   >;
 
   async function createDirectAccessTestDB() {
     intKeyDB = await createIntKeyDB();
-    await intKeyAccessLevelTable.create(intKeyDB);
+    await intKeyPermissionsTable.create(intKeyDB);
 
     await intKeyDB
       .insertInto("users")
       .values([
         // user1 has no access to any posts
         { handle: "user1", name: "User 1" },
-        // user2 owns post 1, but no assigned access levels
+        // user2 owns post 1, but no assigned permissionss
         { handle: "user2", name: "User 2" },
-        // user3 owns post 2 and post 3, but no assigned access levels
+        // user3 owns post 2 and post 3, but no assigned permissionss
         { handle: "user3", name: "User 3" },
         // user4 owns post 4 and has read access to post 1
         { handle: "user4", name: "User 4" },
@@ -59,20 +59,20 @@ export function testGuardingIntKeySelect<
       ])
       .execute();
 
-    // access level assignments
-    await intKeyAccessLevelTable.setAccessLevel(
+    // permissions assignments
+    await intKeyPermissionsTable.setAccessLevel(
       intKeyDB,
       4 as UserID,
       1 as PostID,
       AccessLevel.Read
     );
-    await intKeyAccessLevelTable.setAccessLevel(
+    await intKeyPermissionsTable.setAccessLevel(
       intKeyDB,
       5 as UserID,
       2 as PostID,
       AccessLevel.Read
     );
-    await intKeyAccessLevelTable.setAccessLevel(
+    await intKeyPermissionsTable.setAccessLevel(
       intKeyDB,
       5 as UserID,
       3 as PostID,
@@ -82,7 +82,7 @@ export function testGuardingIntKeySelect<
 
   async function createIndirectAccessTestDB() {
     intKeyDB = await createIntKeyDB();
-    await intKeyAccessLevelTable.create(intKeyDB);
+    await intKeyPermissionsTable.create(intKeyDB);
 
     // user1 owns post 1, has read access to post 2, and no access to post 3
     await intKeyDB
@@ -108,7 +108,7 @@ export function testGuardingIntKeySelect<
         { postID: 3, comment: "Comment 3" },
       ])
       .execute();
-    await intKeyAccessLevelTable.setAccessLevel(
+    await intKeyPermissionsTable.setAccessLevel(
       intKeyDB,
       1 as UserID,
       2 as PostID,
@@ -118,7 +118,7 @@ export function testGuardingIntKeySelect<
 
   afterEach(async () => {
     if (intKeyDB) {
-      await intKeyAccessLevelTable.drop(intKeyDB);
+      await intKeyPermissionsTable.drop(intKeyDB);
       await destroyDB(intKeyDB);
       intKeyDB = undefined as any;
     }
@@ -148,7 +148,7 @@ export function testGuardingIntKeySelect<
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 1");
     if (checkAccessLevel) {
-      expect(rows[0].accessLevel).toBe(AccessLevel.Write);
+      expect(rows[0].permissions).toBe(AccessLevel.Write);
     }
 
     rows = await intKeyGuard(
@@ -162,12 +162,12 @@ export function testGuardingIntKeySelect<
     expect(rows[0].title).toBe("Post 2");
     expect(rows[1].title).toBe("Post 3");
     if (checkAccessLevel) {
-      expect(rows[0].accessLevel).toBe(AccessLevel.Write);
-      expect(rows[1].accessLevel).toBe(AccessLevel.Write);
+      expect(rows[0].permissions).toBe(AccessLevel.Write);
+      expect(rows[1].permissions).toBe(AccessLevel.Write);
     }
   });
 
-  it("grants access to users by access level, but no higher", async () => {
+  it("grants access to users by permissions, but no higher", async () => {
     await createDirectAccessTestDB();
     const query = intKeyDB.selectFrom("posts").selectAll("posts");
 
@@ -184,8 +184,8 @@ export function testGuardingIntKeySelect<
     expect(rows[0].title).toBe("Post 1");
     expect(rows[1].title).toBe("Post 4");
     if (checkAccessLevel) {
-      expect(rows[0].accessLevel).toBe(AccessLevel.Read);
-      expect(rows[1].accessLevel).toBe(AccessLevel.Write);
+      expect(rows[0].permissions).toBe(AccessLevel.Read);
+      expect(rows[1].permissions).toBe(AccessLevel.Write);
     }
 
     // user does not see posts to which it does not have sufficient access
@@ -199,12 +199,12 @@ export function testGuardingIntKeySelect<
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 4");
     if (checkAccessLevel) {
-      expect(rows[0].accessLevel).toBe(AccessLevel.Write);
+      expect(rows[0].permissions).toBe(AccessLevel.Write);
     }
 
-    // setting access level to 0 removes access
+    // setting permissions to 0 removes access
 
-    await intKeyAccessLevelTable.setAccessLevel(
+    await intKeyPermissionsTable.setAccessLevel(
       intKeyDB,
       4 as UserID,
       1 as PostID,
@@ -219,11 +219,11 @@ export function testGuardingIntKeySelect<
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 4");
     if (checkAccessLevel) {
-      expect(rows[0].accessLevel).toBe(AccessLevel.Write);
+      expect(rows[0].permissions).toBe(AccessLevel.Write);
     }
   });
 
-  it("grants access to assigned access level and lower", async () => {
+  it("grants access to assigned permissions and lower", async () => {
     await createDirectAccessTestDB();
     const query = intKeyDB.selectFrom("posts").selectAll("posts");
 
@@ -238,8 +238,8 @@ export function testGuardingIntKeySelect<
     expect(rows[0].title).toBe("Post 2");
     expect(rows[1].title).toBe("Post 3");
     if (checkAccessLevel) {
-      expect(rows[0].accessLevel).toBe(AccessLevel.Read);
-      expect(rows[1].accessLevel).toBe(AccessLevel.Write);
+      expect(rows[0].permissions).toBe(AccessLevel.Read);
+      expect(rows[1].permissions).toBe(AccessLevel.Write);
     }
 
     rows = await intKeyGuard(
@@ -251,7 +251,7 @@ export function testGuardingIntKeySelect<
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 3");
     if (checkAccessLevel) {
-      expect(rows[0].accessLevel).toBe(AccessLevel.Write);
+      expect(rows[0].permissions).toBe(AccessLevel.Write);
     }
   });
 
@@ -277,7 +277,7 @@ export function testGuardingIntKeySelect<
     expect(rows).toHaveLength(1);
     expect(rows[0].title).toBe("Post 1");
     if (checkAccessLevel) {
-      expect(rows[0].accessLevel).toBe(AccessLevel.Read);
+      expect(rows[0].permissions).toBe(AccessLevel.Read);
     }
 
     // no post returned if user does not have sufficient access, returning array
@@ -300,7 +300,7 @@ export function testGuardingIntKeySelect<
     ).executeTakeFirst();
     expect(row?.title).toBe("Post 4");
     if (checkAccessLevel) {
-      expect(row?.accessLevel).toBe(AccessLevel.Write);
+      expect(row?.permissions).toBe(AccessLevel.Write);
     }
 
     // no post returned if user has no access, returning single row
@@ -314,10 +314,10 @@ export function testGuardingIntKeySelect<
     expect(row).toBeUndefined();
   });
 
-  it("deletes access level rows when user is deleted", async () => {
+  it("deletes permissions rows when user is deleted", async () => {
     await createDirectAccessTestDB();
     const query = intKeyDB
-      .selectFrom(intKeyAccessLevelTable.getTableName())
+      .selectFrom(intKeyPermissionsTable.getTableName())
       .select("resourceKey")
       .where("userKey", "=", 5);
 
@@ -330,10 +330,10 @@ export function testGuardingIntKeySelect<
     expect(rows).toHaveLength(0);
   });
 
-  it("deletes access level rows when resource is deleted", async () => {
+  it("deletes permissions rows when resource is deleted", async () => {
     await createDirectAccessTestDB();
     const query = intKeyDB
-      .selectFrom(intKeyAccessLevelTable.getTableName())
+      .selectFrom(intKeyPermissionsTable.getTableName())
       .select("userKey")
       .where("resourceKey", "=", 3);
 
@@ -358,14 +358,14 @@ export function testGuardingIntKeySelect<
     // requiring read access
 
     let results = await (
-      intKeyAccessLevelTable[guardFuncName].bind(intKeyAccessLevelTable) as any
+      intKeyPermissionsTable[guardFuncName].bind(intKeyPermissionsTable) as any
     )(intKeyDB, AccessLevel.Read, 1 as UserID, query).execute();
     results.sort((a: any, b: any) => a.commentID - b.commentID);
 
     if (checkAccessLevel) {
       expect(results).toEqual([
-        { commentID: 1, comment: "Comment 1", accessLevel: AccessLevel.Write },
-        { commentID: 2, comment: "Comment 2", accessLevel: AccessLevel.Read },
+        { commentID: 1, comment: "Comment 1", permissions: AccessLevel.Write },
+        { commentID: 2, comment: "Comment 2", permissions: AccessLevel.Read },
       ]);
     } else {
       expect(results).toEqual([
@@ -377,13 +377,13 @@ export function testGuardingIntKeySelect<
     // requiring write access
 
     results = await (
-      intKeyAccessLevelTable[guardFuncName].bind(intKeyAccessLevelTable) as any
+      intKeyPermissionsTable[guardFuncName].bind(intKeyPermissionsTable) as any
     )(intKeyDB, AccessLevel.Write, 1 as UserID, query).execute();
     results.sort((a: any, b: any) => a.commentID - b.commentID);
 
     if (checkAccessLevel) {
       expect(results).toEqual([
-        { commentID: 1, comment: "Comment 1", accessLevel: AccessLevel.Write },
+        { commentID: 1, comment: "Comment 1", permissions: AccessLevel.Write },
       ]);
     } else {
       expect(results).toEqual([{ commentID: 1, comment: "Comment 1" }]);
@@ -402,7 +402,7 @@ export function testGuardingIntKeySelect<
     // requiring read access
 
     let results = await (
-      intKeyAccessLevelTable[guardFuncName].bind(intKeyAccessLevelTable) as any
+      intKeyPermissionsTable[guardFuncName].bind(intKeyPermissionsTable) as any
     )(intKeyDB, AccessLevel.Read, 1 as UserID, query).execute();
     results.sort((a: any, b: any) => a.commentID - b.commentID);
 
@@ -412,13 +412,13 @@ export function testGuardingIntKeySelect<
           commentID: 1,
           comment: "Comment 1",
           title: "Post 1",
-          accessLevel: AccessLevel.Write,
+          permissions: AccessLevel.Write,
         },
         {
           commentID: 2,
           comment: "Comment 2",
           title: "Post 2",
-          accessLevel: AccessLevel.Read,
+          permissions: AccessLevel.Read,
         },
       ]);
     } else {
@@ -431,7 +431,7 @@ export function testGuardingIntKeySelect<
     // requiring write access
 
     results = await (
-      intKeyAccessLevelTable[guardFuncName].bind(intKeyAccessLevelTable) as any
+      intKeyPermissionsTable[guardFuncName].bind(intKeyPermissionsTable) as any
     )(intKeyDB, AccessLevel.Write, 1 as UserID, query).execute();
 
     if (checkAccessLevel) {
@@ -440,7 +440,7 @@ export function testGuardingIntKeySelect<
           commentID: 1,
           comment: "Comment 1",
           title: "Post 1",
-          accessLevel: AccessLevel.Write,
+          permissions: AccessLevel.Write,
         },
       ]);
     } else {
@@ -482,14 +482,14 @@ export function testGuardingIntKeySelect<
   });
 
   ignore("setAccessLevel() requires provided key types", () => {
-    intKeyAccessLevelTable.setAccessLevel(
+    intKeyPermissionsTable.setAccessLevel(
       intKeyDB,
       // @ts-expect-error - user key not of correct type
       1,
       1 as PostID,
       AccessLevel.Read
     );
-    intKeyAccessLevelTable.setAccessLevel(
+    intKeyPermissionsTable.setAccessLevel(
       intKeyDB,
       // @ts-expect-error - user key not of correct type
       "u1",
@@ -497,14 +497,14 @@ export function testGuardingIntKeySelect<
       AccessLevel.Read
     );
 
-    intKeyAccessLevelTable.setAccessLevel(
+    intKeyPermissionsTable.setAccessLevel(
       intKeyDB,
       1 as UserID,
       // @ts-expect-error - resource key not of correct type
       1,
       AccessLevel.Read
     );
-    intKeyAccessLevelTable.setAccessLevel(
+    intKeyPermissionsTable.setAccessLevel(
       intKeyDB,
       1 as UserID,
       // @ts-expect-error - resource key not of correct type
@@ -512,11 +512,11 @@ export function testGuardingIntKeySelect<
       AccessLevel.Read
     );
 
-    intKeyAccessLevelTable.setAccessLevel(
+    intKeyPermissionsTable.setAccessLevel(
       intKeyDB,
       1 as UserID,
       1 as PostID,
-      // @ts-expect-error - access level not of correct type
+      // @ts-expect-error - permissions not of correct type
       0
     );
   });
