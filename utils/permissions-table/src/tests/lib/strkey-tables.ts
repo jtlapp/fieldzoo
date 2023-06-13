@@ -1,6 +1,6 @@
 import { Generated } from "kysely";
 
-import { PermissionsTable } from "../../lib/access-level-table";
+import { PermissionsTable } from "../../lib/permissions-table";
 import { AccessLevel, createDB } from "./test-util";
 
 export async function createStrKeyDB() {
@@ -12,7 +12,7 @@ export function getStrKeyPermissionsTable<
   PostID extends string
 >() {
   return new PermissionsTable({
-    ownerAccessLevel: AccessLevel.Write,
+    ownerPermissions: AccessLevel.Write,
     userTableName: "users",
     userKeyColumn: "id",
     userKeyDataType: "text",

@@ -60,19 +60,19 @@ export function testGuardingIntKeySelect<
       .execute();
 
     // permissions assignments
-    await intKeyPermissionsTable.setAccessLevel(
+    await intKeyPermissionsTable.setPermissions(
       intKeyDB,
       4 as UserID,
       1 as PostID,
       AccessLevel.Read
     );
-    await intKeyPermissionsTable.setAccessLevel(
+    await intKeyPermissionsTable.setPermissions(
       intKeyDB,
       5 as UserID,
       2 as PostID,
       AccessLevel.Read
     );
-    await intKeyPermissionsTable.setAccessLevel(
+    await intKeyPermissionsTable.setPermissions(
       intKeyDB,
       5 as UserID,
       3 as PostID,
@@ -108,7 +108,7 @@ export function testGuardingIntKeySelect<
         { postID: 3, comment: "Comment 3" },
       ])
       .execute();
-    await intKeyPermissionsTable.setAccessLevel(
+    await intKeyPermissionsTable.setPermissions(
       intKeyDB,
       1 as UserID,
       2 as PostID,
@@ -204,7 +204,7 @@ export function testGuardingIntKeySelect<
 
     // setting permissions to 0 removes access
 
-    await intKeyPermissionsTable.setAccessLevel(
+    await intKeyPermissionsTable.setPermissions(
       intKeyDB,
       4 as UserID,
       1 as PostID,
@@ -481,15 +481,15 @@ export function testGuardingIntKeySelect<
     );
   });
 
-  ignore("setAccessLevel() requires provided key types", () => {
-    intKeyPermissionsTable.setAccessLevel(
+  ignore("setPermissions() requires provided key types", () => {
+    intKeyPermissionsTable.setPermissions(
       intKeyDB,
       // @ts-expect-error - user key not of correct type
       1,
       1 as PostID,
       AccessLevel.Read
     );
-    intKeyPermissionsTable.setAccessLevel(
+    intKeyPermissionsTable.setPermissions(
       intKeyDB,
       // @ts-expect-error - user key not of correct type
       "u1",
@@ -497,14 +497,14 @@ export function testGuardingIntKeySelect<
       AccessLevel.Read
     );
 
-    intKeyPermissionsTable.setAccessLevel(
+    intKeyPermissionsTable.setPermissions(
       intKeyDB,
       1 as UserID,
       // @ts-expect-error - resource key not of correct type
       1,
       AccessLevel.Read
     );
-    intKeyPermissionsTable.setAccessLevel(
+    intKeyPermissionsTable.setPermissions(
       intKeyDB,
       1 as UserID,
       // @ts-expect-error - resource key not of correct type
@@ -512,7 +512,7 @@ export function testGuardingIntKeySelect<
       AccessLevel.Read
     );
 
-    intKeyPermissionsTable.setAccessLevel(
+    intKeyPermissionsTable.setPermissions(
       intKeyDB,
       1 as UserID,
       1 as PostID,

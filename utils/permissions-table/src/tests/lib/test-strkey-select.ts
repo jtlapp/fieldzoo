@@ -51,7 +51,7 @@ export function testGuardingStrKeySelect<
         { postID: "p3", ownerID: "u2", title: "Post 3" },
       ])
       .execute();
-    await strKeyPermissionsTable.setAccessLevel(
+    await strKeyPermissionsTable.setPermissions(
       strKeyDB,
       "u1" as UserID,
       "p2" as PostID,
@@ -123,15 +123,15 @@ export function testGuardingStrKeySelect<
     );
   });
 
-  ignore("setAccessLevel() requires provided key types", () => {
-    strKeyPermissionsTable.setAccessLevel(
+  ignore("setPermissions() requires provided key types", () => {
+    strKeyPermissionsTable.setPermissions(
       strKeyDB,
       // @ts-expect-error - user key not of correct type
       1,
       "p1" as PostID,
       AccessLevel.Read
     );
-    strKeyPermissionsTable.setAccessLevel(
+    strKeyPermissionsTable.setPermissions(
       strKeyDB,
       // @ts-expect-error - user key not of correct type
       "u1",
@@ -139,14 +139,14 @@ export function testGuardingStrKeySelect<
       AccessLevel.Read
     );
 
-    strKeyPermissionsTable.setAccessLevel(
+    strKeyPermissionsTable.setPermissions(
       strKeyDB,
       "u1" as UserID,
       // @ts-expect-error - resource key not of correct type
       1,
       AccessLevel.Read
     );
-    strKeyPermissionsTable.setAccessLevel(
+    strKeyPermissionsTable.setPermissions(
       strKeyDB,
       "u1" as UserID,
       // @ts-expect-error - resource key not of correct type
@@ -154,7 +154,7 @@ export function testGuardingStrKeySelect<
       AccessLevel.Read
     );
 
-    strKeyPermissionsTable.setAccessLevel(
+    strKeyPermissionsTable.setPermissions(
       strKeyDB,
       "u1" as UserID,
       "p1" as PostID,

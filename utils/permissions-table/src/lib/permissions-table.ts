@@ -1,12 +1,15 @@
-import { Kysely, SelectQueryBuilder, sql } from "kysely";
+import { Kysely, sql } from "kysely";
 
 import {
   KeyDataType,
   KeyType,
   PermissionsTableConfig,
 } from "./permissions-table-config";
+import { PermissionsResult } from "./permissions-result";
 
 // TODO: look at using sql.id or sql.ref instead of catting
+
+// TODO: rename ResourceTableName and UserTableName to drop 'Name'
 
 // TODO: support public permissionss
 
@@ -20,8 +23,9 @@ import {
  * permissionss or privilege flags, etc.
  */
 export class PermissionsTable<
-  ResourceTableName extends string,
+  UserTableName extends string,
   UserKeyDT extends KeyDataType,
+  ResourceTableName extends string,
   ResourceKeyDT extends KeyDataType,
   Permissions extends number,
   UserKey extends KeyType<UserKeyDT> = KeyType<UserKeyDT>,
@@ -29,8 +33,9 @@ export class PermissionsTable<
 > {
   private readonly config: Readonly<
     PermissionsTableConfig<
-      ResourceTableName,
+      UserTableName,
       UserKeyDT,
+      ResourceTableName,
       ResourceKeyDT,
       Permissions,
       UserKey,
@@ -44,26 +49,27 @@ export class PermissionsTable<
   private readonly foreignResourceOwnerKeyColumn: string;
   private readonly internalUserKeyColumn: string;
   private readonly internalResourceKeyColumn: string;
-  private readonly internalAccessLevelColumn: string;
+  private readonly internalPermissionsColumn: string;
 
   constructor(
     config: PermissionsTableConfig<
-      ResourceTableName,
+      UserTableName,
       UserKeyDT,
+      ResourceTableName,
       ResourceKeyDT,
       Permissions,
       UserKey,
       ResourceKey
     >
   ) {
-    this.config = { ...config };
+    this.config = { ...config }; // avoid trouble
     this.foreignUserKeyColumn = `${config.userTableName}.${config.userKeyColumn}`;
     this.foreignResourceKeyColumn = `${config.resourceTableName}.${config.resourceKeyColumn}`;
     this.foreignResourceOwnerKeyColumn = `${config.resourceTableName}.${config.resourceOwnerKeyColumn}`;
     this.tableName = `${config.resourceTableName}_permissions`;
     this.internalUserKeyColumn = `${this.tableName}.userKey`;
     this.internalResourceKeyColumn = `${this.tableName}.resourceKey`;
-    this.internalAccessLevelColumn = `${this.tableName}.permissions`;
+    this.internalPermissionsColumn = `${this.tableName}.permissions`;
   }
 
   /**
@@ -94,61 +100,49 @@ export class PermissionsTable<
     await db.schema.dropTable(this.tableName).execute();
   }
 
-  /**
-   * Modifies a SELECT query builder that queries the resource of this table
-   * so that it only returns rows where the user has the requested minimum
-   * permissions. The resource owner always has full access to the resource.
-   * @param db Database instance.
-   * @param minRequiredAccessLevel Minimum permissions required to access the
-   *  resource.
-   * @param userKey Key of user to check access for.
-   * @param qb Query builder to modify, which must select from the resource
-   *  table, though it need not select any columns.
-   * @returns The modified query builder.
-   */
-  getPermissions<
-    DB,
-    O,
-    QB extends SelectQueryBuilder<DB, keyof DB & ResourceTableName, O>
-  >(
-    db: Kysely<DB>,
-    minRequiredAccessLevel: Permissions,
-    userKey: UserKey,
-    qb: QB
-  ): QB {
-    const ref = db.dynamic.ref.bind(db.dynamic);
-    const foreignResourceOwnerKeyColumnRef = ref(
-      this.foreignResourceOwnerKeyColumn
-    );
+  // TODO: maybe return an isOwner field with all results
 
-    return qb
-      .select(sql.lit(this.config.ownerPermissions).as("permissions"))
-      .where(foreignResourceOwnerKeyColumnRef, "=", userKey)
-      .unionAll(
-        qb
-          .innerJoin(this.tableName as keyof DB & string, (join) =>
-            join
-              .on(ref(this.internalUserKeyColumn), "=", userKey)
-              .onRef(
-                ref(this.internalResourceKeyColumn),
-                "=",
-                ref(this.foreignResourceKeyColumn)
-              )
-          )
-          .select(
-            sql
-              .ref<Permissions>(this.internalAccessLevelColumn)
-              .as("permissions")
-          )
-          // Including the contrary condition prevents UNION ALL duplicates
-          // and allows the database to short-circuit if 1st condition holds.
-          .where(foreignResourceOwnerKeyColumnRef, "!=", userKey)
-          .where(
-            ref(this.internalAccessLevelColumn),
-            ">=",
-            minRequiredAccessLevel
-          )
-      ) as QB;
+  // TODO: Need a method for getting all resources to which user has permissions
+
+  async getPermissions<DB>(
+    db: Kysely<DB>,
+    userKey: UserKey,
+    resourceKey: ResourceKey
+  ): Promise<Permissions> {
+    const query = this.getPermissionsQuery(db, userKey, resourceKey, "=");
+    const result = await query.executeTakeFirst();
+    return result === undefined
+      ? (0 as Permissions)
+      : (result.permissions as Permissions);
+  }
+
+  // async getPermissionsWhere<DB, TB extends keyof DB & ResourceTableName, O>(
+  //   db: Kysely<DB>,
+  //   userKey: UserKey,
+  //   queryModifier: (
+  //     query: SelectQueryBuilder<
+  //       DB,
+  //       TB,
+  //       PermissionsResult<Permissions, ResourceKey>
+  //     >,
+  //     resourceKeyColumn: string
+  //   ) => SelectQueryBuilder<DB, TB, O>
+  // ): Promise<O[]> {
+  //   const query = this.getPermissionsQuery(db, userKey, [], "in");
+  //   return queryModifier(query).execute() as Promise<
+  //     PermissionsResult<Permissions, ResourceKey>[]
+  //   >;
+  // }
+
+  async getMultiplePermissions<DB>(
+    db: Kysely<DB>,
+    userKey: UserKey,
+    resourceKeys: ResourceKey[]
+  ): Promise<PermissionsResult<Permissions, ResourceKey>[]> {
+    const query = this.getPermissionsQuery(db, userKey, resourceKeys, "in");
+    return query.execute() as Promise<
+      PermissionsResult<Permissions, ResourceKey>[]
+    >;
   }
 
   /**
@@ -167,7 +161,7 @@ export class PermissionsTable<
    * @param resourceKey Key of resource to grant access to.
    * @param permissions Access level to assign.
    */
-  async setAccessLevel(
+  async setPermissions(
     db: Kysely<any>,
     userKey: UserKey,
     resourceKey: ResourceKey,
@@ -191,42 +185,86 @@ export class PermissionsTable<
     }
   }
 
+  private getPermissionsQuery<DB>(
+    db: Kysely<DB>,
+    userKey: UserKey,
+    resourceKeys: ResourceKey | ResourceKey[],
+    resourceKeyComparer: "=" | "in"
+  ) {
+    const ref = db.dynamic.ref.bind(db.dynamic);
+    const foreignResourceOwnerKeyColumnRef = ref(
+      this.foreignResourceOwnerKeyColumn
+    );
+
+    return db
+      .selectFrom(this.config.resourceTableName as unknown as keyof DB & string)
+      .select([
+        sql.ref(this.foreignResourceKeyColumn).as("resourceKey"),
+        sql.lit(this.config.ownerPermissions).as("permissions"),
+      ])
+      .where(foreignResourceOwnerKeyColumnRef, "=", userKey)
+      .where(
+        ref(this.foreignResourceKeyColumn),
+        resourceKeyComparer,
+        resourceKeys
+      )
+      .unionAll(
+        db
+          .selectFrom(this.tableName as keyof DB & string)
+          .select([
+            sql.ref(this.internalResourceKeyColumn).as("resourceKey"),
+            sql
+              .ref<Permissions>(this.internalPermissionsColumn)
+              .as("permissions"),
+          ])
+          // Including the contrary condition prevents UNION ALL duplicates
+          // and allows the database to short-circuit if 1st condition holds.
+          .where(foreignResourceOwnerKeyColumnRef, "!=", userKey)
+          .where(ref(this.internalUserKeyColumn), "=", userKey)
+          .where(
+            ref(this.internalResourceKeyColumn),
+            resourceKeyComparer,
+            resourceKeys
+          )
+      );
+  }
+
   // Alternative implementation using a left join instead of a union. Keeping
   // around for possible performance testing later.
 
-  // guardSelectingAccessLevel<DB, TB extends keyof DB & ResourceTableName>(
+  // getPermissionsQuery2<DB>(
   //   db: Kysely<DB>,
-  //   minRequiredAccessLevel: Permissions,
-  //   userKey: UserKey
+  //   userKey: UserKey,
+  //   resourceKeys: ResourceKey | ResourceKey[],
+  //   resourceKeyComparer: "=" | "in"
   // ) {
-  //   const resourceTableName = this.config.resourceTableName as unknown as TB;
   //   const ref = db.dynamic.ref.bind(db.dynamic);
+  //   const foreignResourceKeyColumnRef = ref(this.foreignResourceKeyColumn);
 
   //   return db
-  //     .selectFrom(resourceTableName)
-  //     .selectAll(resourceTableName as ExtractTableAlias<DB, TB>)
-  //     .select(
+  //     .selectFrom(this.config.resourceTableName as unknown as keyof DB & string)
+  //     .select([
+  //       sql.ref(this.foreignResourceKeyColumn).as("resourceKey"),
   //       db.fn
   //         .coalesce(
-  //           ref(this.internalAccessLevelColumn),
-  //           sql.lit(this.config.ownerAccessLevel)
+  //           ref(this.internalPermissionsColumn),
+  //           sql.lit(this.config.ownerPermissions)
   //         )
-  //         .as("permissions")
-  //     )
+  //         .as("permissions"),
+  //     ])
+  //     .where(foreignResourceKeyColumnRef, resourceKeyComparer, resourceKeys)
   //     .leftJoin(this.tableName as keyof DB & string, (join) =>
   //       join
   //         .on(ref(this.internalUserKeyColumn), "=", userKey)
   //         .onRef(
   //           ref(this.internalResourceKeyColumn),
   //           "=",
-  //           ref(this.foreignResourceKeyColumn)
+  //           foreignResourceKeyColumnRef
   //         )
   //     )
   //     .where(
   //       sql`${sql.ref(this.foreignResourceOwnerKeyColumn)} = ${userKey} or
-  //         ${sql.ref(
-  //           this.internalAccessLevelColumn
-  //         )} >= ${minRequiredAccessLevel}`
+  //         ${sql.ref(this.internalPermissionsColumn)} is not null`
   //     );
   // }
 }

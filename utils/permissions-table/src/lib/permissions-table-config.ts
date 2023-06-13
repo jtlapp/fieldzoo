@@ -16,8 +16,9 @@ export type KeyType<T extends KeyDataType> = T extends "integer" | "serial"
  * Configuration for a permissions table.
  */
 export interface PermissionsTableConfig<
-  ResourceTableName extends string,
+  UserTableName extends string,
   UserKeyDT extends KeyDataType,
+  ResourceTableName extends string,
   ResourceKeyDT extends KeyDataType,
   Permissions extends number = number,
   UserKey extends KeyType<UserKeyDT> = KeyType<UserKeyDT>,
@@ -27,7 +28,7 @@ export interface PermissionsTableConfig<
   ownerPermissions: Permissions;
 
   /** Name of the users table. */
-  userTableName: string;
+  userTableName: UserTableName;
   /** Name of the key column of the users table. */
   userKeyColumn: string;
   /** Data type of the key column of the users table. */

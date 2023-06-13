@@ -1,24 +1,16 @@
 import { Kysely } from "kysely";
 
-import { PermissionsTable } from "../lib/access-level-table";
+import { PermissionsTable } from "../lib/permissions-table";
 import { AccessLevel, ignore } from "./lib/test-util";
 
 type UserID = number & { readonly __brand: unique symbol };
 type PostID = number & { readonly __brand: unique symbol };
 
-// TODO: test update
-// TODO: test delete
-// TODO: test insert
-
-// TODO: make sure guard funcs require query on resource as input (test);
-//   consider revising how the guard functions work. Can the guard functions
-//   create the initial queries?
-
 describe("PermissionsTable construction", () => {
   it("validates constructor arguments", () => {
     ignore("invalid key data types", () => {
       new PermissionsTable({
-        ownerAccessLevel: AccessLevel.Write,
+        ownerPermissions: AccessLevel.Write,
         userTableName: "users",
         userKeyColumn: "id",
         // @ts-expect-error - invalid key data type
@@ -29,7 +21,7 @@ describe("PermissionsTable construction", () => {
         resourceOwnerKeyColumn: "ownerID",
       });
       new PermissionsTable({
-        ownerAccessLevel: AccessLevel.Write,
+        ownerPermissions: AccessLevel.Write,
         userTableName: "users",
         userKeyColumn: "id",
         userKeyDataType: "integer",
@@ -45,7 +37,7 @@ describe("PermissionsTable construction", () => {
       "constructor requires key types to be consistent with data types",
       () => {
         new PermissionsTable({
-          ownerAccessLevel: AccessLevel.Write,
+          ownerPermissions: AccessLevel.Write,
           userTableName: "users",
           userKeyColumn: "id",
           userKeyDataType: "integer",
@@ -57,7 +49,7 @@ describe("PermissionsTable construction", () => {
           sampleUserKey: "invalid",
         });
         new PermissionsTable({
-          ownerAccessLevel: AccessLevel.Write,
+          ownerPermissions: AccessLevel.Write,
           userTableName: "users",
           userKeyColumn: "id",
           userKeyDataType: "text",
@@ -81,7 +73,7 @@ describe("PermissionsTable construction", () => {
           sampleResourceKey: "invalid",
         });
         new PermissionsTable({
-          ownerAccessLevel: AccessLevel.Write,
+          ownerPermissions: AccessLevel.Write,
           userTableName: "users",
           userKeyColumn: "id",
           userKeyDataType: "integer",
@@ -98,7 +90,7 @@ describe("PermissionsTable construction", () => {
     ignore("correctly defaults UserKey and ResourceKey types", () => {
       const db = null as unknown as Kysely<any>;
       const table1 = new PermissionsTable({
-        ownerAccessLevel: AccessLevel.Write,
+        ownerPermissions: AccessLevel.Write,
         userTableName: "users",
         userKeyColumn: "id",
         userKeyDataType: "integer",
@@ -107,20 +99,25 @@ describe("PermissionsTable construction", () => {
         resourceKeyDataType: "integer",
         resourceOwnerKeyColumn: "ownerID",
       });
-      table1.guardSelectingAccessLevel(
+      table1.getPermissions(
         db,
-        AccessLevel.Read,
         // @ts-expect-error - user key not of correct type
         "invalid",
-        db.selectFrom("posts")
+        1 as PostID
+      );
+      table1.getMultiplePermissions(
+        db,
+        // @ts-expect-error - user key not of correct type
+        "invalid",
+        [1 as PostID]
       );
       // @ts-expect-error - user key not of correct type
-      table1.setAccessLevel(db, "invalid", 1, AccessLevel.Read);
+      table1.setPermissions(db, "invalid", 1, AccessLevel.Read);
       // @ts-expect-error - resource key not of correct type
-      table1.setAccessLevel(db, 1, "invalid", AccessLevel.Read);
+      table1.setPermissions(db, 1, "invalid", AccessLevel.Read);
 
       const table2 = new PermissionsTable({
-        ownerAccessLevel: AccessLevel.Write,
+        ownerPermissions: AccessLevel.Write,
         userTableName: "users",
         userKeyColumn: "id",
         userKeyDataType: "text",
@@ -129,17 +126,22 @@ describe("PermissionsTable construction", () => {
         resourceKeyDataType: "uuid",
         resourceOwnerKeyColumn: "ownerID",
       });
-      table2.guardSelectingAccessLevel(
+      table2.getPermissions(
         db,
-        AccessLevel.Read,
         // @ts-expect-error - user key not of correct type
         1,
-        db.selectFrom("posts")
+        "valid"
+      );
+      table2.getMultiplePermissions(
+        db,
+        // @ts-expect-error - user key not of correct type
+        1,
+        ["valid"]
       );
       // @ts-expect-error - user key not of correct type
-      table2.setAccessLevel(db, 1, "valid", AccessLevel.Read);
+      table2.setPermissions(db, 1, "valid", AccessLevel.Read);
       // @ts-expect-error - resource key not of correct type
-      table2.setAccessLevel(db, "valid", 1, AccessLevel.Read);
+      table2.setPermissions(db, "valid", 1, AccessLevel.Read);
     });
   });
 });
