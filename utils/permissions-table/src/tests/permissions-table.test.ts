@@ -5,16 +5,19 @@ import {
   createIntKeyDB,
   getIntKeyPermissionsTable,
 } from "./lib/intkey-tables";
-import { AccessLevel, destroyDB, ignore } from "./lib/test-util";
+import { AccessLevel, createDatabase, destroyDB } from "./lib/test-util";
 import { testGuardingIntKeySelect } from "./lib/test-intkey-select";
 import { testGuardingStrKeySelect } from "./lib/test-strkey-select";
-import { StrKeyDB, getStrKeyPermissionsTable } from "./lib/strkey-tables";
 
 type IntUserID = number & { readonly __brand: unique symbol };
 type IntPostID = number & { readonly __brand: unique symbol };
 
 type StrUserID = string & { readonly __brand: unique symbol };
 type StrPostID = string & { readonly __brand: unique symbol };
+
+beforeAll(async () => {
+  await createDatabase();
+});
 
 describe("PermissionsTable", () => {
   describe("getPermissions()", () => {
@@ -84,27 +87,40 @@ describe("PermissionsTable", () => {
 
       it("grants no access when no rights", async () => {
         await initIntKeyDB();
-        const query = intKeyDB.selectFrom("posts").selectAll("posts");
         const rows = await intKeyTable
-          .getPermissions(intKeyDB, AccessLevel.Write, 1 as IntUserID, query)
+          .getPermissionsQuery(intKeyDB, 1 as IntUserID, (q) => q)
           .execute();
         expect(rows).toHaveLength(0);
+
+        const accessLevel = await intKeyTable.getPermissions(
+          intKeyDB,
+          1 as IntUserID,
+          1 as IntPostID
+        );
+        expect(accessLevel).toBe(AccessLevel.None);
+
+        const accessLevels = await intKeyTable.getPermissions(
+          intKeyDB,
+          1 as IntUserID,
+          [1 as IntPostID, 2 as IntPostID]
+        );
+        expect(accessLevels).toHaveLength(0);
       });
 
       it("grants access to the resource owner", async () => {
         await initIntKeyDB();
-        const query = intKeyDB.selectFrom("posts").selectAll("posts");
         let rows = await intKeyTable
-          .getPermissions(intKeyDB, AccessLevel.Write, 2 as IntUserID, query)
+          .getPermissionsQuery(intKeyDB, 2 as IntUserID, (q) => q)
           .execute();
-        expect(rows).toHaveLength(1);
-        expect(rows[0].title).toBe("Post 1");
-        if (checkAccessLevel) {
-          expect(rows[0].permissions).toBe(AccessLevel.Write);
-        }
+        expect(rows).toEqual([
+          {
+            resourceKey: 1,
+            permissions: AccessLevel.Write,
+          },
+        ]);
 
         rows = await intKeyTable
-          .getPermissions(intKeyDB, AccessLevel.Write, 3 as IntUserID, query)
+          .getPermissionsQuery(intKeyDB, 3 as IntUserID, (q) => q)
           .execute();
         expect(rows).toHaveLength(2);
         rows.sort((a, b) => a.postID - b.postID);

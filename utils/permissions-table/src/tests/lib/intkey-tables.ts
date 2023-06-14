@@ -12,6 +12,7 @@ export function getIntKeyPermissionsTable<
   PostID extends number
 >() {
   return new PermissionsTable({
+    databaseSyntax: "postgres",
     ownerPermissions: AccessLevel.Write,
     userTableName: "users",
     userKeyColumn: "id",

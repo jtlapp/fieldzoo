@@ -12,6 +12,7 @@ export function getStrKeyPermissionsTable<
   PostID extends string
 >() {
   return new PermissionsTable({
+    databaseSyntax: "postgres",
     ownerPermissions: AccessLevel.Write,
     userTableName: "users",
     userKeyColumn: "id",
