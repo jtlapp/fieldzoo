@@ -24,6 +24,9 @@ export interface PermissionsTableConfig<
   UserKey extends KeyType<UserKeyDT> = KeyType<UserKeyDT>,
   ResourceKey extends KeyType<ResourceKeyDT> = KeyType<ResourceKeyDT>
 > {
+  /** Syntax of the database SQL dialect. */
+  databaseSyntax: "mysql" | "postgres" | "sqlite";
+
   /** Owner's permissions, used for returning permissions of owner. */
   ownerPermissions: Permissions;
 
