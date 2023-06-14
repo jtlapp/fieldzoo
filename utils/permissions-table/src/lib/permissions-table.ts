@@ -7,10 +7,6 @@ import {
 } from "./permissions-table-config";
 import { PermissionsResult } from "./permissions-result";
 
-// TODO: look at using sql.id or sql.ref instead of catting
-
-// TODO: rename ResourceTable and UserTable to drop 'Name'
-
 // TODO: look at making owners optional
 
 /**
@@ -168,17 +164,18 @@ export class PermissionsTable<
         }
       }
       return permissions;
+    } else {
+      const query = this.getPermissionsQuery(
+        db,
+        userKey,
+        (query, resourceKeyColumn) =>
+          query.where(db.dynamic.ref(resourceKeyColumn), "=", resourceKeyOrKeys)
+      );
+      const result = await query.executeTakeFirst();
+      return result === undefined
+        ? (0 as Permissions)
+        : (result.permissions as Permissions);
     }
-    const query = this.getPermissionsQuery(
-      db,
-      userKey,
-      (query, resourceKeyColumn) =>
-        query.where(db.dynamic.ref(resourceKeyColumn), "=", resourceKeyOrKeys)
-    );
-    const result = await query.executeTakeFirst();
-    return result === undefined
-      ? (0 as Permissions)
-      : (result.permissions as Permissions);
   }
 
   /**

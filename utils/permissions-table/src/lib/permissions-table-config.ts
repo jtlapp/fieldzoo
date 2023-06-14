@@ -3,8 +3,6 @@
  */
 export type KeyDataType = "integer" | "serial" | "text" | "uuid";
 
-// TODO: Might be more intelligable referring to "ID" rather than "Key"
-
 /**
  * JavaScript type associated with Postgres data types.
  */
