@@ -1,5 +1,7 @@
-import { Kysely, sql, SqliteDialect } from "kysely";
-import Sqlite3 from "better-sqlite3";
+import { Kysely, sql, PostgresDialect } from "kysely";
+import { Pool } from "pg";
+import * as dotenv from "dotenv";
+import * as path from "path";
 
 export type AccessLevel = number & { readonly __brand: unique symbol };
 export const AccessLevel = {
@@ -7,6 +9,17 @@ export const AccessLevel = {
   Read: 1 as AccessLevel,
   Write: 2 as AccessLevel,
 } as const;
+
+dotenv.config({ path: path.join(__dirname, "../../../../../.env.test") });
+const postgresConfig = {
+  host: process.env.POSTGRES_HOST,
+  port: parseInt(process.env.POSTGRES_PORT!),
+  database: process.env.POSTGRES_DATABASE,
+  user: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+};
+
+const tables = ["comments", "posts", "users"];
 
 export async function createTables(db: Kysely<any>, keyDataType: string) {
   // TODO: does the user need to specify "serial"? I'd rather that be "integer".
@@ -42,17 +55,31 @@ export async function createTables(db: Kysely<any>, keyDataType: string) {
   return db;
 }
 
+async function dropTables(db: Kysely<any>) {
+  for (const table of tables) {
+    await db.schema.dropTable(table).execute();
+  }
+}
+
+export async function createDatabase() {
+  const postgresDB = new Kysely<any>({
+    dialect: new PostgresDialect({ pool: new Pool(postgresConfig) }),
+  });
+  await sql`drop database if exists permissions_test`.execute(postgresDB);
+  await sql`create database permissions_test`.execute(postgresDB);
+  await postgresDB.destroy();
+}
+
 export async function createDB(keyDataType: string) {
   const testDB = new Kysely<any>({
-    dialect: new SqliteDialect({
-      database: new Sqlite3(":memory:"),
-    }),
+    dialect: new PostgresDialect({ pool: new Pool(postgresConfig) }),
   });
   await createTables(testDB, keyDataType);
   return testDB;
 }
 
 export async function destroyDB<DB>(db: Kysely<DB>) {
+  await dropTables(db);
   return db.destroy();
 }
 

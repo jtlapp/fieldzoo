@@ -20,13 +20,14 @@
     "preset": "jest-presets/node"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.3",
     "@types/jest": "^29.5.2",
+    "@types/pg": "^8.6.6",
+    "dotenv": "^16.0.3",
     "eslint": "^8.40.0",
     "eslint-config-custom": "workspace:*",
     "jest": "^29.5.0",
     "jest-presets": "workspace:*",
-    "better-sqlite3": "^8.1.0",
+    "pg": "^8.9.0",
     "ts-jest": "^29.1.0",
     "tsconfig": "workspace:*",
     "typescript": "5.1.3"
