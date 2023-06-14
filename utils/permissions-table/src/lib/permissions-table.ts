@@ -9,7 +9,7 @@ import { PermissionsResult } from "./permissions-result";
 
 // TODO: look at using sql.id or sql.ref instead of catting
 
-// TODO: rename ResourceTableName and UserTableName to drop 'Name'
+// TODO: rename ResourceTable and UserTable to drop 'Name'
 
 // TODO: look at making owners optional
 
@@ -21,9 +21,9 @@ import { PermissionsResult } from "./permissions-result";
  * permissionss or privilege flags, etc.
  */
 export class PermissionsTable<
-  UserTableName extends string,
+  UserTable extends string,
   UserKeyDT extends KeyDataType,
-  ResourceTableName extends string,
+  ResourceTable extends string,
   ResourceKeyDT extends KeyDataType,
   Permissions extends number,
   UserKey extends KeyType<UserKeyDT> = KeyType<UserKeyDT>,
@@ -31,9 +31,9 @@ export class PermissionsTable<
 > {
   private readonly config: Readonly<
     PermissionsTableConfig<
-      UserTableName,
+      UserTable,
       UserKeyDT,
-      ResourceTableName,
+      ResourceTable,
       ResourceKeyDT,
       Permissions,
       UserKey,
@@ -51,9 +51,9 @@ export class PermissionsTable<
 
   constructor(
     config: PermissionsTableConfig<
-      UserTableName,
+      UserTable,
       UserKeyDT,
-      ResourceTableName,
+      ResourceTable,
       ResourceKeyDT,
       Permissions,
       UserKey,
@@ -194,7 +194,7 @@ export class PermissionsTable<
    * @returns A query that returns the permissions the user has to the
    *  resource.
    */
-  getPermissionsQuery<DB, TB extends keyof DB & ResourceTableName, O>(
+  getPermissionsQuery<DB, TB extends keyof DB & ResourceTable, O>(
     db: Kysely<DB>,
     userKey: UserKey,
     resourceSelector: (
