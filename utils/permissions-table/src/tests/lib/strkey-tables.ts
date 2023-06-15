@@ -3,8 +3,12 @@ import { Generated } from "kysely";
 import { PermissionsTable } from "../../lib/permissions-table";
 import { AccessLevel, createDB } from "./test-util";
 
-export async function createStrKeyDB() {
-  return createDB("text");
+export async function createStrKeyDB(
+  permissionsTable: PermissionsTable<any, any, any, any, any>
+) {
+  const db = await createDB("text", permissionsTable);
+  await permissionsTable.construct(db).execute();
+  return db;
 }
 
 export function getStrKeyPermissionsTable<
@@ -13,7 +17,7 @@ export function getStrKeyPermissionsTable<
 >() {
   return new PermissionsTable({
     databaseSyntax: "postgres",
-    ownerPermissions: AccessLevel.Write,
+    ownerPermissions: AccessLevel.Owner,
     userTableName: "users",
     userKeyColumn: "id",
     userKeyDataType: "text",

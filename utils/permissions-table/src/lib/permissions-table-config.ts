@@ -29,6 +29,7 @@ export interface PermissionsTableConfig<
   ownerPermissions: Permissions;
 
   /** Name of the users table. */
+  // TODO: rename sans Name suffix
   userTableName: UserTable;
   /** Name of the key column of the users table. */
   userKeyColumn: string;

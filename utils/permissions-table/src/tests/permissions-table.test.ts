@@ -6,8 +6,12 @@ import {
   getIntKeyPermissionsTable,
 } from "./lib/intkey-tables";
 import { AccessLevel, createDatabase, destroyDB } from "./lib/test-util";
-import { testGuardingIntKeySelect } from "./lib/test-intkey-select";
-import { testGuardingStrKeySelect } from "./lib/test-strkey-select";
+import { PermissionsTable } from "../lib/permissions-table";
+import {
+  StrKeyDB,
+  createStrKeyDB,
+  getStrKeyPermissionsTable,
+} from "./lib/strkey-tables";
 
 type IntUserID = number & { readonly __brand: unique symbol };
 type IntPostID = number & { readonly __brand: unique symbol };
@@ -15,310 +19,300 @@ type IntPostID = number & { readonly __brand: unique symbol };
 type StrUserID = string & { readonly __brand: unique symbol };
 type StrPostID = string & { readonly __brand: unique symbol };
 
+let intKeyDB: Kysely<IntKeyDB>;
+const intKeyTable = getIntKeyPermissionsTable<IntUserID, IntPostID>();
+let strKeyDB: Kysely<StrKeyDB>;
+const strKeyTable = getStrKeyPermissionsTable<StrUserID, StrPostID>();
+
+async function initIntKeyDB() {
+  intKeyDB = await createIntKeyDB(intKeyTable);
+
+  await intKeyDB
+    .insertInto("users")
+    .values([
+      // user1 has no access to any posts
+      { handle: "user1", name: "User 1" },
+      // user2 owns post 1, but no assigned permissionss
+      { handle: "user2", name: "User 2" },
+      // user3 owns post 2 and post 3, but no assigned permissionss
+      { handle: "user3", name: "User 3" },
+      // user4 owns post 4 and has read access to post 1
+      { handle: "user4", name: "User 4" },
+      // user5 owns no posts, has read access to post 2, write access to post 3
+      { handle: "user5", name: "User 5" },
+    ])
+    .execute();
+
+  // posts
+  await intKeyDB
+    .insertInto("posts")
+    .values([
+      { ownerID: 2, title: "Post 1" },
+      { ownerID: 3, title: "Post 2" },
+      { ownerID: 3, title: "Post 3" },
+      { ownerID: 4, title: "Post 4" },
+    ])
+    .execute();
+
+  // permissions assignments
+  await intKeyTable.setPermissions(
+    intKeyDB,
+    4 as IntUserID,
+    1 as IntPostID,
+    AccessLevel.Read
+  );
+  await intKeyTable.setPermissions(
+    intKeyDB,
+    5 as IntUserID,
+    2 as IntPostID,
+    AccessLevel.Read
+  );
+  await intKeyTable.setPermissions(
+    intKeyDB,
+    5 as IntUserID,
+    3 as IntPostID,
+    AccessLevel.Write
+  );
+}
+
+async function initStrKeyDB() {
+  strKeyDB = await createStrKeyDB(strKeyTable);
+
+  // user1 owns post 1, has read access to post 2, and no access to post 3
+  await strKeyDB
+    .insertInto("users")
+    .values([
+      { id: "u1", handle: "user1", name: "User 1" },
+      { id: "u2", handle: "user2", name: "User 2" },
+    ])
+    .execute();
+  await strKeyDB
+    .insertInto("posts")
+    .values([
+      { postID: "p1", ownerID: "u1", title: "Post 1" },
+      { postID: "p2", ownerID: "u2", title: "Post 2" },
+      { postID: "p3", ownerID: "u2", title: "Post 3" },
+    ])
+    .execute();
+  await strKeyTable.setPermissions(
+    strKeyDB,
+    "u1" as StrUserID,
+    "p2" as StrPostID,
+    AccessLevel.Read
+  );
+}
+
 beforeAll(async () => {
   await createDatabase();
+});
+
+afterEach(async () => {
+  if (intKeyDB) {
+    await destroyDB(intKeyDB, intKeyTable);
+    intKeyDB = undefined as any;
+  }
+  if (strKeyDB) {
+    await destroyDB(strKeyDB, strKeyTable);
+    strKeyDB = undefined as any;
+  }
 });
 
 describe("PermissionsTable", () => {
   describe("getPermissions()", () => {
     describe("with integer keys", () => {
-      let intKeyDB: Kysely<IntKeyDB>;
-      const intKeyTable = getIntKeyPermissionsTable<IntUserID, IntPostID>();
-
-      async function initIntKeyDB() {
-        intKeyDB = await createIntKeyDB();
-        await intKeyTable.create(intKeyDB);
-
-        await intKeyDB
-          .insertInto("users")
-          .values([
-            // user1 has no access to any posts
-            { handle: "user1", name: "User 1" },
-            // user2 owns post 1, but no assigned permissionss
-            { handle: "user2", name: "User 2" },
-            // user3 owns post 2 and post 3, but no assigned permissionss
-            { handle: "user3", name: "User 3" },
-            // user4 owns post 4 and has read access to post 1
-            { handle: "user4", name: "User 4" },
-            // user5 owns no posts, has read access to post 2, write access to post 3
-            { handle: "user5", name: "User 5" },
-          ])
-          .execute();
-
-        // posts
-        await intKeyDB
-          .insertInto("posts")
-          .values([
-            { ownerID: 2, title: "Post 1" },
-            { ownerID: 3, title: "Post 2" },
-            { ownerID: 3, title: "Post 3" },
-            { ownerID: 4, title: "Post 4" },
-          ])
-          .execute();
-
-        // permissions assignments
-        await intKeyTable.setPermissions(
-          intKeyDB,
-          4 as IntUserID,
-          1 as IntPostID,
-          AccessLevel.Read
-        );
-        await intKeyTable.setPermissions(
-          intKeyDB,
-          5 as IntUserID,
-          2 as IntPostID,
-          AccessLevel.Read
-        );
-        await intKeyTable.setPermissions(
-          intKeyDB,
-          5 as IntUserID,
-          3 as IntPostID,
-          AccessLevel.Write
-        );
-      }
-
-      afterEach(async () => {
-        if (intKeyDB) {
-          await intKeyTable.drop(intKeyDB);
-          await destroyDB(intKeyDB);
-          intKeyDB = undefined as any;
-        }
-      });
-
       it("grants no access when no rights", async () => {
         await initIntKeyDB();
-        const rows = await intKeyTable
-          .getPermissionsQuery(intKeyDB, 1 as IntUserID, (q) => q)
-          .execute();
-        expect(rows).toHaveLength(0);
-
-        const accessLevel = await intKeyTable.getPermissions(
-          intKeyDB,
-          1 as IntUserID,
-          1 as IntPostID
-        );
-        expect(accessLevel).toBe(AccessLevel.None);
-
-        const accessLevels = await intKeyTable.getPermissions(
-          intKeyDB,
-          1 as IntUserID,
-          [1 as IntPostID, 2 as IntPostID]
-        );
-        expect(accessLevels).toHaveLength(0);
+        await checkPermissions(intKeyDB, 1 as IntUserID, intKeyTable, [
+          [1, AccessLevel.None],
+          [2, AccessLevel.None],
+          [3, AccessLevel.None],
+          [4, AccessLevel.None],
+        ]);
       });
 
       it("grants access to the resource owner", async () => {
         await initIntKeyDB();
-        let rows = await intKeyTable
-          .getPermissionsQuery(intKeyDB, 2 as IntUserID, (q) => q)
-          .execute();
-        expect(rows).toEqual([
-          {
-            resourceKey: 1,
-            permissions: AccessLevel.Write,
-          },
+        await checkPermissions(intKeyDB, 2 as IntUserID, intKeyTable, [
+          [1, AccessLevel.Owner],
+          [2, AccessLevel.None],
+          [3, AccessLevel.None],
+          [4, AccessLevel.None],
         ]);
 
-        rows = await intKeyTable
-          .getPermissionsQuery(intKeyDB, 3 as IntUserID, (q) => q)
-          .execute();
-        expect(rows).toHaveLength(2);
-        rows.sort((a, b) => a.postID - b.postID);
-        expect(rows[0].title).toBe("Post 2");
-        expect(rows[1].title).toBe("Post 3");
-        if (checkAccessLevel) {
-          expect(rows[0].permissions).toBe(AccessLevel.Write);
-          expect(rows[1].permissions).toBe(AccessLevel.Write);
-        }
+        await checkPermissions(intKeyDB, 3 as IntUserID, intKeyTable, [
+          [1, AccessLevel.None],
+          [2, AccessLevel.Owner],
+          [3, AccessLevel.Owner],
+          [4, AccessLevel.None],
+        ]);
       });
 
       it("grants access to users by permissions, but no higher", async () => {
         await initIntKeyDB();
-        const query = intKeyDB.selectFrom("posts").selectAll("posts");
-
-        // user sees posts to which it has sufficient access
-
-        let rows = await intKeyTable
-          .getPermissions(intKeyDB, AccessLevel.Read, 4 as IntUserID, query)
-          .execute();
-        expect(rows).toHaveLength(2);
-        rows.sort((a, b) => a.postID - b.postID);
-        expect(rows[0].title).toBe("Post 1");
-        expect(rows[1].title).toBe("Post 4");
-        if (checkAccessLevel) {
-          expect(rows[0].permissions).toBe(AccessLevel.Read);
-          expect(rows[1].permissions).toBe(AccessLevel.Write);
-        }
-
-        // user does not see posts to which it does not have sufficient access
-
-        rows = await intKeyTable
-          .getPermissions(intKeyDB, AccessLevel.Write, 4 as IntUserID, query)
-          .execute();
-        expect(rows).toHaveLength(1);
-        expect(rows[0].title).toBe("Post 4");
-        if (checkAccessLevel) {
-          expect(rows[0].permissions).toBe(AccessLevel.Write);
-        }
-
-        // setting permissions to 0 removes access
-
-        await intKeyTable.setPermissions(
-          intKeyDB,
-          4 as IntUserID,
-          1 as IntPostID,
-          AccessLevel.None
-        );
-        rows = await intKeyTable
-          .getPermissions(intKeyDB, AccessLevel.Read, 4 as IntUserID, query)
-          .execute();
-        expect(rows).toHaveLength(1);
-        expect(rows[0].title).toBe("Post 4");
-        if (checkAccessLevel) {
-          expect(rows[0].permissions).toBe(AccessLevel.Write);
-        }
+        await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
+          [1, AccessLevel.Read],
+          [2, AccessLevel.None],
+          [3, AccessLevel.None],
+          [4, AccessLevel.Owner],
+        ]);
       });
 
       it("grants access to assigned permissions and lower", async () => {
         await initIntKeyDB();
-        const query = intKeyDB.selectFrom("posts").selectAll("posts");
-
-        let rows = await intKeyTable
-          .getPermissions(intKeyDB, AccessLevel.Read, 5 as IntUserID, query)
-          .execute();
-        expect(rows).toHaveLength(2);
-        rows.sort((a, b) => a.postID - b.postID);
-        expect(rows[0].title).toBe("Post 2");
-        expect(rows[1].title).toBe("Post 3");
-        if (checkAccessLevel) {
-          expect(rows[0].permissions).toBe(AccessLevel.Read);
-          expect(rows[1].permissions).toBe(AccessLevel.Write);
-        }
-
-        rows = await intKeyTable
-          .getPermissions(intKeyDB, AccessLevel.Write, 5 as IntUserID, query)
-          .execute();
-        expect(rows).toHaveLength(1);
-        expect(rows[0].title).toBe("Post 3");
-        if (checkAccessLevel) {
-          expect(rows[0].permissions).toBe(AccessLevel.Write);
-        }
-      });
-
-      it("returns a single row or none when query restricted to single row", async () => {
-        await initIntKeyDB();
-        const queryForPost = (postID: number) =>
-          intKeyDB
-            .selectFrom("posts")
-            .selectAll("posts")
-            .where("postID", "=", postID);
-        const queryForPost1 = queryForPost(1);
-        const queryForPost2 = queryForPost(2);
-        const queryForPost4 = queryForPost(4);
-
-        // one post returned if user has sufficient access, returning array
-
-        let rows = await intKeyTable
-          .getPermissions(
-            intKeyDB,
-            AccessLevel.Read,
-            4 as IntUserID,
-            queryForPost1
-          )
-          .execute();
-        expect(rows).toHaveLength(1);
-        expect(rows[0].title).toBe("Post 1");
-        if (checkAccessLevel) {
-          expect(rows[0].permissions).toBe(AccessLevel.Read);
-        }
-
-        // no post returned if user does not have sufficient access, returning array
-
-        rows = await intKeyTable
-          .getPermissions(
-            intKeyDB,
-            AccessLevel.Write,
-            4 as IntUserID,
-            queryForPost1
-          )
-          .execute();
-        expect(rows).toHaveLength(0);
-
-        // one post returned if user is owner, returning single row
-
-        let row = await intKeyTable
-          .getPermissions(
-            intKeyDB,
-            AccessLevel.Write,
-            4 as IntUserID,
-            queryForPost4
-          )
-          .executeTakeFirst();
-        expect(row?.title).toBe("Post 4");
-        if (checkAccessLevel) {
-          expect(row?.permissions).toBe(AccessLevel.Write);
-        }
-
-        // no post returned if user has no access, returning single row
-
-        row = await intKeyTable
-          .getPermissions(
-            intKeyDB,
-            AccessLevel.Write,
-            4 as IntUserID,
-            queryForPost2
-          )
-          .executeTakeFirst();
-        expect(row).toBeUndefined();
-      });
-
-      it("deletes permissions rows when user is deleted", async () => {
-        await initIntKeyDB();
-        const query = intKeyDB
-          .selectFrom(intKeyTable.getTableName())
-          .select("resourceKey")
-          .where("userKey", "=", 5);
-
-        let rows = await query.execute();
-        expect(rows).toHaveLength(2);
-
-        await intKeyDB.deleteFrom("users").where("id", "=", 5).execute();
-
-        rows = await query.execute();
-        expect(rows).toHaveLength(0);
-      });
-
-      it("deletes permissions rows when resource is deleted", async () => {
-        await initIntKeyDB();
-        const query = intKeyDB
-          .selectFrom(intKeyTable.getTableName())
-          .select("userKey")
-          .where("resourceKey", "=", 3);
-
-        let rows = await query.execute();
-        expect(rows).toHaveLength(1);
-
-        await intKeyDB.deleteFrom("posts").where("postID", "=", 3).execute();
-
-        rows = await query.execute();
-        expect(rows).toHaveLength(0);
+        await checkPermissions(intKeyDB, 5 as IntUserID, intKeyTable, [
+          [1, AccessLevel.None],
+          [2, AccessLevel.Read],
+          [3, AccessLevel.Write],
+          [4, AccessLevel.None],
+        ]);
       });
     });
 
     describe("with string keys", () => {
-      testGuardingStrKeySelect<StrUserID, StrPostID>(
-        "guardSelectingAccessLevel"
-      );
+      it("grants access by resource owner and permissions", async () => {
+        await initStrKeyDB();
+        await checkPermissions(strKeyDB, "u1" as StrUserID, strKeyTable, [
+          ["p1", AccessLevel.Owner],
+          ["p2", AccessLevel.Read],
+          ["p3", AccessLevel.None],
+        ]);
+      });
     });
   });
 
-  describe("getMultiplePermissions()", () => {
-    describe("with integer keys", () => {
-      testGuardingIntKeySelect<IntUserID, IntPostID>("guardQuery");
+  describe("setPermissions()", () => {
+    it("setting permissions to 0 removes access", async () => {
+      await initIntKeyDB();
+      await intKeyTable.setPermissions(
+        intKeyDB,
+        4 as IntUserID,
+        1 as IntPostID,
+        AccessLevel.None
+      );
+      await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
+        [1, AccessLevel.None],
+        [2, AccessLevel.None],
+        [3, AccessLevel.None],
+        [4, AccessLevel.Owner],
+      ]);
     });
 
-    describe("with string keys", () => {
-      testGuardingStrKeySelect<StrUserID, StrPostID>("guardQuery");
+    it("changes existing permissions", async () => {
+      await initIntKeyDB();
+      await intKeyTable.setPermissions(
+        intKeyDB,
+        4 as IntUserID,
+        1 as IntPostID,
+        AccessLevel.Write
+      );
+      await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
+        [1, AccessLevel.Write],
+        [2, AccessLevel.None],
+        [3, AccessLevel.None],
+        [4, AccessLevel.Owner],
+      ]);
+    });
+  });
+
+  describe("cascade deletes permissions", () => {
+    it("deletes permissions rows when user is deleted", async () => {
+      await initIntKeyDB();
+      const query = intKeyDB
+        .selectFrom(intKeyTable.getTableName())
+        .select("resourceKey")
+        .where("userKey", "=", 5);
+
+      let rows = await query.execute();
+      expect(rows).toHaveLength(2);
+
+      await intKeyDB.deleteFrom("users").where("id", "=", 5).execute();
+
+      rows = await query.execute();
+      expect(rows).toHaveLength(0);
+    });
+
+    it("deletes permissions rows when resource is deleted", async () => {
+      await initIntKeyDB();
+      const query = intKeyDB
+        .selectFrom(intKeyTable.getTableName())
+        .select("userKey")
+        .where("resourceKey", "=", 3);
+
+      let rows = await query.execute();
+      expect(rows).toHaveLength(1);
+
+      await intKeyDB.deleteFrom("posts").where("postID", "=", 3).execute();
+
+      rows = await query.execute();
+      expect(rows).toHaveLength(0);
     });
   });
 });
+
+async function checkPermissions<
+  UserID extends string | number,
+  ResourceID extends string | number
+>(
+  db: Kysely<any>,
+  userID: UserID,
+  table: PermissionsTable<any, any, any, any, any>,
+  expectedResults: [ResourceID, AccessLevel][]
+) {
+  // test getPermissionsQuery()
+
+  const results = await table
+    .getPermissionsQuery(db, userID, (q) => q)
+    .execute();
+  results.sort((a, b) => (a.resourceKey < b.resourceKey ? -1 : 1));
+  let i = 0;
+  for (const result of results) {
+    if (expectedResults[i][1]) {
+      expect(result).toEqual({
+        resourceKey: expectedResults[i][0],
+        permissions: expectedResults[i][1],
+      });
+      ++i;
+    }
+  }
+
+  // test getPermissions() for a single resource
+
+  for (const expectedResult of expectedResults) {
+    const accessLevel = await table.getPermissions(
+      db,
+      userID,
+      expectedResult[0]
+    );
+    expect(accessLevel).toBe(expectedResult[1]);
+  }
+
+  // test getPermissions() for all but last resource, in order
+
+  const expectedResults1 = expectedResults.slice(0, -1);
+  const permissions1 = await table.getPermissions(
+    db,
+    userID,
+    expectedResults1.map((r) => r[0])
+  );
+  expect(permissions1).toEqual(
+    expectedResults1.map((result) => ({
+      resourceKey: result[0],
+      permissions: result[1],
+    }))
+  );
+
+  // test getPermissions() for all but first resource, in reverse order
+
+  const expectedResults2 = expectedResults.slice(1).reverse();
+  const permissions2 = await table.getPermissions(
+    db,
+    userID,
+    expectedResults2.map((r) => r[0])
+  );
+  expect(permissions2).toEqual(
+    expectedResults2.reverse().map((result) => ({
+      resourceKey: result[0],
+      permissions: result[1],
+    }))
+  );
+}

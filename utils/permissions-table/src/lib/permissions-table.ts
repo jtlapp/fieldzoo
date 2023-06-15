@@ -72,7 +72,7 @@ export class PermissionsTable<
    * associated user or resource is deleted (cascading on delete).
    * @param db Database connection.
    */
-  async create(db: Kysely<any>) {
+  construct(db: Kysely<any>) {
     return db.schema
       .createTable(this.tableName)
       .addColumn("userKey", this.config.userKeyDataType, (col) =>
@@ -89,11 +89,11 @@ export class PermissionsTable<
   }
 
   /**
-   * Drops the permissions table for the given resource table.
+   * Drops the permissions table for the given resource table, if it exists.
    * @param db Database connection.
    */
   async drop(db: Kysely<any>) {
-    await db.schema.dropTable(this.tableName).execute();
+    await db.schema.dropTable(this.tableName).ifExists().execute();
   }
 
   /**
@@ -153,7 +153,7 @@ export class PermissionsTable<
       for (let i = 0; i < sortedResourceKeys.length; ++i) {
         const sourceResourceKey = sortedResourceKeys[i];
         const result = results[resultIndex];
-        if (result.resourceKey === sourceResourceKey) {
+        if (result !== undefined && result.resourceKey === sourceResourceKey) {
           permissions[i] = result;
           ++resultIndex;
         } else {
@@ -227,6 +227,7 @@ export class PermissionsTable<
       this.foreignResourceKeyColumn
     ).unionAll(
       resourceSelector(
+        // TODO: why not just use this.tableName? revisit innerJoin
         db
           .selectFrom(this.tableName as keyof DB & string)
           .select([
@@ -235,6 +236,15 @@ export class PermissionsTable<
               .ref<Permissions>(this.internalPermissionsColumn)
               .as("permissions"),
           ])
+          .innerJoin(
+            this.config.resourceTableName as unknown as keyof DB & string,
+            (join) =>
+              join.onRef(
+                ref(this.internalResourceKeyColumn),
+                "=",
+                ref(this.foreignResourceKeyColumn)
+              )
+          )
           // Including the contrary condition prevents UNION ALL duplicates
           // and allows the database to short-circuit if 1st condition holds.
           .where(foreignResourceOwnerKeyColumnRef, "!=", userKey)
@@ -270,7 +280,7 @@ export class PermissionsTable<
    */
   async setPermissions<DB, TB extends keyof DB & string>(
     db: Kysely<DB>,
-    userKey: number,
+    userKey: UserKey,
     resourceKey: ResourceKey,
     permissions: Permissions
   ) {

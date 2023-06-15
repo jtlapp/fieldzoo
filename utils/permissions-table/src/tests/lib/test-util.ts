@@ -2,12 +2,14 @@ import { Kysely, sql, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 import * as dotenv from "dotenv";
 import * as path from "path";
+import { PermissionsTable } from "../../lib/permissions-table";
 
 export type AccessLevel = number & { readonly __brand: unique symbol };
 export const AccessLevel = {
   None: 0 as AccessLevel,
   Read: 1 as AccessLevel,
   Write: 2 as AccessLevel,
+  Owner: 3 as AccessLevel,
 } as const;
 
 dotenv.config({ path: path.join(__dirname, "../../../../../.env.test") });
@@ -57,7 +59,7 @@ export async function createTables(db: Kysely<any>, keyDataType: string) {
 
 async function dropTables(db: Kysely<any>) {
   for (const table of tables) {
-    await db.schema.dropTable(table).execute();
+    await db.schema.dropTable(table).ifExists().execute();
   }
 }
 
@@ -70,15 +72,24 @@ export async function createDatabase() {
   await postgresDB.destroy();
 }
 
-export async function createDB(keyDataType: string) {
+export async function createDB(
+  keyDataType: string,
+  permissionsTable: PermissionsTable<any, any, any, any, any>
+) {
   const testDB = new Kysely<any>({
     dialect: new PostgresDialect({ pool: new Pool(postgresConfig) }),
   });
+  await permissionsTable.drop(testDB);
+  await dropTables(testDB); // in case database is out of sorts
   await createTables(testDB, keyDataType);
   return testDB;
 }
 
-export async function destroyDB<DB>(db: Kysely<DB>) {
+export async function destroyDB<DB>(
+  db: Kysely<DB>,
+  permissionsTable: PermissionsTable<any, any, any, any, any>
+) {
+  await permissionsTable.drop(db);
   await dropTables(db);
   return db.destroy();
 }
