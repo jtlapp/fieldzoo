@@ -18,15 +18,15 @@ export function getStrKeyPermissionsTable<
   return new PermissionsTable({
     databaseSyntax: "postgres",
     ownerPermissions: AccessLevel.Owner,
-    userTableName: "users",
-    userKeyColumn: "id",
-    userKeyDataType: "text",
-    resourceTableName: "posts",
-    resourceKeyColumn: "postID",
-    resourceKeyDataType: "text",
+    userTable: "users",
+    userIDColumn: "id",
+    userIDDataType: "text",
+    resourceTable: "posts",
+    resourceIDColumn: "postID",
+    resourceIDDataType: "text",
     resourceOwnerKeyColumn: "ownerID",
-    sampleUserKey: "foo" as UserID,
-    sampleResourceKey: "foo" as PostID,
+    sampleUserID: "foo" as UserID,
+    sampleResourceID: "foo" as PostID,
   });
 }
 
@@ -44,8 +44,8 @@ interface Posts {
 }
 
 interface PostAccessLevels {
-  userKey: string;
-  resourceKey: string;
+  userID: string;
+  resourceID: string;
   permissions: number;
 }
 

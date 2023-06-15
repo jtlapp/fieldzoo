@@ -1,9 +1,9 @@
 /**
  * Object reporting permissions to a resource.
  */
-export interface PermissionsResult<ResourceKey, Permissions> {
+export interface PermissionsResult<ResourceID, Permissions> {
   /** Key of the resource */
-  resourceKey: ResourceKey;
+  resourceID: ResourceID;
   /** Permissions to the resource */
   permissions: Permissions;
 }

@@ -23,7 +23,7 @@ export function testGuardingStrKeySelect<
   ) as (
     db: Kysely<StrKeyDB>,
     permissions: AccessLevel,
-    userKey: UserID,
+    userID: UserID,
     query: SelectQueryBuilder<StrKeyDB, "posts", Selectable<StrKeyDB["posts"]>>
   ) => SelectQueryBuilder<
     StrKeyDB,

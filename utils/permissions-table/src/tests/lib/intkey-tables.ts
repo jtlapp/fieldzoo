@@ -18,15 +18,15 @@ export function getIntKeyPermissionsTable<
   return new PermissionsTable({
     databaseSyntax: "postgres",
     ownerPermissions: AccessLevel.Owner,
-    userTableName: "users",
-    userKeyColumn: "id",
-    userKeyDataType: "serial",
-    resourceTableName: "posts",
-    resourceKeyColumn: "postID",
-    resourceKeyDataType: "serial",
+    userTable: "users",
+    userIDColumn: "id",
+    userIDDataType: "integer",
+    resourceTable: "posts",
+    resourceIDColumn: "postID",
+    resourceIDDataType: "integer",
     resourceOwnerKeyColumn: "ownerID",
-    sampleUserKey: 1 as UserID,
-    sampleResourceKey: 1 as PostID,
+    sampleUserID: 1 as UserID,
+    sampleResourceID: 1 as PostID,
   });
 }
 
@@ -44,8 +44,8 @@ interface Posts {
 }
 
 interface PostAccessLevels {
-  userKey: number;
-  resourceKey: number;
+  userID: number;
+  resourceID: number;
   permissions: number;
 }
 

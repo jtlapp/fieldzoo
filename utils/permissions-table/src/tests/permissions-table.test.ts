@@ -219,8 +219,8 @@ describe("PermissionsTable", () => {
       await initIntKeyDB();
       const query = intKeyDB
         .selectFrom(intKeyTable.getTableName())
-        .select("resourceKey")
-        .where("userKey", "=", 5);
+        .select("resourceID")
+        .where("userID", "=", 5);
 
       let rows = await query.execute();
       expect(rows).toHaveLength(2);
@@ -235,8 +235,8 @@ describe("PermissionsTable", () => {
       await initIntKeyDB();
       const query = intKeyDB
         .selectFrom(intKeyTable.getTableName())
-        .select("userKey")
-        .where("resourceKey", "=", 3);
+        .select("userID")
+        .where("resourceID", "=", 3);
 
       let rows = await query.execute();
       expect(rows).toHaveLength(1);
@@ -263,12 +263,12 @@ async function checkPermissions<
   const results = await table
     .getPermissionsQuery(db, userID, (q) => q)
     .execute();
-  results.sort((a, b) => (a.resourceKey < b.resourceKey ? -1 : 1));
+  results.sort((a, b) => (a.resourceID < b.resourceID ? -1 : 1));
   let i = 0;
   for (const result of results) {
     if (expectedResults[i][1]) {
       expect(result).toEqual({
-        resourceKey: expectedResults[i][0],
+        resourceID: expectedResults[i][0],
         permissions: expectedResults[i][1],
       });
       ++i;
@@ -296,7 +296,7 @@ async function checkPermissions<
   );
   expect(permissions1).toEqual(
     expectedResults1.map((result) => ({
-      resourceKey: result[0],
+      resourceID: result[0],
       permissions: result[1],
     }))
   );
@@ -311,7 +311,7 @@ async function checkPermissions<
   );
   expect(permissions2).toEqual(
     expectedResults2.reverse().map((result) => ({
-      resourceKey: result[0],
+      resourceID: result[0],
       permissions: result[1],
     }))
   );

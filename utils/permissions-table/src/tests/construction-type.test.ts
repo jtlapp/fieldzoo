@@ -11,24 +11,24 @@ describe("PermissionsTable construction", () => {
     ignore("invalid key data types", () => {
       new PermissionsTable({
         ownerPermissions: AccessLevel.Write,
-        userTableName: "users",
-        userKeyColumn: "id",
+        userTable: "users",
+        userIDColumn: "id",
         // @ts-expect-error - invalid key data type
-        userKeyDataType: "string",
-        resourceTableName: "posts",
-        resourceKeyColumn: "postID",
-        resourceKeyDataType: "integer",
+        userIDDataType: "string",
+        resourceTable: "posts",
+        resourceIDColumn: "postID",
+        resourceIDDataType: "integer",
         resourceOwnerKeyColumn: "ownerID",
       });
       new PermissionsTable({
         ownerPermissions: AccessLevel.Write,
-        userTableName: "users",
-        userKeyColumn: "id",
-        userKeyDataType: "integer",
-        resourceTableName: "posts",
-        resourceKeyColumn: "postID",
+        userTable: "users",
+        userIDColumn: "id",
+        userIDDataType: "integer",
+        resourceTable: "posts",
+        resourceIDColumn: "postID",
         // @ts-expect-error - invalid key data type
-        resourceKeyDataType: "string",
+        resourceIDDataType: "string",
         resourceOwnerKeyColumn: "ownerID",
       });
     });
@@ -38,65 +38,65 @@ describe("PermissionsTable construction", () => {
       () => {
         new PermissionsTable({
           ownerPermissions: AccessLevel.Write,
-          userTableName: "users",
-          userKeyColumn: "id",
-          userKeyDataType: "integer",
-          resourceTableName: "posts",
-          resourceKeyColumn: "postID",
-          resourceKeyDataType: "integer",
+          userTable: "users",
+          userIDColumn: "id",
+          userIDDataType: "integer",
+          resourceTable: "posts",
+          resourceIDColumn: "postID",
+          resourceIDDataType: "integer",
           resourceOwnerKeyColumn: "ownerID",
           // @ts-expect-error - user key not of correct type
-          sampleUserKey: "invalid",
+          sampleUserID: "invalid",
         });
         new PermissionsTable({
           ownerPermissions: AccessLevel.Write,
-          userTableName: "users",
-          userKeyColumn: "id",
-          userKeyDataType: "text",
-          resourceTableName: "posts",
-          resourceKeyColumn: "postID",
-          resourceKeyDataType: "integer",
+          userTable: "users",
+          userIDColumn: "id",
+          userIDDataType: "text",
+          resourceTable: "posts",
+          resourceIDColumn: "postID",
+          resourceIDDataType: "integer",
           resourceOwnerKeyColumn: "ownerID",
           // @ts-expect-error - user key not of correct type
-          sampleUserKey: 1 as UserID,
+          sampleUserID: 1 as UserID,
         });
 
         new PermissionsTable({
-          userTableName: "users",
-          userKeyColumn: "id",
-          userKeyDataType: "integer",
-          resourceTableName: "posts",
-          resourceKeyColumn: "postID",
-          resourceKeyDataType: "integer",
+          userTable: "users",
+          userIDColumn: "id",
+          userIDDataType: "integer",
+          resourceTable: "posts",
+          resourceIDColumn: "postID",
+          resourceIDDataType: "integer",
           resourceOwnerKeyColumn: "ownerID",
           // @ts-expect-error - resource key not of correct type
-          sampleResourceKey: "invalid",
+          sampleResourceID: "invalid",
         });
         new PermissionsTable({
           ownerPermissions: AccessLevel.Write,
-          userTableName: "users",
-          userKeyColumn: "id",
-          userKeyDataType: "integer",
-          resourceTableName: "posts",
-          resourceKeyColumn: "postID",
-          resourceKeyDataType: "text",
+          userTable: "users",
+          userIDColumn: "id",
+          userIDDataType: "integer",
+          resourceTable: "posts",
+          resourceIDColumn: "postID",
+          resourceIDDataType: "text",
           resourceOwnerKeyColumn: "ownerID",
           // @ts-expect-error - resource key not of correct type
-          sampleResourceKey: 1 as PostID,
+          sampleResourceID: 1 as PostID,
         });
       }
     );
 
-    ignore("correctly defaults UserKey and ResourceKey types", () => {
+    ignore("correctly defaults UserID and ResourceID types", () => {
       const db = null as unknown as Kysely<any>;
       const table1 = new PermissionsTable({
         ownerPermissions: AccessLevel.Write,
-        userTableName: "users",
-        userKeyColumn: "id",
-        userKeyDataType: "integer",
-        resourceTableName: "posts",
-        resourceKeyColumn: "postID",
-        resourceKeyDataType: "integer",
+        userTable: "users",
+        userIDColumn: "id",
+        userIDDataType: "integer",
+        resourceTable: "posts",
+        resourceIDColumn: "postID",
+        resourceIDDataType: "integer",
         resourceOwnerKeyColumn: "ownerID",
       });
       table1.getPermissions(
@@ -118,12 +118,12 @@ describe("PermissionsTable construction", () => {
 
       const table2 = new PermissionsTable({
         ownerPermissions: AccessLevel.Write,
-        userTableName: "users",
-        userKeyColumn: "id",
-        userKeyDataType: "text",
-        resourceTableName: "posts",
-        resourceKeyColumn: "postID",
-        resourceKeyDataType: "uuid",
+        userTable: "users",
+        userIDColumn: "id",
+        userIDDataType: "text",
+        resourceTable: "posts",
+        resourceIDColumn: "postID",
+        resourceIDDataType: "uuid",
         resourceOwnerKeyColumn: "ownerID",
       });
       table2.getPermissions(

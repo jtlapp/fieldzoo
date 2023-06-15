@@ -1,12 +1,12 @@
 /**
  * Postgres data type for the user and resource key columns.
  */
-export type KeyDataType = "integer" | "serial" | "text" | "uuid";
+export type KeyDataType = "integer" | "text" | "uuid";
 
 /**
  * JavaScript type associated with Postgres data types.
  */
-export type KeyType<T extends KeyDataType> = T extends "integer" | "serial"
+export type PrimitiveKeyType<T extends KeyDataType> = T extends "integer"
   ? number
   : string;
 
@@ -15,12 +15,12 @@ export type KeyType<T extends KeyDataType> = T extends "integer" | "serial"
  */
 export interface PermissionsTableConfig<
   UserTable extends string,
-  UserKeyDT extends KeyDataType,
+  UserIDDataType extends KeyDataType,
   ResourceTable extends string,
-  ResourceKeyDT extends KeyDataType,
-  Permissions extends number = number,
-  UserKey extends KeyType<UserKeyDT> = KeyType<UserKeyDT>,
-  ResourceKey extends KeyType<ResourceKeyDT> = KeyType<ResourceKeyDT>
+  ResourceIDDataType extends KeyDataType,
+  Permissions extends number | string = number,
+  UserID extends PrimitiveKeyType<UserIDDataType> = PrimitiveKeyType<UserIDDataType>,
+  ResourceID extends PrimitiveKeyType<ResourceIDDataType> = PrimitiveKeyType<ResourceIDDataType>
 > {
   /** Syntax of the database SQL dialect. */
   databaseSyntax: "mysql" | "postgres" | "sqlite";
@@ -30,23 +30,23 @@ export interface PermissionsTableConfig<
 
   /** Name of the users table. */
   // TODO: rename sans Name suffix
-  userTableName: UserTable;
+  userTable: UserTable;
   /** Name of the key column of the users table. */
-  userKeyColumn: string;
+  userIDColumn: string;
   /** Data type of the key column of the users table. */
-  userKeyDataType: UserKeyDT;
+  userIDDataType: UserIDDataType;
 
   /** Name of the permissions-governed resources table. */
-  resourceTableName: ResourceTable;
+  resourceTable: ResourceTable;
   /** Name of the key column of the resources table. */
-  resourceKeyColumn: string;
+  resourceIDColumn: string;
   /** Data type of the key column of the resources table. */
-  resourceKeyDataType: ResourceKeyDT;
+  resourceIDDataType: ResourceIDDataType;
   /** Name of the owner key column of the resources table. */
   resourceOwnerKeyColumn: string;
 
   /** Sample user key used for inferring a nominal user key type. */
-  sampleUserKey?: UserKey;
+  sampleUserID?: UserID;
   /** Sample resource key used for inferring a nominal resource key type. */
-  sampleResourceKey?: ResourceKey;
+  sampleResourceID?: ResourceID;
 }
