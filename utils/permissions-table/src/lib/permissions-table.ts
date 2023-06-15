@@ -204,10 +204,6 @@ export class PermissionsTable<
     ) => SelectQueryBuilder<DB, TB, O>
   ) {
     const ref = db.dynamic.ref.bind(db.dynamic);
-    const foreignResourceOwnerKeyColumnRef = ref(
-      this.foreignResourceOwnerKeyColumn
-    );
-
     return resourceSelector(
       db
         .selectFrom(this.config.resourceTableName as unknown as TB)
@@ -216,7 +212,7 @@ export class PermissionsTable<
           sql.lit(this.config.ownerPermissions).as("permissions"),
         ])
         .where(
-          foreignResourceOwnerKeyColumnRef,
+          ref(this.foreignResourceOwnerKeyColumn),
           "=",
           userKey
         ) as SelectQueryBuilder<
@@ -227,7 +223,6 @@ export class PermissionsTable<
       this.foreignResourceKeyColumn
     ).unionAll(
       resourceSelector(
-        // TODO: why not just use this.tableName? revisit innerJoin
         db
           .selectFrom(this.tableName as keyof DB & string)
           .select([
@@ -236,18 +231,6 @@ export class PermissionsTable<
               .ref<Permissions>(this.internalPermissionsColumn)
               .as("permissions"),
           ])
-          .innerJoin(
-            this.config.resourceTableName as unknown as keyof DB & string,
-            (join) =>
-              join.onRef(
-                ref(this.internalResourceKeyColumn),
-                "=",
-                ref(this.foreignResourceKeyColumn)
-              )
-          )
-          // Including the contrary condition prevents UNION ALL duplicates
-          // and allows the database to short-circuit if 1st condition holds.
-          .where(foreignResourceOwnerKeyColumnRef, "!=", userKey)
           .where(
             ref(this.internalUserKeyColumn),
             "=",
