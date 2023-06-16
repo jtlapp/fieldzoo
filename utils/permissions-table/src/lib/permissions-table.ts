@@ -8,26 +8,38 @@ import {
 } from "./permissions-table-config";
 import { PermissionsResult } from "./permissions-result";
 
-// TODO: revise comments
-
-// TODO: consider putting public access level in resource row so resources
-// can be retrieved for the public without a join (I don't actually know if
-// I can use null in the permissions table).
-
-// TODO: rename UserID/ResourceID to UserID/ResourceID but not the *KeyDT types
-
-// TODO: look at making owners optional
-
-// TODO: I can make permissions checks more efficient by requiring them to
-// indicate owner permissions, which then also makes owners optional and
-// managed outside this library.
-
 /**
- * Class representing user permissions to resources indicated by rows in a
- * resources table. Each resource has an owner having permissions, regardless
- * of whether the permissions table explicitly assigns permissions to the
- * owner. Permissions are merely numbers, so they can be used to represent
- * permissionss or privilege flags, etc.
+ * Class managing user permissions to database resources. Each resource is a row
+ * of a particular resource table, and the class manages a table that is
+ * dedicated to storing permissions for this single resource table. Permissions
+ * are integers, so they can be used for access levels or flags. Deleting a user
+ * or resource automatically deletes the associated permissions. The `null` user
+ * ID represents public users and can be assigned permissions, providing the
+ * minimum permissions for all users.
+ *
+ * The implementation ensures that you cannot accidentally grant the public user
+ * more than a specified permissions level or have a user grant more permissions
+ * than users are allowed to grant. Attempts to set permissions above these
+ * limits throws an error, and if the database somehow ends up with permissions
+ * in excess of these limits, the permissions reported automatically reduce to
+ * the maximums that the configuration allows.
+ *
+ * An application that wishes to give the public identical access (or no access)
+ * to all resources of a table can set `maxPublicPermissions` to 0 to disable
+ * per-resource control of public access. In this case, the application
+ * determines public permissions by means other than this class.
+ *
+ * An application calls `getPermissions()` to determine a user's permissions,
+ * which will be the greater of the permissions explicitly granted to the user
+ * (if any) and the permissions granted to the public (if any). For resources
+ * with owners having owner permissions, either the application tests for owner
+ * permissions separately from this class, or the application stores owner
+ * permissions in the class's permissions table. In the latter case, be sure to
+ * set `maxUserGrantedPermissions` to less than the owner permissions.
+ *
+ * The type parameters allow you to specify the types of user and resource IDs,
+ * which can even be nominal types, though they must extend either strings or
+ * numbers. You can also configure the permission table's name.
  */
 export class PermissionsTable<
   UserTable extends string,
@@ -65,9 +77,7 @@ export class PermissionsTable<
   // cache these values to improve performance
   private readonly foreignUserIDColumn: string;
   private readonly foreignResourceIDColumn: string;
-  private readonly internalGrantedToColumn: string;
   private readonly internalResourceIDColumn: string;
-  private readonly internalPermissionsColumn: string;
 
   constructor(
     config: PermissionsTableConfig<
@@ -80,18 +90,22 @@ export class PermissionsTable<
       ResourceID
     >
   ) {
+    if (config.maxPublicPermissions > config.maxUserGrantedPermissions) {
+      // This check allows us to save some clock cycles in _makePermissionsSafe()
+      throw Error(
+        "maxPublicPermissions cannot be greater than maxUserGrantedPermissions"
+      );
+    }
     Object.assign(this, config); // copy in case supplied config is changed
     this.tableName ??= `${config.resourceTable}_permissions` as TableName;
     this.foreignUserIDColumn = `${config.userTable}.${config.userIDColumn}`;
     this.foreignResourceIDColumn = `${config.resourceTable}.${config.resourceIDColumn}`;
-    this.internalGrantedToColumn = `${this.tableName}.grantedTo`;
     this.internalResourceIDColumn = `${this.tableName}.resourceID`;
-    this.internalPermissionsColumn = `${this.tableName}.permissions`;
   }
 
   /**
-   * Returns a CreateTableBuilder for creating a permissions table for the
-   * configured resource table. Permissions table rows are deleted when the
+   * Returns a CreateTableBuilder for creating a permissions table for
+   * the configured resource. Permissions table rows are deleted when the
    * associated user or resource is deleted (cascading on delete).
    * @param db Database connection.
    */
@@ -131,10 +145,12 @@ export class PermissionsTable<
 
   /**
    * Returns the permissions a user has to a resource, returning 0 if the
-   * user has no permissions, and returning the configured owner permissions
-   * if the user is the owner of the resource.
+   * user has no permissions. If the user was assigned fewer permissions than
+   * are available to the public, the public permissions are returned. The
+   * returned permissions are limited by the configured `maxPublicPermissions`
+   * and `maxUserGrantedPermissions`.
    * @param db Database connection.
-   * @param userID ID of user to get permissions for; null for public user.
+   * @param grantedTo ID of the user; null for public users.
    * @param resourceID Key of resource to get permissions for.
    * @returns The permissions the user has to the resource.
    */
@@ -146,10 +162,12 @@ export class PermissionsTable<
 
   /**
    * Returns the permissions a user has to a list of resources, returning one
-   * entry for each resource, including resources with 0 permissions. Returns
-   * the configured owner permissions if the user is the owner of a resource.
+   * entry for each resource, including resources with 0 permissions. If the
+   * user was assigned fewer permissions than are available to the public, the
+   * public permissions are returned. The returned permissions are limited by
+   * the configured `maxPublicPermissions` and `maxUserGrantedPermissions`.
    * @param db Database connection.
-   * @param userID ID of user to get permissions for; null for public user.
+   * @param grantedTo ID of the user; null for public users.
    * @param resourceID Keys of resources to get permissions for.
    * @returns The permissions the user has to the resources.
    */
@@ -157,14 +175,15 @@ export class PermissionsTable<
     db: Kysely<DB>,
     grantedTo: UserID | null,
     resourceIDs: ResourceID[]
-  ): Promise<PermissionsResult<ResourceID, Permissions>[]>;
+  ): Promise<PermissionsResult<UserID, ResourceID, Permissions>[]>;
 
   async getPermissions<DB>(
     db: Kysely<DB>,
     grantedTo: UserID | null,
     resourceIDOrKeys: ResourceID | ResourceID[]
-  ): Promise<Permissions | PermissionsResult<ResourceID, Permissions>[]> {
-    // TODO: undefined permissions needs to default to public
+  ): Promise<
+    Permissions | PermissionsResult<UserID, ResourceID, Permissions>[]
+  > {
     if (Array.isArray(resourceIDOrKeys)) {
       const sortedResourceIDs = resourceIDOrKeys.slice().sort();
       const results = await this.getPermissionsQuery(db, grantedTo)
@@ -176,25 +195,24 @@ export class PermissionsTable<
         .orderBy(db.dynamic.ref("resourceID"))
         .execute();
 
-      const permissions = new Array<PermissionsResult<ResourceID, Permissions>>(
-        resourceIDOrKeys.length
-      );
-      let resultIndex = 0;
+      const permissions = new Array<
+        PermissionsResult<UserID, ResourceID, Permissions>
+      >(resourceIDOrKeys.length);
+      let resultsIndex = 0;
       for (let i = 0; i < sortedResourceIDs.length; ++i) {
         const sourceResourceID = sortedResourceIDs[i];
-        const result = results[resultIndex];
+        const result = results[resultsIndex];
         if (result !== undefined && result.resourceID === sourceResourceID) {
-          result.permissions = this._toSafePermissions(
+          [permissions[i], resultsIndex] = this._toGreaterResult(
             grantedTo,
-            result.permissions,
-            result.grantedBy
+            results,
+            resultsIndex
           );
-          permissions[i] = result;
-          ++resultIndex;
         } else {
           permissions[i] = {
             resourceID: sourceResourceID,
             permissions: 0 as Permissions,
+            grantedBy: null,
           };
         }
       }
@@ -205,14 +223,13 @@ export class PermissionsTable<
         "=",
         resourceIDOrKeys
       );
-      const result = await query.executeTakeFirst();
-      return result === undefined
-        ? (0 as Permissions)
-        : this._toSafePermissions(
-            grantedTo,
-            result.permissions,
-            result.grantedBy
-          );
+      const results = await query.execute();
+      if (results.length === 0) {
+        return 0 as Permissions;
+      }
+      const [result, _] = this._toGreaterResult(grantedTo, results, 0);
+      this._makePermissionsSafe(grantedTo, result);
+      return result.permissions;
     }
   }
 
@@ -221,7 +238,7 @@ export class PermissionsTable<
    * returning 0 if the user has no permissions, and returning the configured
    * owner permissions if the user is the owner of the resource.
    * @param db Database connection.
-   * @param userID ID of user to get permissions for; null for public user.
+   * @param grantedTo ID of the user; null for public users.
    * @param resourceSelector Function that returns a query selecting the
    *  resource or resources to get permissions for. Its first argument is a
    *  query that selects from the resources table, and its second argument is
@@ -233,29 +250,22 @@ export class PermissionsTable<
     db: Kysely<DB>,
     grantedTo: UserID | null
   ) {
-    const baseQuery = db
+    return db
       .selectFrom(this.tableName as unknown as TB)
       .select([
         sql.ref(this.internalResourceIDColumn).as("resourceID"),
-        sql.ref<Permissions>(this.internalPermissionsColumn).as("permissions"),
+        sql.ref("permissions").as("permissions"),
         sql.ref("grantedBy").as("grantedBy"),
-      ]);
-    const query =
-      grantedTo === null
-        ? baseQuery.where(
-            db.dynamic.ref(this.internalGrantedToColumn),
-            "is",
-            null
-          )
-        : baseQuery.where(
-            db.dynamic.ref(this.internalGrantedToColumn),
-            "=",
-            grantedTo
-          );
-    return query as SelectQueryBuilder<
+      ])
+      .where(({ or, cmpr }) =>
+        or([
+          cmpr(db.dynamic.ref("grantedTo"), "is", null),
+          cmpr(db.dynamic.ref("grantedTo"), "=", grantedTo),
+        ])
+      ) as SelectQueryBuilder<
       DB,
       TB,
-      PermissionsResult<ResourceID, Permissions> & { grantedBy: UserID | null }
+      PermissionsResult<UserID, ResourceID, Permissions>
     >;
   }
 
@@ -268,9 +278,9 @@ export class PermissionsTable<
   }
 
   /**
-   * Removes a permissions grant.
+   * Removes a permissions grant for a user.
    * @param db Database connection.
-   * @param userID ID of user to remove grant for; null for public user.
+   * @param grantedTo ID of the user; null for public users.
    * @param resourceID Key of resource to remove grant for.
    */
   async removePermissions<DB, TB extends keyof DB & TableName>(
@@ -286,9 +296,13 @@ export class PermissionsTable<
   }
 
   /**
-   * Sets the permissions of a user to the given resource.
+   * Sets the permissions of a user to the given resource. If the permissions
+   * granted are less than those available to the public for the resource, the
+   * grant will be recorded as requested, but queries for the user's
+   * permissions will return the public permissions. However, in this case,
+   * later reducing the public permissions will reduce the user's permissions.
    * @param db Database connection.
-   * @param userID Key of user to grant access to.
+   * @param grantedTo ID of the user; null for public users.
    * @param resourceID Key of resource to grant access to.
    * @param permissions Access level to assign.
    */
@@ -344,21 +358,56 @@ export class PermissionsTable<
     }
   }
 
-  private _toSafePermissions(
+  /**
+   * Returns the permissions result with the greatest permissions of two
+   * sequential results for the same user and same resource. If there are
+   * sequential results, one is for the user and the other is for public.
+   * @param grantedTo ID of the user; null for public users.
+   * @param results Permissions results containing results to compare.
+   * @param resultsIndex Index of the first result to compare; the second
+   *  result compared is at the next index, if present.
+   * @returns The permissions result with the greatest permissions.
+   */
+  private _toGreaterResult(
     grantedTo: UserID | null,
-    permissions: Permissions,
-    grantedBy: UserID | null
-  ): Permissions {
+    results: PermissionsResult<UserID, ResourceID, Permissions>[],
+    resultsIndex: number
+  ): [PermissionsResult<UserID, ResourceID, Permissions>, number] {
+    const firstResult = results[resultsIndex];
+    this._makePermissionsSafe(grantedTo, firstResult);
+    if (++resultsIndex < results.length) {
+      const nextResult = results[resultsIndex];
+      if (nextResult.resourceID === firstResult.resourceID) {
+        ++resultsIndex;
+        this._makePermissionsSafe(grantedTo, nextResult);
+        if (nextResult.permissions > firstResult.permissions) {
+          return [nextResult, resultsIndex];
+        }
+      }
+    }
+    return [firstResult, resultsIndex];
+  }
+
+  /**
+   * Limit returned permissions to `maxPublicPermissions` for the public and
+   * `maxUserGrantedPermissions` for non-system users.
+   * @param grantedTo ID of the user; null for public users.
+   * @param result Permissions result in which to reduce permissions.
+   */
+  private _makePermissionsSafe(
+    grantedTo: UserID | null,
+    result: PermissionsResult<UserID, ResourceID, Permissions>
+  ): void {
     if (grantedTo === null) {
-      return permissions > this.maxPublicPermissions
-        ? this.maxPublicPermissions
-        : permissions;
+      result.permissions =
+        result.permissions > this.maxPublicPermissions
+          ? this.maxPublicPermissions
+          : result.permissions;
+    } else if (result.grantedBy !== null) {
+      result.permissions =
+        result.permissions > this.maxUserGrantedPermissions
+          ? this.maxUserGrantedPermissions
+          : result.permissions;
     }
-    if (grantedBy !== null) {
-      return permissions > this.maxUserGrantedPermissions
-        ? this.maxUserGrantedPermissions
-        : permissions;
-    }
-    return permissions;
   }
 }

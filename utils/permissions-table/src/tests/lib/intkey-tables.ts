@@ -17,14 +17,14 @@ export function getIntKeyPermissionsTable<
 >() {
   return new PermissionsTable({
     databaseSyntax: "postgres",
-    ownerPermissions: AccessLevel.Owner,
+    maxPublicPermissions: AccessLevel.Read,
+    maxUserGrantedPermissions: AccessLevel.Write,
     userTable: "users",
     userIDColumn: "id",
     userIDDataType: "integer",
     resourceTable: "posts",
     resourceIDColumn: "postID",
     resourceIDDataType: "integer",
-    resourceOwnerKeyColumn: "ownerID",
     sampleUserID: 1 as UserID,
     sampleResourceID: 1 as PostID,
   });

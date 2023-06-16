@@ -17,14 +17,14 @@ export function getStrKeyPermissionsTable<
 >() {
   return new PermissionsTable({
     databaseSyntax: "postgres",
-    ownerPermissions: AccessLevel.Owner,
+    maxPublicPermissions: AccessLevel.Read,
+    maxUserGrantedPermissions: AccessLevel.Write,
     userTable: "users",
     userIDColumn: "id",
     userIDDataType: "text",
     resourceTable: "posts",
     resourceIDColumn: "postID",
     resourceIDDataType: "text",
-    resourceOwnerKeyColumn: "ownerID",
     sampleUserID: "foo" as UserID,
     sampleResourceID: "foo" as PostID,
   });
