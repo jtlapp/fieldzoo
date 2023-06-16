@@ -59,19 +59,22 @@ async function initIntKeyDB() {
     intKeyDB,
     4 as IntUserID,
     1 as IntPostID,
-    AccessLevel.Read
+    AccessLevel.Read,
+    null
   );
   await intKeyTable.setPermissions(
     intKeyDB,
     5 as IntUserID,
     2 as IntPostID,
-    AccessLevel.Read
+    AccessLevel.Read,
+    null
   );
   await intKeyTable.setPermissions(
     intKeyDB,
     5 as IntUserID,
     3 as IntPostID,
-    AccessLevel.Write
+    AccessLevel.Write,
+    1 as IntUserID
   );
 }
 
@@ -98,7 +101,8 @@ async function initStrKeyDB() {
     strKeyDB,
     "u1" as StrUserID,
     "p2" as StrPostID,
-    AccessLevel.Read
+    AccessLevel.Read,
+    "u2" as StrUserID
   );
 }
 
@@ -220,7 +224,7 @@ describe("PermissionsTable", () => {
       const query = intKeyDB
         .selectFrom(intKeyTable.getTableName())
         .select("resourceID")
-        .where("userID", "=", 5);
+        .where("grantedTo", "=", 5);
 
       let rows = await query.execute();
       expect(rows).toHaveLength(2);
@@ -235,7 +239,7 @@ describe("PermissionsTable", () => {
       await initIntKeyDB();
       const query = intKeyDB
         .selectFrom(intKeyTable.getTableName())
-        .select("userID")
+        .select("grantedTo")
         .where("resourceID", "=", 3);
 
       let rows = await query.execute();

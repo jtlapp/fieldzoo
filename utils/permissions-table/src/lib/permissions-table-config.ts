@@ -1,4 +1,9 @@
 /**
+ * Supported database dialect syntaxes.
+ */
+export type DatabaseSyntax = "mysql" | "postgres" | "sqlite";
+
+/**
  * Postgres data type for the user and resource key columns.
  */
 export type KeyDataType = "integer" | "text" | "uuid";
@@ -18,35 +23,46 @@ export interface PermissionsTableConfig<
   UserIDDataType extends KeyDataType,
   ResourceTable extends string,
   ResourceIDDataType extends KeyDataType,
-  Permissions extends number | string = number,
+  Permissions extends number = number,
   UserID extends PrimitiveKeyType<UserIDDataType> = PrimitiveKeyType<UserIDDataType>,
-  ResourceID extends PrimitiveKeyType<ResourceIDDataType> = PrimitiveKeyType<ResourceIDDataType>
+  ResourceID extends PrimitiveKeyType<ResourceIDDataType> = PrimitiveKeyType<ResourceIDDataType>,
+  TableName extends string = `${ResourceTable}_permissions`
 > {
-  /** Syntax of the database SQL dialect. */
-  databaseSyntax: "mysql" | "postgres" | "sqlite";
+  /** Syntax of the database SQL dialect */
+  databaseSyntax: DatabaseSyntax;
 
-  /** Owner's permissions, used for returning permissions of owner. */
-  ownerPermissions: Permissions;
+  /** Name of the permissions table */
+  tableName?: TableName;
 
-  /** Name of the users table. */
-  // TODO: rename sans Name suffix
+  /**
+   * Maximum valid permissions for the public user (having a `null` user ID).
+   * 0 disallows public access. Used to prevent accidentally granting the
+   * public excessive permissions. Also used to infer the permissions type.
+   */
+  maxPublicPermissions: Permissions;
+  /**
+   * Maximum permissions that a user can grant to another user. The system
+   * user (with `null` user ID) can grant greater permissions. Used to prevent
+   * accidentally granting excessive permissions.
+   */
+  maxUserGrantedPermissions: Permissions;
+
+  /** Name of the users table */
   userTable: UserTable;
-  /** Name of the key column of the users table. */
+  /** Name of the key column of the users table */
   userIDColumn: string;
-  /** Data type of the key column of the users table. */
+  /** Data type of the key column of the users table */
   userIDDataType: UserIDDataType;
 
-  /** Name of the permissions-governed resources table. */
+  /** Name of the permissions-governed resources table */
   resourceTable: ResourceTable;
-  /** Name of the key column of the resources table. */
+  /** Name of the key column of the resources table */
   resourceIDColumn: string;
-  /** Data type of the key column of the resources table. */
+  /** Data type of the key column of the resources table */
   resourceIDDataType: ResourceIDDataType;
-  /** Name of the owner key column of the resources table. */
-  resourceOwnerKeyColumn: string;
 
-  /** Sample user key used for inferring a nominal user key type. */
+  /** Sample user key used for inferring a nominal user key type */
   sampleUserID?: UserID;
-  /** Sample resource key used for inferring a nominal resource key type. */
+  /** Sample resource key used for inferring a nominal resource key type */
   sampleResourceID?: ResourceID;
 }
