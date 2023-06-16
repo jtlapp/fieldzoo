@@ -74,7 +74,6 @@ export class PermissionsTable<
 
   // cache these values to improve performance
   private readonly foreignUserIDColumn: string;
-  private readonly internalResourceIDColumn: string;
 
   constructor(
     config: PermissionsTableConfig<
@@ -96,7 +95,6 @@ export class PermissionsTable<
     Object.assign(this, config); // copy in case supplied config is changed
     this.tableName ??= `${config.resourceTable}_permissions` as TableName;
     this.foreignUserIDColumn = `${config.userTable}.${config.userIDColumn}`;
-    this.internalResourceIDColumn = `${this.tableName}.resourceID`;
   }
 
   /**
@@ -184,11 +182,7 @@ export class PermissionsTable<
     if (Array.isArray(resourceIDOrKeys)) {
       const sortedResourceIDs = resourceIDOrKeys.slice().sort();
       const results = await this._getPermissionsQuery(db, grantedTo)
-        .where(
-          db.dynamic.ref(this.internalResourceIDColumn),
-          "in",
-          sortedResourceIDs
-        )
+        .where(db.dynamic.ref("resourceID"), "in", sortedResourceIDs)
         .orderBy(db.dynamic.ref("resourceID"))
         .execute();
 
@@ -216,7 +210,7 @@ export class PermissionsTable<
       return permissions;
     } else {
       const query = this._getPermissionsQuery(db, grantedTo).where(
-        db.dynamic.ref(this.internalResourceIDColumn),
+        db.dynamic.ref("resourceID"),
         "=",
         resourceIDOrKeys
       );
@@ -323,7 +317,7 @@ export class PermissionsTable<
       .selectFrom(this.tableName as unknown as TB)
       .select([
         // TODO: revisit types
-        sql.ref(this.internalResourceIDColumn).as("resourceID"),
+        sql.ref("resourceID").as("resourceID"),
         sql.ref("permissions").as("permissions"),
         sql.ref("grantedBy").as("grantedBy"),
       ])
