@@ -315,12 +315,12 @@ export class PermissionsTable<
   ) {
     if (grantedTo === null && permissions > this.maxPublicPermissions) {
       throw Error(
-        `Public user cannot be granted permissions > ${this.maxPublicPermissions}`
+        `Public users cannot be granted permissions > ${this.maxPublicPermissions}`
       );
     }
     if (grantedBy !== null && permissions > this.maxUserGrantedPermissions) {
       throw Error(
-        `User cannot grant permissions > ${this.maxUserGrantedPermissions}`
+        `Users cannot grant permissions > ${this.maxUserGrantedPermissions}`
       );
     }
     switch (this.databaseSyntax) {
