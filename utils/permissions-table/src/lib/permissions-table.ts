@@ -72,9 +72,6 @@ export class PermissionsTable<
   readonly resourceIDColumn!: string;
   readonly resourceIDDataType!: ResourceIDDataType;
 
-  // cache these values to improve performance
-  private readonly foreignUserIDColumn: string;
-
   constructor(
     config: PermissionsTableConfig<
       UserTable,
@@ -94,7 +91,6 @@ export class PermissionsTable<
     }
     Object.assign(this, config); // copy in case supplied config is changed
     this.tableName ??= `${config.resourceTable}_permissions` as TableName;
-    this.foreignUserIDColumn = `${config.userTable}.${config.userIDColumn}`;
   }
 
   /**
@@ -104,10 +100,11 @@ export class PermissionsTable<
    * @param db Database connection.
    */
   async create(db: Kysely<any>) {
+    const foreignUserIDColumn = `${this.userTable}.${this.userIDColumn}`;
     await db.schema
       .createTable(this.tableName)
       .addColumn("grantedTo", this.userIDDataType, (col) => {
-        col = col.references(this.foreignUserIDColumn).onDelete("cascade");
+        col = col.references(foreignUserIDColumn).onDelete("cascade");
         return this.maxPublicPermissions === 0 ? col.notNull() : col;
       })
       .addColumn("resourceID", this.resourceIDDataType, (col) =>
@@ -121,7 +118,7 @@ export class PermissionsTable<
         col.notNull().defaultTo(sql`now()`)
       )
       .addColumn("grantedBy", this.userIDDataType, (col) =>
-        col.references(this.foreignUserIDColumn)
+        col.references(foreignUserIDColumn)
       )
       .execute();
 
