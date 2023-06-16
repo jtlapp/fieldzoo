@@ -7,7 +7,7 @@ export async function createIntKeyDB(
   permissionsTable: PermissionsTable<any, any, any, any, any>
 ) {
   const db = await createDB("serial", permissionsTable);
-  await permissionsTable.construct(db).execute();
+  await permissionsTable.create(db);
   return db;
 }
 
@@ -16,7 +16,6 @@ export function getIntKeyPermissionsTable<
   PostID extends number
 >() {
   return new PermissionsTable({
-    databaseSyntax: "postgres",
     maxPublicPermissions: AccessLevel.Read,
     maxUserGrantedPermissions: AccessLevel.Write,
     userTable: "users",
@@ -44,9 +43,11 @@ interface Posts {
 }
 
 interface PostAccessLevels {
-  userID: number;
+  grantedTo: number;
   resourceID: number;
   permissions: number;
+  grantedAt: Date;
+  grantedBy: number;
 }
 
 interface Comments {

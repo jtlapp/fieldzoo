@@ -13,6 +13,8 @@ import {
   getStrKeyPermissionsTable,
 } from "./lib/strkey-tables";
 
+// TODO: rename access level to permissions in tests
+
 type IntUserID = number & { readonly __brand: unique symbol };
 type IntPostID = number & { readonly __brand: unique symbol };
 
@@ -55,6 +57,34 @@ async function initIntKeyDB() {
     .execute();
 
   // permissions assignments
+  await intKeyTable.setPermissions(
+    intKeyDB,
+    2 as IntUserID,
+    1 as IntPostID,
+    AccessLevel.Owner,
+    null
+  );
+  await intKeyTable.setPermissions(
+    intKeyDB,
+    3 as IntUserID,
+    2 as IntPostID,
+    AccessLevel.Owner,
+    null
+  );
+  await intKeyTable.setPermissions(
+    intKeyDB,
+    3 as IntUserID,
+    3 as IntPostID,
+    AccessLevel.Owner,
+    null
+  );
+  await intKeyTable.setPermissions(
+    intKeyDB,
+    4 as IntUserID,
+    4 as IntPostID,
+    AccessLevel.Owner,
+    null
+  );
   await intKeyTable.setPermissions(
     intKeyDB,
     4 as IntUserID,
@@ -100,6 +130,13 @@ async function initStrKeyDB() {
   await strKeyTable.setPermissions(
     strKeyDB,
     "u1" as StrUserID,
+    "p1" as StrPostID,
+    AccessLevel.Owner,
+    null
+  );
+  await strKeyTable.setPermissions(
+    strKeyDB,
+    "u1" as StrUserID,
     "p2" as StrPostID,
     AccessLevel.Read,
     "u2" as StrUserID
@@ -127,47 +164,47 @@ describe("PermissionsTable", () => {
       it("grants no access when no rights", async () => {
         await initIntKeyDB();
         await checkPermissions(intKeyDB, 1 as IntUserID, intKeyTable, [
-          [1, AccessLevel.None],
-          [2, AccessLevel.None],
-          [3, AccessLevel.None],
-          [4, AccessLevel.None],
+          [1, AccessLevel.None, null],
+          [2, AccessLevel.None, null],
+          [3, AccessLevel.None, null],
+          [4, AccessLevel.None, null],
         ]);
       });
 
       it("grants access to the resource owner", async () => {
         await initIntKeyDB();
         await checkPermissions(intKeyDB, 2 as IntUserID, intKeyTable, [
-          [1, AccessLevel.Owner],
-          [2, AccessLevel.None],
-          [3, AccessLevel.None],
-          [4, AccessLevel.None],
+          [1, AccessLevel.Owner, null],
+          [2, AccessLevel.None, null],
+          [3, AccessLevel.None, null],
+          [4, AccessLevel.None, null],
         ]);
 
         await checkPermissions(intKeyDB, 3 as IntUserID, intKeyTable, [
-          [1, AccessLevel.None],
-          [2, AccessLevel.Owner],
-          [3, AccessLevel.Owner],
-          [4, AccessLevel.None],
+          [1, AccessLevel.None, null],
+          [2, AccessLevel.Owner, null],
+          [3, AccessLevel.Owner, null],
+          [4, AccessLevel.None, null],
         ]);
       });
 
       it("grants access to users by permissions, but no higher", async () => {
         await initIntKeyDB();
         await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
-          [1, AccessLevel.Read],
-          [2, AccessLevel.None],
-          [3, AccessLevel.None],
-          [4, AccessLevel.Owner],
+          [1, AccessLevel.Read, null],
+          [2, AccessLevel.None, null],
+          [3, AccessLevel.None, null],
+          [4, AccessLevel.Owner, null],
         ]);
       });
 
       it("grants access to assigned permissions and lower", async () => {
         await initIntKeyDB();
         await checkPermissions(intKeyDB, 5 as IntUserID, intKeyTable, [
-          [1, AccessLevel.None],
-          [2, AccessLevel.Read],
-          [3, AccessLevel.Write],
-          [4, AccessLevel.None],
+          [1, AccessLevel.None, null],
+          [2, AccessLevel.Read, null],
+          [3, AccessLevel.Write, 1 as IntUserID],
+          [4, AccessLevel.None, null],
         ]);
       });
     });
@@ -176,44 +213,116 @@ describe("PermissionsTable", () => {
       it("grants access by resource owner and permissions", async () => {
         await initStrKeyDB();
         await checkPermissions(strKeyDB, "u1" as StrUserID, strKeyTable, [
-          ["p1", AccessLevel.Owner],
-          ["p2", AccessLevel.Read],
-          ["p3", AccessLevel.None],
+          ["p1", AccessLevel.Owner, null],
+          ["p2", AccessLevel.Read, "u2" as StrUserID],
+          ["p3", AccessLevel.None, null],
         ]);
       });
     });
   });
 
   describe("setPermissions()", () => {
-    it("setting permissions to 0 removes access", async () => {
+    it("setting permissions to 0 reduces access to public permissions", async () => {
       await initIntKeyDB();
+
+      // test without public permissions
+
       await intKeyTable.setPermissions(
         intKeyDB,
         4 as IntUserID,
         1 as IntPostID,
-        AccessLevel.None
+        AccessLevel.None,
+        null
       );
       await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
-        [1, AccessLevel.None],
-        [2, AccessLevel.None],
-        [3, AccessLevel.None],
-        [4, AccessLevel.Owner],
+        [1, AccessLevel.None, null],
+        [2, AccessLevel.None, null],
+        [3, AccessLevel.None, null],
+        [4, AccessLevel.Owner, null],
+      ]);
+
+      // test with public permissions, granted by user 2, overriding 0 permissions
+
+      await intKeyTable.setPermissions(
+        intKeyDB,
+        null,
+        1 as IntPostID,
+        AccessLevel.Read,
+        2 as IntUserID
+      );
+      await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
+        [1, AccessLevel.Read, 2 as IntUserID],
+        [2, AccessLevel.None, null],
+        [3, AccessLevel.None, null],
+        [4, AccessLevel.Owner, null],
+      ]);
+
+      // test with public permissions, granted by system
+
+      await intKeyTable.setPermissions(
+        intKeyDB,
+        null,
+        1 as IntPostID,
+        AccessLevel.None,
+        null
+      );
+      await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
+        [1, AccessLevel.None, null],
+        [2, AccessLevel.None, null],
+        [3, AccessLevel.None, null],
+        [4, AccessLevel.Owner, null],
       ]);
     });
 
     it("changes existing permissions", async () => {
       await initIntKeyDB();
+
+      // test with a first user increasing permissions
+
       await intKeyTable.setPermissions(
         intKeyDB,
         4 as IntUserID,
         1 as IntPostID,
-        AccessLevel.Write
+        AccessLevel.Write,
+        2 as IntUserID
       );
       await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
-        [1, AccessLevel.Write],
-        [2, AccessLevel.None],
-        [3, AccessLevel.None],
-        [4, AccessLevel.Owner],
+        [1, AccessLevel.Write, 2 as IntUserID],
+        [2, AccessLevel.None, null],
+        [3, AccessLevel.None, null],
+        [4, AccessLevel.Owner, null],
+      ]);
+
+      // test with a second user decreasing permissions
+
+      await intKeyTable.setPermissions(
+        intKeyDB,
+        4 as IntUserID,
+        1 as IntPostID,
+        AccessLevel.Read,
+        3 as IntUserID
+      );
+      await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
+        [1, AccessLevel.Read, 3 as IntUserID],
+        [2, AccessLevel.None, null],
+        [3, AccessLevel.None, null],
+        [4, AccessLevel.Owner, null],
+      ]);
+
+      // test with system zeroing permissions
+
+      await intKeyTable.setPermissions(
+        intKeyDB,
+        4 as IntUserID,
+        1 as IntPostID,
+        AccessLevel.None,
+        null
+      );
+      await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
+        [1, AccessLevel.None, null],
+        [2, AccessLevel.None, null],
+        [3, AccessLevel.None, null],
+        [4, AccessLevel.Owner, null],
       ]);
     });
   });
@@ -243,7 +352,7 @@ describe("PermissionsTable", () => {
         .where("resourceID", "=", 3);
 
       let rows = await query.execute();
-      expect(rows).toHaveLength(1);
+      expect(rows).toHaveLength(2);
 
       await intKeyDB.deleteFrom("posts").where("postID", "=", 3).execute();
 
@@ -260,25 +369,8 @@ async function checkPermissions<
   db: Kysely<any>,
   userID: UserID,
   table: PermissionsTable<any, any, any, any, any>,
-  expectedResults: [ResourceID, AccessLevel][]
+  expectedResults: [ResourceID, AccessLevel, UserID | null][]
 ) {
-  // test getPermissionsQuery()
-
-  const results = await table
-    .getPermissionsQuery(db, userID, (q) => q)
-    .execute();
-  results.sort((a, b) => (a.resourceID < b.resourceID ? -1 : 1));
-  let i = 0;
-  for (const result of results) {
-    if (expectedResults[i][1]) {
-      expect(result).toEqual({
-        resourceID: expectedResults[i][0],
-        permissions: expectedResults[i][1],
-      });
-      ++i;
-    }
-  }
-
   // test getPermissions() for a single resource
 
   for (const expectedResult of expectedResults) {
@@ -302,6 +394,7 @@ async function checkPermissions<
     expectedResults1.map((result) => ({
       resourceID: result[0],
       permissions: result[1],
+      grantedBy: result[2],
     }))
   );
 
@@ -317,6 +410,7 @@ async function checkPermissions<
     expectedResults2.reverse().map((result) => ({
       resourceID: result[0],
       permissions: result[1],
+      grantedBy: result[2],
     }))
   );
 }

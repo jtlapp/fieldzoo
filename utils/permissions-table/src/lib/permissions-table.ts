@@ -1,7 +1,6 @@
 import { Kysely, SelectQueryBuilder, sql } from "kysely";
 
 import {
-  DatabaseSyntax,
   KeyDataType,
   PrimitiveKeyType,
   PermissionsTableConfig,
@@ -63,7 +62,6 @@ export class PermissionsTable<
     >
 {
   // copy of PermissionsTableConfig properties
-  readonly databaseSyntax!: DatabaseSyntax;
   readonly tableName: TableName;
   readonly maxPublicPermissions!: Permissions;
   readonly maxUserGrantedPermissions!: Permissions;
@@ -99,18 +97,19 @@ export class PermissionsTable<
     Object.assign(this, config); // copy in case supplied config is changed
     this.tableName ??= `${config.resourceTable}_permissions` as TableName;
     this.foreignUserIDColumn = `${config.userTable}.${config.userIDColumn}`;
+    // TODO: I no longer need this ref
     this.foreignResourceIDColumn = `${config.resourceTable}.${config.resourceIDColumn}`;
     this.internalResourceIDColumn = `${this.tableName}.resourceID`;
   }
 
   /**
-   * Returns a CreateTableBuilder for creating a permissions table for
-   * the configured resource. Permissions table rows are deleted when the
-   * associated user or resource is deleted (cascading on delete).
+   * Creates a permissions table for the configured resource. Permissions table
+   * rows are deleted when the associated user or resource is deleted
+   * (cascading on delete).
    * @param db Database connection.
    */
-  construct(db: Kysely<any>) {
-    return db.schema
+  async create(db: Kysely<any>) {
+    await db.schema
       .createTable(this.tableName)
       .addColumn("grantedTo", this.userIDDataType, (col) => {
         col = col.references(this.foreignUserIDColumn).onDelete("cascade");
@@ -129,10 +128,11 @@ export class PermissionsTable<
       .addColumn("grantedBy", this.userIDDataType, (col) =>
         col.references(this.foreignUserIDColumn)
       )
-      .addUniqueConstraint(`${this.tableName}_key`, [
-        "grantedTo",
-        "resourceID",
-      ]);
+      .execute();
+
+    await sql`create unique index "${sql.raw(this.tableName)}_key" 
+      on "${sql.raw(this.tableName)}" ("grantedTo", "resourceID") 
+      nulls not distinct;`.execute(db);
   }
 
   /**
@@ -186,7 +186,7 @@ export class PermissionsTable<
   > {
     if (Array.isArray(resourceIDOrKeys)) {
       const sortedResourceIDs = resourceIDOrKeys.slice().sort();
-      const results = await this.getPermissionsQuery(db, grantedTo)
+      const results = await this._getPermissionsQuery(db, grantedTo)
         .where(
           db.dynamic.ref(this.internalResourceIDColumn),
           "in",
@@ -218,7 +218,7 @@ export class PermissionsTable<
       }
       return permissions;
     } else {
-      const query = this.getPermissionsQuery(db, grantedTo).where(
+      const query = this._getPermissionsQuery(db, grantedTo).where(
         db.dynamic.ref(this.internalResourceIDColumn),
         "=",
         resourceIDOrKeys
@@ -231,42 +231,6 @@ export class PermissionsTable<
       this._makePermissionsSafe(grantedTo, result);
       return result.permissions;
     }
-  }
-
-  /**
-   * Returns a query that returns the permissions a user has to a resource,
-   * returning 0 if the user has no permissions, and returning the configured
-   * owner permissions if the user is the owner of the resource.
-   * @param db Database connection.
-   * @param grantedTo ID of the user; null for public users.
-   * @param resourceSelector Function that returns a query selecting the
-   *  resource or resources to get permissions for. Its first argument is a
-   *  query that selects from the resources table, and its second argument is
-   *  the name of the resource key column to use for selecting resources.
-   * @returns A query that returns the permissions the user has to the
-   *  resource.
-   */
-  getPermissionsQuery<DB, TB extends keyof DB & TableName>(
-    db: Kysely<DB>,
-    grantedTo: UserID | null
-  ) {
-    return db
-      .selectFrom(this.tableName as unknown as TB)
-      .select([
-        sql.ref(this.internalResourceIDColumn).as("resourceID"),
-        sql.ref("permissions").as("permissions"),
-        sql.ref("grantedBy").as("grantedBy"),
-      ])
-      .where(({ or, cmpr }) =>
-        or([
-          cmpr(db.dynamic.ref("grantedTo"), "is", null),
-          cmpr(db.dynamic.ref("grantedTo"), "=", grantedTo),
-        ])
-      ) as SelectQueryBuilder<
-      DB,
-      TB,
-      PermissionsResult<UserID, ResourceID, Permissions>
-    >;
   }
 
   /**
@@ -323,39 +287,58 @@ export class PermissionsTable<
         `Users cannot grant permissions > ${this.maxUserGrantedPermissions}`
       );
     }
-    switch (this.databaseSyntax) {
-      case "postgres":
-        await db
-          .insertInto(this.tableName as unknown as TB)
-          .values({
-            grantedTo,
-            resourceID,
-            permissions,
-            grantedBy,
-          } as any)
-          .onConflict(
-            (oc) =>
-              oc
-                .constraint(`${this.tableName}_key`)
-                .doUpdateSet({ permissions, grantedBy } as any) as any
-          )
-          .execute();
-        return;
-      case "mysql":
-      case "sqlite":
-        await db
-          .replaceInto(this.tableName as unknown as TB)
-          .values({
-            grantedTo,
-            resourceID,
-            permissions,
-            grantedBy,
-          } as any)
-          .execute();
-        return;
-      default:
-        throw Error(`Unsupported database syntax: ${this.databaseSyntax}`);
-    }
+    await db
+      .insertInto(this.tableName as unknown as TB)
+      .values({
+        grantedTo,
+        resourceID,
+        permissions,
+        grantedBy,
+      } as any)
+      .onConflict(
+        (oc) =>
+          oc
+            // TODO: clean up types
+            .columns(["grantedTo" as any, "resourceID" as any])
+            .doUpdateSet({ permissions, grantedBy } as any) as any
+      )
+      .execute();
+  }
+
+  /**
+   * Returns a query that returns the permissions a user has to a resource,
+   * returning 0 if the user has no permissions, and returning the configured
+   * owner permissions if the user is the owner of the resource.
+   * @param db Database connection.
+   * @param grantedTo ID of the user; null for public users.
+   * @param resourceSelector Function that returns a query selecting the
+   *  resource or resources to get permissions for. Its first argument is a
+   *  query that selects from the resources table, and its second argument is
+   *  the name of the resource key column to use for selecting resources.
+   * @returns A query that returns the permissions the user has to the
+   *  resource.
+   */
+  private _getPermissionsQuery<DB, TB extends keyof DB & TableName>(
+    db: Kysely<DB>,
+    grantedTo: UserID | null
+  ) {
+    return db
+      .selectFrom(this.tableName as unknown as TB)
+      .select([
+        sql.ref(this.internalResourceIDColumn).as("resourceID"),
+        sql.ref("permissions").as("permissions"),
+        sql.ref("grantedBy").as("grantedBy"),
+      ])
+      .where(({ or, cmpr }) =>
+        or([
+          cmpr(db.dynamic.ref("grantedTo"), "is", null),
+          cmpr(db.dynamic.ref("grantedTo"), "=", grantedTo),
+        ])
+      ) as SelectQueryBuilder<
+      DB,
+      TB,
+      PermissionsResult<UserID, ResourceID, Permissions>
+    >;
   }
 
   /**

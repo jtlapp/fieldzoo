@@ -1,9 +1,4 @@
 /**
- * Supported database dialect syntaxes.
- */
-export type DatabaseSyntax = "mysql" | "postgres" | "sqlite";
-
-/**
  * Postgres data type for the user and resource key columns.
  */
 export type KeyDataType = "integer" | "text" | "uuid";
@@ -28,9 +23,6 @@ export interface PermissionsTableConfig<
   ResourceID extends PrimitiveKeyType<ResourceIDDataType> = PrimitiveKeyType<ResourceIDDataType>,
   TableName extends string = `${ResourceTable}_permissions`
 > {
-  /** Syntax of the database SQL dialect */
-  databaseSyntax: DatabaseSyntax;
-
   /** Name of the permissions table */
   tableName?: TableName;
 

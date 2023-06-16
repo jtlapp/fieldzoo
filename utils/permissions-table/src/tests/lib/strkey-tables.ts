@@ -7,7 +7,7 @@ export async function createStrKeyDB(
   permissionsTable: PermissionsTable<any, any, any, any, any>
 ) {
   const db = await createDB("text", permissionsTable);
-  await permissionsTable.construct(db).execute();
+  await permissionsTable.create(db);
   return db;
 }
 
@@ -16,7 +16,6 @@ export function getStrKeyPermissionsTable<
   PostID extends string
 >() {
   return new PermissionsTable({
-    databaseSyntax: "postgres",
     maxPublicPermissions: AccessLevel.Read,
     maxUserGrantedPermissions: AccessLevel.Write,
     userTable: "users",
@@ -44,9 +43,11 @@ interface Posts {
 }
 
 interface PostAccessLevels {
-  userID: string;
+  grantedTo: string;
   resourceID: string;
   permissions: number;
+  grantedAt: Date;
+  grantedBy: string;
 }
 
 interface Comments {
