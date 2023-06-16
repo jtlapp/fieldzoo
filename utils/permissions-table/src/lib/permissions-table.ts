@@ -74,7 +74,6 @@ export class PermissionsTable<
 
   // cache these values to improve performance
   private readonly foreignUserIDColumn: string;
-  private readonly foreignResourceIDColumn: string;
   private readonly internalResourceIDColumn: string;
 
   constructor(
@@ -97,8 +96,6 @@ export class PermissionsTable<
     Object.assign(this, config); // copy in case supplied config is changed
     this.tableName ??= `${config.resourceTable}_permissions` as TableName;
     this.foreignUserIDColumn = `${config.userTable}.${config.userIDColumn}`;
-    // TODO: I no longer need this ref
-    this.foreignResourceIDColumn = `${config.resourceTable}.${config.resourceIDColumn}`;
     this.internalResourceIDColumn = `${this.tableName}.resourceID`;
   }
 
@@ -118,7 +115,7 @@ export class PermissionsTable<
       .addColumn("resourceID", this.resourceIDDataType, (col) =>
         col
           .notNull()
-          .references(this.foreignResourceIDColumn)
+          .references(`${this.resourceTable}.${this.resourceIDColumn}`)
           .onDelete("cascade")
       )
       .addColumn("permissions", "integer", (col) => col.notNull())
@@ -325,6 +322,7 @@ export class PermissionsTable<
     return db
       .selectFrom(this.tableName as unknown as TB)
       .select([
+        // TODO: revisit types
         sql.ref(this.internalResourceIDColumn).as("resourceID"),
         sql.ref("permissions").as("permissions"),
         sql.ref("grantedBy").as("grantedBy"),
