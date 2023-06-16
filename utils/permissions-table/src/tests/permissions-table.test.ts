@@ -13,8 +13,6 @@ import {
   getStrKeyPermissionsTable,
 } from "./lib/strkey-tables";
 
-// TODO: rename access level to permissions in tests
-
 type IntUserID = number & { readonly __brand: unique symbol };
 type IntPostID = number & { readonly __brand: unique symbol };
 

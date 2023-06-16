@@ -24,7 +24,6 @@ const postgresConfig = {
 const tables = ["comments", "posts", "users"];
 
 export async function createTables(db: Kysely<any>, keyDataType: string) {
-  // TODO: does the user need to specify "serial"? I'd rather that be "integer".
   const refKeyType = keyDataType == "serial" ? "integer" : keyDataType;
 
   await db.schema
