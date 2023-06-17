@@ -35,6 +35,10 @@ afterEach(async () => {
 });
 
 describe("PermissionsTable construction", () => {
+  it("provides the default name for the permissions table", () => {
+    expect(intKeyTable.getTableName()).toBe("posts_permissions");
+  });
+
   it("creates permissions table with a custom name, with drop", async () => {
     const table = new PermissionsTable({
       maxPublicPermissions: AccessLevel.Read,
