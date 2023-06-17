@@ -7,8 +7,18 @@ import {
   initIntKeyDB,
   getIntKeyPermissionsTable,
 } from "./lib/intkey-tables";
-import { AccessLevel, createDatabase, destroyDB } from "./lib/test-util";
-import { StrKeyDB, getStrKeyPermissionsTable } from "./lib/strkey-tables";
+import {
+  AccessLevel,
+  createDatabase,
+  destroyDB,
+  ignore,
+} from "./lib/test-util";
+import {
+  StrKeyDB,
+  StrPostID,
+  StrUserID,
+  getStrKeyPermissionsTable,
+} from "./lib/strkey-tables";
 import { checkPermissions } from "./lib/check-permissions";
 
 let intKeyDB: Kysely<IntKeyDB>;
@@ -32,107 +42,259 @@ afterEach(async () => {
 });
 
 describe("PermissionsTable setPermissions()", () => {
-  it("setting permissions to 0 reduces access to public permissions", async () => {
-    intKeyDB = await initIntKeyDB(intKeyTable);
+  describe("with integer keys", () => {
+    it("changes existing permissions", async () => {
+      intKeyDB = await initIntKeyDB(intKeyTable);
 
-    // test without public permissions
+      // test with a first user increasing permissions
 
-    await intKeyTable.setPermissions(
-      intKeyDB,
-      4 as IntUserID,
-      1 as IntPostID,
-      AccessLevel.None,
-      null
-    );
-    await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
-      [1, AccessLevel.None, null],
-      [2, AccessLevel.None, null],
-      [3, AccessLevel.None, null],
-      [4, AccessLevel.Owner, null],
-    ]);
+      await intKeyTable.setPermissions(
+        intKeyDB,
+        4 as IntUserID,
+        1 as IntPostID,
+        AccessLevel.Write,
+        2 as IntUserID
+      );
+      await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
+        [1, AccessLevel.Write, 2 as IntUserID],
+        [2, AccessLevel.None, null],
+        [3, AccessLevel.None, null],
+        [4, AccessLevel.Owner, null],
+      ]);
 
-    // test with public permissions, granted by user 2, overriding 0 permissions
+      // test with a second user decreasing permissions
 
-    await intKeyTable.setPermissions(
-      intKeyDB,
-      null,
-      1 as IntPostID,
-      AccessLevel.Read,
-      2 as IntUserID
-    );
-    await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
-      [1, AccessLevel.Read, 2 as IntUserID],
-      [2, AccessLevel.None, null],
-      [3, AccessLevel.None, null],
-      [4, AccessLevel.Owner, null],
-    ]);
+      await intKeyTable.setPermissions(
+        intKeyDB,
+        4 as IntUserID,
+        1 as IntPostID,
+        AccessLevel.Read,
+        3 as IntUserID
+      );
+      await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
+        [1, AccessLevel.Read, 3 as IntUserID],
+        [2, AccessLevel.None, null],
+        [3, AccessLevel.None, null],
+        [4, AccessLevel.Owner, null],
+      ]);
 
-    // test with public permissions, granted by system
+      // test with system zeroing permissions
 
-    await intKeyTable.setPermissions(
-      intKeyDB,
-      null,
-      1 as IntPostID,
-      AccessLevel.None,
-      null
-    );
-    await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
-      [1, AccessLevel.None, null],
-      [2, AccessLevel.None, null],
-      [3, AccessLevel.None, null],
-      [4, AccessLevel.Owner, null],
-    ]);
+      await intKeyTable.setPermissions(
+        intKeyDB,
+        4 as IntUserID,
+        1 as IntPostID,
+        AccessLevel.None,
+        null
+      );
+      await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
+        [1, AccessLevel.None, null],
+        [2, AccessLevel.None, null],
+        [3, AccessLevel.None, null],
+        [4, AccessLevel.Owner, null],
+      ]);
+    });
+
+    it("setting permissions to 0 reduces access to public permissions", async () => {
+      intKeyDB = await initIntKeyDB(intKeyTable);
+
+      // test without public permissions
+
+      await intKeyTable.setPermissions(
+        intKeyDB,
+        4 as IntUserID,
+        1 as IntPostID,
+        AccessLevel.None,
+        null
+      );
+      await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
+        [1, AccessLevel.None, null],
+        [2, AccessLevel.None, null],
+        [3, AccessLevel.None, null],
+        [4, AccessLevel.Owner, null],
+      ]);
+
+      // test with public permissions, granted by user 2, overriding 0 permissions
+
+      await intKeyTable.setPermissions(
+        intKeyDB,
+        null,
+        1 as IntPostID,
+        AccessLevel.Read,
+        2 as IntUserID
+      );
+      await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
+        [1, AccessLevel.Read, 2 as IntUserID],
+        [2, AccessLevel.None, null],
+        [3, AccessLevel.None, null],
+        [4, AccessLevel.Owner, null],
+      ]);
+
+      // test with public permissions, granted by system
+
+      await intKeyTable.setPermissions(
+        intKeyDB,
+        null,
+        1 as IntPostID,
+        AccessLevel.None,
+        null
+      );
+      await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
+        [1, AccessLevel.None, null],
+        [2, AccessLevel.None, null],
+        [3, AccessLevel.None, null],
+        [4, AccessLevel.Owner, null],
+      ]);
+    });
+
+    ignore("requires provided key types", () => {
+      intKeyTable.setPermissions(
+        intKeyDB,
+        // @ts-expect-error - user key not of correct type
+        1,
+        1 as IntPostID,
+        AccessLevel.Read,
+        null
+      );
+      intKeyTable.setPermissions(
+        intKeyDB,
+        // @ts-expect-error - user key not of correct type
+        "u1",
+        1 as IntPostID,
+        AccessLevel.Read,
+        null
+      );
+
+      intKeyTable.setPermissions(
+        intKeyDB,
+        1 as IntUserID,
+        // @ts-expect-error - resource key not of correct type
+        1,
+        AccessLevel.Read,
+        null
+      );
+      intKeyTable.setPermissions(
+        intKeyDB,
+        1 as IntUserID,
+        // @ts-expect-error - resource key not of correct type
+        "p1",
+        AccessLevel.Read,
+        null
+      );
+
+      intKeyTable.setPermissions(
+        intKeyDB,
+        1 as IntUserID,
+        1 as IntPostID,
+        // @ts-expect-error - permissions not of correct type
+        0,
+        null
+      );
+
+      intKeyTable.setPermissions(
+        intKeyDB,
+        1 as IntUserID,
+        1 as IntPostID,
+        AccessLevel.Read,
+        // @ts-expect-error - user key not of correct type
+        1
+      );
+
+      intKeyTable.setPermissions(
+        intKeyDB,
+        1 as IntUserID,
+        1 as IntPostID,
+        AccessLevel.Read,
+        // @ts-expect-error - user key not of correct type
+        "u2"
+      );
+    });
+
+    ignore("requires provided permissions type", () => {
+      intKeyTable.setPermissions(
+        intKeyDB,
+        1 as IntUserID,
+        1 as IntPostID,
+        // @ts-expect-error - permissions not of correct type
+        0,
+        null
+      );
+    });
   });
 
-  it("changes existing permissions", async () => {
-    intKeyDB = await initIntKeyDB(intKeyTable);
+  describe("with string keys", () => {
+    ignore("requires provided key types", () => {
+      strKeyTable.setPermissions(
+        strKeyDB,
+        // @ts-expect-error - user key not of correct type
+        1,
+        "p1" as StrPostID,
+        AccessLevel.Read,
+        null
+      );
+      strKeyTable.setPermissions(
+        strKeyDB,
+        // @ts-expect-error - user key not of correct type
+        "u1",
+        "p1" as StrPostID,
+        AccessLevel.Read,
+        null
+      );
 
-    // test with a first user increasing permissions
+      strKeyTable.setPermissions(
+        strKeyDB,
+        "u1" as StrUserID,
+        // @ts-expect-error - resource key not of correct type
+        1,
+        AccessLevel.Read,
+        null
+      );
+      strKeyTable.setPermissions(
+        strKeyDB,
+        "u1" as StrUserID,
+        // @ts-expect-error - resource key not of correct type
+        "p1",
+        AccessLevel.Read,
+        null
+      );
 
-    await intKeyTable.setPermissions(
-      intKeyDB,
-      4 as IntUserID,
-      1 as IntPostID,
-      AccessLevel.Write,
-      2 as IntUserID
-    );
-    await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
-      [1, AccessLevel.Write, 2 as IntUserID],
-      [2, AccessLevel.None, null],
-      [3, AccessLevel.None, null],
-      [4, AccessLevel.Owner, null],
-    ]);
+      strKeyTable.setPermissions(
+        strKeyDB,
+        "u1" as StrUserID,
+        "p1" as StrPostID,
+        // @ts-expect-error - permissions not of correct type
+        0,
+        null
+      );
 
-    // test with a second user decreasing permissions
+      strKeyTable.setPermissions(
+        strKeyDB,
+        "u1" as StrUserID,
+        "p1" as StrPostID,
+        AccessLevel.Read,
+        // @ts-expect-error - user key not of correct type
+        1
+      );
 
-    await intKeyTable.setPermissions(
-      intKeyDB,
-      4 as IntUserID,
-      1 as IntPostID,
-      AccessLevel.Read,
-      3 as IntUserID
-    );
-    await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
-      [1, AccessLevel.Read, 3 as IntUserID],
-      [2, AccessLevel.None, null],
-      [3, AccessLevel.None, null],
-      [4, AccessLevel.Owner, null],
-    ]);
+      strKeyTable.setPermissions(
+        strKeyDB,
+        "u1" as StrUserID,
+        "p1" as StrPostID,
+        AccessLevel.Read,
+        // @ts-expect-error - user key not of correct type
+        "u2"
+      );
+    });
 
-    // test with system zeroing permissions
-
-    await intKeyTable.setPermissions(
-      intKeyDB,
-      4 as IntUserID,
-      1 as IntPostID,
-      AccessLevel.None,
-      null
-    );
-    await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
-      [1, AccessLevel.None, null],
-      [2, AccessLevel.None, null],
-      [3, AccessLevel.None, null],
-      [4, AccessLevel.Owner, null],
-    ]);
+    ignore("requires provided permissions type", () => {
+      intKeyTable.setPermissions(
+        intKeyDB,
+        1 as IntUserID,
+        1 as IntPostID,
+        // @ts-expect-error - permissions not of correct type
+        0,
+        null
+      );
+    });
   });
 });
