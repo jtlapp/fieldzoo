@@ -18,6 +18,7 @@ import {
   StrPostID,
   StrUserID,
   getStrKeyPermissionsTable,
+  initStrKeyDB,
 } from "./lib/strkey-tables";
 import { checkPermissions } from "./lib/check-permissions";
 
@@ -251,6 +252,23 @@ describe("PermissionsTable setPermissions()", () => {
   });
 
   describe("with string keys", () => {
+    it("changes existing permissions", async () => {
+      strKeyDB = await initStrKeyDB(strKeyTable);
+
+      await strKeyTable.setPermissions(
+        strKeyDB,
+        "u2" as StrUserID,
+        "p1" as StrPostID,
+        AccessLevel.Write,
+        "u1" as StrUserID
+      );
+      await checkPermissions(strKeyDB, "u2" as StrUserID, strKeyTable, [
+        ["p1", AccessLevel.Write, "u1" as StrUserID],
+        ["p2", AccessLevel.None, null],
+        ["p3", AccessLevel.None, null],
+      ]);
+    });
+
     ignore("requires provided key types", () => {
       strKeyTable.setPermissions(
         strKeyDB,
