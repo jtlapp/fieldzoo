@@ -147,6 +147,34 @@ describe("PermissionsTable setPermissions()", () => {
       ]);
     });
 
+    it("won't grant excessive public permissions", async () => {
+      intKeyDB = await initIntKeyDB(intKeyTable);
+
+      await expect(
+        intKeyTable.setPermissions(
+          intKeyDB,
+          null,
+          1 as IntPostID,
+          AccessLevel.Write,
+          null
+        )
+      ).rejects.toThrow("Public users cannot be granted permissions > 1");
+    });
+
+    it("won't allow users to grant excessive permissions", async () => {
+      intKeyDB = await initIntKeyDB(intKeyTable);
+
+      await expect(
+        intKeyTable.setPermissions(
+          intKeyDB,
+          4 as IntUserID,
+          1 as IntPostID,
+          AccessLevel.Owner,
+          2 as IntUserID
+        )
+      ).rejects.toThrow("Users cannot grant permissions > 2");
+    });
+
     ignore("requires provided key types", () => {
       intKeyTable.setPermissions(
         intKeyDB,
