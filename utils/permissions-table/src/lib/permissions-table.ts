@@ -6,6 +6,14 @@ import {
   PermissionsTableConfig,
 } from "./permissions-table-config";
 import { PermissionsResult } from "./permissions-result";
+import { PermissionsRow } from "./permissions-row";
+
+type Database<
+  TableName extends string,
+  UserID extends number | string,
+  ResourceID extends number | string,
+  Permissions extends number
+> = { [K in TableName]: PermissionsRow<UserID, ResourceID, Permissions> };
 
 /**
  * Class managing user permissions to database resources. Each resource is a row
@@ -147,7 +155,9 @@ export class PermissionsTable<
    * @param resourceID Key of resource to get permissions for.
    * @returns The permissions the user has to the resource.
    */
-  async getPermissions<DB>(
+  async getPermissions<
+    DB extends Database<TableName, UserID, ResourceID, Permissions>
+  >(
     db: Kysely<DB>,
     grantedTo: UserID | null,
     resourceID: ResourceID
@@ -164,13 +174,17 @@ export class PermissionsTable<
    * @param resourceID Keys of resources to get permissions for.
    * @returns The permissions the user has to the resources.
    */
-  async getPermissions<DB>(
+  async getPermissions<
+    DB extends Database<TableName, UserID, ResourceID, Permissions>
+  >(
     db: Kysely<DB>,
     grantedTo: UserID | null,
     resourceIDs: ResourceID[]
   ): Promise<PermissionsResult<UserID, ResourceID, Permissions>[]>;
 
-  async getPermissions<DB>(
+  async getPermissions<
+    DB extends Database<TableName, UserID, ResourceID, Permissions>
+  >(
     db: Kysely<DB>,
     grantedTo: UserID | null,
     resourceIDOrKeys: ResourceID | ResourceID[]
@@ -180,8 +194,8 @@ export class PermissionsTable<
     if (Array.isArray(resourceIDOrKeys)) {
       const sortedResourceIDs = resourceIDOrKeys.slice().sort();
       const results = await this._getPermissionsQuery(db, grantedTo)
-        .where(db.dynamic.ref("resourceID"), "in", sortedResourceIDs)
-        .orderBy(db.dynamic.ref("resourceID"))
+        .where("resourceID", "in", sortedResourceIDs as any[])
+        .orderBy("resourceID")
         .execute();
 
       const permissions = new Array<
@@ -208,9 +222,9 @@ export class PermissionsTable<
       return permissions;
     } else {
       const query = this._getPermissionsQuery(db, grantedTo).where(
-        db.dynamic.ref("resourceID"),
+        "resourceID",
         "=",
-        resourceIDOrKeys
+        resourceIDOrKeys as any
       );
       const results = await query.execute();
       if (results.length === 0) {
@@ -223,35 +237,25 @@ export class PermissionsTable<
   }
 
   /**
-   * Returns the name of the permissions table.
-   * @returns The name of the permissions table.
-   */
-  getTableName<DB, TB extends keyof DB & TableName>(): TB {
-    return this.tableName as unknown as TB;
-  }
-
-  /**
    * Removes a permissions grant for a user.
    * @param db Database connection.
    * @param grantedTo ID of the user; null for public users.
    * @param resourceID Key of resource to remove grant for.
    */
-  async removePermissions<DB, TB extends keyof DB & TableName>(
-    db: Kysely<DB>,
-    grantedTo: UserID | null,
-    resourceID: ResourceID
-  ) {
+  async removePermissions<
+    DB extends Database<TableName, UserID, ResourceID, Permissions>
+  >(db: Kysely<DB>, grantedTo: UserID | null, resourceID: ResourceID) {
     if (grantedTo === null) {
       await db
-        .deleteFrom(this.tableName as unknown as TB)
-        .where(db.dynamic.ref("grantedTo"), "is", null)
-        .where(db.dynamic.ref("resourceID"), "=", resourceID)
+        .deleteFrom(this.tableName)
+        .where("grantedTo", "is", null)
+        .where("resourceID", "=", resourceID as any)
         .execute();
     } else {
       await db
-        .deleteFrom(this.tableName as unknown as TB)
-        .where(db.dynamic.ref("grantedTo"), "=", grantedTo)
-        .where(db.dynamic.ref("resourceID"), "=", resourceID)
+        .deleteFrom(this.tableName)
+        .where("grantedTo", "=", grantedTo as any)
+        .where("resourceID", "=", resourceID as any)
         .execute();
     }
   }
@@ -267,7 +271,9 @@ export class PermissionsTable<
    * @param resourceID Key of resource to grant access to.
    * @param permissions Access level to assign.
    */
-  async setPermissions<DB, TB extends keyof DB & TableName>(
+  async setPermissions<
+    DB extends Database<TableName, UserID, ResourceID, Permissions>
+  >(
     db: Kysely<DB>,
     grantedTo: UserID | null,
     resourceID: ResourceID,
@@ -285,7 +291,7 @@ export class PermissionsTable<
       );
     }
     await db
-      .insertInto(this.tableName as unknown as TB)
+      .insertInto(this.tableName)
       .values({
         grantedTo,
         resourceID,
@@ -295,8 +301,7 @@ export class PermissionsTable<
       .onConflict(
         (oc) =>
           oc
-            // TODO: clean up types
-            .columns(["grantedTo" as any, "resourceID" as any])
+            .columns(["grantedTo", "resourceID"])
             .doUpdateSet({ permissions, grantedBy } as any) as any
       )
       .execute();
@@ -315,26 +320,20 @@ export class PermissionsTable<
    * @returns A query that returns the permissions the user has to the
    *  resource.
    */
-  private _getPermissionsQuery<DB, TB extends keyof DB & TableName>(
-    db: Kysely<DB>,
-    grantedTo: UserID | null
-  ) {
+  private _getPermissionsQuery<
+    DB extends Database<TableName, UserID, ResourceID, Permissions>
+  >(db: Kysely<DB>, grantedTo: UserID | null) {
     return db
-      .selectFrom(this.tableName as unknown as TB)
-      .select([
-        // TODO: revisit types
-        sql.ref("resourceID").as("resourceID"),
-        sql.ref("permissions").as("permissions"),
-        sql.ref("grantedBy").as("grantedBy"),
-      ])
+      .selectFrom(this.tableName)
+      .select(["resourceID", "permissions", "grantedBy"])
       .where(({ or, cmpr }) =>
         or([
-          cmpr(db.dynamic.ref("grantedTo"), "is", null),
-          cmpr(db.dynamic.ref("grantedTo"), "=", grantedTo),
+          cmpr("grantedTo", "is", null),
+          cmpr("grantedTo", "=", grantedTo as any),
         ])
       ) as SelectQueryBuilder<
       DB,
-      TB,
+      TableName,
       PermissionsResult<UserID, ResourceID, Permissions>
     >;
   }

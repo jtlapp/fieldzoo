@@ -7,7 +7,7 @@ export interface PermissionsRow<
   ResourceID extends number | string,
   Permissions extends number
 > {
-  userID: UserID;
+  grantedTo: UserID;
   resourceID: ResourceID;
   permissions: Permissions;
   grantedAt: Date;

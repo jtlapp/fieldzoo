@@ -36,34 +36,30 @@ afterEach(async () => {
 
 describe("PermissionsTable construction", () => {
   it("provides the default name for the permissions table", () => {
-    expect(intKeyTable.getTableName()).toBe("posts_permissions");
+    expect(intKeyTable.tableName).toBe("posts_permissions");
   });
 
   it("creates permissions table with a custom name, with drop", async () => {
     const table = new PermissionsTable({
+      ...getIntKeyPermissionsTable(),
       maxPublicPermissions: AccessLevel.Read,
       maxUserGrantedPermissions: AccessLevel.Write,
-      userTable: "users",
-      userIDColumn: "id",
-      userIDDataType: "integer",
-      resourceTable: "posts",
-      resourceIDColumn: "postID",
-      resourceIDDataType: "integer",
       tableName: "custom_permissions_table",
     });
 
-    expect(table.getTableName()).toBe("custom_permissions_table");
+    expect(table.tableName).toBe("custom_permissions_table");
 
-    intKeyDB = await initIntKeyDB(intKeyTable);
-    const query = intKeyDB
+    const db = await initIntKeyDB(table);
+    intKeyDB = db; // for cleanup
+
+    const query = db
       .selectFrom("custom_permissions_table" as keyof IntKeyDB)
       .select(["grantedTo", "resourceID", "permissions"]);
     try {
-      await table.create(intKeyDB);
       const results = await query.execute();
-      expect(results).toHaveLength(0);
+      expect(results.length).toBeGreaterThan(0);
     } finally {
-      await table.drop(intKeyDB);
+      await table.drop(db);
       await expect(query.execute()).rejects.toThrow("does not exist");
     }
   });
@@ -71,40 +67,29 @@ describe("PermissionsTable construction", () => {
   it("doesn't allow maxPublicPermissions to exceed maxUserGrantedPermissions", async () => {
     const makeTable = () =>
       new PermissionsTable({
+        ...getIntKeyPermissionsTable(),
         maxPublicPermissions: AccessLevel.Write,
         maxUserGrantedPermissions: AccessLevel.Read,
-        userTable: "users",
-        userIDColumn: "id",
-        userIDDataType: "integer",
-        resourceTable: "posts",
-        resourceIDColumn: "postID",
-        resourceIDDataType: "integer",
       });
     expect(makeTable).toThrow("maxPublicPermissions");
   });
 
   it("doesn't allow null user IDs when maxPublicPermissions is 0", async () => {
     const table = new PermissionsTable({
+      ...getIntKeyPermissionsTable(),
       maxPublicPermissions: AccessLevel.None,
       maxUserGrantedPermissions: AccessLevel.Write,
-      userTable: "users",
-      userIDColumn: "id",
-      userIDDataType: "integer",
-      resourceTable: "posts",
-      resourceIDColumn: "postID",
-      resourceIDDataType: "integer",
       tableName: "custom_permissions_table",
     });
-    intKeyDB = await initIntKeyDB(intKeyTable);
+    const db = await initIntKeyDB(table);
+    intKeyDB = db; // for cleanup
 
     try {
-      await table.create(intKeyDB);
-
       // ensure we can assign permissions to a user
-      await table.setPermissions(intKeyDB, 1, 1, AccessLevel.Read, null);
+      await table.setPermissions(db, 1, 1, AccessLevel.Read, null);
       await expect(
-        intKeyDB
-          .insertInto(table.getTableName())
+        db
+          .insertInto(table.tableName)
           .values({
             grantedTo: null,
             resourceID: 1,
@@ -122,7 +107,7 @@ describe("PermissionsTable construction", () => {
   it("deletes permissions rows when user is deleted", async () => {
     intKeyDB = await initIntKeyDB(intKeyTable);
     const query = intKeyDB
-      .selectFrom(intKeyTable.getTableName())
+      .selectFrom(intKeyTable.tableName)
       .select("resourceID")
       .where("grantedTo", "=", 5);
 
@@ -138,7 +123,7 @@ describe("PermissionsTable construction", () => {
   it("deletes permissions rows when resource is deleted", async () => {
     intKeyDB = await initIntKeyDB(intKeyTable);
     const query = intKeyDB
-      .selectFrom(intKeyTable.getTableName())
+      .selectFrom(intKeyTable.tableName)
       .select("grantedTo")
       .where("resourceID", "=", 3);
 

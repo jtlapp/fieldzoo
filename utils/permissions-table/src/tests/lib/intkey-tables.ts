@@ -7,10 +7,10 @@ export type IntUserID = number & { readonly __brand: unique symbol };
 export type IntPostID = number & { readonly __brand: unique symbol };
 
 export async function initIntKeyDB(
-  intKeyTable: PermissionsTable<any, any, any, any, any>
+  table: PermissionsTable<any, any, any, any, any, any, any, any>
 ) {
-  const intKeyDB = await createDB("serial", intKeyTable);
-  await intKeyTable.create(intKeyDB);
+  const intKeyDB = await createDB("serial", table);
+  await table.create(intKeyDB);
 
   await intKeyDB
     .insertInto("users")
@@ -40,49 +40,49 @@ export async function initIntKeyDB(
     .execute();
 
   // permissions assignments
-  await intKeyTable.setPermissions(
+  await table.setPermissions(
     intKeyDB,
     2 as IntUserID,
     1 as IntPostID,
     AccessLevel.Owner,
     null
   );
-  await intKeyTable.setPermissions(
+  await table.setPermissions(
     intKeyDB,
     3 as IntUserID,
     2 as IntPostID,
     AccessLevel.Owner,
     null
   );
-  await intKeyTable.setPermissions(
+  await table.setPermissions(
     intKeyDB,
     3 as IntUserID,
     3 as IntPostID,
     AccessLevel.Owner,
     null
   );
-  await intKeyTable.setPermissions(
+  await table.setPermissions(
     intKeyDB,
     4 as IntUserID,
     4 as IntPostID,
     AccessLevel.Owner,
     null
   );
-  await intKeyTable.setPermissions(
+  await table.setPermissions(
     intKeyDB,
     4 as IntUserID,
     1 as IntPostID,
     AccessLevel.Read,
     null
   );
-  await intKeyTable.setPermissions(
+  await table.setPermissions(
     intKeyDB,
     5 as IntUserID,
     2 as IntPostID,
     AccessLevel.Read,
     null
   );
-  await intKeyTable.setPermissions(
+  await table.setPermissions(
     intKeyDB,
     5 as IntUserID,
     3 as IntPostID,

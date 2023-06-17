@@ -7,10 +7,10 @@ export type StrUserID = string & { readonly __brand: unique symbol };
 export type StrPostID = string & { readonly __brand: unique symbol };
 
 export async function initStrKeyDB(
-  strKeyTable: PermissionsTable<any, any, any, any, any>
+  table: PermissionsTable<any, any, any, any, any>
 ) {
-  const strKeyDB = await createDB("text", strKeyTable);
-  await strKeyTable.create(strKeyDB);
+  const strKeyDB = await createDB("text", table);
+  await table.create(strKeyDB);
 
   // user1 owns post 1, has read access to post 2, and no access to post 3
   await strKeyDB
@@ -28,14 +28,14 @@ export async function initStrKeyDB(
       { postID: "p3", ownerID: "u2", title: "Post 3" },
     ])
     .execute();
-  await strKeyTable.setPermissions(
+  await table.setPermissions(
     strKeyDB,
     "u1" as StrUserID,
     "p1" as StrPostID,
     AccessLevel.Owner,
     null
   );
-  await strKeyTable.setPermissions(
+  await table.setPermissions(
     strKeyDB,
     "u1" as StrUserID,
     "p2" as StrPostID,
