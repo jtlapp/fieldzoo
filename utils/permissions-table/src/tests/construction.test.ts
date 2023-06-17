@@ -1,10 +1,39 @@
 import { Kysely } from "kysely";
 
 import { PermissionsTable } from "../lib/permissions-table";
-import { AccessLevel, ignore } from "./lib/test-util";
+import {
+  AccessLevel,
+  createDatabase,
+  destroyDB,
+  ignore,
+} from "./lib/test-util";
+import {
+  IntKeyDB,
+  IntPostID,
+  getIntKeyPermissionsTable,
+  initIntKeyDB,
+} from "./lib/intkey-tables";
+import { StrKeyDB, getStrKeyPermissionsTable } from "./lib/strkey-tables";
 
-type UserID = number & { readonly __brand: unique symbol };
-type PostID = number & { readonly __brand: unique symbol };
+let intKeyDB: Kysely<IntKeyDB>;
+const intKeyTable = getIntKeyPermissionsTable();
+let strKeyDB: Kysely<StrKeyDB>;
+const strKeyTable = getStrKeyPermissionsTable();
+
+beforeAll(async () => {
+  await createDatabase();
+});
+
+afterEach(async () => {
+  if (intKeyDB) {
+    await destroyDB(intKeyDB, intKeyTable);
+    intKeyDB = undefined as any;
+  }
+  if (strKeyDB) {
+    await destroyDB(strKeyDB, strKeyTable);
+    strKeyDB = undefined as any;
+  }
+});
 
 describe("PermissionsTable construction", () => {
   it("validates constructor arguments", () => {
@@ -103,7 +132,7 @@ describe("PermissionsTable construction", () => {
         db,
         // @ts-expect-error - user key not of correct type
         "invalid",
-        1 as PostID
+        1 as IntPostID
       );
       // @ts-expect-error - user key not of correct type
       table1.setPermissions(db, "invalid", 1, AccessLevel.Read, null);
@@ -138,6 +167,40 @@ describe("PermissionsTable construction", () => {
       table2.setPermissions(db, "valid", "valid", 0, null);
       // @ts-expect-error - grantee not of correct type
       table2.setPermissions(db, "valid", "valid", AccessLevel.Read, 1);
+    });
+  });
+
+  describe("cascade deletes permissions", () => {
+    it("deletes permissions rows when user is deleted", async () => {
+      intKeyDB = await initIntKeyDB(intKeyTable);
+      const query = intKeyDB
+        .selectFrom(intKeyTable.getTableName())
+        .select("resourceID")
+        .where("grantedTo", "=", 5);
+
+      let rows = await query.execute();
+      expect(rows).toHaveLength(2);
+
+      await intKeyDB.deleteFrom("users").where("id", "=", 5).execute();
+
+      rows = await query.execute();
+      expect(rows).toHaveLength(0);
+    });
+
+    it("deletes permissions rows when resource is deleted", async () => {
+      intKeyDB = await initIntKeyDB(intKeyTable);
+      const query = intKeyDB
+        .selectFrom(intKeyTable.getTableName())
+        .select("grantedTo")
+        .where("resourceID", "=", 3);
+
+      let rows = await query.execute();
+      expect(rows).toHaveLength(2);
+
+      await intKeyDB.deleteFrom("posts").where("postID", "=", 3).execute();
+
+      rows = await query.execute();
+      expect(rows).toHaveLength(0);
     });
   });
 });

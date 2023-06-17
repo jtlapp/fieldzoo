@@ -3,10 +3,12 @@ import { Generated } from "kysely";
 import { PermissionsTable } from "../../lib/permissions-table";
 import { AccessLevel, createDB } from "./test-util";
 
-export async function initIntKeyDB<
-  IntUserID extends number,
-  IntPostID extends number
->(intKeyTable: PermissionsTable<any, any, any, any, any>) {
+export type IntUserID = number & { readonly __brand: unique symbol };
+export type IntPostID = number & { readonly __brand: unique symbol };
+
+export async function initIntKeyDB(
+  intKeyTable: PermissionsTable<any, any, any, any, any>
+) {
   const intKeyDB = await createDB("serial", intKeyTable);
   await intKeyTable.create(intKeyDB);
 
@@ -91,10 +93,7 @@ export async function initIntKeyDB<
   return intKeyDB;
 }
 
-export function getIntKeyPermissionsTable<
-  UserID extends number,
-  PostID extends number
->() {
+export function getIntKeyPermissionsTable() {
   return new PermissionsTable({
     maxPublicPermissions: AccessLevel.Read,
     maxUserGrantedPermissions: AccessLevel.Write,
@@ -104,8 +103,8 @@ export function getIntKeyPermissionsTable<
     resourceTable: "posts",
     resourceIDColumn: "postID",
     resourceIDDataType: "integer",
-    sampleUserID: 1 as UserID,
-    sampleResourceID: 1 as PostID,
+    sampleUserID: 1 as IntUserID,
+    sampleResourceID: 1 as IntPostID,
   });
 }
 

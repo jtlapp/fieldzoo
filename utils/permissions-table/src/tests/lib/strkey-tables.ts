@@ -3,10 +3,12 @@ import { Generated } from "kysely";
 import { PermissionsTable } from "../../lib/permissions-table";
 import { AccessLevel, createDB } from "./test-util";
 
-export async function initStrKeyDB<
-  StrUserID extends string,
-  StrPostID extends string
->(strKeyTable: PermissionsTable<any, any, any, any, any>) {
+export type StrUserID = string & { readonly __brand: unique symbol };
+export type StrPostID = string & { readonly __brand: unique symbol };
+
+export async function initStrKeyDB(
+  strKeyTable: PermissionsTable<any, any, any, any, any>
+) {
   const strKeyDB = await createDB("text", strKeyTable);
   await strKeyTable.create(strKeyDB);
 
@@ -44,10 +46,7 @@ export async function initStrKeyDB<
   return strKeyDB;
 }
 
-export function getStrKeyPermissionsTable<
-  UserID extends string,
-  PostID extends string
->() {
+export function getStrKeyPermissionsTable() {
   return new PermissionsTable({
     maxPublicPermissions: AccessLevel.Read,
     maxUserGrantedPermissions: AccessLevel.Write,
@@ -57,8 +56,8 @@ export function getStrKeyPermissionsTable<
     resourceTable: "posts",
     resourceIDColumn: "postID",
     resourceIDDataType: "text",
-    sampleUserID: "foo" as UserID,
-    sampleResourceID: "foo" as PostID,
+    sampleUserID: "foo" as StrUserID,
+    sampleResourceID: "foo" as StrPostID,
   });
 }
 
