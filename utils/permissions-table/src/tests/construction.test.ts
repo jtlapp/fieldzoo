@@ -10,7 +10,8 @@ describe("PermissionsTable construction", () => {
   it("validates constructor arguments", () => {
     ignore("invalid key data types", () => {
       new PermissionsTable({
-        ownerPermissions: AccessLevel.Write,
+        maxPublicPermissions: AccessLevel.Read,
+        maxUserGrantedPermissions: AccessLevel.Write,
         userTable: "users",
         userIDColumn: "id",
         // @ts-expect-error - invalid key data type
@@ -18,7 +19,6 @@ describe("PermissionsTable construction", () => {
         resourceTable: "posts",
         resourceIDColumn: "postID",
         resourceIDDataType: "integer",
-        resourceOwnerKeyColumn: "ownerID",
       });
       new PermissionsTable({
         ownerPermissions: AccessLevel.Write,
@@ -29,7 +29,6 @@ describe("PermissionsTable construction", () => {
         resourceIDColumn: "postID",
         // @ts-expect-error - invalid key data type
         resourceIDDataType: "string",
-        resourceOwnerKeyColumn: "ownerID",
       });
     });
 
@@ -37,50 +36,51 @@ describe("PermissionsTable construction", () => {
       "constructor requires key types to be consistent with data types",
       () => {
         new PermissionsTable({
-          ownerPermissions: AccessLevel.Write,
+          maxPublicPermissions: AccessLevel.Read,
+          maxUserGrantedPermissions: AccessLevel.Write,
           userTable: "users",
           userIDColumn: "id",
           userIDDataType: "integer",
           resourceTable: "posts",
           resourceIDColumn: "postID",
           resourceIDDataType: "integer",
-          resourceOwnerKeyColumn: "ownerID",
           // @ts-expect-error - user key not of correct type
           sampleUserID: "invalid",
         });
         new PermissionsTable({
-          ownerPermissions: AccessLevel.Write,
+          maxPublicPermissions: AccessLevel.Read,
+          maxUserGrantedPermissions: AccessLevel.Write,
           userTable: "users",
           userIDColumn: "id",
           userIDDataType: "text",
           resourceTable: "posts",
           resourceIDColumn: "postID",
           resourceIDDataType: "integer",
-          resourceOwnerKeyColumn: "ownerID",
           // @ts-expect-error - user key not of correct type
           sampleUserID: 1 as UserID,
         });
 
         new PermissionsTable({
+          maxPublicPermissions: AccessLevel.Read,
+          maxUserGrantedPermissions: AccessLevel.Write,
           userTable: "users",
           userIDColumn: "id",
           userIDDataType: "integer",
           resourceTable: "posts",
           resourceIDColumn: "postID",
           resourceIDDataType: "integer",
-          resourceOwnerKeyColumn: "ownerID",
           // @ts-expect-error - resource key not of correct type
           sampleResourceID: "invalid",
         });
         new PermissionsTable({
-          ownerPermissions: AccessLevel.Write,
+          maxPublicPermissions: AccessLevel.Read,
+          maxUserGrantedPermissions: AccessLevel.Write,
           userTable: "users",
           userIDColumn: "id",
           userIDDataType: "integer",
           resourceTable: "posts",
           resourceIDColumn: "postID",
           resourceIDDataType: "text",
-          resourceOwnerKeyColumn: "ownerID",
           // @ts-expect-error - resource key not of correct type
           sampleResourceID: 1 as PostID,
         });
@@ -90,14 +90,14 @@ describe("PermissionsTable construction", () => {
     ignore("correctly defaults UserID and ResourceID types", () => {
       const db = null as unknown as Kysely<any>;
       const table1 = new PermissionsTable({
-        ownerPermissions: AccessLevel.Write,
+        maxPublicPermissions: AccessLevel.Read,
+        maxUserGrantedPermissions: AccessLevel.Write,
         userTable: "users",
         userIDColumn: "id",
         userIDDataType: "integer",
         resourceTable: "posts",
         resourceIDColumn: "postID",
         resourceIDDataType: "integer",
-        resourceOwnerKeyColumn: "ownerID",
       });
       table1.getPermissions(
         db,
@@ -105,26 +105,24 @@ describe("PermissionsTable construction", () => {
         "invalid",
         1 as PostID
       );
-      table1.getMultiplePermissions(
-        db,
-        // @ts-expect-error - user key not of correct type
-        "invalid",
-        [1 as PostID]
-      );
       // @ts-expect-error - user key not of correct type
-      table1.setPermissions(db, "invalid", 1, AccessLevel.Read);
+      table1.setPermissions(db, "invalid", 1, AccessLevel.Read, null);
       // @ts-expect-error - resource key not of correct type
-      table1.setPermissions(db, 1, "invalid", AccessLevel.Read);
+      table1.setPermissions(db, 1, "invalid", AccessLevel.Read, null);
+      // @ts-expect-error - permissions not of correct type
+      table1.setPermissions(db, 1, 1, 0, null);
+      // @ts-expect-error - grantee not of correct type
+      table1.setPermissions(db, 1, 1, AccessLevel.Read, "invalid");
 
       const table2 = new PermissionsTable({
-        ownerPermissions: AccessLevel.Write,
+        maxPublicPermissions: AccessLevel.Read,
+        maxUserGrantedPermissions: AccessLevel.Write,
         userTable: "users",
         userIDColumn: "id",
         userIDDataType: "text",
         resourceTable: "posts",
         resourceIDColumn: "postID",
         resourceIDDataType: "uuid",
-        resourceOwnerKeyColumn: "ownerID",
       });
       table2.getPermissions(
         db,
@@ -132,16 +130,14 @@ describe("PermissionsTable construction", () => {
         1,
         "valid"
       );
-      table2.getMultiplePermissions(
-        db,
-        // @ts-expect-error - user key not of correct type
-        1,
-        ["valid"]
-      );
       // @ts-expect-error - user key not of correct type
-      table2.setPermissions(db, 1, "valid", AccessLevel.Read);
+      table2.setPermissions(db, 1, "valid", AccessLevel.Read, null);
       // @ts-expect-error - resource key not of correct type
-      table2.setPermissions(db, "valid", 1, AccessLevel.Read);
+      table2.setPermissions(db, "valid", 1, AccessLevel.Read, null);
+      // @ts-expect-error - permissions not of correct type
+      table2.setPermissions(db, "valid", "valid", 0, null);
+      // @ts-expect-error - grantee not of correct type
+      table2.setPermissions(db, "valid", "valid", AccessLevel.Read, 1);
     });
   });
 });
