@@ -35,7 +35,7 @@ afterEach(async () => {
 });
 
 describe("PermissionsTable construction", () => {
-  it("creates permissions table with a custom name", async () => {
+  it("creates permissions table with a custom name, with drop", async () => {
     const table = new PermissionsTable({
       maxPublicPermissions: AccessLevel.Read,
       maxUserGrantedPermissions: AccessLevel.Write,
@@ -50,17 +50,17 @@ describe("PermissionsTable construction", () => {
 
     expect(table.getTableName()).toBe("custom_permissions_table");
 
+    intKeyDB = await initIntKeyDB(intKeyTable);
+    const query = intKeyDB
+      .selectFrom("custom_permissions_table" as keyof IntKeyDB)
+      .select(["grantedTo", "resourceID", "permissions"]);
     try {
-      intKeyDB = await initIntKeyDB(intKeyTable);
       await table.create(intKeyDB);
-
-      const results = await intKeyDB
-        .selectFrom("custom_permissions_table" as keyof IntKeyDB)
-        .select(["grantedTo", "resourceID", "permissions"])
-        .execute();
+      const results = await query.execute();
       expect(results).toHaveLength(0);
     } finally {
       await table.drop(intKeyDB);
+      await expect(query.execute()).rejects.toThrow("does not exist");
     }
   });
 
