@@ -9,7 +9,6 @@ import {
 } from "./lib/test-util";
 import {
   IntKeyDB,
-  IntPostID,
   getIntKeyPermissionsTable,
   initIntKeyDB,
 } from "./lib/intkey-tables";
@@ -238,12 +237,6 @@ describe("PermissionsTable construction", () => {
         resourceIDColumn: "postID",
         resourceIDDataType: "integer",
       });
-      table1.getPermissions(
-        db,
-        // @ts-expect-error - user key not of correct type
-        "invalid",
-        1 as IntPostID
-      );
       // @ts-expect-error - user key not of correct type
       table1.setPermissions(db, "invalid", 1, AccessLevel.Read, null);
       // @ts-expect-error - resource key not of correct type
@@ -263,12 +256,6 @@ describe("PermissionsTable construction", () => {
         resourceIDColumn: "postID",
         resourceIDDataType: "uuid",
       });
-      table2.getPermissions(
-        db,
-        // @ts-expect-error - user key not of correct type
-        1,
-        "valid"
-      );
       // @ts-expect-error - user key not of correct type
       table2.setPermissions(db, 1, "valid", AccessLevel.Read, null);
       // @ts-expect-error - resource key not of correct type

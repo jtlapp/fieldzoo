@@ -96,14 +96,26 @@ describe("PermissionsTable getPermissions()", () => {
         intKeyDB,
         // @ts-expect-error - user key not of correct type
         "u1",
-        strKeyDB.selectFrom("posts")
+        1 as IntPostID
       );
-
       intKeyTable.getPermissions(
         intKeyDB,
         // @ts-expect-error - user key not of correct type
         1,
-        strKeyDB.selectFrom("posts")
+        1 as IntPostID
+      );
+
+      intKeyTable.getPermissions(
+        intKeyDB,
+        1 as IntUserID,
+        // @ts-expect-error - resource key not of correct type
+        1
+      );
+      intKeyTable.getPermissions(
+        intKeyDB,
+        1 as IntUserID,
+        // @ts-expect-error - resource key not of correct type
+        "p1"
       );
     });
 
@@ -186,14 +198,26 @@ describe("PermissionsTable getPermissions()", () => {
         strKeyDB,
         // @ts-expect-error - user key not of correct type
         1,
-        strKeyDB.selectFrom("posts")
+        "p1" as StrPostID
       );
-
       strKeyTable.getPermissions(
         strKeyDB,
         // @ts-expect-error - user key not of correct type
         "u1",
-        strKeyDB.selectFrom("posts")
+        "p1" as StrPostID
+      );
+
+      strKeyTable.getPermissions(
+        strKeyDB,
+        "u1" as StrUserID,
+        // @ts-expect-error - resource key not of correct type
+        1
+      );
+      strKeyTable.getPermissions(
+        strKeyDB,
+        "u1" as StrUserID,
+        // @ts-expect-error - resource key not of correct type
+        "p1"
       );
     });
   });
