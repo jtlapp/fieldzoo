@@ -21,7 +21,7 @@ const postgresConfig = {
   password: process.env.POSTGRES_PASSWORD,
 };
 
-const tables = ["comments", "posts", "users"];
+const tables = ["custom_permissions_table", "comments", "posts", "users"];
 
 export async function createTables(db: Kysely<any>, keyDataType: string) {
   const refKeyType = keyDataType == "serial" ? "integer" : keyDataType;

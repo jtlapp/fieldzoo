@@ -80,7 +80,8 @@ export class PermissionsTable<
       ResourceIDDataType,
       Permissions,
       UserID,
-      ResourceID
+      ResourceID,
+      TableName
     >
   ) {
     if (config.maxPublicPermissions > config.maxUserGrantedPermissions) {
