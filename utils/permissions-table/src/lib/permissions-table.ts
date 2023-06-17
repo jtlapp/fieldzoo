@@ -241,11 +241,19 @@ export class PermissionsTable<
     grantedTo: UserID | null,
     resourceID: ResourceID
   ) {
-    await db
-      .deleteFrom(this.tableName as unknown as TB)
-      .where(db.dynamic.ref("grantedTo"), "=", grantedTo)
-      .where(db.dynamic.ref("resourceID"), "=", resourceID)
-      .execute();
+    if (grantedTo === null) {
+      await db
+        .deleteFrom(this.tableName as unknown as TB)
+        .where(db.dynamic.ref("grantedTo"), "is", null)
+        .where(db.dynamic.ref("resourceID"), "=", resourceID)
+        .execute();
+    } else {
+      await db
+        .deleteFrom(this.tableName as unknown as TB)
+        .where(db.dynamic.ref("grantedTo"), "=", grantedTo)
+        .where(db.dynamic.ref("resourceID"), "=", resourceID)
+        .execute();
+    }
   }
 
   /**
