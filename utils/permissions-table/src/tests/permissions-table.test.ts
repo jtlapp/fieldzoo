@@ -2,14 +2,19 @@ import { Kysely } from "kysely";
 
 import {
   IntKeyDB,
-  createIntKeyDB,
+  initIntKeyDB,
   getIntKeyPermissionsTable,
 } from "./lib/intkey-tables";
-import { AccessLevel, createDatabase, destroyDB } from "./lib/test-util";
+import {
+  AccessLevel,
+  createDatabase,
+  destroyDB,
+  ignore,
+} from "./lib/test-util";
 import { PermissionsTable } from "../lib/permissions-table";
 import {
   StrKeyDB,
-  createStrKeyDB,
+  initStrKeyDB,
   getStrKeyPermissionsTable,
 } from "./lib/strkey-tables";
 
@@ -23,123 +28,6 @@ let intKeyDB: Kysely<IntKeyDB>;
 const intKeyTable = getIntKeyPermissionsTable<IntUserID, IntPostID>();
 let strKeyDB: Kysely<StrKeyDB>;
 const strKeyTable = getStrKeyPermissionsTable<StrUserID, StrPostID>();
-
-async function initIntKeyDB() {
-  intKeyDB = await createIntKeyDB(intKeyTable);
-
-  await intKeyDB
-    .insertInto("users")
-    .values([
-      // user1 has no access to any posts
-      { handle: "user1", name: "User 1" },
-      // user2 owns post 1, but no assigned permissionss
-      { handle: "user2", name: "User 2" },
-      // user3 owns post 2 and post 3, but no assigned permissionss
-      { handle: "user3", name: "User 3" },
-      // user4 owns post 4 and has read access to post 1
-      { handle: "user4", name: "User 4" },
-      // user5 owns no posts, has read access to post 2, write access to post 3
-      { handle: "user5", name: "User 5" },
-    ])
-    .execute();
-
-  // posts
-  await intKeyDB
-    .insertInto("posts")
-    .values([
-      { ownerID: 2, title: "Post 1" },
-      { ownerID: 3, title: "Post 2" },
-      { ownerID: 3, title: "Post 3" },
-      { ownerID: 4, title: "Post 4" },
-    ])
-    .execute();
-
-  // permissions assignments
-  await intKeyTable.setPermissions(
-    intKeyDB,
-    2 as IntUserID,
-    1 as IntPostID,
-    AccessLevel.Owner,
-    null
-  );
-  await intKeyTable.setPermissions(
-    intKeyDB,
-    3 as IntUserID,
-    2 as IntPostID,
-    AccessLevel.Owner,
-    null
-  );
-  await intKeyTable.setPermissions(
-    intKeyDB,
-    3 as IntUserID,
-    3 as IntPostID,
-    AccessLevel.Owner,
-    null
-  );
-  await intKeyTable.setPermissions(
-    intKeyDB,
-    4 as IntUserID,
-    4 as IntPostID,
-    AccessLevel.Owner,
-    null
-  );
-  await intKeyTable.setPermissions(
-    intKeyDB,
-    4 as IntUserID,
-    1 as IntPostID,
-    AccessLevel.Read,
-    null
-  );
-  await intKeyTable.setPermissions(
-    intKeyDB,
-    5 as IntUserID,
-    2 as IntPostID,
-    AccessLevel.Read,
-    null
-  );
-  await intKeyTable.setPermissions(
-    intKeyDB,
-    5 as IntUserID,
-    3 as IntPostID,
-    AccessLevel.Write,
-    1 as IntUserID
-  );
-}
-
-async function initStrKeyDB() {
-  strKeyDB = await createStrKeyDB(strKeyTable);
-
-  // user1 owns post 1, has read access to post 2, and no access to post 3
-  await strKeyDB
-    .insertInto("users")
-    .values([
-      { id: "u1", handle: "user1", name: "User 1" },
-      { id: "u2", handle: "user2", name: "User 2" },
-    ])
-    .execute();
-  await strKeyDB
-    .insertInto("posts")
-    .values([
-      { postID: "p1", ownerID: "u1", title: "Post 1" },
-      { postID: "p2", ownerID: "u2", title: "Post 2" },
-      { postID: "p3", ownerID: "u2", title: "Post 3" },
-    ])
-    .execute();
-  await strKeyTable.setPermissions(
-    strKeyDB,
-    "u1" as StrUserID,
-    "p1" as StrPostID,
-    AccessLevel.Owner,
-    null
-  );
-  await strKeyTable.setPermissions(
-    strKeyDB,
-    "u1" as StrUserID,
-    "p2" as StrPostID,
-    AccessLevel.Read,
-    "u2" as StrUserID
-  );
-}
 
 beforeAll(async () => {
   await createDatabase();
@@ -160,7 +48,7 @@ describe("PermissionsTable", () => {
   describe("getPermissions()", () => {
     describe("with integer keys", () => {
       it("grants no access when no rights", async () => {
-        await initIntKeyDB();
+        intKeyDB = await initIntKeyDB(intKeyTable);
         await checkPermissions(intKeyDB, 1 as IntUserID, intKeyTable, [
           [1, AccessLevel.None, null],
           [2, AccessLevel.None, null],
@@ -170,7 +58,7 @@ describe("PermissionsTable", () => {
       });
 
       it("grants access to the resource owner", async () => {
-        await initIntKeyDB();
+        intKeyDB = await initIntKeyDB(intKeyTable);
         await checkPermissions(intKeyDB, 2 as IntUserID, intKeyTable, [
           [1, AccessLevel.Owner, null],
           [2, AccessLevel.None, null],
@@ -187,7 +75,7 @@ describe("PermissionsTable", () => {
       });
 
       it("grants access to users by permissions, but no higher", async () => {
-        await initIntKeyDB();
+        intKeyDB = await initIntKeyDB(intKeyTable);
         await checkPermissions(intKeyDB, 4 as IntUserID, intKeyTable, [
           [1, AccessLevel.Read, null],
           [2, AccessLevel.None, null],
@@ -197,7 +85,7 @@ describe("PermissionsTable", () => {
       });
 
       it("grants access to assigned permissions and lower", async () => {
-        await initIntKeyDB();
+        intKeyDB = await initIntKeyDB(intKeyTable);
         await checkPermissions(intKeyDB, 5 as IntUserID, intKeyTable, [
           [1, AccessLevel.None, null],
           [2, AccessLevel.Read, null],
@@ -205,23 +93,181 @@ describe("PermissionsTable", () => {
           [4, AccessLevel.None, null],
         ]);
       });
+
+      ignore("getPermissions() requires provided key types", () => {
+        intKeyTable.getPermissions(
+          intKeyDB,
+          // @ts-expect-error - user key not of correct type
+          "u1",
+          strKeyDB.selectFrom("posts")
+        );
+
+        intKeyTable.getPermissions(
+          intKeyDB,
+          // @ts-expect-error - user key not of correct type
+          1,
+          strKeyDB.selectFrom("posts")
+        );
+      });
+
+      ignore("setPermissions() requires provided key types", () => {
+        intKeyTable.setPermissions(
+          intKeyDB,
+          // @ts-expect-error - user key not of correct type
+          1,
+          1 as IntPostID,
+          AccessLevel.Read,
+          null
+        );
+        intKeyTable.setPermissions(
+          intKeyDB,
+          // @ts-expect-error - user key not of correct type
+          "u1",
+          1 as IntPostID,
+          AccessLevel.Read,
+          null
+        );
+
+        intKeyTable.setPermissions(
+          intKeyDB,
+          1 as IntUserID,
+          // @ts-expect-error - resource key not of correct type
+          1,
+          AccessLevel.Read,
+          null
+        );
+        intKeyTable.setPermissions(
+          intKeyDB,
+          1 as IntUserID,
+          // @ts-expect-error - resource key not of correct type
+          "p1",
+          AccessLevel.Read,
+          null
+        );
+
+        intKeyTable.setPermissions(
+          intKeyDB,
+          1 as IntUserID,
+          1 as IntPostID,
+          // @ts-expect-error - permissions not of correct type
+          0,
+          null
+        );
+
+        intKeyTable.setPermissions(
+          intKeyDB,
+          1 as IntUserID,
+          1 as IntPostID,
+          AccessLevel.Read,
+          // @ts-expect-error - user key not of correct type
+          1
+        );
+
+        intKeyTable.setPermissions(
+          intKeyDB,
+          1 as IntUserID,
+          1 as IntPostID,
+          AccessLevel.Read,
+          // @ts-expect-error - user key not of correct type
+          "u2"
+        );
+      });
     });
 
     describe("with string keys", () => {
       it("grants access by resource owner and permissions", async () => {
-        await initStrKeyDB();
+        strKeyDB = await initStrKeyDB(strKeyTable);
         await checkPermissions(strKeyDB, "u1" as StrUserID, strKeyTable, [
           ["p1", AccessLevel.Owner, null],
           ["p2", AccessLevel.Read, "u2" as StrUserID],
           ["p3", AccessLevel.None, null],
         ]);
       });
+
+      ignore("getPermissions() requires provided key types", () => {
+        strKeyTable.getPermissions(
+          strKeyDB,
+          // @ts-expect-error - user key not of correct type
+          1,
+          strKeyDB.selectFrom("posts")
+        );
+
+        strKeyTable.getPermissions(
+          strKeyDB,
+          // @ts-expect-error - user key not of correct type
+          "u1",
+          strKeyDB.selectFrom("posts")
+        );
+      });
+    });
+
+    ignore("setPermissions() requires provided key types", () => {
+      strKeyTable.setPermissions(
+        strKeyDB,
+        // @ts-expect-error - user key not of correct type
+        1,
+        "p1" as StrPostID,
+        AccessLevel.Read,
+        null
+      );
+      strKeyTable.setPermissions(
+        strKeyDB,
+        // @ts-expect-error - user key not of correct type
+        "u1",
+        "p1" as StrPostID,
+        AccessLevel.Read,
+        null
+      );
+
+      strKeyTable.setPermissions(
+        strKeyDB,
+        "u1" as StrUserID,
+        // @ts-expect-error - resource key not of correct type
+        1,
+        AccessLevel.Read,
+        null
+      );
+      strKeyTable.setPermissions(
+        strKeyDB,
+        "u1" as StrUserID,
+        // @ts-expect-error - resource key not of correct type
+        "p1",
+        AccessLevel.Read,
+        null
+      );
+
+      strKeyTable.setPermissions(
+        strKeyDB,
+        "u1" as StrUserID,
+        "p1" as StrPostID,
+        // @ts-expect-error - permissions not of correct type
+        0,
+        null
+      );
+
+      strKeyTable.setPermissions(
+        strKeyDB,
+        "u1" as StrUserID,
+        "p1" as StrPostID,
+        AccessLevel.Read,
+        // @ts-expect-error - user key not of correct type
+        1
+      );
+
+      strKeyTable.setPermissions(
+        strKeyDB,
+        "u1" as StrUserID,
+        "p1" as StrPostID,
+        AccessLevel.Read,
+        // @ts-expect-error - user key not of correct type
+        "u2"
+      );
     });
   });
 
   describe("setPermissions()", () => {
     it("setting permissions to 0 reduces access to public permissions", async () => {
-      await initIntKeyDB();
+      intKeyDB = await initIntKeyDB(intKeyTable);
 
       // test without public permissions
 
@@ -273,7 +319,7 @@ describe("PermissionsTable", () => {
     });
 
     it("changes existing permissions", async () => {
-      await initIntKeyDB();
+      intKeyDB = await initIntKeyDB(intKeyTable);
 
       // test with a first user increasing permissions
 
@@ -327,7 +373,7 @@ describe("PermissionsTable", () => {
 
   describe("cascade deletes permissions", () => {
     it("deletes permissions rows when user is deleted", async () => {
-      await initIntKeyDB();
+      intKeyDB = await initIntKeyDB(intKeyTable);
       const query = intKeyDB
         .selectFrom(intKeyTable.getTableName())
         .select("resourceID")
@@ -343,7 +389,7 @@ describe("PermissionsTable", () => {
     });
 
     it("deletes permissions rows when resource is deleted", async () => {
-      await initIntKeyDB();
+      intKeyDB = await initIntKeyDB(intKeyTable);
       const query = intKeyDB
         .selectFrom(intKeyTable.getTableName())
         .select("grantedTo")
@@ -361,13 +407,13 @@ describe("PermissionsTable", () => {
 });
 
 async function checkPermissions<
-  UserID extends string | number,
+  StrUserID extends string | number,
   ResourceID extends string | number
 >(
   db: Kysely<any>,
-  userID: UserID,
+  userID: StrUserID,
   table: PermissionsTable<any, any, any, any, any>,
-  expectedResults: [ResourceID, AccessLevel, UserID | null][]
+  expectedResults: [ResourceID, AccessLevel, StrUserID | null][]
 ) {
   // test getPermissions() for a single resource
 
