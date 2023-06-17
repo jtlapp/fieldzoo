@@ -14,7 +14,7 @@
     "clean": "rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
     "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
-    "test": "jest"
+    "test": "jest --runInBand"
   },
   "jest": {
     "preset": "jest-presets/node"
