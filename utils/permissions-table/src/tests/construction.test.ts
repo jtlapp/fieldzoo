@@ -48,6 +48,8 @@ describe("PermissionsTable construction", () => {
       tableName: "custom_permissions_table",
     });
 
+    expect(table.getTableName()).toBe("custom_permissions_table");
+
     try {
       intKeyDB = await initIntKeyDB(intKeyTable);
       await table.create(intKeyDB);
