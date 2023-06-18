@@ -2,7 +2,7 @@ import { Kysely } from "kysely";
 
 import { TableMapper } from "kysely-mapper";
 
-import { Database, Terms, CollaborativeTable } from "@fieldzoo/database";
+import { Database, Terms, CollaborativeTable } from "@fieldzoo/system-model";
 
 import { GlossaryID } from "../values/glossary-id";
 import { NormalizedName } from "../values/normalized-name";

@@ -1,7 +1,6 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
-import { testTimestamp } from "@fieldzoo/modeling/dist/testing";
+import { testDate, testUUID } from "@fieldzoo/testing-utils";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
-import { testUserID } from "@fieldzoo/system-model";
 
 import { testTermID } from "../values/term-id.test";
 import { testVersionNumber } from "../values/version-number.test";
@@ -31,17 +30,17 @@ describe("TermVersion entity", () => {
     testMultilineDescription(ERROR_MSG, (description) =>
       createTermVersion({ description })
     );
-    testTimestamp(
+    testDate(
       ERROR_MSG,
       (createdAt) => createTermVersion({ createdAt }),
       (skip) => skip === undefined
     );
-    testTimestamp(
+    testDate(
       ERROR_MSG,
       (modifiedAt) => createTermVersion({ modifiedAt }),
       (skip) => skip === undefined
     );
-    testUserID(ERROR_MSG, (modifiedBy) => createTermVersion({ modifiedBy }));
+    testUUID(ERROR_MSG, (modifiedBy) => createTermVersion({ modifiedBy }));
     testWhatChangedLine(ERROR_MSG, (whatChangedLine) =>
       createTermVersion({ whatChangedLine })
     );

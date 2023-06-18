@@ -1,5 +1,4 @@
-import { NON_STRINGS } from "../testing/value-test-consts";
-import { testValues } from "../testing/test-values";
+import { NON_STRINGS, testValues } from "@fieldzoo/testing-utils";
 
 import { PasswordHashImpl } from "./password-hash";
 
@@ -18,7 +17,7 @@ it("accepts only valid password hashes", () => {
   );
 });
 
-export function testPasswordHash(
+function testPasswordHash(
   errorSubstring: string,
   test: (value: any) => void,
   exclude = (_skip: any) => false

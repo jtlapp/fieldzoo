@@ -8,22 +8,25 @@ import { CompilingStandardValidator } from "typebox-validators";
  */
 export enum AccessLevel {
   None, // 0
-  Read, // 1
-  Comment, // 2
-  Edit, // 3
-  Delete, // 4
-  Grant, // 5
+  List, // 1
+  Read, // 2
+  Comment, // 3
+  Create, // 4
+  Edit, // 5
+  Delete, // 6
+  Grant, // 7
+  Owner, // 8
 }
 
 export class AccessLevelImpl {
   static schema = Type.Integer({
     minimum: AccessLevel.None,
-    maximum: AccessLevel.Grant,
+    maximum: AccessLevel.Owner,
   });
 
-  static castFrom(accessLevel: number) {
-    this.#validator.assert(accessLevel, "Invalid access level");
-    return accessLevel as AccessLevel;
+  static castFrom(permissions: number) {
+    this.#validator.assert(permissions, "Invalid permissions");
+    return permissions as AccessLevel;
   }
 
   static #validator = new CompilingStandardValidator(this.schema);

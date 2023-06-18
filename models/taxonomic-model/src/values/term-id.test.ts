@@ -1,4 +1,4 @@
-import { testNumericID } from "@fieldzoo/modeling/dist/testing";
+import { testPositiveInt } from "@fieldzoo/testing-utils";
 
 import { TermIDImpl } from "./term-id";
 
@@ -11,5 +11,5 @@ export function testTermID(
   test: (value: any) => void,
   exclude = (_skip: any) => false
 ) {
-  testNumericID(errorSubstring, test, exclude);
+  testPositiveInt(errorSubstring, test, exclude);
 }

@@ -1,7 +1,6 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
-import { testTimestamp } from "@fieldzoo/modeling/dist/testing";
+import { testDate, testUUID } from "@fieldzoo/testing-utils";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
-import { testUserID } from "@fieldzoo/system-model";
 
 import { Term } from "./term";
 import { NormalizedNameImpl } from "../values/normalized-name";
@@ -61,18 +60,18 @@ describe("Term entity", () => {
     testMultilineDescription(ERROR_MSG, (description) =>
       createTerm({ description })
     );
-    testTimestamp(
+    testDate(
       ERROR_MSG,
       (createdAt) => createTerm({ createdAt }),
       (skip) => skip === undefined
     );
-    testTimestamp(
+    testDate(
       ERROR_MSG,
       (modifiedAt) => createTerm({ modifiedAt }),
       (skip) => skip === undefined
     );
 
-    testUserID(ERROR_MSG, (modifiedBy) => createTerm({ modifiedBy }));
+    testUUID(ERROR_MSG, (modifiedBy) => createTerm({ modifiedBy }));
   });
 
   it("doesn't validate when assumed valid", () => {

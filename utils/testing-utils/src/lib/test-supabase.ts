@@ -10,11 +10,9 @@ import * as dotenv from "dotenv";
 import { Kysely, Migrator, FileMigrationProvider, sql } from "kysely";
 import { PostgresClientDialect } from "kysely-pg-client";
 
-import { TEST_ENV } from "@fieldzoo/app-config";
+import { MIGRATIONS_PATH, TEST_ENV } from "@fieldzoo/app-config";
 import { PostgresConfig } from "@fieldzoo/env-config";
 import { clearDatabase } from "@fieldzoo/postgres-utils";
-
-import { MIGRATION_FILE_PATH } from "./migration-utils";
 
 const PATH_TO_ROOT = path.join(__dirname, "../../../..");
 
@@ -51,7 +49,7 @@ export async function resetTestDB(): Promise<void> {
     provider: new FileMigrationProvider({
       fs,
       path,
-      migrationFolder: MIGRATION_FILE_PATH,
+      migrationFolder: MIGRATIONS_PATH,
     }),
   });
   const { error } = await migrator.migrateToLatest();

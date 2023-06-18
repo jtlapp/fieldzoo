@@ -2,13 +2,25 @@ import { Kysely } from "kysely";
 import { TableMapper } from "kysely-mapper";
 
 import { createBase64UUID } from "@fieldzoo/base64-uuid";
-import { Database, Glossaries, CollaborativeTable } from "@fieldzoo/database";
+import {
+  CollaborativeTable,
+  Database,
+  Glossaries,
+} from "@fieldzoo/system-model";
 
 import { Glossary } from "../entities/glossary";
 import { GlossaryID } from "../values/glossary-id";
 
+// export interface GlossaryPermissions {
+//   glossary: Glossary;
+//   permissions: Permissions;
+// }
+
 /**
- * Repository for persisting glossaries.
+ * Repository for persisting glossaries. Users are guaranteed to have admin
+ * access to the glossaries they own, regardless of assigned permissions.
+ * This ensures that a situation can't arise where a user is unable to
+ * access their own glossaries.
  */
 export class GlossaryRepo {
   readonly #table: ReturnType<GlossaryRepo["getMapper"]>;
@@ -44,6 +56,87 @@ export class GlossaryRepo {
   async getByID(id: GlossaryID): Promise<Glossary | null> {
     return this.#table.select(id).returnOne();
   }
+
+  /**
+   * Gets a glossary by ID, including its permissions for the given user.
+   * @param id UUID of the glossary to get.
+   * @param userID ID of the user to get permissions for.
+   * @returns the glossary and its permissions, or null if the glossary was
+   *  not found or the user has no permissions to the glosssary.
+   */
+  // async getByIDWithPermissions(
+  //   glossaryID: GlossaryID,
+  //   userID: UserID
+  // ): Promise<GlossaryPermissions | null> {
+  //   const results = await this.db
+  //     .selectFrom("glossaries")
+  //     .selectAll()
+  //     .innerJoin("user_glossary_permissions", (qb) =>
+  //       qb
+  //         .on("user_glossary_permissions.glossaryID", "=", glossaryID)
+  //         .on("user_glossary_permissions.userID", "=", userID)
+  //     )
+  //     .select("user_glossary_permissions.permissions as permissions")
+  //     .where("id", "=", glossaryID)
+  //     .union(
+  //       sql`select *, ${Permissions.Admin} as permissions from glossaries where id=${glossaryID} and ownerID=${userID}`
+  //     )
+  //     .executeTakeFirst();
+
+  //   return results !== undefined
+  //     ? {
+  //         glossary: Glossary.castFrom(results, false),
+  //         permissions: results.permissions as Permissions,
+  //       }
+  //     : null;
+  // }
+
+  /**
+   * Returns all glossaries to which a given user has explicit permissions.
+   * @param userID ID of the user to get permissions for.
+   * @returns the glossaries and their permissions, or an empty array if the
+   *  user has no explicit permissions to any glossaries.
+   */
+  // async getForUser(userID: UserID): Promise<GlossaryPermissions[]> {
+  //   const results = await this.db
+  //     .selectFrom("glossaries")
+  //     .selectAll()
+  //     .innerJoin("user_glossary_permissions", (qb) =>
+  //       qb
+  //         .on("user_glossary_permissions.glossaryID", "=", "glossaries.id")
+  //         .on("user_glossary_permissions.userID", "=", userID)
+  //     )
+  //     .select("user_glossary_permissions.permissions as permissions")
+  //     .union(
+  //       sql`select *, ${Permissions.Admin} as permissions from glossaries where ownerID=${userID}`
+  //     )
+  //     .execute();
+
+  //   return results.map((result) => ({
+  //     glossary: Glossary.castFrom(result, false),
+  //     permissions: result.permissions as Permissions,
+  //   }));
+  // }
+
+  /**
+   * Set a user's permissions for a glossary.
+   * @param userID ID of the user to set permissions for.
+   * @param glossaryID ID of the glossary to set permissions for.
+   * @param permissions Permissions to set.
+   */
+  // async setPermissions(
+  //   userID: UserID,
+  //   glossaryID: GlossaryID,
+  //   permissions: Permissions
+  // ): Promise<void> {
+  //   await this.db
+  //     .insertInto("user_glossary_permissions")
+  //     .values({ userID, glossaryID, permissions })
+  //     .onConflict((oc) =>
+  //       oc.constraint("userID_glossaryID_key").doUpdateSet({ permissions })
+  //     )
+  //     .execute();
+  // }
 
   /**
    * Updates a glossary, including changing its `modifiedAt` date.

@@ -9,6 +9,7 @@ export interface Database {
   user_profiles: UserProfiles;
   glossaries: Glossaries;
   glossary_versions: GlossaryVersions;
+  user_glossary_permissions: UserGlossaryPermissions;
   terms: Terms;
   term_versions: TermVersions;
 }
@@ -28,7 +29,6 @@ export interface Glossaries {
   ownerID: string;
   name: string;
   description: string | null;
-  visibility: number;
   modifiedBy: string;
   createdAt: Date;
   modifiedAt: Date;
@@ -40,11 +40,16 @@ export interface GlossaryVersions {
   ownerID: string;
   name: string;
   description: string | null;
-  visibility: number;
   modifiedBy: string;
   createdAt: Date;
   modifiedAt: Date;
   whatChangedLine: string;
+}
+
+export interface UserGlossaryPermissions {
+  userID: string;
+  glossaryID: string;
+  permissions: number;
 }
 
 export interface Terms {

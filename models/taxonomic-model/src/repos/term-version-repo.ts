@@ -1,7 +1,7 @@
 import { Kysely } from "kysely";
 import { TableMapper } from "kysely-mapper";
 
-import { Database } from "@fieldzoo/database";
+import { Database } from "@fieldzoo/system-model";
 
 import { TermID } from "../values/term-id";
 import { TermVersion } from "../entities/term-version";

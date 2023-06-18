@@ -2,7 +2,7 @@ import {
   NON_STRINGS,
   UNTRIMMED_STRINGS,
   testValues,
-} from "@fieldzoo/modeling/dist/testing";
+} from "@fieldzoo/testing-utils";
 
 import { WhatChangedLineImpl } from "../values/what-changed-line";
 

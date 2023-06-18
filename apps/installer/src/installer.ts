@@ -15,7 +15,7 @@ import {
   PostgresConfig,
   InvalidEnvironmentException,
 } from "@fieldzoo/env-config";
-import { MIGRATION_FILE_PATH } from "@fieldzoo/database";
+import { MIGRATIONS_PATH } from "@fieldzoo/app-config";
 import { clearDatabase, existingTables } from "@fieldzoo/postgres-utils";
 
 const DEFAULT_ENV_FILE = ".env";
@@ -147,7 +147,7 @@ async function migrateToLatestSchema(db: Kysely<any>): Promise<boolean> {
     provider: new FileMigrationProvider({
       fs,
       path,
-      migrationFolder: MIGRATION_FILE_PATH,
+      migrationFolder: MIGRATIONS_PATH,
     }),
   });
 

@@ -15,7 +15,6 @@ import {
 } from "../values/multiline-description";
 import { VersionNumber } from "../values/version-number";
 import { CollaborativeEntity } from "./base/collaborative-entity";
-import { Visibility, VisibilityImpl } from "../values/visibility";
 
 /**
  * Class representing a valid glossary.
@@ -27,7 +26,6 @@ export class Glossary extends CollaborativeEntity {
     ownerID: UserIDImpl.schema,
     name: DisplayNameImpl.schema,
     description: Nullable(MultilineDescriptionImpl.schema),
-    visibility: VisibilityImpl.schema,
     modifiedBy: UserIDImpl.schema,
     createdAt: super.timestampedSchema.createdAt,
     modifiedAt: super.timestampedSchema.modifiedAt,
@@ -41,7 +39,6 @@ export class Glossary extends CollaborativeEntity {
    * @param name The glossary's name.
    * @param description The glossary's description.
    * @param modifiedBy The ID of the user who last updated this glossary.
-   * @param visibility The glossary's visibility.
    * @param createdAt The date/time at which the glossary was created.
    * @param modifiedAt The date/time at which the glossary was last modified.
    */
@@ -51,7 +48,6 @@ export class Glossary extends CollaborativeEntity {
     public ownerID: UserID,
     public name: DisplayName,
     public description: MultilineDescription | null,
-    public visibility: Visibility,
     modifiedBy: UserID,
     createdAt?: Date,
     modifiedAt?: Date
@@ -86,7 +82,6 @@ export class Glossary extends CollaborativeEntity {
       fields.ownerID as UserID,
       fields.name as DisplayName,
       fields.description as MultilineDescription | null,
-      fields.visibility as Visibility,
       fields.modifiedBy as UserID,
       fields.createdAt as Date,
       fields.modifiedAt as Date

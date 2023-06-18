@@ -29,8 +29,8 @@
       "path": "libs/app-config"
     },
     {
-      "name": "libs/database",
-      "path": "libs/database"
+      "name": "libs/migrations",
+      "path": "libs/migrations"
     },
     {
       "name": "libs/services",

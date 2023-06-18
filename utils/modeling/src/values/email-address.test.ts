@@ -1,5 +1,4 @@
-import { NON_STRINGS } from "../testing/value-test-consts";
-import { testValues } from "../testing/test-values";
+import { NON_STRINGS, testValues } from "@fieldzoo/testing-utils";
 
 import { EmailAddressImpl } from "../values/email-address";
 
@@ -27,7 +26,7 @@ it("accepts only valid email addresses", () => {
   );
 });
 
-export function testEmailAddress(
+function testEmailAddress(
   errorSubstring: string,
   test: (value: any) => void,
   exclude = (_skip: any) => false

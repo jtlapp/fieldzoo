@@ -7,7 +7,7 @@ import {
   sleep,
   createSupabaseUser,
   updateSupabaseUser,
-} from "@fieldzoo/database";
+} from "@fieldzoo/testing-utils";
 
 import { User } from "../entities/user";
 import { UserNameImpl } from "../values/user-name";

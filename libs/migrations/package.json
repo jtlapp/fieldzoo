@@ -1,0 +1,23 @@
+{
+  "name": "@fieldzoo/migrations",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf node_modules && rm -rf dist",
+    "dev": "tsc -w",
+    "lint": "TIMING=1 eslint \"src/**/*.ts*\""
+  },
+  "dependencies": {
+    "@fieldzoo/modeling": "workspace:*",
+    "@fieldzoo/system-model": "workspace:*",
+    "kysely": "^0.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "20.1.3",
+    "eslint": "^8.40.0",
+    "eslint-config-custom": "workspace:*",
+    "tsconfig": "workspace:*",
+    "typescript": "5.1.3"
+  }
+}

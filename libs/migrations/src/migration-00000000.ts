@@ -4,9 +4,7 @@
 import { Kysely, sql } from "kysely";
 
 import { TimestampedTable } from "@fieldzoo/modeling";
-
-import { VersionsTable } from "../tables/versions-table";
-import { CollaborativeTable } from "../tables/collaborative-table";
+import { VersionsTable, CollaborativeTable } from "@fieldzoo/system-model";
 
 export async function up(db: Kysely<any>): Promise<void> {
   await TimestampedTable.createFunctions(db);
@@ -49,7 +47,6 @@ export async function up(db: Kysely<any>): Promise<void> {
       )
       .addColumn("name", "text", (col) => col.notNull())
       .addColumn("description", "text")
-      .addColumn("visibility", "integer", (col) => col.notNull())
   );
 
   // glossary versions table
@@ -64,11 +61,24 @@ export async function up(db: Kysely<any>): Promise<void> {
       )
       .addColumn("name", "text", (col) => col.notNull())
       .addColumn("description", "text")
-      .addColumn("visibility", "integer", (col) => col.notNull())
-      .addUniqueConstraint("uuid_versionNumber_key", [
+      .addUniqueConstraint("glossaryID_versionNumber_key", [
         "glossaryID",
         "versionNumber",
       ])
+  );
+
+  // glossaries_permissions table
+
+  await TimestampedTable.create(db, "user_glossary_permissions", (tb) =>
+    tb
+      .addColumn("userID", "uuid", (col) =>
+        col.references("user_profiles.id").onDelete("cascade").notNull()
+      )
+      .addColumn("glossaryID", "text", (col) =>
+        col.references("glossaries.id").onDelete("cascade").notNull()
+      )
+      .addColumn("permissions", "integer", (col) => col.notNull())
+      .addUniqueConstraint("userID_glossaryID_key", ["userID", "glossaryID"])
   );
 
   // terms table
@@ -99,13 +109,17 @@ export async function up(db: Kysely<any>): Promise<void> {
       .addColumn("glossaryID", "text", (col) => col.notNull())
       .addColumn("displayName", "text", (col) => col.notNull())
       .addColumn("description", "text", (col) => col.notNull())
-      .addUniqueConstraint("id_versionNumber_key", ["termID", "versionNumber"])
+      .addUniqueConstraint("termID_versionNumber_key", [
+        "termID",
+        "versionNumber",
+      ])
   );
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
   await db.schema.dropTable("term_versions").execute();
   await db.schema.dropTable("terms").execute();
+  await db.schema.dropTable("user_glossary_permissions").execute();
   await db.schema.dropTable("glossary_versions").execute();
   await db.schema.dropTable("glossaries").execute();
   await db.schema.dropTable("user_profiles").execute();

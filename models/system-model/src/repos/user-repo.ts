@@ -4,8 +4,8 @@ import { ValidationException } from "typebox-validators";
 import { DatabaseError } from "pg";
 
 import { TimestampedTable } from "@fieldzoo/modeling";
-import { Database, UserProfiles } from "@fieldzoo/database";
 
+import { Database, UserProfiles } from "../tables/table-interfaces";
 import { User, READONLY_USER_FIELDS } from "../entities/user";
 import { UserID } from "../values/user-id";
 import { UserHandleImpl } from "../values/user-handle";

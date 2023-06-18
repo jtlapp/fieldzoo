@@ -1,5 +1,4 @@
-import { NON_STRINGS } from "../testing/value-test-consts";
-import { testValues } from "../testing/test-values";
+import { NON_STRINGS, testValues } from "@fieldzoo/testing-utils";
 
 import { PasswordSaltImpl } from "./password-salt";
 
@@ -18,7 +17,7 @@ it("accepts only valid password salts", () => {
   );
 });
 
-export function testPasswordSalt(
+function testPasswordSalt(
   errorSubstring: string,
   test: (value: any) => void,
   exclude = (_skip: any) => false

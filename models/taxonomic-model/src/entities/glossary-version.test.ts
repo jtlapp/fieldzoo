@@ -1,8 +1,6 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
-
-import { testTimestamp } from "@fieldzoo/modeling/dist/testing";
+import { testDate, testUUID } from "@fieldzoo/testing-utils";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
-import { testUserID } from "@fieldzoo/system-model";
 
 import { testGlossaryID } from "../values/glossary-id.test";
 import { testDisplayName } from "../values/display-name.test";
@@ -10,7 +8,6 @@ import { testMultilineDescription } from "../values/multiline-description.test";
 import { testVersionNumber } from "../values/version-number.test";
 import { GlossaryVersion } from "./glossary-version";
 import { testWhatChangedLine } from "../values/what-changed-line.test";
-import { Visibility } from "../values/visibility";
 
 const SAMPLE_USER_ID = "ae19af00-af09-af09-af09-abcde129af00";
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
@@ -24,10 +21,8 @@ describe("GlossaryVersion entity", () => {
     testVersionNumber(ERROR_MSG, (versionNumber) =>
       createGlossaryVersion({ versionNumber })
     );
-    testUserID(ERROR_MSG, (ownerID) => createGlossaryVersion({ ownerID }));
-    testUserID(ERROR_MSG, (modifiedBy) =>
-      createGlossaryVersion({ modifiedBy })
-    );
+    testUUID(ERROR_MSG, (ownerID) => createGlossaryVersion({ ownerID }));
+    testUUID(ERROR_MSG, (modifiedBy) => createGlossaryVersion({ modifiedBy }));
     testDisplayName(ERROR_MSG, (name) => createGlossaryVersion({ name }));
 
     testMultilineDescription(
@@ -37,12 +32,12 @@ describe("GlossaryVersion entity", () => {
     );
     expect(() => createGlossaryVersion({ description: null })).not.toThrow();
 
-    testTimestamp(
+    testDate(
       ERROR_MSG,
       (createdAt) => createGlossaryVersion({ createdAt }),
       (skip) => skip === undefined
     );
-    testTimestamp(
+    testDate(
       ERROR_MSG,
       (modifiedAt) => createGlossaryVersion({ modifiedAt }),
       (skip) => skip === undefined
@@ -63,7 +58,6 @@ describe("GlossaryVersion entity", () => {
           modifiedBy: SAMPLE_USER_ID,
           name: "",
           description: "",
-          visibility: -1 as any,
           createdAt: new Date(),
           modifiedAt: new Date(),
           whatChangedLine: 92 as any,
@@ -81,7 +75,6 @@ describe("GlossaryVersion entity", () => {
       modifiedBy: SAMPLE_USER_ID,
       name: "X",
       description: null,
-      visibility: Visibility.Private,
       createdAt: new Date(),
       modifiedAt: new Date(),
       whatChangedLine: "Description of what changed",
@@ -107,7 +100,6 @@ function createGlossaryVersion(
     ownerID: SAMPLE_USER_ID,
     name: "Good Name",
     description: "This\nis\nfine.",
-    visibility: Visibility.Private,
     modifiedBy: SAMPLE_USER_ID,
     createdAt: new Date(),
     modifiedAt: new Date(),

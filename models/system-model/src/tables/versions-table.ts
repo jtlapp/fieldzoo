@@ -1,4 +1,5 @@
 import { CreateTableBuilder, Kysely } from "kysely";
+
 import { CollaborativeColumns } from "../tables/collaborative-table";
 
 /**

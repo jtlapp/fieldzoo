@@ -1,5 +1,5 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
-import { NON_STRINGS, testValues } from "@fieldzoo/modeling/dist/testing";
+import { NON_STRINGS, testValues } from "@fieldzoo/testing-utils";
 
 import { GlossaryIDImpl } from "../values/glossary-id";
 

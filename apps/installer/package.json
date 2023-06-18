@@ -14,10 +14,8 @@
   },
   "dependencies": {
     "@fieldzoo/app-config": "workspace:*",
-    "@fieldzoo/database": "workspace:*",
     "@fieldzoo/env-config": "workspace:*",
     "@fieldzoo/postgres-utils": "workspace:*",
-    "@fieldzoo/testing-utils": "workspace:*",
     "commander": "^10.0.0",
     "dotenv": "^16.0.3",
     "es6-error": "^4.1.1",
@@ -26,6 +24,7 @@
     "pg": "^8.9.0"
   },
   "devDependencies": {
+    "@fieldzoo/testing-utils": "workspace:*",
     "@types/jest": "^29.5.2",
     "@types/node": "20.1.3",
     "@types/pg": "^8.6.6",
