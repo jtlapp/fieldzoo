@@ -17,7 +17,7 @@ it("accepts only valid password salts", () => {
   );
 });
 
-function testPasswordSalt(
+export function testPasswordSalt(
   errorSubstring: string,
   test: (value: any) => void,
   exclude = (_skip: any) => false

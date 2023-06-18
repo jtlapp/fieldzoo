@@ -7,10 +7,13 @@ import {
 } from "typebox-validators";
 import { freezeField } from "@fieldzoo/freeze-field";
 import { Zeroable } from "@fieldzoo/typebox-types";
-import { TimestampedColumns } from "@fieldzoo/modeling";
-import { UserID } from "@fieldzoo/system-model";
+import { TimestampedColumns } from "@fieldzoo/general-model";
+import {
+  CollaborativeEntity,
+  UserID,
+  VersionNumber,
+} from "@fieldzoo/system-model";
 
-import { CollaborativeEntity } from "./base/collaborative-entity";
 import { DisplayName, DisplayNameImpl } from "../values/display-name";
 import { GlossaryID, GlossaryIDImpl } from "../values/glossary-id";
 import {
@@ -19,7 +22,6 @@ import {
 } from "../values/multiline-description";
 import { NormalizedName, NormalizedNameImpl } from "../values/normalized-name";
 import { TermID, TermIDImpl } from "../values/term-id";
-import { VersionNumber } from "../values/version-number";
 
 /**
  * Class representing a valid term

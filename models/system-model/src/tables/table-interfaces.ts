@@ -2,7 +2,7 @@
 
 import { Generated } from "kysely";
 
-import { AuthUsers } from "./supabase-tables";
+import { AuthUsers } from "@fieldzoo/general-model";
 
 export interface Database {
   "auth.users": AuthUsers;

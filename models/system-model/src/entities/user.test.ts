@@ -2,7 +2,7 @@ import { User } from "./user";
 import { testUserName } from "../values/user-name.test";
 import { testUserHandle } from "../values/user-handle.test";
 import { UserID } from "../values/user-id";
-import { EmailAddress } from "@fieldzoo/modeling";
+import { EmailAddress } from "@fieldzoo/general-model";
 import { UserName } from "../values/user-name";
 import { UserHandle } from "../values/user-handle";
 

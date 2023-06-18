@@ -17,7 +17,7 @@ it("accepts only valid password hashes", () => {
   );
 });
 
-function testPasswordHash(
+export function testPasswordHash(
   errorSubstring: string,
   test: (value: any) => void,
   exclude = (_skip: any) => false

@@ -1,13 +1,15 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 import { testDate, testUUID } from "@fieldzoo/testing-utils";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
+import {
+  testVersionNumber,
+  testWhatChangedLine,
+} from "@fieldzoo/system-model/dist/test";
 
 import { testGlossaryID } from "../values/glossary-id.test";
 import { testDisplayName } from "../values/display-name.test";
 import { testMultilineDescription } from "../values/multiline-description.test";
-import { testVersionNumber } from "../values/version-number.test";
 import { GlossaryVersion } from "./glossary-version";
-import { testWhatChangedLine } from "../values/what-changed-line.test";
 
 const SAMPLE_USER_ID = "ae19af00-af09-af09-af09-abcde129af00";
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);

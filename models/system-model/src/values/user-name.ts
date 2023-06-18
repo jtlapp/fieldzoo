@@ -1,7 +1,7 @@
 import { CompilingStandardValidator } from "typebox-validators";
 
 import { UserNameUnicodeString } from "@fieldzoo/typebox-types";
-import { validate } from "@fieldzoo/modeling";
+import { validate } from "@fieldzoo/general-model";
 
 /**
  * Account name of a user who can login

@@ -1,11 +1,10 @@
 import { Kysely } from "kysely";
 import { TableMapper } from "kysely-mapper";
 
-import { Database } from "@fieldzoo/system-model";
+import { Database, VersionNumber } from "@fieldzoo/system-model";
 
 import { TermID } from "../values/term-id";
 import { TermVersion } from "../entities/term-version";
-import { VersionNumber } from "../values/version-number";
 
 /**
  * Repository for persisting term versions. Term versions are uniquely

@@ -41,6 +41,10 @@
       "path": "libs/ui"
     },
     {
+      "name": "models/general-model",
+      "path": "models/general-model"
+    },
+    {
       "name": "models/system-model",
       "path": "models/system-model"
     },
@@ -63,10 +67,6 @@
     {
       "name": "utils/generic-types",
       "path": "utils/generic-types"
-    },
-    {
-      "name": "utils/modeling",
-      "path": "utils/modeling"
     },
     {
       "name": "utils/permissions-table",

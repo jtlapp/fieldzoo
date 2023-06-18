@@ -22,7 +22,7 @@
     "@fieldzoo/env-config": "workspace:*",
     "@fieldzoo/freeze-field": "workspace:*",
     "@fieldzoo/generic-types": "workspace:*",
-    "@fieldzoo/modeling": "workspace:*",
+    "@fieldzoo/general-model": "workspace:*",
     "@fieldzoo/typebox-types": "workspace:*",
     "@sinclair/typebox": "^0.28.14",
     "kysely": "^0.24.2",

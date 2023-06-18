@@ -9,7 +9,7 @@
     "lint": "TIMING=1 eslint \"src/**/*.ts*\""
   },
   "dependencies": {
-    "@fieldzoo/modeling": "workspace:*",
+    "@fieldzoo/general-model": "workspace:*",
     "@fieldzoo/system-model": "workspace:*",
     "kysely": "^0.24.2"
   },

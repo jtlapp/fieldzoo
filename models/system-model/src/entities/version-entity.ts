@@ -1,12 +1,11 @@
 import { Type } from "@sinclair/typebox";
 
-import { UserID, UserIDImpl } from "@fieldzoo/system-model";
-
-import { VersionNumber, VersionNumberImpl } from "../../values/version-number";
+import { VersionNumber, VersionNumberImpl } from "../values/version-number";
 import {
   WhatChangedLine,
   WhatChangedLineImpl,
-} from "../../values/what-changed-line";
+} from "../values/what-changed-line";
+import { UserID, UserIDImpl } from "../values/user-id";
 
 /**
  * Class representing a version entity.

@@ -1,7 +1,7 @@
-import { UserID, UserIDImpl } from "@fieldzoo/system-model";
-import { TimestampedEntity } from "@fieldzoo/modeling";
+import { TimestampedEntity } from "@fieldzoo/general-model";
 
-import { VersionNumber, VersionNumberImpl } from "../../values/version-number";
+import { VersionNumber, VersionNumberImpl } from "../values/version-number";
+import { UserID, UserIDImpl } from "../values/user-id";
 
 /**
  * Class representing a valid collaborative entity

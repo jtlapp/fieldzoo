@@ -4,8 +4,13 @@ import { SelectivePartial, UnvalidatedFields } from "@fieldzoo/generic-types";
 import { CompilingStandardValidator } from "typebox-validators";
 import { EmptyStringable, Nullable, Zeroable } from "@fieldzoo/typebox-types";
 import { freezeField } from "@fieldzoo/freeze-field";
-import { UserID, UserIDImpl } from "@fieldzoo/system-model";
-import { TimestampedColumns } from "@fieldzoo/modeling";
+import {
+  CollaborativeEntity,
+  UserID,
+  UserIDImpl,
+  VersionNumber,
+} from "@fieldzoo/system-model";
+import { TimestampedColumns } from "@fieldzoo/general-model";
 
 import { DisplayName, DisplayNameImpl } from "../values/display-name";
 import { GlossaryID, GlossaryIDImpl } from "../values/glossary-id";
@@ -13,8 +18,6 @@ import {
   MultilineDescription,
   MultilineDescriptionImpl,
 } from "../values/multiline-description";
-import { VersionNumber } from "../values/version-number";
-import { CollaborativeEntity } from "./base/collaborative-entity";
 
 /**
  * Class representing a valid glossary.

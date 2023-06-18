@@ -1,4 +1,8 @@
-import { UserID } from "@fieldzoo/system-model";
+import {
+  UserID,
+  VersionNumberImpl,
+  WhatChangedLineImpl,
+} from "@fieldzoo/system-model";
 import {
   getTestDB,
   closeTestDB,
@@ -11,8 +15,6 @@ import { Glossary } from "../entities/glossary";
 import { MultilineDescriptionImpl } from "../values/multiline-description";
 import { Term } from "../entities/term";
 import { TermVersion } from "../entities/term-version";
-import { VersionNumberImpl } from "../values/version-number";
-import { WhatChangedLineImpl } from "../values/what-changed-line";
 import { GlossaryRepo } from "./glossary-repo";
 import { TermRepo } from "./term-repo";
 import { TermVersionRepo, TermVersionSummary } from "./term-version-repo";

@@ -1,11 +1,11 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 import { testDate, testUUID } from "@fieldzoo/testing-utils";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
+import { testVersionNumber } from "@fieldzoo/system-model/dist/test";
 
 import { Term } from "./term";
 import { NormalizedNameImpl } from "../values/normalized-name";
 import { testTermID } from "../values/term-id.test";
-import { testVersionNumber } from "../values/version-number.test";
 import { testGlossaryID } from "../values/glossary-id.test";
 import { testDisplayName } from "../values/display-name.test";
 import { testMultilineDescription } from "../values/multiline-description.test";

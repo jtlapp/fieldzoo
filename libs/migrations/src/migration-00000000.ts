@@ -3,8 +3,8 @@
 
 import { Kysely, sql } from "kysely";
 
-import { TimestampedTable } from "@fieldzoo/modeling";
-import { VersionsTable, CollaborativeTable } from "@fieldzoo/system-model";
+import { TimestampedTable } from "@fieldzoo/general-model";
+import { CollaborativeTable, VersionsTable } from "@fieldzoo/system-model";
 
 export async function up(db: Kysely<any>): Promise<void> {
   await TimestampedTable.createFunctions(db);

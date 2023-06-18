@@ -2,16 +2,18 @@ import { Type } from "@sinclair/typebox";
 import { CompilingStandardValidator } from "typebox-validators";
 
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
-import { UserID } from "@fieldzoo/system-model";
+import {
+  UserID,
+  VersionEntity,
+  VersionNumber,
+  WhatChangedLine,
+} from "@fieldzoo/system-model";
 
 import { Term } from "./term";
 import { DisplayName } from "../values/display-name";
 import { GlossaryID } from "../values/glossary-id";
 import { MultilineDescription } from "../values/multiline-description";
 import { TermID, TermIDImpl } from "../values/term-id";
-import { VersionNumber } from "../values/version-number";
-import { WhatChangedLine } from "../values/what-changed-line";
-import { VersionEntity } from "./base/version-entity";
 
 /**
  * Class representing a valid term version

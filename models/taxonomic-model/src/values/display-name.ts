@@ -1,7 +1,7 @@
 import { CompilingStandardValidator } from "typebox-validators";
 
 import { SingleLineUnicodeString } from "@fieldzoo/typebox-types";
-import { validate } from "@fieldzoo/modeling";
+import { validate } from "@fieldzoo/general-model";
 
 /**
  * Displayable entity name, not necessarily normalized.

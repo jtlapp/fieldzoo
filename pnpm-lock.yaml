@@ -185,7 +185,7 @@ importers:
 
   libs/migrations:
     specifiers:
-      '@fieldzoo/modeling': workspace:*
+      '@fieldzoo/general-model': workspace:*
       '@fieldzoo/system-model': workspace:*
       '@types/node': 20.1.3
       eslint: ^8.40.0
@@ -194,7 +194,7 @@ importers:
       tsconfig: workspace:*
       typescript: 5.1.3
     dependencies:
-      '@fieldzoo/modeling': link:../../utils/modeling
+      '@fieldzoo/general-model': link:../../models/general-model
       '@fieldzoo/system-model': link:../../models/system-model
       kysely: 0.24.2
     devDependencies:
@@ -249,13 +249,52 @@ importers:
       tsup: 6.7.0_f3ktndpxvdlol7eepefssdekde
       typescript: 5.1.3
 
+  models/general-model:
+    specifiers:
+      '@fieldzoo/app-config': workspace:*
+      '@fieldzoo/generic-types': workspace:*
+      '@fieldzoo/testing-utils': workspace:*
+      '@fieldzoo/typebox-types': workspace:*
+      '@sinclair/typebox': ^0.28.14
+      '@types/jest': ^29.5.2
+      '@types/node': 20.1.3
+      eslint: ^8.40.0
+      eslint-config-custom: workspace:*
+      jest: ^29.5.0
+      jest-presets: workspace:*
+      kysely: ^0.24.2
+      kysely-mapper: ^0.4.2
+      ts-jest: ^29.1.0
+      tsconfig: workspace:*
+      typebox-validators: ^0.1.2
+      typescript: 5.1.3
+    dependencies:
+      '@fieldzoo/generic-types': link:../../utils/generic-types
+      '@fieldzoo/typebox-types': link:../../utils/typebox-types
+      '@sinclair/typebox': 0.28.14
+      kysely: 0.24.2
+      kysely-mapper: 0.4.2
+      typebox-validators: 0.1.2
+    devDependencies:
+      '@fieldzoo/app-config': link:../../libs/app-config
+      '@fieldzoo/testing-utils': link:../../utils/testing-utils
+      '@types/jest': 29.5.2
+      '@types/node': 20.1.3
+      eslint: 8.40.0
+      eslint-config-custom: link:../../config/eslint-config-custom
+      jest: 29.5.0_@types+node@20.1.3
+      jest-presets: link:../../config/jest-presets
+      ts-jest: 29.1.0_vvm56cmjvwipxzyyz373l6la7e
+      tsconfig: link:../../config/tsconfig
+      typescript: 5.1.3
+
   models/system-model:
     specifiers:
       '@fieldzoo/app-config': workspace:*
       '@fieldzoo/env-config': workspace:*
       '@fieldzoo/freeze-field': workspace:*
+      '@fieldzoo/general-model': workspace:*
       '@fieldzoo/generic-types': workspace:*
-      '@fieldzoo/modeling': workspace:*
       '@fieldzoo/testing-utils': workspace:*
       '@fieldzoo/typebox-types': workspace:*
       '@sinclair/typebox': ^0.28.14
@@ -276,8 +315,8 @@ importers:
     dependencies:
       '@fieldzoo/env-config': link:../../utils/env-config
       '@fieldzoo/freeze-field': link:../../utils/freeze-field
+      '@fieldzoo/general-model': link:../general-model
       '@fieldzoo/generic-types': link:../../utils/generic-types
-      '@fieldzoo/modeling': link:../../utils/modeling
       '@fieldzoo/typebox-types': link:../../utils/typebox-types
       '@sinclair/typebox': 0.28.14
       kysely: 0.24.2
@@ -304,8 +343,8 @@ importers:
       '@fieldzoo/base64-uuid': workspace:*
       '@fieldzoo/env-config': workspace:*
       '@fieldzoo/freeze-field': workspace:*
+      '@fieldzoo/general-model': workspace:*
       '@fieldzoo/generic-types': workspace:*
-      '@fieldzoo/modeling': workspace:*
       '@fieldzoo/permissions-table': workspace:*
       '@fieldzoo/system-model': workspace:*
       '@fieldzoo/testing-utils': workspace:*
@@ -329,8 +368,8 @@ importers:
       '@fieldzoo/base64-uuid': link:../../utils/base64-uuid
       '@fieldzoo/env-config': link:../../utils/env-config
       '@fieldzoo/freeze-field': link:../../utils/freeze-field
+      '@fieldzoo/general-model': link:../general-model
       '@fieldzoo/generic-types': link:../../utils/generic-types
-      '@fieldzoo/modeling': link:../../utils/modeling
       '@fieldzoo/permissions-table': link:../../utils/permissions-table
       '@fieldzoo/system-model': link:../system-model
       '@fieldzoo/typebox-types': link:../../utils/typebox-types
@@ -508,39 +547,6 @@ importers:
       eslint: 8.40.0
       eslint-config-custom: link:../../config/eslint-config-custom
       jest-presets: link:../../config/jest-presets
-      tsconfig: link:../../config/tsconfig
-      typescript: 5.1.3
-
-  utils/modeling:
-    specifiers:
-      '@fieldzoo/testing-utils': workspace:*
-      '@fieldzoo/typebox-types': workspace:*
-      '@sinclair/typebox': ^0.28.14
-      '@types/jest': ^29.5.2
-      '@types/node': 20.1.3
-      eslint: ^8.40.0
-      eslint-config-custom: workspace:*
-      jest: ^29.5.0
-      jest-presets: workspace:*
-      kysely: ^0.24.2
-      ts-jest: ^29.1.0
-      tsconfig: workspace:*
-      typebox-validators: ^0.1.2
-      typescript: 5.1.3
-    dependencies:
-      '@fieldzoo/typebox-types': link:../typebox-types
-      '@sinclair/typebox': 0.28.14
-      kysely: 0.24.2
-      typebox-validators: 0.1.2
-    devDependencies:
-      '@fieldzoo/testing-utils': link:../testing-utils
-      '@types/jest': 29.5.2
-      '@types/node': 20.1.3
-      eslint: 8.40.0
-      eslint-config-custom: link:../../config/eslint-config-custom
-      jest: 29.5.0_@types+node@20.1.3
-      jest-presets: link:../../config/jest-presets
-      ts-jest: 29.1.0_vvm56cmjvwipxzyyz373l6la7e
       tsconfig: link:../../config/tsconfig
       typescript: 5.1.3
 

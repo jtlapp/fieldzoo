@@ -1,6 +1,6 @@
 import { CreateTableBuilder, Kysely, Selectable, sql } from "kysely";
 
-import { TimestampedColumns, TimestampedTable } from "@fieldzoo/modeling";
+import { TimestampedColumns, TimestampedTable } from "@fieldzoo/general-model";
 
 export type CollaborativeColumns =
   | TimestampedColumns

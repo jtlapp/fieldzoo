@@ -3,7 +3,7 @@ import { CompilingStandardValidator } from "typebox-validators";
 
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
 import { freezeField } from "@fieldzoo/freeze-field";
-import { EmailAddress, TimestampedEntity } from "@fieldzoo/modeling";
+import { EmailAddress, TimestampedEntity } from "@fieldzoo/general-model";
 
 import { UserID } from "../values/user-id";
 import { UserName, UserNameImpl } from "../values/user-name";

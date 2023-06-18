@@ -26,7 +26,7 @@ it("accepts only valid email addresses", () => {
   );
 });
 
-function testEmailAddress(
+export function testEmailAddress(
   errorSubstring: string,
   test: (value: any) => void,
   exclude = (_skip: any) => false

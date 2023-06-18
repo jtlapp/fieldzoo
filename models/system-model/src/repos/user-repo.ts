@@ -3,7 +3,7 @@ import { TableMapper } from "kysely-mapper";
 import { ValidationException } from "typebox-validators";
 import { DatabaseError } from "pg";
 
-import { TimestampedTable } from "@fieldzoo/modeling";
+import { TimestampedTable } from "@fieldzoo/general-model";
 
 import { Database, UserProfiles } from "../tables/table-interfaces";
 import { User, READONLY_USER_FIELDS } from "../entities/user";

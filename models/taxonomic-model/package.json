@@ -23,7 +23,7 @@
     "@fieldzoo/env-config": "workspace:*",
     "@fieldzoo/freeze-field": "workspace:*",
     "@fieldzoo/generic-types": "workspace:*",
-    "@fieldzoo/modeling": "workspace:*",
+    "@fieldzoo/general-model": "workspace:*",
     "@fieldzoo/permissions-table": "workspace:*",
     "@fieldzoo/system-model": "workspace:*",
     "@fieldzoo/typebox-types": "workspace:*",
