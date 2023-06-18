@@ -11,11 +11,17 @@ const INVALID = [
 ];
 
 it("accepts only valid permissionss", () => {
-  testValues(
-    VALID,
-    INVALID,
+  testAccessLevel(
     "Invalid permissions",
     (value) => AccessLevelImpl.castFrom(value),
     () => false
   );
 });
+
+export function testAccessLevel(
+  errorSubstring: string,
+  test: (value: any) => void,
+  exclude = (_skip: any) => false
+) {
+  testValues(VALID, INVALID, errorSubstring, test, exclude);
+}

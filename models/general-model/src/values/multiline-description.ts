@@ -1,7 +1,7 @@
 import { CompilingStandardValidator } from "typebox-validators";
 
 import { MultiLineUnicodeString } from "@fieldzoo/typebox-types";
-import { validate } from "@fieldzoo/general-model";
+import { validate } from "../utils/modeling-utils";
 
 /**
  * Multiline unicode description

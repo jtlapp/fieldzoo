@@ -1,3 +1,4 @@
+import { DisplayNameImpl, NormalizedNameImpl } from "@fieldzoo/general-model";
 import { UserID } from "@fieldzoo/system-model";
 import {
   getTestDB,
@@ -7,9 +8,7 @@ import {
   createSupabaseUser,
 } from "@fieldzoo/testing-utils";
 
-import { DisplayNameImpl } from "../values/display-name";
 import { Glossary } from "../entities/glossary";
-import { NormalizedNameImpl } from "../values/normalized-name";
 import { Term } from "../entities/term";
 import { GlossaryRepo } from "./glossary-repo";
 import { TermRepo } from "./term-repo";

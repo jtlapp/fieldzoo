@@ -1,11 +1,10 @@
 import { Kysely } from "kysely";
-
 import { TableMapper } from "kysely-mapper";
 
+import { NormalizedName } from "@fieldzoo/general-model";
 import { CollaborativeTable, Database, Terms } from "@fieldzoo/system-model";
 
 import { GlossaryID } from "../values/glossary-id";
-import { NormalizedName } from "../values/normalized-name";
 import { Term } from "../entities/term";
 import { TermID } from "../values/term-id";
 

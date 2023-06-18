@@ -2,6 +2,7 @@ import { Type } from "@sinclair/typebox";
 import { CompilingStandardValidator } from "typebox-validators";
 
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
+import { DisplayName, MultilineDescription } from "@fieldzoo/general-model";
 import {
   UserID,
   VersionEntity,
@@ -10,9 +11,7 @@ import {
 } from "@fieldzoo/system-model";
 
 import { Term } from "./term";
-import { DisplayName } from "../values/display-name";
 import { GlossaryID } from "../values/glossary-id";
-import { MultilineDescription } from "../values/multiline-description";
 import { TermID, TermIDImpl } from "../values/term-id";
 
 /**

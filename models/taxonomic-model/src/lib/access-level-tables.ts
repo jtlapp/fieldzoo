@@ -1,7 +1,7 @@
 import { PermissionsTable } from "@fieldzoo/permissions-table";
+import { AccessLevel } from "@fieldzoo/general-model";
 import { UserID } from "@fieldzoo/system-model";
 
-import { AccessLevel } from "../values/access-level";
 import { GlossaryID } from "../values/glossary-id";
 
 export const glossaryPermissionsTable = new PermissionsTable({

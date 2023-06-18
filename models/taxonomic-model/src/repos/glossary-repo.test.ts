@@ -1,4 +1,5 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
+import { DisplayNameImpl } from "@fieldzoo/general-model";
 import { UserID } from "@fieldzoo/system-model";
 import {
   getTestDB,
@@ -8,7 +9,6 @@ import {
   createSupabaseUser,
 } from "@fieldzoo/testing-utils";
 
-import { DisplayNameImpl } from "../values/display-name";
 import { Glossary } from "../entities/glossary";
 import { GlossaryRepo } from "./glossary-repo";
 // import { VersionNumber } from "../values/version-number";

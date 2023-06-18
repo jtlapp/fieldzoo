@@ -1,3 +1,4 @@
+import { MultilineDescriptionImpl } from "@fieldzoo/general-model";
 import {
   UserID,
   VersionNumberImpl,
@@ -13,7 +14,6 @@ import {
 
 import { Glossary } from "../entities/glossary";
 import { GlossaryVersion } from "../entities/glossary-version";
-import { MultilineDescriptionImpl } from "../values/multiline-description";
 import { GlossaryRepo } from "./glossary-repo";
 import {
   GlossaryVersionRepo,

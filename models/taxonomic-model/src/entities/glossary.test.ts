@@ -5,8 +5,10 @@ import { testVersionNumber } from "@fieldzoo/system-model/dist/test";
 
 import { Glossary } from "./glossary";
 import { testGlossaryID } from "../values/glossary-id.test";
-import { testDisplayName } from "../values/display-name.test";
-import { testMultilineDescription } from "../values/multiline-description.test";
+import {
+  testDisplayName,
+  testMultilineDescription,
+} from "@fieldzoo/general-model/dist/test";
 
 const SAMPLE_USER_ID = "ae19af00-af09-af09-af09-abcde129af00";
 const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
