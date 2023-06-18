@@ -49,8 +49,8 @@
       "path": "models/system-model"
     },
     {
-      "name": "models/taxonomic-model",
-      "path": "models/taxonomic-model"
+      "name": "models/taxonomy-model",
+      "path": "models/taxonomy-model"
     },
     {
       "name": "utils/base64-uuid",

@@ -2,7 +2,7 @@ const child_process = require("child_process");
 
 const testsToRunSerially = [
   "@fieldzoo/system-model",
-  "@fieldzoo/taxonomic-model",
+  "@fieldzoo/taxonomy-model",
   "installer",
 ];
 
