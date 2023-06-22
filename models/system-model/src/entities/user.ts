@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import { CompilingStandardValidator } from "typebox-validators";
+import { CompilingStandardValidator } from "typebox-validators/standard";
 
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
 import { freezeField } from "@fieldzoo/freeze-field";

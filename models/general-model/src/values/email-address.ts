@@ -1,4 +1,4 @@
-import { CompilingStandardValidator } from "typebox-validators";
+import { CompilingStandardValidator } from "typebox-validators/standard";
 
 import { EmailString } from "@fieldzoo/typebox-types";
 

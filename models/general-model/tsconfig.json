@@ -4,7 +4,8 @@
     "lib": ["ES2019"],
     "module": "commonjs",
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "moduleResolution": "Node16"
   },
   "include": ["*.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["dist", "build", "node_modules"]

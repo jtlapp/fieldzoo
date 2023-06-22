@@ -1,4 +1,4 @@
-import { CompilingStandardValidator } from "typebox-validators";
+import { CompilingStandardValidator } from "typebox-validators/standard";
 
 import { SingleLineUnicodeString } from "@fieldzoo/typebox-types";
 import { validate } from "../utils/modeling-utils";

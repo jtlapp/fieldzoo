@@ -164,14 +164,14 @@ importers:
       jest-presets: workspace:*
       ts-jest: ^29.1.0
       tsconfig: workspace:*
-      typebox-validators: ^0.1.2
+      typebox-validators: ^0.2.8
       typescript: 5.1.3
     dependencies:
       '@fieldzoo/env-config': link:../../utils/env-config
       '@fieldzoo/typebox-types': link:../../utils/typebox-types
       '@sinclair/typebox': 0.28.14
       dotenv: 16.0.3
-      typebox-validators: 0.1.2
+      typebox-validators: 0.2.8
     devDependencies:
       '@types/jest': 29.5.2
       '@types/node': 20.1.3
@@ -266,7 +266,7 @@ importers:
       kysely-mapper: ^0.4.2
       ts-jest: ^29.1.0
       tsconfig: workspace:*
-      typebox-validators: ^0.1.2
+      typebox-validators: ^0.2.8
       typescript: 5.1.3
     dependencies:
       '@fieldzoo/generic-types': link:../../utils/generic-types
@@ -274,7 +274,7 @@ importers:
       '@sinclair/typebox': 0.28.14
       kysely: 0.24.2
       kysely-mapper: 0.4.2
-      typebox-validators: 0.1.2
+      typebox-validators: 0.2.8
     devDependencies:
       '@fieldzoo/app-config': link:../../libs/app-config
       '@fieldzoo/testing-utils': link:../../utils/testing-utils
@@ -310,7 +310,7 @@ importers:
       pg: ^8.9.0
       ts-jest: ^29.1.0
       tsconfig: workspace:*
-      typebox-validators: ^0.1.2
+      typebox-validators: ^0.2.8
       typescript: 5.1.3
     dependencies:
       '@fieldzoo/env-config': link:../../utils/env-config
@@ -321,7 +321,7 @@ importers:
       '@sinclair/typebox': 0.28.14
       kysely: 0.24.2
       kysely-mapper: 0.4.2
-      typebox-validators: 0.1.2
+      typebox-validators: 0.2.8
     devDependencies:
       '@fieldzoo/app-config': link:../../libs/app-config
       '@fieldzoo/testing-utils': link:../../utils/testing-utils
@@ -337,7 +337,7 @@ importers:
       tsconfig: link:../../config/tsconfig
       typescript: 5.1.3
 
-  models/taxonomic-model:
+  models/taxonomy-model:
     specifiers:
       '@fieldzoo/app-config': workspace:*
       '@fieldzoo/base64-uuid': workspace:*
@@ -362,7 +362,7 @@ importers:
       pg: ^8.9.0
       ts-jest: ^29.1.0
       tsconfig: workspace:*
-      typebox-validators: ^0.1.2
+      typebox-validators: ^0.2.8
       typescript: 5.1.3
     dependencies:
       '@fieldzoo/base64-uuid': link:../../utils/base64-uuid
@@ -376,7 +376,7 @@ importers:
       '@sinclair/typebox': 0.28.14
       kysely: 0.24.2
       kysely-mapper: 0.4.2
-      typebox-validators: 0.1.2
+      typebox-validators: 0.2.8
     devDependencies:
       '@fieldzoo/app-config': link:../../libs/app-config
       '@fieldzoo/testing-utils': link:../../utils/testing-utils
@@ -496,14 +496,14 @@ importers:
       kysely: ^0.24.2
       ts-jest: ^29.1.0
       tsconfig: workspace:*
-      typebox-validators: ^0.1.2
+      typebox-validators: ^0.2.8
       typescript: 5.1.3
     dependencies:
       '@fieldzoo/generic-types': link:../generic-types
       '@fieldzoo/typebox-types': link:../typebox-types
       '@sinclair/typebox': 0.28.14
       kysely: 0.24.2
-      typebox-validators: 0.1.2
+      typebox-validators: 0.2.8
     devDependencies:
       '@types/jest': 29.5.2
       '@types/node': 20.1.3
@@ -6056,8 +6056,8 @@ packages:
     resolution: {integrity: sha512-dzlvlNlt6AXU7EBSfpAscydQ7gXB+pPGsPnfJnZpiNJBDj7IaJzQlBZYGdEi4R9HmPdBv2XmWJ6YUtoTa7lmCw==}
     dev: false
 
-  /typebox-validators/0.1.2:
-    resolution: {integrity: sha512-xMhxwKchQjwg6xsNRDf0hWTjtgzGK1WLSm4QMXNtduuv/uAggZHa5RpchNeM53VCoKQ1BjnD5Q41WwE9Bs1u5Q==}
+  /typebox-validators/0.2.8:
+    resolution: {integrity: sha512-PA0aX7864ZXOA98TobK0CMp2OVlpibl7imYGXF7u4PNIxxDgDy4Tta28RiBt8+HPJ3n0OU8EXxOxMa9f8OxcVA==}
     dependencies:
       '@sinclair/typebox': 0.28.14
     dev: false
