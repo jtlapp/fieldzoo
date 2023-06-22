@@ -27,7 +27,7 @@
     "@sinclair/typebox": "^0.28.14",
     "kysely": "^0.24.2",
     "kysely-mapper": "^0.4.2",
-    "typebox-validators": "^0.2.8"
+    "typebox-validators": "^0.2.9"
   },
   "devDependencies": {
     "@fieldzoo/app-config": "workspace:*",
