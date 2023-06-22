@@ -33,6 +33,6 @@
     "@fieldzoo/typebox-types": "workspace:*",
     "@sinclair/typebox": "^0.28.14",
     "dotenv": "^16.0.3",
-    "typebox-validators": "^0.2.20"
+    "typebox-validators": "^0.2.21"
   }
 }
