@@ -11,7 +11,7 @@ export default function LoginPage() {
       variables={{
         sign_in: {
           button_label: "Login",
-          loading_button_label: "Login in ...",
+          loading_button_label: "Logging in ...",
           social_provider_text: "Login with {{provider}}",
         },
       }}

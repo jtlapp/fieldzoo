@@ -10,6 +10,13 @@ export default function SignUpPage() {
       theme="dark"
       alternateUrl="/auth/login"
       alternateText="Login to an existing account"
+      variables={{
+        sign_in: {
+          button_label: "Sign Up",
+          loading_button_label: "Signing in ...",
+          social_provider_text: "Sign in with {{provider}}",
+        },
+      }}
       redirectUrl="/"
     />
   );
