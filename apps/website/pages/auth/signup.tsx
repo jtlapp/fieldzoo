@@ -23,28 +23,21 @@ export default function LoginPage() {
       </Head>
       <div className="">
         <h1 className="pt-8 pb-4 text-center text-xl text-slate-50">
-          Login to FieldZoo
+          Sign Up for FieldZoo
         </h1>
         <Auth
           supabaseClient={supabase}
-          view="sign_in"
+          view="sign_up"
           showLinks={false}
           appearance={{ theme: ThemeSupa }}
           theme="dark"
           providers={["google", "facebook", "twitter", "linkedin"]}
           socialLayout="horizontal"
-          localization={{
-            variables: {
-              sign_in: {
-                button_label: "Login",
-                loading_button_label: "Login in ...",
-                social_provider_text: "Login with {{provider}}",
-              },
-            },
-          }}
         />
         <div className="text-center text-md text-slate-50">
-          <Link href="/auth/signup">Sign up for an account</Link>
+          <Link className="text-center text-slate-50" href="/auth/login">
+            Login to an existing account
+          </Link>
         </div>
       </div>
     </div>
