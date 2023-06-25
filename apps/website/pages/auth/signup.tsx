@@ -6,7 +6,7 @@ export default function SignUpPage() {
   return (
     <AuthForm
       title="Sign up with FieldZoo"
-      view="sign_in"
+      view="sign_up"
       theme="dark"
       alternateUrl="/auth/login"
       alternateText="Login to an existing account"
