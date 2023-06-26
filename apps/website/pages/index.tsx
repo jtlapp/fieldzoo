@@ -2,9 +2,9 @@ import Head from "next/head";
 
 export default function Home() {
   return (
-    <div className="container mx-auto text-slate-50">
+    <div>
       <Head>
-        <title>FieldZoo Demo</title>
+        <title>Field Zoo</title>
       </Head>
       <div>this space intentionally blank</div>
     </div>
