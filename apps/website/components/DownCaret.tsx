@@ -1,7 +1,9 @@
-export default function DownCaret(props: { className?: string }) {
+import { StyleHTMLAttributes } from "react";
+
+export default function DownCaret(props: StyleHTMLAttributes<never>) {
   return (
     <svg
-      className={props.className}
+      {...props}
       width="15"
       height="15"
       viewBox="0 0 15 15"

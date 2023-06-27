@@ -39,9 +39,15 @@ function LoggedInMenu() {
   };
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="inline-flex">
-        username
-        <DownCaret className="h-4 w-4 mt-1 text-primary" aria-hidden="true" />
+      <DropdownMenuTrigger>
+        <Button className="px-2" size="sm" variant="ghost">
+          username
+          <DownCaret
+            className="h-4 w-4 text-primary"
+            style={{ marginRight: "-4px" }}
+            aria-hidden="true"
+          />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
