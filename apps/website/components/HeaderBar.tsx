@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ContrastToggle } from "./ContrastToggle";
+import AuthDialog from "./AuthDialog";
 import DownCaret from "./DownCaret";
 
 export default function HeaderBar() {
@@ -62,12 +63,12 @@ function LoggedInMenu() {
 function LoggedOutMenu() {
   return (
     <>
-      <Link className="pr-4" href="/auth/signup">
-        Sign up
-      </Link>
-      <Button size="sm" asChild>
-        <Link href="/auth/login">Login</Link>
-      </Button>
+      <AuthDialog initialView="sign_up">
+        <Button variant="ghost">Sign up</Button>
+      </AuthDialog>
+      <AuthDialog initialView="sign_in">
+        <Button size="sm">Login</Button>
+      </AuthDialog>
       <ContrastToggle className="ml-2" />
     </>
   );
