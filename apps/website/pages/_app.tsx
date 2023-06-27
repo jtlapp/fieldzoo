@@ -20,7 +20,7 @@ export default function MyApp({
       supabaseClient={supabase}
       initialSession={pageProps.initialSession}
     >
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <ThemeProvider attribute="class" defaultTheme="light">
         <div className="container mx-auto">
           <HeaderBar />
           <Component {...pageProps} />
