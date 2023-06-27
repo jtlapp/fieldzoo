@@ -12,6 +12,13 @@ type Props = {
   children: React.ReactNode;
 };
 
+const commonSupabaseProps = {
+  showLinks: false,
+  appearance: { theme: ThemeSupa },
+  providers: ["google", "facebook", "twitter", "linkedin"] as any,
+  socialLayout: "horizontal" as const,
+};
+
 export default function AuthDialog({ initialView, children }: Props) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -44,11 +51,7 @@ export default function AuthDialog({ initialView, children }: Props) {
             <Auth
               supabaseClient={supabase}
               view={"sign_in"}
-              showLinks={false}
-              appearance={{ theme: ThemeSupa }}
               theme={theme}
-              providers={["google", "facebook", "twitter", "linkedin"]}
-              socialLayout="horizontal"
               localization={{
                 variables: {
                   sign_in: {
@@ -58,17 +61,15 @@ export default function AuthDialog({ initialView, children }: Props) {
                   },
                 },
               }}
+              {...commonSupabaseProps}
             />
           </Tabs.Content>
           <Tabs.Content value="sign_up">
             <Auth
               supabaseClient={supabase}
               view={"sign_up"}
-              showLinks={false}
-              appearance={{ theme: ThemeSupa }}
               theme={theme}
-              providers={["google", "facebook", "twitter", "linkedin"]}
-              socialLayout="horizontal"
+              {...commonSupabaseProps}
             />
           </Tabs.Content>
         </Tabs.Root>
