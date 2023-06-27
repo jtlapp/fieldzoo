@@ -12,7 +12,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-const commonSupabaseProps = {
+const commonSupabaseAuthProps = {
   showLinks: false,
   appearance: { theme: ThemeSupa },
   providers: ["google", "facebook", "twitter", "linkedin"] as any,
@@ -61,7 +61,7 @@ export default function AuthDialog({ initialView, children }: Props) {
                   },
                 },
               }}
-              {...commonSupabaseProps}
+              {...commonSupabaseAuthProps}
             />
           </Tabs.Content>
           <Tabs.Content value="sign_up">
@@ -69,7 +69,7 @@ export default function AuthDialog({ initialView, children }: Props) {
               supabaseClient={supabase}
               view={"sign_up"}
               theme={theme}
-              {...commonSupabaseProps}
+              {...commonSupabaseAuthProps}
             />
           </Tabs.Content>
         </Tabs.Root>
