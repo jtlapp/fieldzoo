@@ -1,5 +1,6 @@
 import type { AppProps } from "next/app";
 import { useState } from "react";
+import { ThemeProvider } from "next-themes";
 import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { SessionContextProvider, Session } from "@supabase/auth-helpers-react";
 
@@ -19,10 +20,12 @@ export default function MyApp({
       supabaseClient={supabase}
       initialSession={pageProps.initialSession}
     >
-      <div className="container mx-auto">
-        <HeaderBar />
-        <Component {...pageProps} />
-      </div>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <div className="container mx-auto">
+          <HeaderBar />
+          <Component {...pageProps} />
+        </div>
+      </ThemeProvider>
     </SessionContextProvider>
   );
 }

@@ -18,7 +18,7 @@ class MyDocument extends Document {
 
   override render() {
     return (
-      <Html className="bg-zinc-900">
+      <Html>
         <Head />
         <body>
           <Main />

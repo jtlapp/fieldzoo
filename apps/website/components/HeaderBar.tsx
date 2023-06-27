@@ -1,7 +1,9 @@
+"use client";
+
 import { useSession } from "@supabase/auth-helpers-react";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import Link from "next/link";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
+//import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +14,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "./ThemeToggle";
+import DownCaret from "./DownCaret";
 
 export default function HeaderBar() {
   const session = useSession();
@@ -20,7 +24,10 @@ export default function HeaderBar() {
       <Link className="text-lg" href="/">
         Field Zoo
       </Link>
-      <div>{session ? <LoggedInMenu /> : <LoggedOutMenu />}</div>
+      <div className="flex flex-nowrap items-center">
+        {session ? <LoggedInMenu /> : <LoggedOutMenu />}
+        <ThemeToggle className="ml-2" />
+      </div>
     </div>
   );
 }
@@ -33,11 +40,8 @@ function LoggedInMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="inline-flex">
-        username&nbsp;
-        <ChevronDownIcon
-          className="h-4 w-4 mt-1 text-primary-foreground"
-          aria-hidden="true"
-        />
+        username
+        <DownCaret className="h-4 w-4 mt-1 text-primary" aria-hidden="true" />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
@@ -54,7 +58,7 @@ function LoggedOutMenu() {
       <Link className="pr-4" href="/auth/signup">
         Sign up
       </Link>
-      <Button asChild>
+      <Button size="sm" asChild>
         <Link href="/auth/login">Login</Link>
       </Button>
     </>
