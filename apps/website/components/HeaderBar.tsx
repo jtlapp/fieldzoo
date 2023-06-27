@@ -39,7 +39,7 @@ function LoggedInMenu() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <Button className="px-2" size="sm" variant="ghost">
+          <Button className="px-2" size="sm" variant="ghost" tabIndex={-1}>
             username
             <DownCaret
               className="h-4 w-4 text-primary"
