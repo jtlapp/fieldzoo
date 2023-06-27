@@ -18,7 +18,6 @@ export function ContrastToggle({ className }: Props) {
       className={className + " p-2"}
       variant="ghost"
       aria-label="Toggle dark/light mode"
-      size="sm"
       onClick={toggleTheme}
     >
       <SunIcon />

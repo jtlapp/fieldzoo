@@ -40,7 +40,7 @@ function LoggedInMenu() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button className="px-2" size="sm" variant="ghost">
+          <Button className="px-2" variant="ghost">
             username
             <DownCaret
               className="h-4 w-4 text-primary"
@@ -64,10 +64,10 @@ function LoggedOutMenu() {
   return (
     <>
       <AuthDialog initialView="sign_up">
-        <Button variant="ghost">Sign up</Button>
+        <Button variant="outline">Sign up</Button>
       </AuthDialog>
       <AuthDialog initialView="sign_in">
-        <Button size="sm">Login</Button>
+        <Button className="ml-2">Login</Button>
       </AuthDialog>
       <ContrastToggle className="ml-2" />
     </>
