@@ -3,7 +3,6 @@
 import { useSession } from "@supabase/auth-helpers-react";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import Link from "next/link";
-//import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ThemeToggle } from "./ThemeToggle";
+import { ContrastToggle } from "./ContrastToggle";
 import DownCaret from "./DownCaret";
 
 export default function HeaderBar() {
@@ -26,7 +25,6 @@ export default function HeaderBar() {
       </Link>
       <div className="flex flex-nowrap items-center">
         {session ? <LoggedInMenu /> : <LoggedOutMenu />}
-        <ThemeToggle className="ml-2" />
       </div>
     </div>
   );
@@ -38,23 +36,26 @@ function LoggedInMenu() {
     await supabase.auth.signOut();
   };
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button className="px-2" size="sm" variant="ghost">
-          username
-          <DownCaret
-            className="h-4 w-4 text-primary"
-            style={{ marginRight: "-4px" }}
-            aria-hidden="true"
-          />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <Button className="px-2" size="sm" variant="ghost">
+            username
+            <DownCaret
+              className="h-4 w-4 text-primary"
+              style={{ marginRight: "-4px" }}
+              aria-hidden="true"
+            />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <ContrastToggle className="ml-1" />
+    </>
   );
 }
 
@@ -67,6 +68,7 @@ function LoggedOutMenu() {
       <Button size="sm" asChild>
         <Link href="/auth/login">Login</Link>
       </Button>
+      <ContrastToggle className="ml-2" />
     </>
   );
 }
