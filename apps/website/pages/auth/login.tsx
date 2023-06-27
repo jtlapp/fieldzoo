@@ -7,7 +7,6 @@ export default function LoginPage() {
     <AuthForm
       title="Login to FieldZoo"
       view="sign_in"
-      theme="dark"
       variables={{
         sign_in: {
           button_label: "Login",

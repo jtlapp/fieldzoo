@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 import { Auth } from "@supabase/auth-ui-react";
 import { I18nVariables, ThemeSupa } from "@supabase/auth-ui-shared";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useTheme } from "next-themes";
 
 type Props = {
-  theme: "light" | "dark";
   title: string;
   view: "sign_in" | "sign_up";
   alternateUrl: string;
@@ -18,7 +18,6 @@ type Props = {
 };
 
 export default function AuthForm({
-  theme,
   title,
   view,
   alternateUrl,
@@ -33,6 +32,7 @@ export default function AuthForm({
       router.push(redirectUrl);
     }
   });
+  const { theme } = useTheme();
 
   return (
     <div className="container mx-auto">
@@ -40,7 +40,7 @@ export default function AuthForm({
         <title>{title}</title>
       </Head>
       <div className="">
-        <h1 className="pt-8 pb-4 text-center text-xl text-slate-50">{title}</h1>
+        <h1 className="pt-8 pb-4 text-center text-xl text-primary">{title}</h1>
         <Auth
           supabaseClient={supabase}
           view={view}
@@ -51,7 +51,7 @@ export default function AuthForm({
           socialLayout="horizontal"
           localization={{ variables }}
         />
-        <div className="text-center text-md text-slate-50">
+        <div className="text-center text-md text-primary">
           <Link href={alternateUrl}>{alternateText}</Link>
         </div>
       </div>
