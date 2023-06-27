@@ -2,6 +2,7 @@
 
 import Head from "next/head";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Auth } from "@supabase/auth-ui-react";
 import { I18nVariables, ThemeSupa } from "@supabase/auth-ui-shared";
@@ -25,21 +26,27 @@ export default function AuthForm({
   redirectUrl,
   variables,
 }: Props) {
+  const [mounted, setMounted] = useState(false);
+  const { theme } = useTheme();
   const router = useRouter();
+
   const supabase = useSupabaseClient();
   supabase.auth.onAuthStateChange((event) => {
     if (event == "SIGNED_IN") {
       router.push(redirectUrl);
     }
   });
-  const { theme } = useTheme();
+  useEffect(() => setMounted(true), []);
+
+  // prevent server and client render mismatch on value of theme
+  if (!mounted) return null;
 
   return (
     <div className="container mx-auto">
       <Head>
         <title>{title}</title>
       </Head>
-      <div className="">
+      <div>
         <h1 className="pt-8 pb-4 text-center text-xl text-primary">{title}</h1>
         <Auth
           supabaseClient={supabase}
