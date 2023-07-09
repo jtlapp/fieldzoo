@@ -32,11 +32,11 @@ importers:
       jest-presets: workspace:*
       kysely: ^0.24.2
       kysely-pg-client: ^0.1.2
+      nextjs: workspace:*
       pg: ^8.9.0
       ts-jest: ^29.1.0
       tsconfig: workspace:*
       typescript: 5.1.3
-      website: workspace:*
     dependencies:
       '@fieldzoo/app-config': link:../../libs/app-config
       '@fieldzoo/env-config': link:../../utils/env-config
@@ -56,12 +56,12 @@ importers:
       eslint-config-custom: link:../../config/eslint-config-custom
       jest: 29.5.0_@types+node@20.1.3
       jest-presets: link:../../config/jest-presets
+      nextjs: link:../nextjs
       ts-jest: 29.1.0_vvm56cmjvwipxzyyz373l6la7e
       tsconfig: link:../../config/tsconfig
       typescript: 5.1.3
-      website: link:../website
 
-  apps/website:
+  apps/nextjs:
     specifiers:
       '@fieldzoo/app-config': workspace:*
       '@radix-ui/react-dialog': ^1.0.4
