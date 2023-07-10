@@ -10,5 +10,8 @@
   "bracketSameLine": false,
   "arrowParens": "always",
   "printWidth": 80,
-  "proseWrap": "preserve"
+  "proseWrap": "preserve",
+  "plugins": ["prettier-plugin-svelte"],
+  "pluginSearchDirs": ["."],
+  "overrides": [{ "files": "*.svelte", "options": { "parser": "svelte" } }]
 }

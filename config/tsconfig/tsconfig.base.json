@@ -1,6 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Default",
+  "extends": "./tsconfig.rules.json",
   "compilerOptions": {
     "target": "ES2015",
     "sourceMap": true,
@@ -8,19 +9,11 @@
     "declaration": true,
     "declarationMap": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
     "inlineSources": false,
     "isolatedModules": true,
     "moduleResolution": "node",
     "preserveWatchOutput": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "experimentalDecorators": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true
+    "skipLibCheck": true
   },
   "exclude": ["node_modules"]
 }

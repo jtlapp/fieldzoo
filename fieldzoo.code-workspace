@@ -9,6 +9,10 @@
       "path": "apps/installer"
     },
     {
+      "name": "apps/website",
+      "path": "apps/website"
+    },
+    {
       "name": "apps/nextjs",
       "path": "apps/nextjs"
     },
