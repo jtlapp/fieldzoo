@@ -143,13 +143,13 @@ importers:
       tsconfig: workspace:*
       tslib: ^2.4.1
       typescript: ^5.0.0
-      ui: workspace:*
+      ui-components: workspace:*
       vite: ^4.3.6
       vite-tsconfig-paths: ^4.2.0
       vitest: ^0.32.2
     dependencies:
       '@melt-ui/svelte': 0.19.0_svelte@4.0.5
-      ui: link:../../libs/ui
+      ui-components: link:../../libs/ui
     devDependencies:
       '@playwright/test': 1.35.1
       '@sveltejs/adapter-auto': 2.1.0_@sveltejs+kit@1.22.1

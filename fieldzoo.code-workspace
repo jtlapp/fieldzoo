@@ -41,8 +41,8 @@
       "path": "libs/services"
     },
     {
-      "name": "libs/ui",
-      "path": "libs/ui"
+      "name": "libs/ui-components",
+      "path": "libs/ui-components"
     },
     {
       "name": "models/general-model",
