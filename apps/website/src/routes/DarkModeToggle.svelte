@@ -1,3 +1,7 @@
+<script context="module" lang="ts">
+  // const CONTRAST_ICON = `<svg viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><g stroke-width="0"></g><g stroke-linecap="round" stroke-linejoin="round"></g><g><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-180.000000, -4199.000000)" fill="#000000"><g transform="translate(56.000000, 160.000000)"><path d="M126,4049 C126,4044.589 129.589,4041 134,4041 L134,4057 C129.589,4057 126,4053.411 126,4049 M134,4039 C128.477,4039 124,4043.477 124,4049 C124,4054.523 128.477,4059 134,4059 C139.523,4059 144,4054.523 144,4049 C144,4043.477 139.523,4039 134,4039"></path></g></g></g></g></svg>`;
+</script>
+
 <script lang="ts">
   // adapted from https://dev.to/willkre/persistent-theme-switch-dark-mode-with-svelte-sveltekit-tailwind-1b9g
 
@@ -31,12 +35,36 @@
 
 <div>
   <input
+    id="theme-toggle"
     checked={darkMode}
     on:click={handleSwitchDarkMode}
     type="checkbox"
-    id="theme-toggle"
   />
-  <label for="theme-toggle" />
+  <label for="theme-toggle">
+    <svg
+      class="fill-black dark:fill-white"
+      viewBox="0 0 20 20"
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      ><g stroke-width="0" /><g
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      /><g
+        ><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"
+          ><g
+            class="fill-black dark:fill-white"
+            transform="translate(-180.000000, -4199.000000)"
+            ><g transform="translate(56.000000, 160.000000)"
+              ><path
+                d="M126,4049 C126,4044.589 129.589,4041 134,4041 L134,4057 C129.589,4057 126,4053.411 126,4049 M134,4039 C128.477,4039 124,4043.477 124,4049 C124,4054.523 128.477,4059 134,4059 C139.523,4059 144,4054.523 144,4049 C144,4043.477 139.523,4039 134,4039"
+              /></g
+            ></g
+          ></g
+        ></g
+      ></svg
+    >
+  </label>
 </div>
 
 <style lang="postcss">
@@ -45,15 +73,6 @@
   }
 
   #theme-toggle + label {
-    @apply absolute right-24 top-6 inline-block h-12 w-12 cursor-pointer rounded-full duration-300 content-[''];
-  }
-
-  #theme-toggle:not(:checked) + label {
-    @apply bg-amber-400;
-  }
-
-  #theme-toggle:checked + label {
-    @apply bg-transparent;
-    box-shadow: inset -18px -16px 1px 1px #ddd;
+    @apply inline-block h-5 w-5 cursor-pointer;
   }
 </style>
