@@ -1,1 +1,1 @@
-export { default as DummyComponent } from "./lib/DummyComponent.svelte";
+export { default as DownCaret } from "./lib/DownCaret.svelte";

@@ -3,5 +3,7 @@
   import HeaderBar from "./HeaderBar.svelte";
 </script>
 
-<HeaderBar />
-<slot />
+<div class="container mx-auto">
+  <HeaderBar />
+  <slot />
+</div>
