@@ -104,5 +104,8 @@
       "name": "templates/util-lib-template",
       "path": "templates/util-lib-template"
     }
-  ]
+  ],
+  "settings": {
+    "workbench.settings.openDefaultSettings": true
+  }
 }

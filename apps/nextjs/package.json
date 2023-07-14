@@ -37,7 +37,6 @@
     "eslint-config-next": "13.4.2",
     "next": "13.4.2",
     "postcss": "8.4.23",
-    "tailwind-config": "workspace:*",
     "tailwindcss": "3.3.2",
     "tsconfig": "workspace:*",
     "typescript": "5.1.3"
