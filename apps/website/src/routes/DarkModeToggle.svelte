@@ -38,7 +38,7 @@
   />
   <label for="theme-toggle">
     <svg
-      class="fill-black dark:fill-white"
+      class="fill-foreground dark:fill-dark-foreground"
       viewBox="0 0 20 20"
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
@@ -49,7 +49,7 @@
       /><g
         ><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"
           ><g
-            class="fill-black dark:fill-white"
+            class="fill-foreground dark:fill-dark-foreground"
             transform="translate(-180.000000, -4199.000000)"
             ><g transform="translate(56.000000, 160.000000)"
               ><path
