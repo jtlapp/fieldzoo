@@ -3,6 +3,9 @@
 
   import { browser } from "$app/environment";
 
+  let classes = "";
+  export { classes as class };
+
   let darkMode = true;
 
   function handleSwitchDarkMode() {
@@ -29,7 +32,7 @@
   }
 </script>
 
-<div>
+<div class={classes}>
   <input
     id="theme-toggle"
     checked={darkMode}
@@ -65,7 +68,7 @@
 
 <style lang="postcss">
   #theme-toggle {
-    @apply invisible;
+    @apply invisible w-0;
   }
 
   #theme-toggle + label {

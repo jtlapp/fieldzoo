@@ -17,6 +17,6 @@
     {:else}
       <LoggedOutMenu />
     {/if}
-    <DarkModeToggle />
+    <DarkModeToggle class="flex scale-90 pl-2" />
   </div>
 </div>
