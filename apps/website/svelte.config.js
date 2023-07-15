@@ -1,5 +1,7 @@
 import adapter from "@sveltejs/adapter-auto";
 import { vitePreprocess } from "@sveltejs/kit/vite";
+import { preprocessMeltUI } from "@melt-ui/pp";
+import sequence from "svelte-sequential-preprocessor";
 import * as path from "path";
 import { fileURLToPath } from "url";
 
@@ -9,7 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const config = {
   // Consult https://kit.svelte.dev/docs/integrations#preprocessors
   // for more information about preprocessors
-  preprocess: [
+  preprocess: sequence([
     vitePreprocess({
       style: {
         css: {
@@ -17,7 +19,9 @@ const config = {
         },
       },
     }),
-  ],
+    // TODO: remove this and `sequence` if I end up not using it
+    preprocessMeltUI(),
+  ]),
 
   kit: {
     // adapter-auto only supports some environments, see https://kit.svelte.dev/docs/adapter-auto for a list.

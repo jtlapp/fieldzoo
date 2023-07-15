@@ -4,7 +4,7 @@
   import LoggedOutMenu from "./LoggedOutMenu.svelte";
   import DarkModeToggle from "./DarkModeToggle.svelte";
 
-  const session = false;
+  const session = true;
 </script>
 
 <div class="flex flex-row items-center justify-between py-2">
@@ -17,6 +17,6 @@
     {:else}
       <LoggedOutMenu />
     {/if}
-    <DarkModeToggle class="flex scale-90 pl-2" />
+    <DarkModeToggle class="ml-3 flex scale-90" />
   </div>
 </div>

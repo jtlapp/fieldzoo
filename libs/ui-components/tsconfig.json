@@ -1,0 +1,9 @@
+{
+  "extends": [
+    "../../apps/website/.svelte-kit/tsconfig.json",
+    "../../config/tsconfig/tsconfig.svelte-kit.json"
+  ],
+  "compilerOptions": {
+    "paths": { "@/*": ["./src/*"] }
+  }
+}

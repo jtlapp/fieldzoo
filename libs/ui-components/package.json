@@ -13,6 +13,9 @@
   },
   "devDependencies": {
     "eslint-config-custom-svelte": "workspace:*",
-    "svelte": "^3.9.2"
+    "svelte": "^4.0.0"
+  },
+  "dependencies": {
+    "@melt-ui/svelte": "^0.22.2"
   }
 }
