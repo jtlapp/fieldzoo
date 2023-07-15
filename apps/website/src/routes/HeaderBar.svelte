@@ -4,11 +4,11 @@
   import LoggedOutMenu from "./LoggedOutMenu.svelte";
   import DarkModeToggle from "./DarkModeToggle.svelte";
 
-  const session = true;
+  const session = false;
 </script>
 
 <div class="flex flex-row items-center justify-between py-2">
-  <a class="text-lg" href="/">
+  <a class="text-lg font-medium" href="/">
     {SITE_NAME}
   </a>
   <div class="flex flex-nowrap items-center">
