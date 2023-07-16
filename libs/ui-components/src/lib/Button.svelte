@@ -1,5 +1,6 @@
 <script lang="ts">
-  export let classes = "";
+  let classes = "";
+  export {classes as class};
   export let variant: "primary" | "secondary" | "ghost" = "primary";
   export let action: (node: HTMLElement) => void;
 </script>
