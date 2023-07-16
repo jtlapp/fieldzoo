@@ -308,12 +308,14 @@ importers:
       '@melt-ui/svelte': ^0.22.2
       eslint-config-custom-svelte: workspace:*
       svelte: ^4.0.0
+      tailwind-config: workspace:*
       tsconfig: workspace:*
     dependencies:
       '@melt-ui/svelte': 0.22.2_svelte@4.0.5
     devDependencies:
       eslint-config-custom-svelte: link:../../config/eslint-config-custom-svelte
       svelte: 4.0.5
+      tailwind-config: link:../../config/tailwind-config
       tsconfig: link:../../config/tsconfig
 
   models/general-model:

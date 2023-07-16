@@ -1,8 +1,5 @@
 {
-  "extends": [
-    "./.svelte-kit/tsconfig.json",
-    "tsconfig/tsconfig.svelte-kit.json"
-  ],
+  "extends": ["./.svelte-kit/tsconfig.json", "tsconfig/tsconfig.svelte.json"],
   "compilerOptions": {
     "paths": { "@/*": ["./src/*"] }
   }
