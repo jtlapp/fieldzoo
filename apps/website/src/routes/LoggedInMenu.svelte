@@ -4,7 +4,7 @@
   import { createDropdownMenu } from "@melt-ui/svelte";
   import "ui-components/styles/dropdown-menu.css";
 
-  const { menu, item, trigger, arrow } = createDropdownMenu();
+  const { menu, item, trigger } = createDropdownMenu();
 </script>
 
 <Button {...$trigger} action={$trigger.action} variant="ghost">
@@ -12,5 +12,4 @@
 </Button>
 <div class="dropdown-menu" melt={$menu}>
   <div class="menu-item" melt={$item}>Log out</div>
-  <div melt={$arrow} />
 </div>

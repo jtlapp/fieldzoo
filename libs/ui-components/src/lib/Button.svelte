@@ -1,13 +1,13 @@
 <script lang="ts">
   let classes = "";
-  export {classes as class};
+  export { classes as class };
   export let variant: "primary" | "secondary" | "ghost" = "primary";
   export let action: (node: HTMLElement) => void;
 </script>
 
 {#if variant == "ghost"}
   <button
-    class="text-foreground bg-background hover:bg-foreground/10 hover:shadow-md {classes}"
+    class="text-foreground bg-background hover:bg-menu_highlight hover:text-menu_highlight-foreground hover:shadow-md {classes}"
     type="button"
     use:action
   >
@@ -33,6 +33,9 @@
 
 <style lang="postcss">
   button {
-    @apply focus-visible:ring-ring flex flex-row items-center justify-center rounded-md px-2 py-1 text-sm font-medium tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50;
+    @apply flex flex-row items-center justify-center rounded-md;
+    @apply px-2 py-1 text-sm font-medium tracking-wide transition-colors;
+    @apply focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2;
+    @apply disabled:pointer-events-none disabled:opacity-50;
   }
 </style>
