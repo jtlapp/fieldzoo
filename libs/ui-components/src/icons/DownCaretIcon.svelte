@@ -1,6 +1,5 @@
 <script lang="ts">
   let classes = "";
-
   export { classes as class };
   export let style = "";
 </script>
