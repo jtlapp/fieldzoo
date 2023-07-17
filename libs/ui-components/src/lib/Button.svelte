@@ -1,7 +1,11 @@
+<script lang="ts" context="module">
+  export type ButtonType = "primary" | "secondary" | "ghost";
+</script>
+
 <script lang="ts">
   let classes = "";
   export { classes as class };
-  export let variant: "primary" | "secondary" | "ghost" = "primary";
+  export let variant: ButtonType = "primary";
   export let action: (node: HTMLElement) => void;
 </script>
 

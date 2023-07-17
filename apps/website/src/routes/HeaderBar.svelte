@@ -1,10 +1,10 @@
 <script lang="ts">
   import { SITE_NAME } from "@/lib/constants";
   import LoggedInMenu from "./LoggedInMenu.svelte";
-  import LoggedOutMenu from "./LoggedOutMenu.svelte";
+  import LoginButton from "./LoginButton.svelte";
   import DarkModeToggle from "./DarkModeToggle.svelte";
 
-  const session = true;
+  const session = false;
 </script>
 
 <div class="flex flex-row items-center justify-between py-2">
@@ -15,7 +15,7 @@
     {#if session}
       <LoggedInMenu />
     {:else}
-      <LoggedOutMenu />
+      <LoginButton />
     {/if}
     <DarkModeToggle class="ml-3 flex scale-90" />
   </div>
