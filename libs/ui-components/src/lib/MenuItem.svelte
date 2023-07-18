@@ -1,5 +1,9 @@
 <script lang="ts">
-  export let item: any;
+  import type { createDropdownMenu } from "@melt-ui/svelte";
+
+  import { MeltValue } from "./ui-type-tools";
+
+  export let item: MeltValue<typeof createDropdownMenu, "item">;
 </script>
 
 <div class="menu-item" melt={item}><slot /></div>
