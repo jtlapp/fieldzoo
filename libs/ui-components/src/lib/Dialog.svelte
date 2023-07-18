@@ -1,22 +1,9 @@
-<script lang="ts" context="module">
-  import type { ButtonType } from "./Button.svelte";
-
-  export type ButtonDef = {
-    label: string;
-    variant: ButtonType;
-    action: () => void;
-  };
-</script>
-
 <script lang="ts">
   import { createDialog } from "@melt-ui/svelte";
   import XIcon from "@/icons/XIcon.svelte";
-  import Button from "./Button.svelte";
 
   export let title: string;
   export let description: string;
-  export let buttons: ButtonDef[] = [];
-  export let setAction: (action: (node: HTMLElement) => void) => void;
 
   const {
     trigger,
@@ -28,11 +15,9 @@
     close,
     open,
   } = createDialog();
-
-  setAction($trigger.action);
 </script>
 
-<slot name="trigger" {...$trigger} />
+<slot name="trigger" trigger={$trigger} />
 <div use:portal>
   {#if $open}
     <div melt={$overlay} class="fixed inset-0 z-40 bg-black/50" />
@@ -55,16 +40,7 @@
       <slot name="content" />
 
       <div class="mt-[25px] flex justify-end gap-4">
-        {#each buttons as { label, variant, action }}
-          <Button
-            {...$close}
-            {variant}
-            action={(elem) => {
-              $close.action(elem);
-              action();
-            }}>{label}</Button
-          >
-        {/each}
+        <slot name="buttons" close={$close} />
       </div>
 
       <button

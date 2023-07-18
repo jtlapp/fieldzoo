@@ -1,24 +1,11 @@
 <script lang="ts">
   import { Button, Dialog } from "ui-components";
-
-  const buttons = [
-    {
-      label: "Login",
-      variant: "primary" as const,
-      action: () => console.log("Login"),
-    },
-  ];
-
-  let action: (node: HTMLElement) => void;
 </script>
 
-<Dialog
-  title="Login"
-  description="Enter your login credentials."
-  {buttons}
-  setAction={(a) => (action = a)}
->
-  <Button slot="trigger" variant="primary" {action}>Login</Button>
+<Dialog title="Login" description="Enter your login credentials.">
+  <Button slot="trigger" variant="primary" let:trigger action={trigger.action}
+    >Login</Button
+  >
   <svelte:fragment slot="content">
     <fieldset class="mb-4 flex items-center gap-5">
       <label class="text-magnum-800 w-[90px] text-right" for="username">
@@ -41,5 +28,9 @@
         type="password"
       />
     </fieldset>
+  </svelte:fragment>
+
+  <svelte:fragment slot="buttons" let:close>
+    <Button variant="primary" action={close.action}>Login</Button>
   </svelte:fragment>
 </Dialog>
