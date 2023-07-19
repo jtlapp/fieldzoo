@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { createDropdownMenu } from "@melt-ui/svelte";
 
-  import { MeltValue } from "./ui-type-tools";
+  import type { MeltValue } from "./ui-type-tools";
 
   export let item: MeltValue<typeof createDropdownMenu, "item">;
 </script>

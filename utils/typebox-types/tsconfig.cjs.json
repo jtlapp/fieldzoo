@@ -2,8 +2,8 @@
   "extends": "tsconfig/tsconfig.base.json",
   "compilerOptions": {
     "lib": ["ES2019"],
-    "module": "ESNext",
-    "outDir": "./dist",
+    "module": "CommonJS",
+    "outDir": "./dist/cjs",
     "rootDir": "./src"
   },
   "include": ["*.d.ts", "**/*.ts", "**/*.tsx"],

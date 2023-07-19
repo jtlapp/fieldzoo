@@ -2,21 +2,27 @@
   "name": "@fieldzoo/typebox-types",
   "version": "0.0.0",
   "private": true,
-  "main": "dist/index.js",
-  "source": "src/index.ts",
-  "types": "src/index.ts",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
   "files": [
     "dist/**"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc && tsc -p tsconfig.cjs.json && echo '{}' > ./dist/cjs/package.json",
     "clean": "rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
     "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
     "test": "jest"
   },
   "jest": {
-    "preset": "jest-presets/node"
+    "preset": "jest-presets/node-esm"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.28.14",
