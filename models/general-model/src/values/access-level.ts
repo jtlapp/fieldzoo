@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import { CompilingStandardValidator } from "typebox-validators/standard";
+import { CompilingStandardValidator } from "typebox-validators/standard/index.js";
 
 /**
  * Access levels users can have to resources. Each level includes all the

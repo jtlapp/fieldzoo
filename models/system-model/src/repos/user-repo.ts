@@ -1,14 +1,16 @@
 import { Kysely } from "kysely";
-import { TableMapper } from "kysely-mapper";
+import kysely_mapper from "kysely-mapper";
+const { TableMapper } = kysely_mapper;
 import { ValidationException } from "typebox-validators";
-import { DatabaseError } from "pg";
+import pg from "pg";
+const { DatabaseError } = pg;
 
 import { TimestampedTable } from "@fieldzoo/general-model";
 
 import { Database, UserProfiles } from "../tables/table-interfaces";
-import { User, READONLY_USER_FIELDS } from "../entities/user";
-import { UserID } from "../values/user-id";
-import { UserHandleImpl } from "../values/user-handle";
+import { User, READONLY_USER_FIELDS } from "../entities/user.js";
+import { UserID } from "../values/user-id.js";
+import { UserHandleImpl } from "../values/user-handle.js";
 
 /**
  * Repository for persisted users, combining columns from both the

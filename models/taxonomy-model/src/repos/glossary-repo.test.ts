@@ -11,7 +11,7 @@ import {
 
 import { Glossary } from "../entities/glossary";
 import { GlossaryRepo } from "./glossary-repo";
-// import { VersionNumber } from "../values/version-number";
+// import { VersionNumber } from "../values/version-number.js";
 // import { MultilineDescription } from "../values/multiline-description";
 // import { GlossaryID } from "../values/glossary-id";
 // import { Permissions } from "../values/permissions";

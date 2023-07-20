@@ -14,9 +14,12 @@
 
 import dotenv from "dotenv";
 import * as path from "path";
+import { fileURLToPath } from "url";
 
 import { PlatformConfig } from "./platform-config";
 import { InvalidEnvironmentException } from "@fieldzoo/env-config";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 let platformConfig: PlatformConfig | null = null;
 

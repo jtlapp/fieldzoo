@@ -13,10 +13,6 @@
       "path": "apps/website"
     },
     {
-      "name": "apps/nextjs",
-      "path": "apps/nextjs"
-    },
-    {
       "name": "config",
       "path": "config"
     },
@@ -87,10 +83,6 @@
     {
       "name": "utils/typebox-types",
       "path": "utils/typebox-types"
-    },
-    {
-      "name": "templates/components-template",
-      "path": "templates/components-template"
     },
     {
       "name": "templates/config-template",

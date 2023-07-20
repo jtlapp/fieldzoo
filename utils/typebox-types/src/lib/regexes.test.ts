@@ -7,7 +7,7 @@ import {
   SINGLE_LINE_UNICODE_REGEX,
   USER_HANDLE_REGEX,
   USER_NAME_UNICODE_REGEX,
-} from "./regexes";
+} from "./regexes.js";
 
 describe("CODE_WORD_REGEX", () => {
   const regex = CODE_WORD_REGEX;

@@ -4,7 +4,7 @@ import {
   testValues,
 } from "@fieldzoo/testing-utils";
 
-import { DisplayNameImpl } from "../values/display-name";
+import { DisplayNameImpl } from "../values/display-name.js";
 
 const VALID = [
   "X",

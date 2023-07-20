@@ -14,10 +14,7 @@
     "clean": "rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
     "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
-    "test": "jest --runInBand"
-  },
-  "jest": {
-    "preset": "jest-presets/node"
+    "test": "vitest --run"
   },
   "dependencies": {
     "@fieldzoo/generic-types": "workspace:*",
@@ -30,14 +27,12 @@
   "devDependencies": {
     "@fieldzoo/app-config": "workspace:*",
     "@fieldzoo/testing-utils": "workspace:*",
-    "@types/jest": "^29.5.2",
     "@types/node": "20.1.3",
     "eslint": "^8.40.0",
     "eslint-config-custom": "workspace:*",
-    "jest": "^29.5.0",
-    "jest-presets": "workspace:*",
-    "ts-jest": "^29.1.0",
     "tsconfig": "workspace:*",
-    "typescript": "5.1.3"
+    "typescript": "5.1.3",
+    "vitest": "^0.32.2",
+    "vitest-config": "workspace:*"
   }
 }

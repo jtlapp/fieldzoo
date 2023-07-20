@@ -1,10 +1,10 @@
 import { User } from "./user";
 import { testUserName } from "../values/user-name.test";
 import { testUserHandle } from "../values/user-handle.test";
-import { UserID } from "../values/user-id";
+import { UserID } from "../values/user-id.js";
 import { EmailAddress } from "@fieldzoo/general-model";
-import { UserName } from "../values/user-name";
-import { UserHandle } from "../values/user-handle";
+import { UserName } from "../values/user-name.js";
+import { UserHandle } from "../values/user-handle.js";
 
 const ERROR_MSG = "Invalid user";
 

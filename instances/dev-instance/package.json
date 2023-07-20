@@ -5,7 +5,6 @@
   "scripts": {
     "clean": "rm -rf node_modules"
   },
-  "jest": {},
   "dependencies": {
     "supabase": "^1.64.8"
   }

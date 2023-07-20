@@ -4,7 +4,7 @@ import {
   testValues,
 } from "@fieldzoo/testing-utils";
 
-import { UserHandleImpl } from "./user-handle";
+import { UserHandleImpl } from "./user-handle.js";
 
 const VALID = [
   "Mo",

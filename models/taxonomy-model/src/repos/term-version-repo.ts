@@ -1,5 +1,6 @@
 import { Kysely } from "kysely";
-import { TableMapper } from "kysely-mapper";
+import kysely_mapper from "kysely-mapper";
+const { TableMapper } = kysely_mapper;
 
 import { Database, VersionNumber } from "@fieldzoo/system-model";
 

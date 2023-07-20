@@ -1,7 +1,7 @@
 import * as typebox from "@sinclair/typebox";
 import { TypeSystem } from "@sinclair/typebox/system";
 
-import { DisplayName, DisplayNameImpl } from "./display-name";
+import { DisplayName, DisplayNameImpl } from "./display-name.js";
 
 /**
  * Normalized representation of a display name, suitable for looking up a name

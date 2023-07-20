@@ -1,11 +1,11 @@
 import { Type } from "@sinclair/typebox";
 
-import { VersionNumber, VersionNumberImpl } from "../values/version-number";
+import { VersionNumber, VersionNumberImpl } from "../values/version-number.js";
 import {
   WhatChangedLine,
   WhatChangedLineImpl,
-} from "../values/what-changed-line";
-import { UserID, UserIDImpl } from "../values/user-id";
+} from "../values/what-changed-line.js";
+import { UserID, UserIDImpl } from "../values/user-id.js";
 
 /**
  * Class representing a version entity.

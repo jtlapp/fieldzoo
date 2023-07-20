@@ -9,10 +9,13 @@ import { promises as fs } from "fs";
 import * as dotenv from "dotenv";
 import { Kysely, Migrator, FileMigrationProvider, sql } from "kysely";
 import { PostgresClientDialect } from "kysely-pg-client";
+import { fileURLToPath } from "url";
 
 import { MIGRATIONS_PATH, TEST_ENV } from "@fieldzoo/app-config";
 import { PostgresConfig } from "@fieldzoo/env-config";
 import { clearDatabase } from "@fieldzoo/postgres-utils";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const PATH_TO_ROOT = path.join(__dirname, "../../../..");
 

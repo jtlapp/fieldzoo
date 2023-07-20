@@ -1,7 +1,7 @@
 import { TimestampedEntity } from "@fieldzoo/general-model";
 
-import { VersionNumber, VersionNumberImpl } from "../values/version-number";
-import { UserID, UserIDImpl } from "../values/user-id";
+import { VersionNumber, VersionNumberImpl } from "../values/version-number.js";
+import { UserID, UserIDImpl } from "../values/user-id.js";
 
 /**
  * Class representing a valid collaborative entity

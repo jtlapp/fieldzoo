@@ -1,4 +1,4 @@
-import { CompilingStandardValidator } from "typebox-validators/standard";
+import { CompilingStandardValidator } from "typebox-validators/standard/index.js";
 
 import {
   NON_STRINGS,

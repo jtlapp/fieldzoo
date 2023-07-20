@@ -1,21 +1,26 @@
 import { execSync } from "child_process";
-import { join } from "path";
+import * as path from "path";
 import type { Kysely } from "kysely";
+import { fileURLToPath } from "url";
 
 import { TEST_ENV } from "@fieldzoo/app-config";
 import { getTestDB, closeTestDB, resetTestDB } from "@fieldzoo/testing-utils";
 import { clearDatabase } from "@fieldzoo/postgres-utils";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 let db: Kysely<any>;
 
-beforeAll(() => (db = getTestDB()));
+beforeAll(() => {
+  db = getTestDB();
+});
 
 afterAll(() => closeTestDB());
 
 describe("installer", () => {
   it("should install tables from scratch by default", async () => {
     await clearDatabase(db);
-    const cliPath = join(__dirname, "../dist/installer.js");
+    const cliPath = path.join(__dirname, "../dist/installer.js");
     try {
       const stdout = execSync(
         `node --enable-source-maps ${cliPath} --env ${TEST_ENV}`
@@ -29,7 +34,7 @@ describe("installer", () => {
 
   it("should decline installation when one is present", async () => {
     await resetTestDB();
-    const cliPath = join(__dirname, "../dist/installer.js");
+    const cliPath = path.join(__dirname, "../dist/installer.js");
     const err = await getError<any>(() =>
       execSync(`node --enable-source-maps ${cliPath} --env ${TEST_ENV}`)
     );

@@ -4,7 +4,7 @@ import {
   testValues,
 } from "@fieldzoo/testing-utils";
 
-import { WhatChangedLineImpl } from "./what-changed-line";
+import { WhatChangedLineImpl } from "./what-changed-line.js";
 
 const VALID = [
   "X",

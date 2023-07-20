@@ -13,7 +13,7 @@ import {
   UserHandleString,
   UserNameUnicodeString,
   UuidString,
-} from "./regex-types";
+} from "./regex-types.js";
 
 describe("regex type schemas", () => {
   it("CodeWordString", () => {

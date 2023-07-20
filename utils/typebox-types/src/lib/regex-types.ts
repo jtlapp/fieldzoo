@@ -10,7 +10,7 @@
 
 import { StringOptions, Type } from "@sinclair/typebox";
 import { TypeSystem } from "@sinclair/typebox/system";
-import { fastFormats } from "ajv-formats/dist/formats";
+import { fastFormats } from "ajv-formats/dist/formats.js";
 
 import {
   CODE_WORD_REGEX,
@@ -21,7 +21,7 @@ import {
   SINGLE_LINE_UNICODE_REGEX,
   USER_HANDLE_REGEX,
   USER_NAME_UNICODE_REGEX,
-} from "./regexes";
+} from "./regexes.js";
 
 export function CodeWordString(options?: StringOptions) {
   return Type.RegEx(CODE_WORD_REGEX, options);

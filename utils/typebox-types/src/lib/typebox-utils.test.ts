@@ -7,7 +7,7 @@ import {
   NonEmptyString,
   Nullable,
   Zeroable,
-} from "./typebox-utils";
+} from "./typebox-utils.js";
 
 describe("typebox utility schemas", () => {
   it("IntegerString", () => {

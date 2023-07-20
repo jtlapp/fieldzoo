@@ -4,6 +4,7 @@
   "extends": "./tsconfig.rules.json",
   "compilerOptions": {
     "target": "ES2015",
+    "types": ["vitest/globals"],
     "sourceMap": true,
     "composite": false,
     "declaration": true,

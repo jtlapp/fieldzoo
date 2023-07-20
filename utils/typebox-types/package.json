@@ -18,25 +18,19 @@
     "clean": "rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
     "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
-    "test": "jest"
-  },
-  "jest": {
-    "preset": "jest-presets/node"
+    "test": "vitest --run"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.28.14",
     "ajv-formats": "^2.1.1"
   },
   "devDependencies": {
-    "@jest/globals": "^29.4.3",
-    "@types/jest": "^29.5.2",
     "@types/node": "20.1.3",
     "eslint": "^8.40.0",
     "eslint-config-custom": "workspace:*",
-    "jest": "^29.5.0",
-    "jest-presets": "workspace:*",
-    "ts-jest": "^29.1.0",
     "tsconfig": "workspace:*",
-    "typescript": "5.1.3"
+    "typescript": "5.1.3",
+    "vitest": "^0.32.2",
+    "vitest-config": "workspace:*"
   }
 }

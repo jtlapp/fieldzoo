@@ -2,7 +2,11 @@ import { Kysely, sql, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 import * as dotenv from "dotenv";
 import * as path from "path";
+import { fileURLToPath } from "url";
+
 import { PermissionsTable } from "../../lib/permissions-table";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export type AccessLevel = number & { readonly __brand: unique symbol };
 export const AccessLevel = {

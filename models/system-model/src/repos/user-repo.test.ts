@@ -10,10 +10,10 @@ import {
 } from "@fieldzoo/testing-utils";
 
 import { User } from "../entities/user";
-import { UserNameImpl } from "../values/user-name";
+import { UserNameImpl } from "../values/user-name.js";
 import { UserRepo } from "./user-repo";
-import { UserID } from "../values/user-id";
-import { UserHandleImpl } from "../values/user-handle";
+import { UserID } from "../values/user-id.js";
+import { UserHandleImpl } from "../values/user-handle.js";
 
 const db = getTestDB();
 

@@ -4,7 +4,7 @@ import {
   testValues,
 } from "@fieldzoo/testing-utils";
 
-import { UserNameImpl } from "./user-name";
+import { UserNameImpl } from "./user-name.js";
 
 const VALID = [
   "Joey",

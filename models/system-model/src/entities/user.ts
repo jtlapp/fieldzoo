@@ -1,13 +1,13 @@
 import { Type } from "@sinclair/typebox";
-import { CompilingStandardValidator } from "typebox-validators/standard";
+import { CompilingStandardValidator } from "typebox-validators/standard/index.js";
 
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
 import { freezeField } from "@fieldzoo/freeze-field";
 import { EmailAddress, TimestampedEntity } from "@fieldzoo/general-model";
 
-import { UserID } from "../values/user-id";
-import { UserName, UserNameImpl } from "../values/user-name";
-import { UserHandle, UserHandleImpl } from "../values/user-handle";
+import { UserID } from "../values/user-id.js";
+import { UserName, UserNameImpl } from "../values/user-name.js";
+import { UserHandle, UserHandleImpl } from "../values/user-handle.js";
 
 // TODO: if I keeping this, get createAt, modifiedAt from TimestampedEntity
 export const READONLY_USER_FIELDS = [

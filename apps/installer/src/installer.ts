@@ -10,6 +10,7 @@ import { program } from "commander";
 import { Kysely, Migrator, FileMigrationProvider } from "kysely";
 import ExtendableError from "es6-error";
 import { PostgresClientDialect } from "kysely-pg-client";
+import { fileURLToPath } from "url";
 
 import {
   PostgresConfig,
@@ -17,6 +18,8 @@ import {
 } from "@fieldzoo/env-config";
 import { MIGRATIONS_PATH } from "@fieldzoo/app-config";
 import { clearDatabase, existingTables } from "@fieldzoo/postgres-utils";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const DEFAULT_ENV_FILE = ".env";
 const PATH_TO_ROOT = path.join(__dirname, "../../..");
