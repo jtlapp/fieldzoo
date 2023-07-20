@@ -2,8 +2,9 @@
   "name": "node-cli-template",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "clean": "rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
     "lint": "TIMING=1 eslint \"src/**/*.ts*\"",

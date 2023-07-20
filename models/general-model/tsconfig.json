@@ -2,10 +2,9 @@
   "extends": "tsconfig/tsconfig.base.json",
   "compilerOptions": {
     "lib": ["ES2019"],
-    "module": "commonjs",
+    "module": "ESNext",
     "outDir": "./dist",
-    "rootDir": "./src",
-    "moduleResolution": "Node16"
+    "rootDir": "./src"
   },
   "include": ["*.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["dist", "build", "node_modules"]

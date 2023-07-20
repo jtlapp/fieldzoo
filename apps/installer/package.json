@@ -2,6 +2,7 @@
   "name": "installer",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf node_modules && rm -rf dist",
@@ -20,7 +21,7 @@
     "dotenv": "^16.0.3",
     "es6-error": "^4.1.1",
     "kysely": "^0.24.2",
-    "kysely-pg-client": "^0.1.2",
+    "kysely-pg-client": "^0.1.6",
     "pg": "^8.9.0"
   },
   "devDependencies": {

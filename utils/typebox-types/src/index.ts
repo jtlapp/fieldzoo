@@ -1,2 +1,2 @@
-export * from "./lib/regex-types.js";
-export * from "./lib/typebox-utils.js";
+export * from "./lib/regex-types";
+export * from "./lib/typebox-utils";

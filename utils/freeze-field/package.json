@@ -2,6 +2,7 @@
   "name": "@fieldzoo/freeze-field",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "main": "dist/freeze-field.js",
   "source": "src/freeze-field.ts",
   "types": "src/freeze-field.ts",
@@ -9,7 +10,7 @@
     "dist/**"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "clean": "rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
     "lint": "TIMING=1 eslint \"src/**/*.ts*\"",

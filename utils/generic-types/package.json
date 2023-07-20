@@ -2,6 +2,7 @@
   "name": "@fieldzoo/generic-types",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "main": "dist/generic-types.js",
   "source": "src/generic-types.ts",
   "types": "src/generic-types.ts",
