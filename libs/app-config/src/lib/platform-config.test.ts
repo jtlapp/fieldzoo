@@ -59,11 +59,11 @@ describe("platform configuration", () => {
       expect(e.errors).toEqual([
         {
           envVarName: "NEXT_PUBLIC_SUPABASE_URL",
-          errorMessage: "must be a URL, possibly localhost",
+          errorMessage: "Must be a URL, possibly localhost",
         },
         {
           envVarName: "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-          errorMessage: "must be a non-empty string",
+          errorMessage: "Must be a non-empty string",
         },
       ]);
     }

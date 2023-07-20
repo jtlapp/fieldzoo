@@ -40,7 +40,7 @@ export class PlatformConfig {
     try {
       validator.validate(values);
     } catch (e: any) {
-      throw InvalidEnvironmentException.fromTypeBoxErrors(e.errors);
+      throw InvalidEnvironmentException.fromTypeBoxErrors(e.details);
     }
 
     // The Supabase client will read the environment variables directly.
