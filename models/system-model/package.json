@@ -14,7 +14,7 @@
     "clean": "rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
     "lint": "TIMING=1 eslint \"src/**/*.ts*\"",
-    "test": "vitest --run"
+    "test": "vitest --run --isolate"
   },
   "dependencies": {
     "@fieldzoo/env-config": "workspace:*",
@@ -24,7 +24,7 @@
     "@fieldzoo/typebox-types": "workspace:*",
     "@sinclair/typebox": "^0.28.14",
     "kysely": "^0.24.2",
-    "kysely-mapper": "^0.4.2",
+    "kysely-mapper": "^0.4.14",
     "typebox-validators": "^0.2.21"
   },
   "devDependencies": {

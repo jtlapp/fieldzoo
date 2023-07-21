@@ -4,7 +4,8 @@
 
 import * as crypto from "crypto";
 import * as path from "path";
-import { Client } from "pg";
+import pg from "pg";
+const { Client } = pg;
 import { promises as fs } from "fs";
 import * as dotenv from "dotenv";
 import { Kysely, Migrator, FileMigrationProvider, sql } from "kysely";
@@ -20,7 +21,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PATH_TO_ROOT = path.join(__dirname, "../../../..");
 
 let db: Kysely<any> | null = null;
-let client: Client | null = null;
+let client: InstanceType<typeof Client> | null = null;
 
 export function getTestDB(): Kysely<any> {
   if (!db) {

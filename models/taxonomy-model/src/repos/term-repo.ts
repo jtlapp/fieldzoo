@@ -1,6 +1,5 @@
 import { Kysely } from "kysely";
-import kysely_mapper from "kysely-mapper";
-const { TableMapper } = kysely_mapper;
+import { TableMapper } from "kysely-mapper";
 
 import { NormalizedName } from "@fieldzoo/general-model";
 import { CollaborativeTable, Database, Terms } from "@fieldzoo/system-model";

@@ -1,5 +1,12 @@
-import { SchemaOptions, StringOptions, TSchema, Type } from "@sinclair/typebox";
+import {
+  SchemaOptions,
+  StringOptions,
+  TSchema,
+  Type,
+  TypeRegistry,
+} from "@sinclair/typebox";
 import { TypeSystem } from "@sinclair/typebox/system";
+TypeRegistry.Clear(); // clears types to work with vitest multiple loads
 
 export const EmptyStringable = <T extends TSchema>(
   type: T,

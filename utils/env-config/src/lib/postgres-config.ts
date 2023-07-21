@@ -15,7 +15,7 @@ import {
   NonEmptyString,
 } from "@fieldzoo/typebox-types";
 
-import { InvalidEnvironmentException } from "./invalid-env-exception";
+import { InvalidEnvironmentException } from "./invalid-env-exception.js";
 
 /**
  * Configuration governing database access, conforming to the

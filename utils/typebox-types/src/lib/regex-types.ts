@@ -8,8 +8,10 @@
  * `Type.String({ format: "FORMAT_NAME" })`
  */
 
-import { StringOptions, Type } from "@sinclair/typebox";
-import { TypeSystem } from "@sinclair/typebox/system";
+// Uses FormatRegistry.Set instead of TypeSystem.Format so TypeBox doesn't
+// report duplicate assignments during vitest's multiple module loads.
+
+import { FormatRegistry, StringOptions, Type } from "@sinclair/typebox";
 import { fastFormats } from "ajv-formats/dist/formats.js";
 
 import {
@@ -46,34 +48,34 @@ export function LocalhostUrlString(options?: StringOptions) {
 export function MultiLineUnicodeString(options?: StringOptions) {
   return Type.String({ ...options, format: "MULTI_LINE_UNICODE" });
 }
-TypeSystem.Format("MULTI_LINE_UNICODE", (v) =>
+FormatRegistry.Set("MULTI_LINE_UNICODE", (v) =>
   MULTI_LINE_UNICODE_REGEX.test(v)
 );
 
 export function SingleLineUnicodeString(options?: StringOptions) {
   return Type.String({ ...options, format: "SINGLE_LINE_UNICODE" });
 }
-TypeSystem.Format("SINGLE_LINE_UNICODE", (v) =>
+FormatRegistry.Set("SINGLE_LINE_UNICODE", (v) =>
   SINGLE_LINE_UNICODE_REGEX.test(v)
 );
 
 export function UrlString(options?: StringOptions) {
   return Type.String({ ...options, format: "URL" });
 }
-TypeSystem.Format("URL", (v) => fastFormats.url.test(v));
+FormatRegistry.Set("URL", (v) => fastFormats.url.test(v));
 
 export function UserHandleString(options?: StringOptions) {
   return Type.String({ ...options, format: "USER_HANDLE" });
 }
-TypeSystem.Format("USER_HANDLE", (v) => USER_HANDLE_REGEX.test(v));
+FormatRegistry.Set("USER_HANDLE", (v) => USER_HANDLE_REGEX.test(v));
 
 export function UserNameUnicodeString(options?: StringOptions) {
   return Type.String({ ...options, format: "USER_NAME_UNICODE" });
 }
-TypeSystem.Format("USER_NAME_UNICODE", (v) => USER_NAME_UNICODE_REGEX.test(v));
+FormatRegistry.Set("USER_NAME_UNICODE", (v) => USER_NAME_UNICODE_REGEX.test(v));
 
 export function UuidString(options?: StringOptions) {
   // Include maxLength to test length before testing regex.
   return Type.String({ ...options, format: "UUID", maxLength: 36 });
 }
-TypeSystem.Format("UUID", (v) => fastFormats.uuid.test(v));
+FormatRegistry.Set("UUID", (v) => fastFormats.uuid.test(v));

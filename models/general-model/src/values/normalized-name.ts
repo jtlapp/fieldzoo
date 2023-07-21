@@ -1,5 +1,4 @@
-import * as typebox from "@sinclair/typebox";
-import { TypeSystem } from "@sinclair/typebox/system";
+import { FormatRegistry, Type } from "@sinclair/typebox";
 
 import { DisplayName, DisplayNameImpl } from "./display-name.js";
 
@@ -11,10 +10,10 @@ import { DisplayName, DisplayNameImpl } from "./display-name.js";
 
 export type NormalizedName = string & { readonly __validated__: unique symbol };
 
-TypeSystem.Format("NORMALIZED_NAME", (v) => /^[^\p{Z}\p{C}]+$/u.test(v));
+FormatRegistry.Set("NORMALIZED_NAME", (v) => /^[^\p{Z}\p{C}]+$/u.test(v));
 
 export class NormalizedNameImpl {
-  static schema = typebox.Type.String({
+  static schema = Type.String({
     format: "NORMALIZED_NAME",
     minLength: DisplayNameImpl.schema.minLength,
     maxLength: DisplayNameImpl.schema.maxLength,

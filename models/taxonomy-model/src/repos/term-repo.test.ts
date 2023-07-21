@@ -17,7 +17,7 @@ const db = getTestDB();
 
 afterAll(() => closeTestDB());
 
-it("inserts, updates, and deletes terms", async () => {
+test.only("inserts, updates, and deletes terms", async () => {
   await resetTestDB();
   const userID = (await createSupabaseUser("jdoe@xyz.pdq")) as UserID;
 

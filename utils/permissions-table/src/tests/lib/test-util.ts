@@ -1,5 +1,6 @@
 import { Kysely, sql, PostgresDialect } from "kysely";
-import { Pool } from "pg";
+import pg from "pg";
+const { Pool } = pg;
 import * as dotenv from "dotenv";
 import * as path from "path";
 import { fileURLToPath } from "url";

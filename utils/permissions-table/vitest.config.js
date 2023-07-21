@@ -6,6 +6,7 @@ export default mergeConfig(
   defineConfig({
     test: {
       isolate: true,
+      minThreads: 1,
       maxThreads: 1,
     },
   })

@@ -3,7 +3,8 @@
  */
 
 import * as path from "path";
-import { Client } from "pg";
+import pg from "pg";
+const { Client } = pg;
 import { promises as fs } from "fs";
 import * as dotenv from "dotenv";
 import { program } from "commander";

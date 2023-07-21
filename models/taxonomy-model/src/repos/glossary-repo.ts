@@ -1,6 +1,5 @@
 import { Kysely } from "kysely";
-import kysely_mapper from "kysely-mapper";
-const { TableMapper } = kysely_mapper;
+import { TableMapper } from "kysely-mapper";
 
 import { createBase64UUID } from "@fieldzoo/base64-uuid";
 import {

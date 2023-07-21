@@ -18,7 +18,7 @@
     "dotenv": "^16.0.3",
     "es6-error": "^4.1.1",
     "kysely": "^0.24.2",
-    "kysely-pg-client": "^0.1.6",
+    "kysely-pg-client": "^0.1.12",
     "pg": "^8.9.0"
   },
   "devDependencies": {
