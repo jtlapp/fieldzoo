@@ -30,7 +30,7 @@ export class TimestampedEntity {
    */
   get createdAt(): Date {
     if (this.#createdAt === undefined) {
-      throw new Error("User has no creation date");
+      throw new Error("No creation date");
     }
     return this.#createdAt;
   }
@@ -42,7 +42,7 @@ export class TimestampedEntity {
    */
   get modifiedAt(): Date {
     if (this.#modifiedAt === undefined) {
-      throw new Error("User has no modification date");
+      throw new Error("No modification date");
     }
     return this.#modifiedAt;
   }
