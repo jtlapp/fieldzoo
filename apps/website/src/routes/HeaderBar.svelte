@@ -4,7 +4,7 @@
   import LoginButton from "./LoginButton.svelte";
   import DarkModeToggle from "./DarkModeToggle.svelte";
 
-  const session = true;
+  const session = false;
 </script>
 
 <div class="flex flex-row items-center justify-between py-2">
