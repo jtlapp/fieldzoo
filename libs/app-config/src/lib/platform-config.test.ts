@@ -5,17 +5,17 @@ import {
 
 import { PlatformConfig } from "./platform-config";
 
-const ALL_VARS = ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"];
+const ALL_VARS = ["PUBLIC_SUPABASE_URL", "PUBLIC_SUPABASE_ANON_KEY"];
 
 describe("platform configuration", () => {
   it("accepts valid configurations", () => {
     createConfig({
-      NEXT_PUBLIC_SUPABASE_URL: "https://abc.def",
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: "123",
+      PUBLIC_SUPABASE_URL: "https://abc.def",
+      PUBLIC_SUPABASE_ANON_KEY: "123",
     });
     createConfig({
-      NEXT_PUBLIC_SUPABASE_URL: "http://localhost:54321",
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: "123",
+      PUBLIC_SUPABASE_URL: "http://localhost:54321",
+      PUBLIC_SUPABASE_ANON_KEY: "123",
     });
   });
 
@@ -36,8 +36,8 @@ describe("platform configuration", () => {
     expect.assertions(ALL_VARS.length + 1);
     try {
       createConfig({
-        NEXT_PUBLIC_SUPABASE_URL: "",
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
+        PUBLIC_SUPABASE_URL: "",
+        PUBLIC_SUPABASE_ANON_KEY: "",
       });
     } catch (e: unknown) {
       if (!(e instanceof InvalidEnvironmentException)) throw e;
@@ -51,18 +51,18 @@ describe("platform configuration", () => {
   it("rejects invalid values, providing friendly error messages", () => {
     try {
       createConfig({
-        NEXT_PUBLIC_SUPABASE_URL: "-",
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
+        PUBLIC_SUPABASE_URL: "-",
+        PUBLIC_SUPABASE_ANON_KEY: "",
       });
     } catch (e: unknown) {
       if (!(e instanceof InvalidEnvironmentException)) throw e;
       expect(e.errors).toEqual([
         {
-          envVarName: "NEXT_PUBLIC_SUPABASE_URL",
+          envVarName: "PUBLIC_SUPABASE_URL",
           errorMessage: "Must be a URL, possibly localhost",
         },
         {
-          envVarName: "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+          envVarName: "PUBLIC_SUPABASE_ANON_KEY",
           errorMessage: "Must be a non-empty string",
         },
       ]);

@@ -54,11 +54,9 @@ And if amateurs can learn to do taxonomy, they can also create field guides for 
 
 [TypeBox](https://github.com/sinclairzx81/typebox), a super-fast data validator. It provides tools for creating JSON schemas and precompiles (at runtime) the schemas into efficient validators. I'm exploring ways to integrate TypeBox with Kysely for error-free SQL development.
 
-[Jest](https://jestjs.io/), a testing framework for JavaScript. Jest is the de facto testing framework for JavaScript, at least of unit tests, and it's easy to use.
+[typebox-validators](https://github.com/jtlapp/typebox-validators), a libarary I created for safely and performantly validating TypeBox JSON Schemas, supporting custom error messages.
 
-I'll probably also use [Storyteller](https://www.getstoryteller.com/), once I understand it better.
-
-I'm not yet decided on whether to use [Cypress](https://www.cypress.io/) or [Playwright](https://playwright.dev/) or both. I have experience with Playwright.
+[vitest](https://vitest.dev/), a test runner for use with ESM-built TypeScript.
 
 I'm also experimenting with techniques for writing robust TypeScript using [Domain-Driven Design (DDD)](https://medium.com/ssense-tech/domain-driven-design-everything-you-always-wanted-to-know-about-it-but-were-afraid-to-ask-a85e7b74497a). This aspect of the solution is likely to evolve until I'm happy with a particular approach.
 
@@ -84,8 +82,8 @@ pnpm build
 This platform uses the following environment variables in `.env` (for production and development) and `.env.test` (for the test suite):
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
-NEXT_PUBLIC_SUPABASE_ANON_KEY=key-goes-here
+PUBLIC_SUPABASE_URL=http://localhost:54321
+PUBLIC_SUPABASE_ANON_KEY=key-goes-here
 
 POSTGRES_URL=postgresql://postgres:postgres@localhost:54422/postgres
 POSTGRES_DATABASE=fieldzoo_test

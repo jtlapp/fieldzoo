@@ -17,11 +17,11 @@ import {
  */
 export class PlatformConfig {
   static schema = Type.Object({
-    NEXT_PUBLIC_SUPABASE_URL: Type.Union([UrlString(), LocalhostUrlString()], {
+    PUBLIC_SUPABASE_URL: Type.Union([UrlString(), LocalhostUrlString()], {
       description: "URL for the Supabase project",
       errorMessage: "Must be a URL, possibly localhost",
     }),
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: NonEmptyString({
+    PUBLIC_SUPABASE_ANON_KEY: NonEmptyString({
       description: "Anonymous key for the Supabase project",
       errorMessage: "Must be a non-empty string",
     }),
@@ -32,8 +32,8 @@ export class PlatformConfig {
    */
   constructor() {
     const values = {
-      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      PUBLIC_SUPABASE_URL: process.env.PUBLIC_SUPABASE_URL!,
+      PUBLIC_SUPABASE_ANON_KEY: process.env.PUBLIC_SUPABASE_ANON_KEY!,
     };
 
     const validator = new StandardValidator(PlatformConfig.schema);
