@@ -8,11 +8,11 @@
   >
   <svelte:fragment slot="content">
     <fieldset class="h-field">
-      <label class=" w-[90px]" for="username">Username</label>
+      <label class="w-[90px]" for="username">Username</label>
       <input id="username" />
     </fieldset>
     <fieldset class="h-field">
-      <label class=" w-[90px]" for="password">Password</label>
+      <label class="w-[90px]" for="password">Password</label>
       <input id="password" type="password" />
     </fieldset>
   </svelte:fragment>
