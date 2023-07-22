@@ -5,7 +5,7 @@
 
 <DropdownMenu>
   <Button slot="trigger" let:trigger action={trigger.action} variant="ghost">
-    username <DownCaretIcon class="h-4 w-4" style="margin-right: -4px" />
+    username <DownCaretIcon class="mr-[-4px] h-4 w-4" />
   </Button>
   <svelte:fragment slot="menu" let:item>
     <MenuItem {item}>Log out</MenuItem>

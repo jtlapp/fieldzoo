@@ -5,6 +5,7 @@ module.exports = {
     "../../libs/ui-components/src/**/*.{html,js,svelte,ts}",
   ],
   darkMode: ["class"],
+  mode: "jit",
   theme: {
     container: {
       center: true,
