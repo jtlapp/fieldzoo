@@ -19,7 +19,7 @@
   </button>
 {:else if variant == "primary"}
   <button
-    class="text-primary-foreground bg-primary hover:bg-primary/90 shadow-md {classes}"
+    class="text-primary-foreground bg-primary {classes}"
     type="button"
     use:action
   >
@@ -27,7 +27,7 @@
   </button>
 {:else}
   <button
-    class="text-secondary-foreground bg-secondary hover:bg-secondary/90 shadow-md {classes}"
+    class="text-secondary-foreground bg-secondary shadow-md {classes}"
     type="button"
     use:action
   >

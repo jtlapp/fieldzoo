@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { SITE_NAME } from "@/lib/constants";
+  import { SITE_NAME } from "$lib/constants";
   import LoggedInMenu from "./LoggedInMenu.svelte";
   import LoginButton from "./LoginButton.svelte";
   import DarkModeToggle from "./DarkModeToggle.svelte";

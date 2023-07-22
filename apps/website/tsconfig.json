@@ -4,7 +4,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "$lib": ["./src/lib"],
-      "$lib/*": ["./src/lib/*"]
+      "$lib/*": ["./src/lib/*"],
+      "$styles/*": ["./src/styles/*"]
     }
   }
 }

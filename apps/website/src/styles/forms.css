@@ -1,0 +1,11 @@
+fieldset.h-field {
+  @apply mb-4 flex items-center gap-5;
+}
+
+fieldset.h-field label {
+  @apply text-foreground text-right;
+}
+
+fieldset.h-field input {
+  @apply text-foreground inline-flex h-8 w-full flex-1 items-center justify-center rounded-sm border border-solid px-3 leading-none;
+}
