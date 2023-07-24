@@ -150,6 +150,3 @@ export class Term extends CollaborativeEntity {
     return this.#lookupName;
   }
 }
-export interface Term {
-  readonly __typeID: unique symbol;
-}

@@ -83,6 +83,3 @@ export class TermVersion extends VersionEntity {
     );
   }
 }
-export interface TermVersion {
-  readonly __typeID: unique symbol;
-}

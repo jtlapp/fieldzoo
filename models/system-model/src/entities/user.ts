@@ -88,6 +88,3 @@ export class User extends TimestampedEntity {
     );
   }
 }
-export interface User {
-  readonly __validated__: unique symbol;
-}

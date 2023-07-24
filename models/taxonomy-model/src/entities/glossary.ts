@@ -92,6 +92,3 @@ export class Glossary extends CollaborativeEntity {
     );
   }
 }
-export interface Glossary {
-  readonly __validated__: unique symbol;
-}

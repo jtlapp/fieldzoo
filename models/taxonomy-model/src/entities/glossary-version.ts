@@ -79,6 +79,3 @@ export class GlossaryVersion extends VersionEntity {
     );
   }
 }
-export interface GlossaryVersion {
-  readonly __validated__: unique symbol;
-}
