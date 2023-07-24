@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 
-import { Encoder } from "./objectid64";
+import { Encoder } from "./objectid64.js";
 
 /**
  * The length of a base64 encoded UUID.

@@ -2,11 +2,8 @@
 
 import { Generated } from "kysely";
 
-import { AuthUsers } from "@fieldzoo/general-model";
-
 export interface Database {
-  "auth.users": AuthUsers;
-  user_profiles: UserProfiles;
+  users: UserProfiles;
   glossaries: Glossaries;
   glossary_versions: GlossaryVersions;
   user_glossary_permissions: UserGlossaryPermissions;
@@ -19,8 +16,10 @@ export interface UserProfiles {
   email: string;
   name: string | null;
   handle: string | null;
+  lastLoginAt: Date | null;
   createdAt: Date;
   modifiedAt: Date;
+  disabledAt: Date | null;
 }
 
 export interface Glossaries {

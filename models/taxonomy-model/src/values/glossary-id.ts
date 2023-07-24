@@ -1,6 +1,6 @@
 import { CompilingStandardValidator } from "typebox-validators";
 
-import { Base64UuidSchema } from "../lib/typebox-schemas";
+import { Base64UuidSchema } from "@fieldzoo/base64-uuid";
 
 /**
  * Representation of a glossary ID

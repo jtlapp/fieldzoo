@@ -10,8 +10,8 @@ import {
   testMultilineDescription,
 } from "@fieldzoo/general-model/dist/test";
 
-const SAMPLE_USER_ID = "ae19af00-af09-af09-af09-abcde129af00";
-const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
+const SAMPLE_USER_ID = "X".repeat(BASE64_UUID_LENGTH);
+const SAMPLE_GLOSSARY_ID = "Y".repeat(BASE64_UUID_LENGTH);
 const ERROR_MSG = "Invalid glossary";
 
 describe("Glossary entity", () => {
@@ -19,7 +19,6 @@ describe("Glossary entity", () => {
     // TODO: revisit whether various castFrom() methods should always
     // allow ID to be falsy. Maybe do this after writing REST APIs.
 
-    // undefined ID defaults to 0
     expect(() => createGlossary({ id: undefined })).not.toThrow();
     expect(() => createGlossary({ id: "" })).not.toThrow();
     testGlossaryID(
@@ -62,7 +61,7 @@ describe("Glossary entity", () => {
     expect(() =>
       Glossary.castFrom(
         {
-          id: SAMPLE_UUID,
+          id: SAMPLE_GLOSSARY_ID,
           versionNumber: 1,
           ownerID: SAMPLE_USER_ID,
           name: "",
@@ -76,7 +75,7 @@ describe("Glossary entity", () => {
 
   it("cannot change id", () => {
     const glossary = Glossary.castFrom({
-      id: SAMPLE_UUID,
+      id: SAMPLE_GLOSSARY_ID,
       versionNumber: 1,
       ownerID: SAMPLE_USER_ID,
       name: "X",
@@ -89,7 +88,7 @@ describe("Glossary entity", () => {
 
 function createGlossary(specifiedFields: Partial<UnvalidatedFields<Glossary>>) {
   return Glossary.castFrom({
-    id: SAMPLE_UUID,
+    id: SAMPLE_GLOSSARY_ID,
     versionNumber: 1,
     ownerID: SAMPLE_USER_ID,
     name: "Good Name",

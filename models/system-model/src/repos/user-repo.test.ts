@@ -1,68 +1,68 @@
-import { ValidationException } from "typebox-validators";
-
+import { DatabaseError, PG_UNIQUE_VIOLATION } from "@fieldzoo/postgres-utils";
 import {
   getTestDB,
   closeTestDB,
   resetTestDB,
   sleep,
-  createSupabaseUser,
-  updateSupabaseUser,
 } from "@fieldzoo/testing-utils";
 
 import { User } from "../entities/user";
 import { UserNameImpl } from "../values/user-name.js";
 import { UserRepo } from "./user-repo";
-import { UserID } from "../values/user-id.js";
 import { UserHandleImpl } from "../values/user-handle.js";
 
 const db = getTestDB();
 
 afterAll(() => closeTestDB());
 
-it("inserts, updates, and deletes users", async () => {
+it.only("inserts, updates, and deletes users", async () => {
   await resetTestDB();
   const userRepo = new UserRepo(db);
-  const dummyUser = User.createFrom({
-    id: "ae19af00-af09-af09-af09-abcde129af00",
+  const user1 = User.castFrom({
     name: "John Doe",
     email: "jdoe1@xyz.pdq",
     handle: "jdoe",
-    lastSignInAt: new Date(),
-    bannedUntil: null,
+    lastLoginAt: new Date(),
     createdAt: new Date(),
     modifiedAt: new Date(),
-    deletedAt: null,
+    disabledAt: null,
   });
-  const userID1 = (await createSupabaseUser(dummyUser.email)) as UserID;
+  const user2 = User.castFrom({
+    name: "Jimmy Joe",
+    email: "jjoe@xyz.pdq",
+    handle: "jj",
+    lastLoginAt: new Date(),
+    createdAt: new Date(),
+    modifiedAt: new Date(),
+    disabledAt: null,
+  });
 
   // test updating a non-existent user
-  const updateReturn1 = await userRepo.update(dummyUser);
+  const updateReturn1 = await userRepo.update(user1);
   expect(updateReturn1).toBe(false);
 
-  // test that name/handle are initially null
+  // test inserting a user
 
-  const selection0 = await userRepo.getByID(userID1);
-  expect(selection0).not.toBeNull();
-  expect(selection0!.id).toEqual(userID1);
-  expect(selection0!.name).toBeNull();
-  expect(selection0!.email).toEqual(dummyUser.email);
-  expect(selection0!.handle).toBeNull();
+  const insertReturn1 = (await userRepo.add(user1))!;
+  expect(insertReturn1).not.toBeNull();
+  expect(insertReturn1.id).not.toEqual("");
+  expect(insertReturn1.createdAt).toBeInstanceOf(Date);
+  expect(insertReturn1.modifiedAt).toEqual(insertReturn1.createdAt);
 
   // test getting a user by ID
-  const selection1 = await userRepo.getByID(userID1);
+  const selection1 = await userRepo.getByID(insertReturn1.id);
   expect(selection1).not.toBeNull();
-  expect(selection1!.id).toEqual(userID1);
-  expect(selection1!.name).toBeNull();
-  expect(selection1!.email).toEqual(dummyUser.email);
-  expect(selection1!.handle).toBeNull();
-  expect(selection1!.lastSignInAt).toBeInstanceOf(Date);
-  expect(selection1!.bannedUntil).toBeNull();
+  expect(selection1!.id).toEqual(insertReturn1.id);
+  expect(selection1!.name).toEqual(user1.name);
+  expect(selection1!.email).toEqual(user1.email);
+  expect(selection1!.handle).toEqual(user1.handle);
+  expect(selection1!.lastLoginAt).toBeInstanceOf(Date);
   expect(selection1!.createdAt).toBeInstanceOf(Date);
   expect(selection1!.modifiedAt).toEqual(selection1!.createdAt);
-  expect(selection1!.deletedAt).toBeNull();
+  expect(selection1!.disabledAt).toBeNull();
 
-  // test directly updating a user
-  let originallyModifiedAt = selection1!.modifiedAt;
+  // test updating a user
+  const originallyModifiedAt = selection1!.modifiedAt;
   await sleep(20);
   selection1!.name = UserNameImpl.castFrom("Jon Doe");
   selection1!.handle = UserHandleImpl.castFrom("jd");
@@ -73,22 +73,8 @@ it("inserts, updates, and deletes users", async () => {
     originallyModifiedAt.getTime()
   );
 
-  const selection2 = await userRepo.getByID(userID1);
+  const selection2 = await userRepo.getByID(insertReturn1.id);
   expect(selection2).toEqual(selection1);
-
-  // test indirectly updating a user via Supabase
-  const expectedUser = User.createFrom({
-    ...selection1!,
-    email: "jdoe2@xyz.pdq",
-    createdAt: selection1!.createdAt,
-    modifiedAt: selection1!.modifiedAt,
-  });
-  originallyModifiedAt = selection1!.modifiedAt;
-  await sleep(20);
-  await updateSupabaseUser(userID1, expectedUser.email);
-
-  const selection3 = await userRepo.getByID(userID1);
-  expect(selection3).toEqual(expectedUser);
 
   // test checking for available handles
 
@@ -97,29 +83,50 @@ it("inserts, updates, and deletes users", async () => {
   handleAvailable = await userRepo.isHandleAvailable("jd2");
   expect(handleAvailable).toBe(true);
 
-  // test that database complains if handle not unique
+  // test that database complains if handle not unique when adding user
 
-  const userID2 = (await createSupabaseUser("q@d.qr")) as UserID;
-  const selection4 = await userRepo.getByID(userID2);
-  selection4!.handle = selection3!.handle;
-  const doUpdate = () => userRepo.update(selection4!);
-  await expect(doUpdate()).rejects.toBeInstanceOf(ValidationException);
-  await expect(doUpdate).rejects.toEqual({
-    message: "User handle is already in use",
-    details: [],
+  const badUser1A = User.castFrom({
+    ...user1,
+    name: "Jimmy Joe",
+    email: "jjoe@xyz.pdq",
+    handle: selection1!.handle,
   });
+  const doAdd1 = () => userRepo.add(badUser1A);
+  await expect(doAdd1()).rejects.toBeInstanceOf(DatabaseError);
+  await expect(doAdd1()).rejects.toHaveProperty("code", PG_UNIQUE_VIOLATION);
+
+  // test that database complains if email not unique when adding user
+
+  const badUser1B = User.castFrom({
+    ...user1,
+    name: "Jimmy Joe",
+    email: user1.email,
+    handle: "jj",
+  });
+  const doAdd2 = () => userRepo.add(badUser1B);
+  await expect(doAdd2()).rejects.toBeInstanceOf(DatabaseError);
+  await expect(doAdd2()).rejects.toHaveProperty("code", PG_UNIQUE_VIOLATION);
+
+  // test that database complains if handle not unique when updating user
+
+  const insertReturn2 = await userRepo.add(user2);
+  insertReturn2!.handle = selection1!.handle;
+  const doUpdate1 = () => userRepo.update(insertReturn2);
+  await expect(doUpdate1()).rejects.toBeInstanceOf(DatabaseError);
+  await expect(doUpdate1()).rejects.toHaveProperty("code", PG_UNIQUE_VIOLATION);
+
+  // test that database complains if email not unique when updating user
+
+  insertReturn2!.handle = user2.handle;
+  insertReturn2!.email = selection1!.email;
+  const doUpdate2 = async () => userRepo.update(insertReturn2);
+  await expect(doUpdate2()).rejects.toBeInstanceOf(DatabaseError);
+  await expect(doUpdate2()).rejects.toHaveProperty("code", PG_UNIQUE_VIOLATION);
 
   // test deleting a user
 
-  const deleted = await userRepo.deleteByID(userID1);
+  const deleted = await userRepo.deleteByID(insertReturn1.id);
   expect(deleted).toBe(true);
-  const selection5 = await userRepo.getByID(userID1);
+  const selection5 = await userRepo.getByID(insertReturn1.id);
   expect(selection5).toBeNull();
-});
-
-it("experiment", () => {
-  const fail = () => {
-    throw new ValidationException("foo");
-  };
-  expect(fail).toThrow(ValidationException);
 });

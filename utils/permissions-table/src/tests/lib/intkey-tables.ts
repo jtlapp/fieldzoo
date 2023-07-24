@@ -13,7 +13,7 @@ export async function initIntKeyDB(
   await table.create(intKeyDB);
 
   await intKeyDB
-    .insertInto("users")
+    .insertInto("test_users")
     .values([
       // user1 has no access to any posts
       { handle: "user1", name: "User 1" },
@@ -28,9 +28,9 @@ export async function initIntKeyDB(
     ])
     .execute();
 
-  // posts
+  // test_posts
   await intKeyDB
-    .insertInto("posts")
+    .insertInto("test_posts")
     .values([
       { ownerID: 2, title: "Post 1" },
       { ownerID: 3, title: "Post 2" },
@@ -97,10 +97,10 @@ export function getIntKeyPermissionsTable() {
   return new PermissionsTable({
     maxPublicPermissions: AccessLevel.Read,
     maxUserGrantedPermissions: AccessLevel.Write,
-    userTable: "users",
+    userTable: "test_users",
     userIDColumn: "id",
     userIDDataType: "integer",
-    resourceTable: "posts",
+    resourceTable: "test_posts",
     resourceIDColumn: "postID",
     resourceIDDataType: "integer",
     sampleUserID: 1 as IntUserID,
@@ -137,8 +137,8 @@ interface Comments {
 }
 
 export interface IntKeyDB {
-  users: Users;
-  posts: Posts;
-  posts_permissions: PostAccessLevels;
-  comments: Comments;
+  test_users: Users;
+  test_posts: Posts;
+  test_posts_permissions: PostAccessLevels;
+  test_comments: Comments;
 }

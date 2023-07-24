@@ -1,6 +1,5 @@
 export * from "./entities/timestamped-entity.js";
 
-export * from "./tables/supabase-tables.js";
 export * from "./tables/timestamped-table.js";
 
 export * from "./utils/modeling-utils.js";

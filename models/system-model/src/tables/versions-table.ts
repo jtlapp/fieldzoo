@@ -21,8 +21,8 @@ export class VersionsTable {
         .createTable(tableName)
         .addColumn("createdAt", "timestamp", (col) => col.notNull())
         .addColumn("modifiedAt", "timestamp", (col) => col.notNull())
-        .addColumn("modifiedBy", "uuid", (col) =>
-          col.references("user_profiles.id").notNull()
+        .addColumn("modifiedBy", "text", (col) =>
+          col.references("users.id").notNull()
         )
         .addColumn("versionNumber", "integer", (col) => col.notNull())
         .addColumn("whatChangedLine", "text", (col) => col.notNull())

@@ -1,12 +1,11 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 import { DisplayNameImpl } from "@fieldzoo/general-model";
-import { UserID } from "@fieldzoo/system-model";
+import { createTestUser } from "@fieldzoo/system-model/dist/test";
 import {
   getTestDB,
   closeTestDB,
   resetTestDB,
   sleep,
-  createSupabaseUser,
 } from "@fieldzoo/testing-utils";
 
 import { Glossary } from "../entities/glossary";
@@ -25,7 +24,7 @@ afterAll(() => closeTestDB());
 describe("GlossaryRepo", () => {
   it("inserts, updates, and deletes glossaries", async () => {
     await resetTestDB();
-    const userID = (await createSupabaseUser("jdoe@xyz.pdq")) as UserID;
+    const userID = (await createTestUser(db, "Jane Doe", "jdoe@xyz.pdq"))!.id;
 
     const glossaryRepo = new GlossaryRepo(db);
     const insertedGlossary = Glossary.castFrom({

@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "main": "dist/postgres-utils.js",
-  "source": "src/postgres-utils.ts",
-  "types": "src/postgres-utils.ts",
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "types": "src/index.ts",
   "files": [
     "dist/**"
   ],
@@ -16,9 +16,11 @@
     "lint": "TIMING=1 eslint \"src/**/*.ts*\""
   },
   "dependencies": {
-    "kysely": "^0.24.2"
+    "kysely": "^0.24.2",
+    "pg": "^8.9.0"
   },
   "devDependencies": {
+    "@types/pg": "^8.6.6",
     "eslint": "^8.40.0",
     "eslint-config-custom": "workspace:*",
     "tsconfig": "workspace:*",

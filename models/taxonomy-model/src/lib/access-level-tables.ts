@@ -7,9 +7,9 @@ import { GlossaryID } from "../values/glossary-id";
 export const glossaryPermissionsTable = new PermissionsTable({
   maxPublicPermissions: AccessLevel.Read,
   maxUserGrantedPermissions: AccessLevel.Grant,
-  userTable: "user_profiles",
+  userTable: "users",
   userIDColumn: "id",
-  userIDDataType: "uuid",
+  userIDDataType: "text",
   resourceTable: "glossaries",
   resourceIDColumn: "id",
   resourceIDDataType: "text",

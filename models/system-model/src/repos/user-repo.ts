@@ -1,19 +1,17 @@
 import { Kysely } from "kysely";
 import { TableMapper } from "kysely-mapper";
 import { ValidationException } from "typebox-validators";
-import pg from "pg";
-const { DatabaseError } = pg;
 
+import { createBase64UUID } from "@fieldzoo/base64-uuid";
 import { TimestampedTable } from "@fieldzoo/general-model";
 
 import { Database, UserProfiles } from "../tables/table-interfaces";
-import { User, READONLY_USER_FIELDS } from "../entities/user.js";
+import { User } from "../entities/user.js";
 import { UserID } from "../values/user-id.js";
 import { UserHandleImpl } from "../values/user-handle.js";
 
 /**
- * Repository for persisted users, combining columns from both the
- * `user_profiles` table and Supabase's `auth.users` table.
+ * Repository for persisted users.
  */
 export class UserRepo {
   readonly #table: ReturnType<UserRepo["getMapper"]>;
@@ -23,29 +21,18 @@ export class UserRepo {
   }
 
   /**
-   * Indicates whether the provided user handle is valid and unique.
-   * @param handle User handle to check.
-   * @returns true if the handle is valid and unique, false otherwise.
+   * Adds a user to the repository.
+   * @param user User to add.
+   * @returns A new user instance with its assigned UUID.
+   * @throws DatabaseErrpr, such as when the user handle or
+   *  email is not unique.
    */
-  async isHandleAvailable(handle: string): Promise<boolean> {
-    try {
-      return (
-        (await this.db
-          .selectFrom("user_profiles")
-          .where("handle", "=", UserHandleImpl.castFrom(handle, true))
-          .executeTakeFirst()) === undefined
-      );
-    } catch (e: any) {
-      if (e instanceof ValidationException) {
-        return false;
-      }
-      throw e;
-    }
+  async add(user: User): Promise<User> {
+    return await this.#table.insert().returnOne(user);
   }
 
   /**
-   * Deletes a user by ID. Users are not automatically deleted from this
-   * repository when they are deleted from Supabase.
+   * Deletes a user by ID, including all resources that the user owns.
    * @param id ID of the user to delete.
    * @returns true if the user was deleted, false if the user was not found.
    */
@@ -59,41 +46,39 @@ export class UserRepo {
    * @returns the user, or null if the user was not found.
    */
   async getByID(id: UserID): Promise<User | null> {
-    const result = await this.db
-      .selectFrom("user_profiles")
-      .innerJoin("auth.users", "user_profiles.id", "auth.users.id")
-      .select([
-        "user_profiles.id",
-        "auth.users.email",
-        "user_profiles.name",
-        "user_profiles.handle",
-        "auth.users.last_sign_in_at as lastSignInAt",
-        "auth.users.banned_until as bannedUntil",
-        "user_profiles.createdAt",
-        "user_profiles.modifiedAt",
-        "auth.users.deleted_at as deletedAt",
-      ])
-      .where("user_profiles.id", "=", id)
-      .executeTakeFirst();
-    return result === undefined ? null : User.createFrom(result);
+    return this.#table.select(id).returnOne();
+  }
+
+  /**
+   * Indicates whether the provided user handle is valid and unique.
+   * @param handle User handle to check.
+   * @returns true if the handle is valid and unique, false otherwise.
+   */
+  async isHandleAvailable(handle: string): Promise<boolean> {
+    try {
+      return (
+        (await this.db
+          .selectFrom("users")
+          .where("handle", "=", UserHandleImpl.castFrom(handle, true))
+          .executeTakeFirst()) === undefined
+      );
+    } catch (e: any) {
+      if (e instanceof ValidationException) {
+        return false;
+      }
+      throw e;
+    }
   }
 
   /**
    * Updates a user, including changing its `modifiedAt` date.
    * @param user User with modified values.
    * @returns Whether the user was found and updated.
-   * @throws ValidationException if the user's handle is already in use.
+   * @throws DatabaseErrpr, such as when the user handle or
+   *  email is not unique.
    */
   async update(user: User): Promise<boolean> {
-    try {
-      return (await this.#table.update(user.id).returnOne(user)) !== null;
-    } catch (e: any) {
-      if (e instanceof DatabaseError && e.code === "23505") {
-        // unique_violation
-        throw new ValidationException("User handle is already in use");
-      }
-      throw e;
-    }
+    return (await this.#table.update(user.id).returnOne(user)) !== null;
   }
 
   /**
@@ -102,24 +87,28 @@ export class UserRepo {
    * specify the type parameters.
    */
   private getMapper(db: Kysely<Database>) {
-    return new TableMapper(db, "user_profiles", {
+    return new TableMapper(db, "users", {
       keyColumns: ["id"],
+      insertReturnColumns:
+        TimestampedTable.addInsertReturnColumns<UserProfiles>(["id"]),
       updateReturnColumns:
         TimestampedTable.addUpdateReturnColumns<UserProfiles>(),
     }).withTransforms({
-      insertTransform: () => {
-        throw Error("Cannot insert users");
-      },
+      insertTransform: (user: User) =>
+        TimestampedTable.removeGeneratedValues({
+          ...user,
+          id: createBase64UUID(),
+        }),
+      insertReturnTransform: (user: User, returns) =>
+        User.castFrom({ ...user, ...returns }, false),
       updateTransform: (user: User) => {
         const values = TimestampedTable.removeGeneratedValues({ ...user });
-        READONLY_USER_FIELDS.forEach((field) => delete values[field]);
+        delete values["id"];
         return values;
       },
       updateReturnTransform: (user: User, returns) =>
         Object.assign(user, returns) as User,
-      selectTransform: () => () => {
-        throw Error("Cannot select users via mapper");
-      },
+      selectTransform: (row) => User.castFrom(row, false),
       countTransform: (count) => Number(count),
     });
   }

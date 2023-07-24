@@ -36,7 +36,7 @@ afterEach(async () => {
 
 describe("PermissionsTable construction", () => {
   it("provides the default name for the permissions table", () => {
-    expect(intKeyTable.tableName).toBe("posts_permissions");
+    expect(intKeyTable.tableName).toBe("test_posts_permissions");
   });
 
   it("creates permissions table with a custom name, with drop", async () => {
@@ -114,7 +114,7 @@ describe("PermissionsTable construction", () => {
     let rows = await query.execute();
     expect(rows).toHaveLength(2);
 
-    await intKeyDB.deleteFrom("users").where("id", "=", 5).execute();
+    await intKeyDB.deleteFrom("test_users").where("id", "=", 5).execute();
 
     rows = await query.execute();
     expect(rows).toHaveLength(0);
@@ -130,7 +130,7 @@ describe("PermissionsTable construction", () => {
     let rows = await query.execute();
     expect(rows).toHaveLength(2);
 
-    await intKeyDB.deleteFrom("posts").where("postID", "=", 3).execute();
+    await intKeyDB.deleteFrom("test_posts").where("postID", "=", 3).execute();
 
     rows = await query.execute();
     expect(rows).toHaveLength(0);
@@ -141,20 +141,20 @@ describe("PermissionsTable construction", () => {
       new PermissionsTable({
         maxPublicPermissions: AccessLevel.Read,
         maxUserGrantedPermissions: AccessLevel.Write,
-        userTable: "users",
+        userTable: "test_users",
         userIDColumn: "id",
         // @ts-expect-error - invalid key data type
         userIDDataType: "string",
-        resourceTable: "posts",
+        resourceTable: "test_posts",
         resourceIDColumn: "postID",
         resourceIDDataType: "integer",
       });
       new PermissionsTable({
         ownerPermissions: AccessLevel.Write,
-        userTable: "users",
+        userTable: "test_users",
         userIDColumn: "id",
         userIDDataType: "integer",
-        resourceTable: "posts",
+        resourceTable: "test_posts",
         resourceIDColumn: "postID",
         // @ts-expect-error - invalid key data type
         resourceIDDataType: "string",
@@ -167,10 +167,10 @@ describe("PermissionsTable construction", () => {
         new PermissionsTable({
           maxPublicPermissions: AccessLevel.Read,
           maxUserGrantedPermissions: AccessLevel.Write,
-          userTable: "users",
+          userTable: "test_users",
           userIDColumn: "id",
           userIDDataType: "integer",
-          resourceTable: "posts",
+          resourceTable: "test_posts",
           resourceIDColumn: "postID",
           resourceIDDataType: "integer",
           // @ts-expect-error - user key not of correct type
@@ -179,10 +179,10 @@ describe("PermissionsTable construction", () => {
         new PermissionsTable({
           maxPublicPermissions: AccessLevel.Read,
           maxUserGrantedPermissions: AccessLevel.Write,
-          userTable: "users",
+          userTable: "test_users",
           userIDColumn: "id",
           userIDDataType: "text",
-          resourceTable: "posts",
+          resourceTable: "test_posts",
           resourceIDColumn: "postID",
           resourceIDDataType: "integer",
           // @ts-expect-error - user key not of correct type
@@ -192,10 +192,10 @@ describe("PermissionsTable construction", () => {
         new PermissionsTable({
           maxPublicPermissions: AccessLevel.Read,
           maxUserGrantedPermissions: AccessLevel.Write,
-          userTable: "users",
+          userTable: "test_users",
           userIDColumn: "id",
           userIDDataType: "integer",
-          resourceTable: "posts",
+          resourceTable: "test_posts",
           resourceIDColumn: "postID",
           resourceIDDataType: "integer",
           // @ts-expect-error - resource key not of correct type
@@ -204,10 +204,10 @@ describe("PermissionsTable construction", () => {
         new PermissionsTable({
           maxPublicPermissions: AccessLevel.Read,
           maxUserGrantedPermissions: AccessLevel.Write,
-          userTable: "users",
+          userTable: "test_users",
           userIDColumn: "id",
           userIDDataType: "integer",
-          resourceTable: "posts",
+          resourceTable: "test_posts",
           resourceIDColumn: "postID",
           resourceIDDataType: "text",
           // @ts-expect-error - resource key not of correct type

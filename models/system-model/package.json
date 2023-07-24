@@ -17,6 +17,7 @@
     "test": "vitest --run --isolate"
   },
   "dependencies": {
+    "@fieldzoo/base64-uuid": "workspace:*",
     "@fieldzoo/env-config": "workspace:*",
     "@fieldzoo/freeze-field": "workspace:*",
     "@fieldzoo/general-model": "workspace:*",
@@ -29,12 +30,12 @@
   },
   "devDependencies": {
     "@fieldzoo/app-config": "workspace:*",
+    "@fieldzoo/postgres-utils": "workspace:*",
     "@fieldzoo/testing-utils": "workspace:*",
     "@types/node": "20.1.3",
     "@types/pg": "^8.6.6",
     "eslint": "^8.40.0",
     "eslint-config-custom": "workspace:*",
-    "pg": "^8.9.0",
     "tsconfig": "workspace:*",
     "typescript": "5.1.3",
     "vitest": "^0.32.2",

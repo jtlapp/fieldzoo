@@ -26,33 +26,38 @@ const postgresConfig = {
   password: process.env.POSTGRES_PASSWORD,
 };
 
-const tables = ["custom_permissions_table", "comments", "posts", "users"];
+const tables = [
+  "custom_permissions_table",
+  "test_comments",
+  "test_posts",
+  "test_users",
+];
 
 export async function createTables(db: Kysely<any>, keyDataType: string) {
   const refKeyType = keyDataType == "serial" ? "integer" : keyDataType;
 
   await db.schema
-    .createTable("users")
+    .createTable("test_users")
     .addColumn("id", sql.raw(keyDataType), (col) => col.primaryKey())
     .addColumn("handle", "text", (col) => col.notNull())
     .addColumn("name", "text", (col) => col.notNull())
     .execute();
 
   await db.schema
-    .createTable("posts")
+    .createTable("test_posts")
     .addColumn("postID", sql.raw(keyDataType), (col) => col.primaryKey())
     .addColumn("ownerID", sql.raw(refKeyType), (col) =>
-      col.references("users.id").onDelete("cascade").notNull()
+      col.references("test_users.id").onDelete("cascade").notNull()
     )
     .addColumn("title", "text", (col) => col.unique().notNull())
     .addColumn("value", "text")
     .execute();
 
   await db.schema
-    .createTable("comments")
+    .createTable("test_comments")
     .addColumn("commentID", "serial", (col) => col.primaryKey())
     .addColumn("postID", sql.raw(refKeyType), (col) =>
-      col.references("posts.postID").onDelete("cascade").notNull()
+      col.references("test_posts.postID").onDelete("cascade").notNull()
     )
     .addColumn("comment", "text", (col) => col.notNull())
     .addColumn("value", "text")

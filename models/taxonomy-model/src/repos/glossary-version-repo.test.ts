@@ -1,15 +1,11 @@
 import { MultilineDescriptionImpl } from "@fieldzoo/general-model";
-import {
-  UserID,
-  VersionNumberImpl,
-  WhatChangedLineImpl,
-} from "@fieldzoo/system-model";
+import { VersionNumberImpl, WhatChangedLineImpl } from "@fieldzoo/system-model";
+import { createTestUser } from "@fieldzoo/system-model/dist/test";
 import {
   getTestDB,
   closeTestDB,
   resetTestDB,
   sleep,
-  createSupabaseUser,
 } from "@fieldzoo/testing-utils";
 
 import { Glossary } from "../entities/glossary";
@@ -122,7 +118,7 @@ describe("GlossaryVersionRepo", () => {
 
   async function setupTest() {
     await resetTestDB();
-    const userID = (await createSupabaseUser("jdoe@xyz.pdq")) as UserID;
+    const userID = (await createTestUser(db, "Jane Doe", "jdoe@xyz.pdq"))!.id;
 
     const rawGlossaries = [
       {

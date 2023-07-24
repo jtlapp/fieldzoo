@@ -10,40 +10,25 @@ export async function up(db: Kysely<any>): Promise<void> {
   await TimestampedTable.createFunctions(db);
   await CollaborativeTable.createFunctions(db);
 
-  // user_profiles table
+  // users table
 
-  await TimestampedTable.create(db, "user_profiles", (tb) =>
+  await TimestampedTable.create(db, "users", (tb) =>
     tb
-      .addColumn("id", "uuid", (col) =>
-        col.primaryKey().references("auth.users.id")
-      )
+      .addColumn("id", "text", (col) => col.primaryKey())
+      .addColumn("email", "text", (col) => col.unique().notNull())
       .addColumn("name", "text")
-      .addColumn("handle", "text", (col) => col.unique())
+      .addColumn("handle", "text", (col) => col.unique().notNull())
+      .addColumn("lastLoginAt", "timestamp")
+      .addColumn("disabledAt", "timestamp")
   );
-  await sql
-    .raw(
-      `create function public.handle_insert_user()
-        returns trigger as $$
-        begin
-          insert into public.user_profiles (id)
-          values (new.id);
-          return new;
-        end;
-        $$ language plpgsql security definer;
-        
-      create trigger on_auth_user_created
-        after insert on auth.users
-        for each row execute procedure public.handle_insert_user();`
-    )
-    .execute(db);
 
   // glossaries table
 
   await CollaborativeTable.create(db, "glossaries", (tb) =>
     tb
       .addColumn("id", "text", (col) => col.primaryKey())
-      .addColumn("ownerID", "uuid", (col) =>
-        col.references("user_profiles.id").onDelete("cascade").notNull()
+      .addColumn("ownerID", "text", (col) =>
+        col.references("users.id").onDelete("cascade").notNull()
       )
       .addColumn("name", "text", (col) => col.notNull())
       .addColumn("description", "text")
@@ -56,8 +41,8 @@ export async function up(db: Kysely<any>): Promise<void> {
       .addColumn("glossaryID", "text", (col) =>
         col.references("glossaries.id").notNull()
       )
-      .addColumn("ownerID", "uuid", (col) =>
-        col.references("user_profiles.id").onDelete("cascade").notNull()
+      .addColumn("ownerID", "text", (col) =>
+        col.references("users.id").onDelete("cascade").notNull()
       )
       .addColumn("name", "text", (col) => col.notNull())
       .addColumn("description", "text")
@@ -71,8 +56,8 @@ export async function up(db: Kysely<any>): Promise<void> {
 
   await TimestampedTable.create(db, "user_glossary_permissions", (tb) =>
     tb
-      .addColumn("userID", "uuid", (col) =>
-        col.references("user_profiles.id").onDelete("cascade").notNull()
+      .addColumn("userID", "text", (col) =>
+        col.references("users.id").onDelete("cascade").notNull()
       )
       .addColumn("glossaryID", "text", (col) =>
         col.references("glossaries.id").onDelete("cascade").notNull()
@@ -122,7 +107,7 @@ export async function down(db: Kysely<any>): Promise<void> {
   await db.schema.dropTable("user_glossary_permissions").execute();
   await db.schema.dropTable("glossary_versions").execute();
   await db.schema.dropTable("glossaries").execute();
-  await db.schema.dropTable("user_profiles").execute();
+  await db.schema.dropTable("users").execute();
 
   await sql
     .raw(`drop function if exists public.handle_insert_user() cascade;`)

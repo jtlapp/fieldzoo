@@ -1,3 +1,5 @@
+export * from "./create-test-user";
+
 export * from "../values/user-handle.test";
 export * from "../values/user-id.test";
 export * from "../values/user-name.test";

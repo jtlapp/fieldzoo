@@ -1,3 +1,4 @@
+export * from "./lib/test-base64-uuid";
 export * from "./lib/test-constants";
 export * from "./lib/test-date";
 export * from "./lib/test-positive-int";

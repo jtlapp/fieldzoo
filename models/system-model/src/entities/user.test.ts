@@ -1,27 +1,29 @@
-import { User } from "./user";
-import { testUserName } from "../values/user-name.test";
-import { testUserHandle } from "../values/user-handle.test";
-import { UserID } from "../values/user-id.js";
+import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 import { EmailAddress } from "@fieldzoo/general-model";
+
+import { User } from "./user.js";
+import { testUserID } from "../values/user-id.test";
+import { UserID } from "../values/user-id.js";
 import { UserName } from "../values/user-name.js";
 import { UserHandle } from "../values/user-handle.js";
+import { UnvalidatedFields } from "@fieldzoo/generic-types";
 
+const SAMPLE_USER_ID = "X".repeat(BASE64_UUID_LENGTH);
 const ERROR_MSG = "Invalid user";
 
 describe("User entity", () => {
-  it("accepts only valid user updates", () => {
-    const user = createUser();
-
-    testUserHandle(ERROR_MSG, (handle) =>
-      user.updateFrom({ name: user.name, handle })
-    );
-    testUserName(ERROR_MSG, (name) =>
-      user.updateFrom({ name, handle: user.handle })
+  it("accepts only valid users", () => {
+    expect(() => createUser({ id: undefined })).not.toThrow();
+    expect(() => createUser({ id: "" })).not.toThrow();
+    testUserID(
+      ERROR_MSG,
+      (id) => createUser({ id }),
+      (skip) => [undefined, ""].includes(skip)
     );
   });
 
   it("ID cannot be changed", () => {
-    const user = createUser();
+    const user = createUser({});
 
     expect(() => {
       (user as any).id = "pdq";
@@ -29,17 +31,17 @@ describe("User entity", () => {
   });
 });
 
-function createUser(): User {
+function createUser(specifiedFields: Partial<UnvalidatedFields<User>>): User {
   const timestamp = new Date();
-  return User.createFrom({
-    id: "ae19af00-af09-af09-af09-abcde129af00" as UserID,
+  return User.castFrom({
+    id: SAMPLE_USER_ID as UserID,
     email: "x@yz.com" as EmailAddress,
     name: "Jane Doe" as UserName,
     handle: "jdoe" as UserHandle,
-    lastSignInAt: timestamp,
-    bannedUntil: null,
+    lastLoginAt: timestamp,
     createdAt: timestamp,
     modifiedAt: timestamp,
-    deletedAt: null,
+    disabledAt: null,
+    ...(specifiedFields as any),
   });
 }

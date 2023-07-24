@@ -1,11 +1,10 @@
 import { DisplayNameImpl, NormalizedNameImpl } from "@fieldzoo/general-model";
-import { UserID } from "@fieldzoo/system-model";
+import { createTestUser } from "@fieldzoo/system-model/dist/test";
 import {
   getTestDB,
   closeTestDB,
   resetTestDB,
   sleep,
-  createSupabaseUser,
 } from "@fieldzoo/testing-utils";
 
 import { Glossary } from "../entities/glossary";
@@ -19,7 +18,7 @@ afterAll(() => closeTestDB());
 
 test.only("inserts, updates, and deletes terms", async () => {
   await resetTestDB();
-  const userID = (await createSupabaseUser("jdoe@xyz.pdq")) as UserID;
+  const userID = (await createTestUser(db, "Jane Doe", "jdoe@xyz.pdq"))!.id;
 
   const glossaryRepo = new GlossaryRepo(db);
   const insertedGlossary = Glossary.castFrom({
