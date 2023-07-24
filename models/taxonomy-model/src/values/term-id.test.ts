@@ -1,9 +1,9 @@
 import { testPositiveInt } from "@fieldzoo/testing-utils";
 
-import { TermIDImpl } from "./term-id";
+import { toTermID } from "./term-id";
 
 it("accepts only valid term IDs", () => {
-  testTermID("Invalid term ID", (value) => TermIDImpl.castFrom(value));
+  testTermID("Invalid term ID", (value) => toTermID(value));
 });
 
 export function testTermID(

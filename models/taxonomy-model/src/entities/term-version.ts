@@ -12,14 +12,14 @@ import {
 
 import { Term } from "./term";
 import { GlossaryID } from "../values/glossary-id";
-import { TermID, TermIDImpl } from "../values/term-id";
+import { TermID, toTermID } from "../values/term-id";
 
 /**
  * Class representing a valid term version
  */
 export class TermVersion extends VersionEntity {
   static schema = Type.Object({
-    termID: TermIDImpl.schema,
+    termID: toTermID.schema,
     versionNumber: super.versionSchema.versionNumber,
     glossaryID: Term.schema.properties.glossaryID,
     displayName: Term.schema.properties.displayName,

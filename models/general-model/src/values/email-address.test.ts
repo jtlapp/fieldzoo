@@ -1,11 +1,11 @@
 import { NON_STRINGS, testValues } from "@fieldzoo/testing-utils";
 
-import { EmailAddressImpl } from "../values/email-address";
+import { toEmailAddress } from "../values/email-address";
 
 const VALID = [
   "a@b.c",
   "a.b@c.d",
-  "a".repeat(EmailAddressImpl.schema.maxLength! - 4) + "@b.c",
+  "a".repeat(toEmailAddress.schema.maxLength! - 4) + "@b.c",
 ];
 const INVALID = [
   "",
@@ -17,13 +17,11 @@ const INVALID = [
   "a\ta@b.c",
   "a\na@b.c",
   "a",
-  "a".repeat(EmailAddressImpl.schema.maxLength! - 3) + "@b.c",
+  "a".repeat(toEmailAddress.schema.maxLength! - 3) + "@b.c",
 ];
 
 it("accepts only valid email addresses", () => {
-  testEmailAddress("Invalid email address", (value) =>
-    EmailAddressImpl.castFrom(value)
-  );
+  testEmailAddress("Invalid email address", (value) => toEmailAddress(value));
 });
 
 export function testEmailAddress(

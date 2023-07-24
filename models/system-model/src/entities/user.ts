@@ -5,21 +5,29 @@ import { SelectivePartial, UnvalidatedFields } from "@fieldzoo/generic-types";
 import { freezeField } from "@fieldzoo/freeze-field";
 import {
   EmailAddress,
+  toEmailAddress,
   TimestampedColumns,
   TimestampedEntity,
 } from "@fieldzoo/general-model";
 
-import { UserID } from "../values/user-id.js";
-import { UserName, UserNameImpl } from "../values/user-name.js";
-import { UserHandle, UserHandleImpl } from "../values/user-handle.js";
+import { UserID, toUserID } from "../values/user-id.js";
+import { UserName, toUserName } from "../values/user-name.js";
+import { UserHandle, toUserHandle } from "../values/user-handle.js";
+import { EmptyStringable, Nullable } from "@fieldzoo/typebox-types";
 
 /**
  * Class representing a valid user.
  */
 export class User extends TimestampedEntity {
   static schema = Type.Object({
-    name: UserNameImpl.schema,
-    handle: UserHandleImpl.schema,
+    id: EmptyStringable(toUserID.schema),
+    email: toEmailAddress.schema,
+    name: toUserName.schema,
+    handle: toUserHandle.schema,
+    lastLoginAt: Nullable(Type.Date()),
+    createdAt: super.timestampedSchema.createdAt,
+    modifiedAt: super.timestampedSchema.modifiedAt,
+    disabledAt: Nullable(Type.Date()),
   });
   static #validator = new CompilingStandardValidator(this.schema);
 

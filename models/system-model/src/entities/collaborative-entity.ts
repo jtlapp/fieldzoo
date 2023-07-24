@@ -1,15 +1,15 @@
 import { TimestampedEntity } from "@fieldzoo/general-model";
 
-import { VersionNumber, VersionNumberImpl } from "../values/version-number.js";
-import { UserID, UserIDImpl } from "../values/user-id.js";
+import { VersionNumber, toVersionNumber } from "../values/version-number.js";
+import { UserID, toUserID } from "../values/user-id.js";
 
 /**
  * Class representing a valid collaborative entity
  */
 export class CollaborativeEntity extends TimestampedEntity {
   static collaborativeSchema = {
-    versionNumber: VersionNumberImpl.schema,
-    modifiedBy: UserIDImpl.schema,
+    versionNumber: toVersionNumber.schema,
+    modifiedBy: toUserID.schema,
   };
 
   /**

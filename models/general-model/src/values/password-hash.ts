@@ -12,16 +12,14 @@ export const PASSWORD_HASH_LENGTH = 64;
 
 export type PasswordHash = string & { readonly __validated__: unique symbol };
 
-export class PasswordHashImpl {
-  static schema = HexString({
-    minLength: PASSWORD_HASH_LENGTH,
-    maxLength: PASSWORD_HASH_LENGTH,
-  });
+const schema = HexString({
+  minLength: PASSWORD_HASH_LENGTH,
+  maxLength: PASSWORD_HASH_LENGTH,
+});
+const validator = new CompilingStandardValidator(schema);
 
-  static castFrom(name: string, safely = true) {
-    validate(this.#validator, name, "Invalid password hash", safely);
-    return name as PasswordHash;
-  }
-
-  static #validator = new CompilingStandardValidator(this.schema);
+export function toPasswordHash(name: string, safely = true) {
+  validate(validator, name, "Invalid password hash", safely);
+  return name as PasswordHash;
 }
+toPasswordHash.schema = schema;

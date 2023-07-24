@@ -7,13 +7,11 @@ import { CompilingStandardValidator } from "typebox-validators";
 
 export type VersionNumber = number & { readonly __validated__: unique symbol };
 
-export class VersionNumberImpl {
-  static schema = Type.Integer({ minimum: 1 });
+const schema = Type.Integer({ minimum: 1 });
+const validator = new CompilingStandardValidator(schema);
 
-  static castFrom(versionNumber: number) {
-    this.#validator.assert(versionNumber, "Invalid version number");
-    return versionNumber as VersionNumber;
-  }
-
-  static #validator = new CompilingStandardValidator(this.schema);
+export function toVersionNumber(versionNumber: number) {
+  validator.assert(versionNumber, "Invalid version number");
+  return versionNumber as VersionNumber;
 }
+toVersionNumber.schema = schema;

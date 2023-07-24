@@ -1,5 +1,5 @@
-import { MultilineDescriptionImpl } from "@fieldzoo/general-model";
-import { VersionNumberImpl, WhatChangedLineImpl } from "@fieldzoo/system-model";
+import { toMultilineDescription } from "@fieldzoo/general-model";
+import { toVersionNumber, toWhatChangedLine } from "@fieldzoo/system-model";
 import { createTestUser } from "@fieldzoo/system-model/dist/test";
 import {
   getTestDB,
@@ -148,9 +148,8 @@ describe("GlossaryVersionRepo", () => {
       "What changed 1-1"
     );
     await sleep(20);
-    glossaries[0].versionNumber = VersionNumberImpl.castFrom(2);
-    glossaries[0].description =
-      MultilineDescriptionImpl.castFrom("Description 2");
+    glossaries[0].versionNumber = toVersionNumber(2);
+    glossaries[0].description = toMultilineDescription("Description 2");
     await glossaryRepo.update(glossaries[0]);
 
     const glossaryVersion1_2 = createGlossaryVersion(
@@ -176,6 +175,6 @@ function createGlossaryVersion(glossary: Glossary, whatChangedLine: string) {
     modifiedBy: glossary.modifiedBy,
     createdAt: glossary.createdAt,
     modifiedAt: glossary.modifiedAt,
-    whatChangedLine: WhatChangedLineImpl.castFrom(whatChangedLine),
+    whatChangedLine: toWhatChangedLine(whatChangedLine),
   });
 }

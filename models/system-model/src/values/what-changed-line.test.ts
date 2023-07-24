@@ -4,14 +4,14 @@ import {
   testValues,
 } from "@fieldzoo/testing-utils";
 
-import { WhatChangedLineImpl } from "./what-changed-line.js";
+import { toWhatChangedLine } from "./what-changed-line.js";
 
 const VALID = [
   "X",
   "House",
   "Heüße House",
   "Kitty-House",
-  "a".repeat(WhatChangedLineImpl.schema.maxLength!),
+  "a".repeat(toWhatChangedLine.schema.maxLength!),
 ];
 const INVALID = [
   "",
@@ -20,12 +20,12 @@ const INVALID = [
   "abc  def",
   "a\ta",
   "a\na",
-  "a".repeat(WhatChangedLineImpl.schema.maxLength! + 1),
+  "a".repeat(toWhatChangedLine.schema.maxLength! + 1),
 ];
 
 it("accepts only valid what-changed lines", () => {
   testWhatChangedLine("Invalid what-changed line", (value) =>
-    WhatChangedLineImpl.castFrom(value)
+    toWhatChangedLine(value)
   );
 });
 

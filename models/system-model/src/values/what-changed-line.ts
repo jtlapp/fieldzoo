@@ -11,16 +11,14 @@ export type WhatChangedLine = string & {
   readonly __validated__: unique symbol;
 };
 
-export class WhatChangedLineImpl {
-  static schema = SingleLineUnicodeString({
-    minLength: 1,
-    maxLength: 240,
-  });
+const schema = SingleLineUnicodeString({
+  minLength: 1,
+  maxLength: 240,
+});
+const validator = new CompilingStandardValidator(schema);
 
-  static castFrom(name: string, safely = true) {
-    validate(this.#validator, name, "Invalid what-changed line", safely);
-    return name as WhatChangedLine;
-  }
-
-  static #validator = new CompilingStandardValidator(this.schema);
+export function toWhatChangedLine(name: string, safely = true) {
+  validate(validator, name, "Invalid what-changed line", safely);
+  return name as WhatChangedLine;
 }
+toWhatChangedLine.schema = schema;

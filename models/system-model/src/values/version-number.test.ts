@@ -1,10 +1,10 @@
 import { testPositiveInt } from "@fieldzoo/testing-utils";
 
-import { VersionNumberImpl } from "./version-number.js";
+import { toVersionNumber } from "./version-number.js";
 
 it("accepts only valid version numbers", () => {
   testVersionNumber("Invalid version number", (value) =>
-    VersionNumberImpl.castFrom(value)
+    toVersionNumber(value)
   );
 });
 

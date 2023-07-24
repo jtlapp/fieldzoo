@@ -9,16 +9,14 @@ import { validate } from "@fieldzoo/general-model";
 
 export type UserHandle = string & { readonly __validated__: unique symbol };
 
-export class UserHandleImpl {
-  static schema = UserHandleString({
-    minLength: 2,
-    maxLength: 32,
-  });
+const schema = UserHandleString({
+  minLength: 2,
+  maxLength: 32,
+});
+const validator = new CompilingStandardValidator(schema);
 
-  static castFrom(handle: string, safely = true) {
-    validate(this.#validator, handle, "Invalid user handle", safely);
-    return handle as UserHandle;
-  }
-
-  static #validator = new CompilingStandardValidator(this.schema);
+export function toUserHandle(handle: string, safely = true) {
+  validate(validator, handle, "Invalid user handle", safely);
+  return handle as UserHandle;
 }
+toUserHandle.schema = schema;

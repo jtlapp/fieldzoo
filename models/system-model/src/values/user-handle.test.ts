@@ -4,20 +4,20 @@ import {
   testValues,
 } from "@fieldzoo/testing-utils";
 
-import { UserHandleImpl } from "./user-handle.js";
+import { toUserHandle } from "./user-handle.js";
 
 const VALID = [
   "Mo",
   "a1",
   "ab_cd_2",
-  "a".repeat(UserHandleImpl.schema.maxLength!),
+  "a".repeat(toUserHandle.schema.maxLength!),
 ];
 const INVALID = [
   "",
   ...NON_STRINGS,
   ...UNTRIMMED_STRINGS,
   "a", // too short
-  "a".repeat(UserHandleImpl.schema.maxLength! + 1),
+  "a".repeat(toUserHandle.schema.maxLength! + 1),
   "a\nb",
   "a\tb",
   "a/b",
@@ -29,9 +29,7 @@ const INVALID = [
 ];
 
 it("accepts only valid user handles", () => {
-  testUserHandle("Invalid user handle", (value) =>
-    UserHandleImpl.castFrom(value)
-  );
+  testUserHandle("Invalid user handle", (value) => toUserHandle(value));
 });
 
 export function testUserHandle(

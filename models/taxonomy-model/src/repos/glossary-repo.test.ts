@@ -1,5 +1,5 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
-import { DisplayNameImpl } from "@fieldzoo/general-model";
+import { toDisplayName } from "@fieldzoo/general-model";
 import { createTestUser } from "@fieldzoo/system-model/dist/test";
 import {
   getTestDB,
@@ -59,7 +59,7 @@ describe("GlossaryRepo", () => {
     // test updating a glossary
     const originallyModifiedAt = selection1!.modifiedAt;
     await sleep(20);
-    selection1!.name = DisplayNameImpl.castFrom("Updated Glossary");
+    selection1!.name = toDisplayName("Updated Glossary");
 
     const updateReturn2 = await glossaryRepo.update(selection1!);
     expect(updateReturn2).toBe(true);

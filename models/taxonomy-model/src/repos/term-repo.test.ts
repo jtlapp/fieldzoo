@@ -1,4 +1,4 @@
-import { DisplayNameImpl, NormalizedNameImpl } from "@fieldzoo/general-model";
+import { toDisplayName, toNormalizedName } from "@fieldzoo/general-model";
 import { createTestUser } from "@fieldzoo/system-model/dist/test";
 import {
   getTestDB,
@@ -55,7 +55,7 @@ test.only("inserts, updates, and deletes terms", async () => {
   expect(insertReturn.id).not.toEqual(0);
   expect(insertReturn.versionNumber).toEqual(1);
   expect(insertReturn.lookupName).toEqual(
-    NormalizedNameImpl.castFrom(insertedTerm.displayName)
+    toNormalizedName(insertedTerm.displayName)
   );
   expect(insertReturn.createdAt).toBeInstanceOf(Date);
   expect(insertReturn.modifiedAt).toEqual(insertReturn.createdAt);
@@ -70,7 +70,7 @@ test.only("inserts, updates, and deletes terms", async () => {
   // test updating a term
   const originallyModifiedAt = selection1!.modifiedAt;
   await sleep(20);
-  selection1!.displayName = DisplayNameImpl.castFrom("Updated Term");
+  selection1!.displayName = toDisplayName("Updated Term");
 
   const updateReturn2 = await termRepo.update(selection1!);
   expect(updateReturn2).toBe(true);

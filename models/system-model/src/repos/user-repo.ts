@@ -8,7 +8,7 @@ import { TimestampedTable } from "@fieldzoo/general-model";
 import { Database, UserProfiles } from "../tables/table-interfaces";
 import { User } from "../entities/user.js";
 import { UserID } from "../values/user-id.js";
-import { UserHandleImpl } from "../values/user-handle.js";
+import { toUserHandle } from "../values/user-handle.js";
 
 /**
  * Repository for persisted users.
@@ -59,7 +59,7 @@ export class UserRepo {
       return (
         (await this.db
           .selectFrom("users")
-          .where("handle", "=", UserHandleImpl.castFrom(handle, true))
+          .where("handle", "=", toUserHandle(handle, true))
           .executeTakeFirst()) === undefined
       );
     } catch (e: any) {

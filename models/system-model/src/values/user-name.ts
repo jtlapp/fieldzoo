@@ -9,16 +9,14 @@ import { validate } from "@fieldzoo/general-model";
 
 export type UserName = string & { readonly __validated__: unique symbol };
 
-export class UserNameImpl {
-  static schema = UserNameUnicodeString({
-    minLength: 2,
-    maxLength: 50,
-  });
+const schema = UserNameUnicodeString({
+  minLength: 2,
+  maxLength: 50,
+});
+const validator = new CompilingStandardValidator(schema);
 
-  static castFrom(name: string, safely = true) {
-    validate(this.#validator, name, "Invalid user name", safely);
-    return name as UserName;
-  }
-
-  static #validator = new CompilingStandardValidator(this.schema);
+export function toUserName(name: string, safely = true) {
+  validate(validator, name, "Invalid user name", safely);
+  return name as UserName;
 }
+toUserName.schema = schema;

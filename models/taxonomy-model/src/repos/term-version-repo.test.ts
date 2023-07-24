@@ -1,5 +1,5 @@
-import { MultilineDescriptionImpl } from "@fieldzoo/general-model";
-import { VersionNumberImpl, WhatChangedLineImpl } from "@fieldzoo/system-model";
+import { toMultilineDescription } from "@fieldzoo/general-model";
+import { toVersionNumber, toWhatChangedLine } from "@fieldzoo/system-model";
 import { createTestUser } from "@fieldzoo/system-model/dist/test";
 import {
   getTestDB,
@@ -152,8 +152,8 @@ describe("TermVersionRepo", () => {
 
     const termVersion1_1 = createTermVersion(terms[0], "What changed 1-1");
     await sleep(20);
-    terms[0].versionNumber = VersionNumberImpl.castFrom(2);
-    terms[0].description = MultilineDescriptionImpl.castFrom("Description 2");
+    terms[0].versionNumber = toVersionNumber(2);
+    terms[0].description = toMultilineDescription("Description 2");
     await termRepo.update(terms[0]);
 
     const termVersion1_2 = createTermVersion(terms[0], "What changed 1-2");
@@ -173,6 +173,6 @@ function createTermVersion(term: Term, whatChangedLine: string) {
     modifiedBy: term.modifiedBy,
     createdAt: term.createdAt,
     modifiedAt: term.modifiedAt,
-    whatChangedLine: WhatChangedLineImpl.castFrom(whatChangedLine),
+    whatChangedLine: toWhatChangedLine(whatChangedLine),
   });
 }

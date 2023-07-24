@@ -8,13 +8,11 @@ import { CompilingStandardValidator } from "typebox-validators";
 
 export type TermID = number & { readonly __validated__: unique symbol };
 
-export class TermIDImpl {
-  static schema = Type.Integer({ minimum: 1 });
+const schema = Type.Integer({ minimum: 1 });
+const validator = new CompilingStandardValidator(schema);
 
-  static castFrom(id: number) {
-    this.#validator.assert(id, "Invalid term ID");
-    return id as TermID;
-  }
-
-  static #validator = new CompilingStandardValidator(this.schema);
+export function toTermID(id: number) {
+  validator.assert(id, "Invalid term ID");
+  return id as TermID;
 }
+toTermID.schema = schema;

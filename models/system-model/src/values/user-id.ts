@@ -8,13 +8,11 @@ import { Base64UuidSchema } from "@fieldzoo/base64-uuid";
 
 export type UserID = string & { readonly __validated__: unique symbol };
 
-export class UserIDImpl {
-  static schema = Base64UuidSchema;
+const schema = Base64UuidSchema;
+const validator = new CompilingStandardValidator(schema);
 
-  static castFrom(id: string) {
-    this.#validator.assert(id, "Invalid user ID");
-    return id as UserID;
-  }
-
-  static #validator = new CompilingStandardValidator(this.schema);
+export function toUserID(id: string) {
+  validator.assert(id, "Invalid user ID");
+  return id as UserID;
 }
+toUserID.schema = schema;

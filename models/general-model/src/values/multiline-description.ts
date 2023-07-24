@@ -11,13 +11,11 @@ export type MultilineDescription = string & {
   readonly __validated__: unique symbol;
 };
 
-export class MultilineDescriptionImpl {
-  static schema = MultiLineUnicodeString({ minLength: 1, maxLength: 1000 });
+const schema = MultiLineUnicodeString({ minLength: 1, maxLength: 1000 });
+const validator = new CompilingStandardValidator(schema);
 
-  static castFrom(description: string, safely = true) {
-    validate(this.#validator, description, "Invalid description", safely);
-    return description as MultilineDescription;
-  }
-
-  static #validator = new CompilingStandardValidator(this.schema);
+export function toMultilineDescription(description: string, safely = true) {
+  validate(validator, description, "Invalid description", safely);
+  return description as MultilineDescription;
 }
+toMultilineDescription.schema = schema;

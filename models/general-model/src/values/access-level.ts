@@ -18,16 +18,14 @@ export enum AccessLevel {
   Owner, // 8
 }
 
-export class AccessLevelImpl {
-  static schema = Type.Integer({
-    minimum: AccessLevel.None,
-    maximum: AccessLevel.Owner,
-  });
+const schema = Type.Integer({
+  minimum: AccessLevel.None,
+  maximum: AccessLevel.Owner,
+});
+const validator = new CompilingStandardValidator(schema);
 
-  static castFrom(permissions: number) {
-    this.#validator.assert(permissions, "Invalid permissions");
-    return permissions as AccessLevel;
-  }
-
-  static #validator = new CompilingStandardValidator(this.schema);
+export function toAccessLevel(permissions: number) {
+  validator.assert(permissions, "Invalid permissions");
+  return permissions as AccessLevel;
 }
+toAccessLevel.schema = schema;

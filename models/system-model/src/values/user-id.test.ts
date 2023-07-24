@@ -1,9 +1,9 @@
 import { testBase64Uuid } from "@fieldzoo/testing-utils";
 
-import { UserIDImpl } from "./user-id.js";
+import { toUserID } from "./user-id.js";
 
 it.only("accepts only valid user IDs", () => {
-  testUserID("Invalid user ID", (value) => UserIDImpl.castFrom(value));
+  testUserID("Invalid user ID", (value) => toUserID(value));
 });
 
 export function testUserID(

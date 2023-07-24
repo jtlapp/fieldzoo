@@ -4,14 +4,14 @@ import {
   testValues,
 } from "@fieldzoo/testing-utils";
 
-import { MultilineDescriptionImpl } from "../values/multiline-description";
+import { toMultilineDescription } from "../values/multiline-description";
 
 const VALID = [
   "X",
   "House",
   "Heüße House",
   "Kitty-House\n\nHeüße House\nABC",
-  "a".repeat(MultilineDescriptionImpl.schema.maxLength!),
+  "a".repeat(toMultilineDescription.schema.maxLength!),
 ];
 const INVALID = [
   "",
@@ -20,12 +20,12 @@ const INVALID = [
   "\n",
   "\n\n",
   "a\ta",
-  "a".repeat(MultilineDescriptionImpl.schema.maxLength! + 1),
+  "a".repeat(toMultilineDescription.schema.maxLength! + 1),
 ];
 
 it("accepts only valid multiline descriptions", () => {
   testMultilineDescription("Invalid description", (value) =>
-    MultilineDescriptionImpl.castFrom(value)
+    toMultilineDescription(value)
   );
 });
 

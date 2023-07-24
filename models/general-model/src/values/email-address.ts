@@ -10,13 +10,11 @@ import { validate } from "../utils/modeling-utils.js";
 
 export type EmailAddress = string & { readonly __validated__: unique symbol };
 
-export class EmailAddressImpl {
-  static schema = EmailString({ maxLength: 100 });
+const schema = EmailString({ maxLength: 100 });
+const validator = new CompilingStandardValidator(schema);
 
-  static castFrom(name: string, safely = true) {
-    validate(this.#validator, name, "Invalid email address", safely);
-    return name as EmailAddress;
-  }
-
-  static #validator = new CompilingStandardValidator(this.schema);
+export function toEmailAddress(name: string, safely = true) {
+  validate(validator, name, "Invalid email address", safely);
+  return name as EmailAddress;
 }
+toEmailAddress.schema = schema;

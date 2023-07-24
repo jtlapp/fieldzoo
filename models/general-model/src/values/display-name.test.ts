@@ -4,14 +4,14 @@ import {
   testValues,
 } from "@fieldzoo/testing-utils";
 
-import { DisplayNameImpl } from "../values/display-name.js";
+import { toDisplayName } from "../values/display-name.js";
 
 const VALID = [
   "X",
   "House",
   "Heüße House",
   "Kitty-House",
-  "a".repeat(DisplayNameImpl.schema.maxLength!),
+  "a".repeat(toDisplayName.schema.maxLength!),
 ];
 const INVALID = [
   "",
@@ -20,13 +20,11 @@ const INVALID = [
   "abc  def",
   "a\ta",
   "a\na",
-  "a".repeat(DisplayNameImpl.schema.maxLength! + 1),
+  "a".repeat(toDisplayName.schema.maxLength! + 1),
 ];
 
 it("accepts only valid display names", () => {
-  testDisplayName("Invalid display name", (value) =>
-    DisplayNameImpl.castFrom(value)
-  );
+  testDisplayName("Invalid display name", (value) => toDisplayName(value));
 });
 
 export function testDisplayName(

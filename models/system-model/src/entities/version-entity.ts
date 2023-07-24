@@ -1,11 +1,11 @@
 import { Type } from "@sinclair/typebox";
 
-import { VersionNumber, VersionNumberImpl } from "../values/version-number.js";
+import { VersionNumber, toVersionNumber } from "../values/version-number.js";
 import {
   WhatChangedLine,
-  WhatChangedLineImpl,
+  toWhatChangedLine,
 } from "../values/what-changed-line.js";
-import { UserID, UserIDImpl } from "../values/user-id.js";
+import { UserID, toUserID } from "../values/user-id.js";
 
 /**
  * Class representing a version entity.
@@ -14,9 +14,9 @@ export class VersionEntity {
   static versionSchema = {
     createdAt: Type.Date(),
     modifiedAt: Type.Date(),
-    modifiedBy: UserIDImpl.schema,
-    versionNumber: VersionNumberImpl.schema,
-    whatChangedLine: WhatChangedLineImpl.schema,
+    modifiedBy: toUserID.schema,
+    versionNumber: toVersionNumber.schema,
+    whatChangedLine: toWhatChangedLine.schema,
   };
 
   /**

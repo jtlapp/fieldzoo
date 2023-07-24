@@ -9,11 +9,11 @@ import { freezeField } from "@fieldzoo/freeze-field";
 import { Zeroable } from "@fieldzoo/typebox-types";
 import {
   DisplayName,
-  DisplayNameImpl,
+  toDisplayName,
   MultilineDescription,
-  MultilineDescriptionImpl,
+  toMultilineDescription,
   NormalizedName,
-  NormalizedNameImpl,
+  toNormalizedName,
   TimestampedColumns,
 } from "@fieldzoo/general-model";
 import {
@@ -22,8 +22,8 @@ import {
   VersionNumber,
 } from "@fieldzoo/system-model";
 
-import { GlossaryID, GlossaryIDImpl } from "../values/glossary-id";
-import { TermID, TermIDImpl } from "../values/term-id";
+import { GlossaryID, toGlossaryID } from "../values/glossary-id";
+import { TermID, toTermID } from "../values/term-id";
 
 /**
  * Class representing a valid term
@@ -33,12 +33,12 @@ export class Term extends CollaborativeEntity {
   #lookupName?: NormalizedName; // generated on demand
 
   static schema = Type.Object({
-    id: Zeroable(TermIDImpl.schema),
+    id: Zeroable(toTermID.schema),
     versionNumber: Zeroable(super.collaborativeSchema.versionNumber),
-    lookupName: Type.Optional(NormalizedNameImpl.schema),
-    glossaryID: GlossaryIDImpl.schema,
-    displayName: DisplayNameImpl.schema,
-    description: MultilineDescriptionImpl.schema,
+    lookupName: Type.Optional(toNormalizedName.schema),
+    glossaryID: toGlossaryID.schema,
+    displayName: toDisplayName.schema,
+    description: toMultilineDescription.schema,
     modifiedBy: super.collaborativeSchema.modifiedBy,
     createdAt: super.timestampedSchema.createdAt,
     modifiedAt: super.timestampedSchema.modifiedAt,
@@ -102,8 +102,7 @@ export class Term extends CollaborativeEntity {
       this.#validator.assert(fields, "Invalid term");
       if (
         fields.lookupName !== undefined &&
-        fields.lookupName !=
-          NormalizedNameImpl.castFrom(fields.displayName as DisplayName)
+        fields.lookupName != toNormalizedName(fields.displayName as DisplayName)
       ) {
         throw new ValidationException(
           "lookupName is inconsistent with displayName"
@@ -146,7 +145,7 @@ export class Term extends CollaborativeEntity {
    */
   get lookupName() {
     if (this.#lookupName === undefined) {
-      this.#lookupName = NormalizedNameImpl.castFrom(this.#displayName);
+      this.#lookupName = toNormalizedName(this.#displayName);
     }
     return this.#lookupName;
   }

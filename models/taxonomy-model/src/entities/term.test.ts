@@ -1,7 +1,7 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 import { testDate, testUUID } from "@fieldzoo/testing-utils";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
-import { DisplayNameImpl, NormalizedNameImpl } from "@fieldzoo/general-model";
+import { toDisplayName, toNormalizedName } from "@fieldzoo/general-model";
 import {
   testDisplayName,
   testMultilineDescription,
@@ -43,15 +43,13 @@ describe("Term entity", () => {
       (displayName) =>
         createTerm({
           displayName,
-          lookupName: NormalizedNameImpl.castFrom(displayName),
+          lookupName: toNormalizedName(displayName),
         }),
       (skip) => typeof skip !== "string"
     );
     expect(() =>
       createTerm({
-        lookupName: NormalizedNameImpl.castFrom(
-          DisplayNameImpl.castFrom("Good Name")
-        ),
+        lookupName: toNormalizedName(toDisplayName("Good Name")),
       })
     ).not.toThrow();
     expect(() => createTerm({ lookupName: "wrong-name" })).toThrow(

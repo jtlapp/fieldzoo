@@ -12,16 +12,14 @@ export const PASSWORD_SALT_LENGTH = 16;
 
 export type PasswordSalt = string & { readonly __validated__: unique symbol };
 
-export class PasswordSaltImpl {
-  static schema = HexString({
-    minLength: PASSWORD_SALT_LENGTH,
-    maxLength: PASSWORD_SALT_LENGTH,
-  });
+const schema = HexString({
+  minLength: PASSWORD_SALT_LENGTH,
+  maxLength: PASSWORD_SALT_LENGTH,
+});
+const validator = new CompilingStandardValidator(schema);
 
-  static castFrom(name: string, safely = true) {
-    validate(this.#validator, name, "Invalid password salt", safely);
-    return name as PasswordSalt;
-  }
-
-  static #validator = new CompilingStandardValidator(this.schema);
+export function toPasswordSalt(name: string, safely = true) {
+  validate(validator, name, "Invalid password salt", safely);
+  return name as PasswordSalt;
 }
+toPasswordSalt.schema = schema;

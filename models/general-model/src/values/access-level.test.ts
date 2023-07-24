@@ -1,6 +1,6 @@
 import { testValues, NON_NUMBERS } from "@fieldzoo/testing-utils";
 
-import { AccessLevel, AccessLevelImpl } from "./access-level";
+import { AccessLevel, toAccessLevel } from "./access-level";
 
 const VALID = [AccessLevel.None, AccessLevel.Read, AccessLevel.Owner];
 const INVALID = [
@@ -13,7 +13,7 @@ const INVALID = [
 it("accepts only valid permissionss", () => {
   testAccessLevel(
     "Invalid permissions",
-    (value) => AccessLevelImpl.castFrom(value),
+    (value) => toAccessLevel(value),
     () => false
   );
 });

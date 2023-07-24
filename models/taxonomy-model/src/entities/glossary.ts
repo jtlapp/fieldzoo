@@ -7,30 +7,30 @@ import { freezeField } from "@fieldzoo/freeze-field";
 import {
   TimestampedColumns,
   DisplayName,
-  DisplayNameImpl,
+  toDisplayName,
   MultilineDescription,
-  MultilineDescriptionImpl,
+  toMultilineDescription,
 } from "@fieldzoo/general-model";
 import {
   CollaborativeEntity,
   UserID,
-  UserIDImpl,
+  toUserID,
   VersionNumber,
 } from "@fieldzoo/system-model";
 
-import { GlossaryID, GlossaryIDImpl } from "../values/glossary-id";
+import { GlossaryID, toGlossaryID } from "../values/glossary-id";
 
 /**
  * Class representing a valid glossary.
  */
 export class Glossary extends CollaborativeEntity {
   static schema = Type.Object({
-    id: EmptyStringable(GlossaryIDImpl.schema),
+    id: EmptyStringable(toGlossaryID.schema),
     versionNumber: Zeroable(super.collaborativeSchema.versionNumber),
-    ownerID: UserIDImpl.schema,
-    name: DisplayNameImpl.schema,
-    description: Nullable(MultilineDescriptionImpl.schema),
-    modifiedBy: UserIDImpl.schema,
+    ownerID: toUserID.schema,
+    name: toDisplayName.schema,
+    description: Nullable(toMultilineDescription.schema),
+    modifiedBy: toUserID.schema,
     createdAt: super.timestampedSchema.createdAt,
     modifiedAt: super.timestampedSchema.modifiedAt,
   });

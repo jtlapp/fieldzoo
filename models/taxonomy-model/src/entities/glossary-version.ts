@@ -10,7 +10,7 @@ import {
   WhatChangedLine,
 } from "@fieldzoo/system-model";
 
-import { GlossaryID, GlossaryIDImpl } from "../values/glossary-id";
+import { GlossaryID, toGlossaryID } from "../values/glossary-id";
 import { Glossary } from "./glossary";
 
 /**
@@ -18,7 +18,7 @@ import { Glossary } from "./glossary";
  */
 export class GlossaryVersion extends VersionEntity {
   static schema = Type.Object({
-    glossaryID: GlossaryIDImpl.schema,
+    glossaryID: toGlossaryID.schema,
     versionNumber: super.versionSchema.versionNumber,
     ownerID: Glossary.schema.properties.ownerID,
     name: Glossary.schema.properties.name,

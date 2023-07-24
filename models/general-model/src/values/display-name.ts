@@ -9,16 +9,14 @@ import { validate } from "../utils/modeling-utils.js";
 
 export type DisplayName = string & { readonly __validated__: unique symbol };
 
-export class DisplayNameImpl {
-  static schema = SingleLineUnicodeString({
-    minLength: 1,
-    maxLength: 100,
-  });
+const schema = SingleLineUnicodeString({
+  minLength: 1,
+  maxLength: 100,
+});
+const validator = new CompilingStandardValidator(schema);
 
-  static castFrom(name: string, safely = true) {
-    validate(this.#validator, name, "Invalid display name", safely);
-    return name as DisplayName;
-  }
-
-  static #validator = new CompilingStandardValidator(this.schema);
+export function toDisplayName(name: string, safely = true) {
+  validate(validator, name, "Invalid display name", safely);
+  return name as DisplayName;
 }
+toDisplayName.schema = schema;
