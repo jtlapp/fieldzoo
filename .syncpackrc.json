@@ -1,3 +1,3 @@
 {
-  "workspace": false
+  "dependencyTypes": ["dev", "peer", "prod"]
 }
