@@ -7,11 +7,15 @@ import { validate } from "@fieldzoo/general-model";
  * User's unique handle
  */
 
+export const MIN_USER_HANDLE_LENGTH = 2;
+export const MAX_USER_HANDLE_LENGTH = 32;
+
 export type UserHandle = string & { readonly __validated__: unique symbol };
 
 const schema = UserHandleString({
-  minLength: 2,
-  maxLength: 32,
+  minLength: MIN_USER_HANDLE_LENGTH,
+  maxLength: MAX_USER_HANDLE_LENGTH,
+  errorMessage: `must be letters and numbers optionally delimited by underscores, ${MIN_USER_HANDLE_LENGTH} to ${MAX_USER_HANDLE_LENGTH} characters long`,
 });
 const validator = new CompilingStandardValidator(schema);
 

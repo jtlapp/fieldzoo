@@ -76,6 +76,10 @@ export class User extends TimestampedEntity {
     if (validate) {
       this.#validator.assert(fields, "Invalid user");
     }
+
+    // TODO: revisit whether to create a new instance, as I could just
+    // return the provided fields appropriately typed. (Excpet in this
+    // case I might have to add an "ID" field.)
     return new User(
       fields.id as UserID,
       fields.email as EmailAddress,

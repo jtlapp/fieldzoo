@@ -9,5 +9,6 @@ export * from "./values/display-name.js";
 export * from "./values/email-address.js";
 export * from "./values/multiline-description.js";
 export * from "./values/normalized-name.js";
+export * from "./values/password.js";
 export * from "./values/password-hash.js";
 export * from "./values/password-salt.js";

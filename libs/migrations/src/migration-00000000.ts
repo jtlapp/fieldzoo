@@ -10,17 +10,44 @@ export async function up(db: Kysely<any>): Promise<void> {
   await TimestampedTable.createFunctions(db);
   await CollaborativeTable.createFunctions(db);
 
+  // install required extensions
+
+  await sql.raw(`create extension if not exists citext`).execute(db);
+
   // users table
 
   await TimestampedTable.create(db, "users", (tb) =>
     tb
       .addColumn("id", "text", (col) => col.primaryKey())
-      .addColumn("email", "text", (col) => col.unique().notNull())
+      .addColumn("email", sql`citext`, (col) => col.unique().notNull())
       .addColumn("name", "text")
-      .addColumn("handle", "text", (col) => col.unique().notNull())
+      .addColumn("handle", sql`citext`, (col) => col.unique().notNull())
       .addColumn("lastLoginAt", "timestamp")
       .addColumn("disabledAt", "timestamp")
   );
+
+  // user keys table (dictated by Lucia)
+
+  await db.schema
+    .createTable("user_keys")
+    .addColumn("id", "text", (col) => col.primaryKey())
+    .addColumn("user_id", "text", (col) =>
+      col.references("users.id").notNull().onDelete("cascade")
+    )
+    .addColumn("hashed_password", "text")
+    .execute();
+
+  // user sessions table (dictated by Lucia)
+
+  await db.schema
+    .createTable("user_sessions")
+    .addColumn("id", "text", (col) => col.primaryKey())
+    .addColumn("user_id", "text", (col) =>
+      col.references("users.id").notNull().onDelete("cascade")
+    )
+    .addColumn("active_expires", "bigint", (col) => col.notNull())
+    .addColumn("idle_expires", "bigint", (col) => col.notNull())
+    .execute();
 
   // glossaries table
 
@@ -107,6 +134,8 @@ export async function down(db: Kysely<any>): Promise<void> {
   await db.schema.dropTable("user_glossary_permissions").execute();
   await db.schema.dropTable("glossary_versions").execute();
   await db.schema.dropTable("glossaries").execute();
+  await db.schema.dropTable("user_sessions").execute();
+  await db.schema.dropTable("user_keys").execute();
   await db.schema.dropTable("users").execute();
 
   await sql

@@ -4,32 +4,37 @@
 
 <script lang="ts">
   let classes = "";
+  let buttonType: "submit" | "button" | "reset" = "button";
   export { classes as class };
+  export { buttonType as type };
   export let variant: ButtonType = "primary";
-  export let action: (node: HTMLElement) => void;
+  export let action = (_node: HTMLElement) => {};
 </script>
 
 {#if variant == "ghost"}
   <button
     class="text-foreground bg-background hover:bg-menu_highlight hover:text-menu_highlight-foreground hover:shadow-md {classes}"
-    type="button"
+    type={buttonType}
     use:action
+    on:click
   >
     <slot />
   </button>
 {:else if variant == "primary"}
   <button
     class="text-primary-foreground bg-primary {classes}"
-    type="button"
+    type={buttonType}
     use:action
+    on:click
   >
     <slot />
   </button>
 {:else}
   <button
     class="text-secondary-foreground bg-secondary shadow-md {classes}"
-    type="button"
+    type={buttonType}
     use:action
+    on:click
   >
     <slot />
   </button>
