@@ -33,15 +33,13 @@ export class Term extends CollaborativeEntity {
   #lookupName?: NormalizedName; // generated on demand
 
   static schema = Type.Object({
+    ...super.collaborativeSchema.properties,
     id: Zeroable(toTermID.schema),
-    versionNumber: Zeroable(super.collaborativeSchema.versionNumber),
+    versionNumber: Zeroable(super.collaborativeSchema.properties.versionNumber),
     lookupName: Type.Optional(toNormalizedName.schema),
     glossaryID: toGlossaryID.schema,
     displayName: toDisplayName.schema,
     description: toMultilineDescription.schema,
-    modifiedBy: super.collaborativeSchema.modifiedBy,
-    createdAt: super.timestampedSchema.createdAt,
-    modifiedAt: super.timestampedSchema.modifiedAt,
   });
   static #validator = new CompilingStandardValidator(this.schema);
 

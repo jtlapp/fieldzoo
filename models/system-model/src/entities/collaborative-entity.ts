@@ -1,3 +1,5 @@
+import { Type } from "@sinclair/typebox";
+
 import { TimestampedEntity } from "@fieldzoo/general-model";
 
 import { VersionNumber, toVersionNumber } from "../values/version-number.js";
@@ -7,10 +9,11 @@ import { UserID, toUserID } from "../values/user-id.js";
  * Class representing a valid collaborative entity
  */
 export class CollaborativeEntity extends TimestampedEntity {
-  static collaborativeSchema = {
+  static collaborativeSchema = Type.Object({
+    ...super.timestampedSchema.properties,
     versionNumber: toVersionNumber.schema,
     modifiedBy: toUserID.schema,
-  };
+  });
 
   /**
    * @param versionNumber The number for this version of the entity.

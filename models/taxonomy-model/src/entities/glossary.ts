@@ -25,14 +25,12 @@ import { GlossaryID, toGlossaryID } from "../values/glossary-id";
  */
 export class Glossary extends CollaborativeEntity {
   static schema = Type.Object({
+    ...super.collaborativeSchema.properties,
     id: EmptyStringable(toGlossaryID.schema),
-    versionNumber: Zeroable(super.collaborativeSchema.versionNumber),
+    versionNumber: Zeroable(super.collaborativeSchema.properties.versionNumber),
     ownerID: toUserID.schema,
     name: toDisplayName.schema,
     description: Nullable(toMultilineDescription.schema),
-    modifiedBy: toUserID.schema,
-    createdAt: super.timestampedSchema.createdAt,
-    modifiedAt: super.timestampedSchema.modifiedAt,
   });
   static #validator = new CompilingStandardValidator(this.schema);
 

@@ -20,13 +20,12 @@ import { EmptyStringable, Nullable } from "@fieldzoo/typebox-types";
  */
 export class User extends TimestampedEntity {
   static schema = Type.Object({
+    ...super.timestampedSchema.properties,
     id: EmptyStringable(toUserID.schema),
     email: toEmailAddress.schema,
     name: toUserName.schema,
     handle: toUserHandle.schema,
     lastLoginAt: Nullable(Type.Date()),
-    createdAt: super.timestampedSchema.createdAt,
-    modifiedAt: super.timestampedSchema.modifiedAt,
     disabledAt: Nullable(Type.Date()),
   });
   static #validator = new CompilingStandardValidator(this.schema);

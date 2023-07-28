@@ -9,10 +9,10 @@ export class TimestampedEntity {
   #createdAt?: Date;
   #modifiedAt?: Date;
 
-  static timestampedSchema = {
+  static timestampedSchema = Type.Object({
     createdAt: Type.Optional(Type.Date()),
     modifiedAt: Type.Optional(Type.Date()),
-  };
+  });
 
   /**
    * @param createdAt Date/time at which the entity was created.
