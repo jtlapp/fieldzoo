@@ -4,25 +4,29 @@ import {
   testValues,
 } from "@fieldzoo/testing-utils";
 
-import { toUserName } from "./user-name.js";
+import { toUserDisplayName } from "./user-display-name.js";
 
-const VALID = ["Joey", "Mark Heüße", "a".repeat(toUserName.schema.maxLength!)];
+const VALID = [
+  "Joey",
+  "Mark Heüße",
+  "a".repeat(toUserDisplayName.schema.maxLength!),
+];
 const INVALID = [
   "",
   ...NON_STRINGS,
   ...UNTRIMMED_STRINGS,
   "a", // too short
-  "a".repeat(toUserName.schema.maxLength! + 1),
+  "a".repeat(toUserDisplayName.schema.maxLength! + 1),
   "a\nb",
   "a\tb",
   "a/b",
 ];
 
 it("accepts only valid user names", () => {
-  testUserName("Invalid user name", (value) => toUserName(value));
+  testUserDisplayName("Invalid user name", (value) => toUserDisplayName(value));
 });
 
-export function testUserName(
+export function testUserDisplayName(
   errorSubstring: string,
   test: (value: any) => void,
   exclude = (_skip: any) => false

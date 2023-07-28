@@ -6,7 +6,7 @@ import {
   MULTI_LINE_UNICODE_REGEX,
   SINGLE_LINE_UNICODE_REGEX,
   USER_HANDLE_REGEX,
-  USER_NAME_UNICODE_REGEX,
+  USER_DISPLAY_NAME_UNICODE_REGEX,
 } from "./regexes.js";
 
 describe("CODE_WORD_REGEX", () => {
@@ -179,8 +179,8 @@ describe("USER_HANDLE_REGEX", () => {
   });
 });
 
-describe("USER_NAME_UNICODE_REGEX", () => {
-  const regex = USER_NAME_UNICODE_REGEX;
+describe("USER_DISPLAY_NAME_UNICODE_REGEX", () => {
+  const regex = USER_DISPLAY_NAME_UNICODE_REGEX;
 
   it("accepts valid user names", () => {
     expect(matches("M", regex)).toBe(true);

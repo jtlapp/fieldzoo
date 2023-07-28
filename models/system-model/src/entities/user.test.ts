@@ -4,7 +4,7 @@ import { EmailAddress } from "@fieldzoo/general-model";
 import { User } from "./user.js";
 import { testUserID } from "../values/user-id.test";
 import { UserID } from "../values/user-id.js";
-import { UserName } from "../values/user-name.js";
+import { UserDisplayName } from "../values/user-display-name.js";
 import { UserHandle } from "../values/user-handle.js";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
 
@@ -36,7 +36,7 @@ function createUser(specifiedFields: Partial<UnvalidatedFields<User>>): User {
   return User.castFrom({
     id: SAMPLE_USER_ID as UserID,
     email: "x@yz.com" as EmailAddress,
-    displayName: "Jane Doe" as UserName,
+    displayName: "Jane Doe" as UserDisplayName,
     userHandle: "jdoe" as UserHandle,
     lastLoginAt: timestamp,
     createdAt: timestamp,

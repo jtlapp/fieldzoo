@@ -7,7 +7,7 @@ import {
 } from "@fieldzoo/testing-utils";
 
 import { User } from "../entities/user";
-import { toUserName } from "../values/user-name.js";
+import { toUserDisplayName } from "../values/user-display-name.js";
 import { UserRepo } from "./user-repo";
 import { toUserHandle } from "../values/user-handle.js";
 
@@ -64,7 +64,7 @@ it.only("inserts, updates, and deletes users", async () => {
   // test updating a user
   const originallyModifiedAt = selection1!.modifiedAt;
   await sleep(20);
-  selection1!.displayName = toUserName("Jon Doe");
+  selection1!.displayName = toUserDisplayName("Jon Doe");
   selection1!.userHandle = toUserHandle("jd");
 
   const updateReturn2 = await userRepo.update(selection1!);

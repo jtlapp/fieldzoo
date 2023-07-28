@@ -11,7 +11,7 @@ import {
   SingleLineUnicodeString,
   UrlString,
   UserHandleString,
-  UserNameUnicodeString,
+  UserDisplayNameUnicodeString,
   UuidString,
 } from "./regex-types.js";
 
@@ -121,16 +121,16 @@ describe("regex type schemas", () => {
     expect(check(UserHandleString(), "a.b")).toBe(false);
   });
 
-  it("UserNameUnicodeString", () => {
-    expect(check(UserNameUnicodeString(), "abc")).toBe(true);
-    expect(check(UserNameUnicodeString(), "a-b-c")).toBe(true);
-    expect(check(UserNameUnicodeString(), "a b c")).toBe(true);
+  it("UserDisplayNameUnicodeString", () => {
+    expect(check(UserDisplayNameUnicodeString(), "abc")).toBe(true);
+    expect(check(UserDisplayNameUnicodeString(), "a-b-c")).toBe(true);
+    expect(check(UserDisplayNameUnicodeString(), "a b c")).toBe(true);
 
-    expect(check(UserNameUnicodeString(), null)).toBe(false);
-    expect(check(UserNameUnicodeString(), undefined)).toBe(false);
-    expect(check(UserNameUnicodeString(), "")).toBe(false);
-    expect(check(UserNameUnicodeString(), " ")).toBe(false);
-    expect(check(UserNameUnicodeString(), " ab ")).toBe(false);
+    expect(check(UserDisplayNameUnicodeString(), null)).toBe(false);
+    expect(check(UserDisplayNameUnicodeString(), undefined)).toBe(false);
+    expect(check(UserDisplayNameUnicodeString(), "")).toBe(false);
+    expect(check(UserDisplayNameUnicodeString(), " ")).toBe(false);
+    expect(check(UserDisplayNameUnicodeString(), " ab ")).toBe(false);
   });
 
   it("UuidString", () => {

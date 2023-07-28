@@ -5,8 +5,8 @@ import type { UnvalidatedFields } from "@fieldzoo/generic-types";
 import {
   type UserHandle,
   toUserHandle,
-  type UserName,
-  toUserName,
+  type UserDisplayName,
+  toUserDisplayName,
 } from "@fieldzoo/system-model";
 import { type Password, toPassword } from "@fieldzoo/general-model";
 
@@ -14,13 +14,13 @@ import { type Password, toPassword } from "@fieldzoo/general-model";
  * Data transfer object for sign up.
  */
 export interface SignUpInfo {
-  readonly displayName: UserName;
+  readonly displayName: UserDisplayName;
   readonly userHandle: UserHandle;
   readonly password: Password;
 }
 
 const schema = Type.Object({
-  displayName: toUserName.schema,
+  displayName: toUserDisplayName.schema,
   userHandle: toUserHandle.schema,
   password: toPassword.schema,
 });

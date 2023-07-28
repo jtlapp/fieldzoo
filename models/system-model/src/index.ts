@@ -10,6 +10,6 @@ export * from "./tables/versions-table.js";
 
 export * from "./values/user-handle.js";
 export * from "./values/user-id.js";
-export * from "./values/user-name.js";
+export * from "./values/user-display-name.js";
 export * from "./values/version-number.js";
 export * from "./values/what-changed-line.js";

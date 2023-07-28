@@ -11,7 +11,10 @@ import {
 } from "@fieldzoo/general-model";
 
 import { UserID, toUserID } from "../values/user-id.js";
-import { UserName, toUserName } from "../values/user-name.js";
+import {
+  UserDisplayName,
+  toUserDisplayName,
+} from "../values/user-display-name.js";
 import { UserHandle, toUserHandle } from "../values/user-handle.js";
 import { EmptyStringable, Nullable } from "@fieldzoo/typebox-types";
 
@@ -23,7 +26,7 @@ export class User extends TimestampedEntity {
     ...super.timestampedSchema.properties,
     id: EmptyStringable(toUserID.schema),
     email: toEmailAddress.schema,
-    displayName: toUserName.schema,
+    displayName: toUserDisplayName.schema,
     userHandle: toUserHandle.schema,
     lastLoginAt: Nullable(Type.Date()),
     disabledAt: Nullable(Type.Date()),
@@ -45,7 +48,7 @@ export class User extends TimestampedEntity {
   constructor(
     readonly id: UserID,
     public email: EmailAddress,
-    public displayName: UserName | null,
+    public displayName: UserDisplayName | null,
     public userHandle: UserHandle | null,
     public lastLoginAt: Date | null,
     createdAt: Date,
@@ -82,7 +85,7 @@ export class User extends TimestampedEntity {
     return new User(
       fields.id as UserID,
       fields.email as EmailAddress,
-      fields.displayName as UserName | null,
+      fields.displayName as UserDisplayName | null,
       fields.userHandle as UserHandle | null,
       fields.lastLoginAt as Date,
       fields.createdAt as Date,

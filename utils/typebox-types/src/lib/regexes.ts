@@ -49,7 +49,7 @@ export const SINGLE_LINE_UNICODE_REGEX =
 export const USER_HANDLE_REGEX = /^[A-Za-z][A-Za-z0-9]*(_[A-Za-z0-9]+)*$/;
 
 /**
- * Regex matching strings suitable for non-handle user names.
+ * Regex matching strings suitable for (non-handle) user display names.
  */
-export const USER_NAME_UNICODE_REGEX =
+export const USER_DISPLAY_NAME_UNICODE_REGEX =
   /^(?:\p{L}\p{M}*)+(?:(\. |[-.' ])(?:\p{L}\p{M}*)+\.?)*$/u;

@@ -22,7 +22,7 @@ import {
   MULTI_LINE_UNICODE_REGEX,
   SINGLE_LINE_UNICODE_REGEX,
   USER_HANDLE_REGEX,
-  USER_NAME_UNICODE_REGEX,
+  USER_DISPLAY_NAME_UNICODE_REGEX,
 } from "./regexes.js";
 
 export function CodeWordString(options?: StringOptions) {
@@ -69,10 +69,12 @@ export function UserHandleString(options?: StringOptions) {
 }
 FormatRegistry.Set("USER_HANDLE", (v) => USER_HANDLE_REGEX.test(v));
 
-export function UserNameUnicodeString(options?: StringOptions) {
-  return Type.String({ ...options, format: "USER_NAME_UNICODE" });
+export function UserDisplayNameUnicodeString(options?: StringOptions) {
+  return Type.String({ ...options, format: "USER_DISPLAY_NAME_UNICODE" });
 }
-FormatRegistry.Set("USER_NAME_UNICODE", (v) => USER_NAME_UNICODE_REGEX.test(v));
+FormatRegistry.Set("USER_DISPLAY_NAME_UNICODE", (v) =>
+  USER_DISPLAY_NAME_UNICODE_REGEX.test(v)
+);
 
 export function UuidString(options?: StringOptions) {
   // Include maxLength to test length before testing regex.
