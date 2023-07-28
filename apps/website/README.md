@@ -2,8 +2,6 @@
 
 Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
 
-(Note: GitHub is incorrect. This project uses [kysely-mapper](https://github.com/jtlapp/kysely-mapper), not **kysely-orm**.)
-
 ## Creating a project
 
 If you're seeing this, you've probably already done this step. Congrats!
