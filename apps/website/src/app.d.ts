@@ -20,7 +20,7 @@ declare global {
     type Auth = import("$lib/server/lucia").Auth;
     type DatabaseUserAttributes = {
       email: EmailAddress;
-      name: UserName;
+      displayName: UserName;
       userHandle: UserHandle;
       lastLoginAt: Date | null;
       disabledAt: Date | null;

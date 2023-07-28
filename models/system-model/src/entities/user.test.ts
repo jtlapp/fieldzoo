@@ -36,7 +36,7 @@ function createUser(specifiedFields: Partial<UnvalidatedFields<User>>): User {
   return User.castFrom({
     id: SAMPLE_USER_ID as UserID,
     email: "x@yz.com" as EmailAddress,
-    name: "Jane Doe" as UserName,
+    displayName: "Jane Doe" as UserName,
     userHandle: "jdoe" as UserHandle,
     lastLoginAt: timestamp,
     createdAt: timestamp,

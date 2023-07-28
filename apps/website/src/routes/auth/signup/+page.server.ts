@@ -22,7 +22,7 @@ export const actions: Actions = {
 
     try {
       signUpInfo = toSignUpInfo({
-        name: formData.get("name") as string,
+        displayName: formData.get("displayName") as string,
         userHandle: formData.get("userHandle") as string,
         password: formData.get("password") as string,
       });
@@ -41,7 +41,7 @@ export const actions: Actions = {
         },
         attributes: {
           email: "temp@xyz.com",
-          name: signUpInfo.name,
+          displayName: signUpInfo.displayName,
           userHandle: signUpInfo.userHandle,
           lastLoginAt: null,
           disabledAt: null,

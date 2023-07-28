@@ -20,7 +20,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     tb
       .addColumn("id", "text", (col) => col.primaryKey())
       .addColumn("email", sql`citext`, (col) => col.unique().notNull())
-      .addColumn("name", "text")
+      .addColumn("displayName", "text")
       .addColumn("userHandle", sql`citext`, (col) => col.unique())
       .addColumn("lastLoginAt", "timestamp")
       .addColumn("disabledAt", "timestamp")

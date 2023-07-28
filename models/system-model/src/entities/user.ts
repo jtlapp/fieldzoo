@@ -23,7 +23,7 @@ export class User extends TimestampedEntity {
     ...super.timestampedSchema.properties,
     id: EmptyStringable(toUserID.schema),
     email: toEmailAddress.schema,
-    name: toUserName.schema,
+    displayName: toUserName.schema,
     userHandle: toUserHandle.schema,
     lastLoginAt: Nullable(Type.Date()),
     disabledAt: Nullable(Type.Date()),
@@ -33,9 +33,9 @@ export class User extends TimestampedEntity {
   /**
    * @param id User ID, a base-64 encoded UUID.
    * @param email User's email address
-   * @param name User's name. May be null because the initial name is
-   *  acquired from the login account provider, but there is no standard
-   *  for communicating this name.
+   * @param displayName User's display name. May be null because the initial
+   *  name is acquired from the login account provider, but there is no
+   *  standard for communicating this name.
    * @param userHandle User's unique handle. Initially null.
    * @param lastLoginAt The date/time at which the user last logged in.
    * @param createdAt The date/time at which the user was created.
@@ -45,7 +45,7 @@ export class User extends TimestampedEntity {
   constructor(
     readonly id: UserID,
     public email: EmailAddress,
-    public name: UserName | null,
+    public displayName: UserName | null,
     public userHandle: UserHandle | null,
     public lastLoginAt: Date | null,
     createdAt: Date,
@@ -82,7 +82,7 @@ export class User extends TimestampedEntity {
     return new User(
       fields.id as UserID,
       fields.email as EmailAddress,
-      fields.name as UserName | null,
+      fields.displayName as UserName | null,
       fields.userHandle as UserHandle | null,
       fields.lastLoginAt as Date,
       fields.createdAt as Date,

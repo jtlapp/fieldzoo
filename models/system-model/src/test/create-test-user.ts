@@ -9,12 +9,12 @@ import { Database } from "../tables/table-interfaces";
 
 export function createTestUser(
   db: Kysely<Database>,
-  name: string,
+  displayName: string,
   email: string
 ): Promise<User> {
   const user = User.castFrom({
     id: "",
-    name,
+    displayName,
     email,
     userHandle: email.split("@")[0],
     lastLoginAt: null,

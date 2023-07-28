@@ -19,7 +19,7 @@ it.only("inserts, updates, and deletes users", async () => {
   await resetTestDB();
   const userRepo = new UserRepo(db);
   const user1 = User.castFrom({
-    name: "John Doe",
+    displayName: "John Doe",
     email: "jdoe1@xyz.pdq",
     userHandle: "jdoe",
     lastLoginAt: new Date(),
@@ -28,7 +28,7 @@ it.only("inserts, updates, and deletes users", async () => {
     disabledAt: null,
   });
   const user2 = User.castFrom({
-    name: "Jimmy Joe",
+    displayName: "Jimmy Joe",
     email: "jjoe@xyz.pdq",
     userHandle: "jj",
     lastLoginAt: new Date(),
@@ -53,7 +53,7 @@ it.only("inserts, updates, and deletes users", async () => {
   const selection1 = await userRepo.getByID(insertReturn1.id);
   expect(selection1).not.toBeNull();
   expect(selection1!.id).toEqual(insertReturn1.id);
-  expect(selection1!.name).toEqual(user1.name);
+  expect(selection1!.displayName).toEqual(user1.displayName);
   expect(selection1!.email).toEqual(user1.email);
   expect(selection1!.userHandle).toEqual(user1.userHandle);
   expect(selection1!.lastLoginAt).toBeInstanceOf(Date);
@@ -64,7 +64,7 @@ it.only("inserts, updates, and deletes users", async () => {
   // test updating a user
   const originallyModifiedAt = selection1!.modifiedAt;
   await sleep(20);
-  selection1!.name = toUserName("Jon Doe");
+  selection1!.displayName = toUserName("Jon Doe");
   selection1!.userHandle = toUserHandle("jd");
 
   const updateReturn2 = await userRepo.update(selection1!);
@@ -87,7 +87,7 @@ it.only("inserts, updates, and deletes users", async () => {
 
   const badUser1A = User.castFrom({
     ...user1,
-    name: "Jimmy Joe",
+    displayName: "Jimmy Joe",
     email: "jjoe@xyz.pdq",
     userHandle: selection1!.userHandle,
   });
@@ -99,7 +99,7 @@ it.only("inserts, updates, and deletes users", async () => {
 
   const badUser1B = User.castFrom({
     ...user1,
-    name: "Jimmy Joe",
+    displayName: "Jimmy Joe",
     email: user1.email,
     userHandle: "jj",
   });

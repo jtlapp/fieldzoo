@@ -16,15 +16,15 @@ export async function initIntKeyDB(
     .insertInto("test_users")
     .values([
       // user1 has no access to any posts
-      { userHandle: "user1", name: "User 1" },
+      { userHandle: "user1", displayName: "User 1" },
       // user2 owns post 1, but no assigned permissionss
-      { userHandle: "user2", name: "User 2" },
+      { userHandle: "user2", displayName: "User 2" },
       // user3 owns post 2 and post 3, but no assigned permissionss
-      { userHandle: "user3", name: "User 3" },
+      { userHandle: "user3", displayName: "User 3" },
       // user4 owns post 4 and has read access to post 1
-      { userHandle: "user4", name: "User 4" },
+      { userHandle: "user4", displayName: "User 4" },
       // user5 owns no posts, has read access to post 2, write access to post 3
-      { userHandle: "user5", name: "User 5" },
+      { userHandle: "user5", displayName: "User 5" },
     ])
     .execute();
 
@@ -111,7 +111,7 @@ export function getIntKeyPermissionsTable() {
 interface Users {
   id: Generated<number>;
   userHandle: string;
-  name: string;
+  displayName: string;
 }
 
 interface Posts {

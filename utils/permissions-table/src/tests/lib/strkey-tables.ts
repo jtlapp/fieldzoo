@@ -16,8 +16,8 @@ export async function initStrKeyDB(
   await strKeyDB
     .insertInto("test_users")
     .values([
-      { id: "u1", userHandle: "user1", name: "User 1" },
-      { id: "u2", userHandle: "user2", name: "User 2" },
+      { id: "u1", userHandle: "user1", displayName: "User 1" },
+      { id: "u2", userHandle: "user2", displayName: "User 2" },
     ])
     .execute();
   await strKeyDB
@@ -64,7 +64,7 @@ export function getStrKeyPermissionsTable() {
 interface Users {
   id: string;
   userHandle: string;
-  name: string;
+  displayName: string;
 }
 
 interface Posts {

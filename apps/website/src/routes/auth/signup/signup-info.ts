@@ -14,13 +14,13 @@ import { type Password, toPassword } from "@fieldzoo/general-model";
  * Data transfer object for sign up.
  */
 export interface SignUpInfo {
-  readonly name: UserName;
+  readonly displayName: UserName;
   readonly userHandle: UserHandle;
   readonly password: Password;
 }
 
 const schema = Type.Object({
-  name: toUserName.schema,
+  displayName: toUserName.schema,
   userHandle: toUserHandle.schema,
   password: toPassword.schema,
 });

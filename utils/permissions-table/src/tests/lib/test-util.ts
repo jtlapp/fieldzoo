@@ -40,7 +40,7 @@ export async function createTables(db: Kysely<any>, keyDataType: string) {
     .createTable("test_users")
     .addColumn("id", sql.raw(keyDataType), (col) => col.primaryKey())
     .addColumn("userHandle", "text", (col) => col.notNull())
-    .addColumn("name", "text", (col) => col.notNull())
+    .addColumn("displayName", "text", (col) => col.notNull())
     .execute();
 
   await db.schema
