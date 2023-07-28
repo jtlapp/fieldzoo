@@ -4,7 +4,7 @@ An open source platform for collaboratively developing online field guides and m
 
 _UNDER DEVELOPMENT_
 
-(Note: GitHub is incorrect. This project uses [kysely-mapper](https://github.com/jtlapp/kysely-mapper), not **kysely-orm**.)
+(Note: GitHub is incorrect. This project uses **[kysely-mapper](https://github.com/jtlapp/kysely-mapper)**, not **kysely-orm**.)
 
 ## Overview
 
