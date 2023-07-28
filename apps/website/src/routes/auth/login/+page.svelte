@@ -1,8 +1,9 @@
 <script lang="ts">
   import { Button } from "ui-components";
 
+  // TODO: maybe used shared Credentials
   const data = {
-    handle: "",
+    email: "",
     password: "",
   };
 
@@ -26,8 +27,8 @@
 <h1>Login</h1>
 
 <fieldset class="h-field">
-  <label class="w-[90px]" for="username">Username</label>
-  <input id="username" bind:value={data.handle} />
+  <label class="w-[90px]" for="email">Email Address</label>
+  <input id="email" bind:value={data.email} />
 </fieldset>
 <fieldset class="h-field">
   <label class="w-[90px]" for="password">Password</label>

@@ -28,6 +28,7 @@ export const auth = lucia({
 
   getUserAttributes: (row) => {
     return {
+      email: row.email,
       displayName: row.displayName,
       userHandle: row.userHandle,
       isDisabled: row.disabledAt !== null,

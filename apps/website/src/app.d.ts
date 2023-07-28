@@ -1,6 +1,10 @@
 /// <reference types="lucia" />
 
-import { EmailAddress, UserName, UserHandle } from "@fieldzoo/system-model";
+import {
+  EmailAddress,
+  UserDisplayName,
+  UserHandle,
+} from "@fieldzoo/system-model";
 
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
@@ -20,8 +24,8 @@ declare global {
     type Auth = import("$lib/server/lucia").Auth;
     type DatabaseUserAttributes = {
       email: EmailAddress;
-      displayName: UserName;
-      userHandle: UserHandle;
+      displayName: UserDisplayName | null;
+      userHandle: UserHandle | null;
       lastLoginAt: Date | null;
       disabledAt: Date | null;
     };

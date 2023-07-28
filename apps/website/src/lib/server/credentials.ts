@@ -2,25 +2,27 @@ import { Type } from "@sinclair/typebox";
 import { CompilingStandardValidator } from "typebox-validators/standard";
 
 import type { UnvalidatedFields } from "@fieldzoo/generic-types";
-import { type UserHandle, toUserHandle } from "@fieldzoo/system-model";
+import { type EmailAddress, toEmailAddress } from "@fieldzoo/general-model";
 import { type Password, toPassword } from "@fieldzoo/general-model";
 
 /**
- * Data transfer object for login.
+ * Credentials for sign up or login.
  */
-export interface LoginInfo {
-  readonly userHandle: UserHandle;
+export interface Credentials {
+  readonly email: EmailAddress;
   readonly password: Password;
 }
 
 const schema = Type.Object({
-  userHandle: toUserHandle.schema,
+  email: toEmailAddress.schema,
   password: toPassword.schema,
 });
 const validator = new CompilingStandardValidator(schema);
 
-export function toLoginInfo(fields: Readonly<UnvalidatedFields<LoginInfo>>) {
-  validator.assert(fields, "Invalid login fields");
-  return fields as LoginInfo;
+export function toCredentials(
+  fields: Readonly<UnvalidatedFields<Credentials>>
+) {
+  validator.assert(fields, "Invalid credentials");
+  return fields as Credentials;
 }
-toLoginInfo.schema = schema;
+toCredentials.schema = schema;

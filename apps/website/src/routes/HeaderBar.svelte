@@ -25,7 +25,7 @@
   </a>
   <div class="flex flex-nowrap items-center">
     {#if session}
-      <LoggedInMenu />
+      <LoggedInMenu {session} />
     {:else}
       <Button variant="ghost" class="mr-3" on:click={signUp}>Sign up</Button>
       <Button variant="primary" class="mr-3" on:click={login}>Login</Button>

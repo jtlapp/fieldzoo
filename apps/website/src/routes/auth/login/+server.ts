@@ -5,18 +5,18 @@ import { ValidationException } from "typebox-validators";
 import { StatusCodes } from "http-status-codes";
 
 import type { RequestHandler } from "./$types";
-import { type LoginInfo, toLoginInfo } from "./login-info.js";
+import { type Credentials, toCredentials } from "$lib/server/credentials";
 
 export const POST = (async ({ request, locals }) => {
   const data = await request.json();
-  let loginInfo: LoginInfo;
+  let credentials: Credentials;
 
   try {
-    loginInfo = toLoginInfo({
-      userHandle: data.userHandle as string,
+    credentials = toCredentials({
+      email: data.email as string,
       password: data.password as string,
     });
-    console.log("**** loginInfo", loginInfo);
+    console.log("**** credentials", credentials);
   } catch (e: unknown) {
     if (!(e instanceof ValidationException)) throw e;
     throw error(StatusCodes.BAD_REQUEST, { message: e.message });
@@ -25,9 +25,9 @@ export const POST = (async ({ request, locals }) => {
   try {
     // find user by key and validate password
     const user = await auth.useKey(
-      "userHandle",
-      loginInfo.userHandle,
-      loginInfo.password
+      "email",
+      credentials.email,
+      credentials.password
     );
     console.log("**** user", user);
     const session = await auth.createSession({
@@ -42,9 +42,8 @@ export const POST = (async ({ request, locals }) => {
       (e.message === "AUTH_INVALID_KEY_ID" ||
         e.message === "AUTH_INVALID_PASSWORD")
     ) {
-      // user does not exist or invalid password
       throw error(StatusCodes.BAD_REQUEST, {
-        message: "Incorrect user handle or password " + e.message,
+        message: "Incorrect email address or password",
       });
     }
     throw error(StatusCodes.INTERNAL_SERVER_ERROR, {

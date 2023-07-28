@@ -6,7 +6,7 @@ import { DatabaseError, PG_UNIQUE_VIOLATION } from "@fieldzoo/postgres-utils";
 
 import { auth } from "$lib/server/lucia";
 import type { Actions, PageServerLoad } from "./$types";
-import { type SignUpInfo, toSignUpInfo } from "./signup-info.js";
+import { type Credentials, toCredentials } from "$lib/server/credentials";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();
@@ -18,15 +18,14 @@ export const actions: Actions = {
   default: async ({ request, locals }) => {
     console.log("**** auth/signup");
     const formData = await request.formData();
-    let signUpInfo: SignUpInfo;
+    let credentials: Credentials;
 
     try {
-      signUpInfo = toSignUpInfo({
-        displayName: formData.get("displayName") as string,
-        userHandle: formData.get("userHandle") as string,
+      credentials = toCredentials({
+        email: formData.get("email") as string,
         password: formData.get("password") as string,
       });
-      console.log("**** signUpInfo", signUpInfo);
+      console.log("**** credentials", credentials);
     } catch (e: unknown) {
       if (!(e instanceof ValidationException)) throw e;
       return fail(StatusCodes.BAD_REQUEST, { message: e.message });
@@ -35,14 +34,14 @@ export const actions: Actions = {
     try {
       const user = await auth.createUser({
         key: {
-          providerId: "userHandle", // auth method
-          providerUserId: signUpInfo.userHandle, // unique id
-          password: signUpInfo.password, // hashed by Lucia
+          providerId: "email", // identifying field
+          providerUserId: credentials.email, // unique id
+          password: credentials.password, // hashed by Lucia
         },
         attributes: {
-          email: "temp@xyz.com",
-          displayName: signUpInfo.displayName,
-          userHandle: signUpInfo.userHandle,
+          email: credentials.email,
+          displayName: null,
+          userHandle: null,
           lastLoginAt: null,
           disabledAt: null,
         },
@@ -55,7 +54,7 @@ export const actions: Actions = {
     } catch (e) {
       if (e instanceof DatabaseError && e.code === PG_UNIQUE_VIOLATION) {
         return fail(StatusCodes.BAD_REQUEST, {
-          message: "Email or user handle already taken",
+          message: "Email address already is use",
         });
       }
       console.log("**** e", e);

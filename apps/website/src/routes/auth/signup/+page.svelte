@@ -7,12 +7,8 @@
 
 <form method="post" use:enhance>
   <fieldset class="h-field">
-    <label class="w-[90px]" for="name">Name</label>
-    <input name="name" id="name" />
-  </fieldset>
-  <fieldset class="h-field">
-    <label class="w-[90px]" for="handle">User Handle</label>
-    <input name="handle" id="handle" />
+    <label class="w-[90px]" for="email">Email Address</label>
+    <input name="email" id="email" />
   </fieldset>
   <fieldset class="h-field">
     <label class="w-[90px]" for="password">Password</label>
