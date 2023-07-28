@@ -15,13 +15,13 @@ import { type Password, toPassword } from "@fieldzoo/general-model";
  */
 export interface SignUpInfo {
   readonly name: UserName;
-  readonly handle: UserHandle;
+  readonly userHandle: UserHandle;
   readonly password: Password;
 }
 
 const schema = Type.Object({
   name: toUserName.schema,
-  handle: toUserHandle.schema,
+  userHandle: toUserHandle.schema,
   password: toPassword.schema,
 });
 const validator = new CompilingStandardValidator(schema);

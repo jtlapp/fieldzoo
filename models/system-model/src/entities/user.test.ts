@@ -37,7 +37,7 @@ function createUser(specifiedFields: Partial<UnvalidatedFields<User>>): User {
     id: SAMPLE_USER_ID as UserID,
     email: "x@yz.com" as EmailAddress,
     name: "Jane Doe" as UserName,
-    handle: "jdoe" as UserHandle,
+    userHandle: "jdoe" as UserHandle,
     lastLoginAt: timestamp,
     createdAt: timestamp,
     modifiedAt: timestamp,

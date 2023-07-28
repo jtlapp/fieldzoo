@@ -23,7 +23,7 @@ export const actions: Actions = {
     try {
       signUpInfo = toSignUpInfo({
         name: formData.get("name") as string,
-        handle: formData.get("handle") as string,
+        userHandle: formData.get("userHandle") as string,
         password: formData.get("password") as string,
       });
       console.log("**** signUpInfo", signUpInfo);
@@ -35,14 +35,14 @@ export const actions: Actions = {
     try {
       const user = await auth.createUser({
         key: {
-          providerId: "handle", // auth method
-          providerUserId: signUpInfo.handle, // unique id
+          providerId: "userHandle", // auth method
+          providerUserId: signUpInfo.userHandle, // unique id
           password: signUpInfo.password, // hashed by Lucia
         },
         attributes: {
           email: "temp@xyz.com",
           name: signUpInfo.name,
-          handle: signUpInfo.handle,
+          userHandle: signUpInfo.userHandle,
           lastLoginAt: null,
           disabledAt: null,
         },
@@ -55,7 +55,7 @@ export const actions: Actions = {
     } catch (e) {
       if (e instanceof DatabaseError && e.code === PG_UNIQUE_VIOLATION) {
         return fail(StatusCodes.BAD_REQUEST, {
-          message: "Email or handle already taken",
+          message: "Email or user handle already taken",
         });
       }
       console.log("**** e", e);

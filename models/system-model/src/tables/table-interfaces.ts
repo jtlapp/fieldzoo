@@ -15,7 +15,7 @@ export interface UserProfiles {
   id: string;
   email: string;
   name: string | null;
-  handle: string | null;
+  userHandle: string | null;
   lastLoginAt: Date | null;
   createdAt: Date;
   modifiedAt: Date;

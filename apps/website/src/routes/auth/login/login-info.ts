@@ -9,12 +9,12 @@ import { type Password, toPassword } from "@fieldzoo/general-model";
  * Data transfer object for login.
  */
 export interface LoginInfo {
-  readonly handle: UserHandle;
+  readonly userHandle: UserHandle;
   readonly password: Password;
 }
 
 const schema = Type.Object({
-  handle: toUserHandle.schema,
+  userHandle: toUserHandle.schema,
   password: toPassword.schema,
 });
 const validator = new CompilingStandardValidator(schema);

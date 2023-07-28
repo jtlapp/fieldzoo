@@ -51,15 +51,15 @@ export class UserRepo {
 
   /**
    * Indicates whether the provided user handle is valid and unique.
-   * @param handle User handle to check.
-   * @returns true if the handle is valid and unique, false otherwise.
+   * @param userHandle User handle to check.
+   * @returns true if the user handle is valid and unique, false otherwise.
    */
-  async isHandleAvailable(handle: string): Promise<boolean> {
+  async isHandleAvailable(userHandle: string): Promise<boolean> {
     try {
       return (
         (await this.db
           .selectFrom("users")
-          .where("handle", "=", toUserHandle(handle, true))
+          .where("userHandle", "=", toUserHandle(userHandle, true))
           .executeTakeFirst()) === undefined
       );
     } catch (e: any) {

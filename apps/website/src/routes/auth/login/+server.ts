@@ -13,7 +13,7 @@ export const POST = (async ({ request, locals }) => {
 
   try {
     loginInfo = toLoginInfo({
-      handle: data.handle as string,
+      userHandle: data.userHandle as string,
       password: data.password as string,
     });
     console.log("**** loginInfo", loginInfo);
@@ -25,8 +25,8 @@ export const POST = (async ({ request, locals }) => {
   try {
     // find user by key and validate password
     const user = await auth.useKey(
-      "handle",
-      loginInfo.handle,
+      "userHandle",
+      loginInfo.userHandle,
       loginInfo.password
     );
     console.log("**** user", user);
@@ -44,7 +44,7 @@ export const POST = (async ({ request, locals }) => {
     ) {
       // user does not exist or invalid password
       throw error(StatusCodes.BAD_REQUEST, {
-        message: "Incorrect handle or password " + e.message,
+        message: "Incorrect user handle or password " + e.message,
       });
     }
     throw error(StatusCodes.INTERNAL_SERVER_ERROR, {

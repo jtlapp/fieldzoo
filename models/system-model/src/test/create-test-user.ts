@@ -16,7 +16,7 @@ export function createTestUser(
     id: "",
     name,
     email,
-    handle: email.split("@")[0],
+    userHandle: email.split("@")[0],
     lastLoginAt: null,
     createdAt: new Date(),
     modifiedAt: new Date(),

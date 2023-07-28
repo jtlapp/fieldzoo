@@ -19,8 +19,8 @@ const schema = UserHandleString({
 });
 const validator = new CompilingStandardValidator(schema);
 
-export function toUserHandle(handle: string, safely = true) {
-  validate(validator, handle, "Invalid user handle", safely);
-  return handle as UserHandle;
+export function toUserHandle(userHandle: string, safely = true) {
+  validate(validator, userHandle, "Invalid user handle", safely);
+  return userHandle as UserHandle;
 }
 toUserHandle.schema = schema;

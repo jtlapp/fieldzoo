@@ -21,7 +21,7 @@ it.only("inserts, updates, and deletes users", async () => {
   const user1 = User.castFrom({
     name: "John Doe",
     email: "jdoe1@xyz.pdq",
-    handle: "jdoe",
+    userHandle: "jdoe",
     lastLoginAt: new Date(),
     createdAt: new Date(),
     modifiedAt: new Date(),
@@ -30,7 +30,7 @@ it.only("inserts, updates, and deletes users", async () => {
   const user2 = User.castFrom({
     name: "Jimmy Joe",
     email: "jjoe@xyz.pdq",
-    handle: "jj",
+    userHandle: "jj",
     lastLoginAt: new Date(),
     createdAt: new Date(),
     modifiedAt: new Date(),
@@ -55,7 +55,7 @@ it.only("inserts, updates, and deletes users", async () => {
   expect(selection1!.id).toEqual(insertReturn1.id);
   expect(selection1!.name).toEqual(user1.name);
   expect(selection1!.email).toEqual(user1.email);
-  expect(selection1!.handle).toEqual(user1.handle);
+  expect(selection1!.userHandle).toEqual(user1.userHandle);
   expect(selection1!.lastLoginAt).toBeInstanceOf(Date);
   expect(selection1!.createdAt).toBeInstanceOf(Date);
   expect(selection1!.modifiedAt).toEqual(selection1!.createdAt);
@@ -65,7 +65,7 @@ it.only("inserts, updates, and deletes users", async () => {
   const originallyModifiedAt = selection1!.modifiedAt;
   await sleep(20);
   selection1!.name = toUserName("Jon Doe");
-  selection1!.handle = toUserHandle("jd");
+  selection1!.userHandle = toUserHandle("jd");
 
   const updateReturn2 = await userRepo.update(selection1!);
   expect(updateReturn2).toBe(true);
@@ -83,13 +83,13 @@ it.only("inserts, updates, and deletes users", async () => {
   handleAvailable = await userRepo.isHandleAvailable("jd2");
   expect(handleAvailable).toBe(true);
 
-  // test that database complains if handle not unique when adding user
+  // test that database complains if user handle not unique when adding user
 
   const badUser1A = User.castFrom({
     ...user1,
     name: "Jimmy Joe",
     email: "jjoe@xyz.pdq",
-    handle: selection1!.handle,
+    userHandle: selection1!.userHandle,
   });
   const doAdd1 = () => userRepo.add(badUser1A);
   await expect(doAdd1()).rejects.toBeInstanceOf(DatabaseError);
@@ -101,23 +101,23 @@ it.only("inserts, updates, and deletes users", async () => {
     ...user1,
     name: "Jimmy Joe",
     email: user1.email,
-    handle: "jj",
+    userHandle: "jj",
   });
   const doAdd2 = () => userRepo.add(badUser1B);
   await expect(doAdd2()).rejects.toBeInstanceOf(DatabaseError);
   await expect(doAdd2()).rejects.toHaveProperty("code", PG_UNIQUE_VIOLATION);
 
-  // test that database complains if handle not unique when updating user
+  // test that database complains if user handle not unique when updating user
 
   const insertReturn2 = await userRepo.add(user2);
-  insertReturn2!.handle = selection1!.handle;
+  insertReturn2!.userHandle = selection1!.userHandle;
   const doUpdate1 = () => userRepo.update(insertReturn2);
   await expect(doUpdate1()).rejects.toBeInstanceOf(DatabaseError);
   await expect(doUpdate1()).rejects.toHaveProperty("code", PG_UNIQUE_VIOLATION);
 
   // test that database complains if email not unique when updating user
 
-  insertReturn2!.handle = user2.handle;
+  insertReturn2!.userHandle = user2.userHandle;
   insertReturn2!.email = selection1!.email;
   const doUpdate2 = async () => userRepo.update(insertReturn2);
   await expect(doUpdate2()).rejects.toBeInstanceOf(DatabaseError);
