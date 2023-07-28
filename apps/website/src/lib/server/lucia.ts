@@ -2,7 +2,8 @@
 import { lucia } from "lucia";
 import "lucia/polyfill/node"; // for Node.js <= 18
 import { sveltekit } from "lucia/middleware";
-import { Pool } from "pg";
+import pg from "pg";
+const { Pool } = pg;
 import { pg as pgAdapter } from "@lucia-auth/adapter-postgresql";
 
 import { PostgresConfig } from "@fieldzoo/env-config";

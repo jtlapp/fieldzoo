@@ -4,13 +4,17 @@
 
 import * as path from "path";
 import pg from "pg";
-const { Client } = pg;
+const { Pool } = pg;
 import { promises as fs } from "fs";
 import * as dotenv from "dotenv";
 import { program } from "commander";
-import { Kysely, Migrator, FileMigrationProvider } from "kysely";
+import {
+  Kysely,
+  Migrator,
+  FileMigrationProvider,
+  PostgresDialect,
+} from "kysely";
 import ExtendableError from "es6-error";
-import { PostgresClientDialect } from "kysely-pg-client";
 import { fileURLToPath } from "url";
 
 import {
@@ -85,8 +89,8 @@ async function commandWrapper(
       throw new CommandFailure(`File '${envFileName}' not found`);
     }
     db = new Kysely<any>({
-      dialect: new PostgresClientDialect({
-        client: new Client(new PostgresConfig()),
+      dialect: new PostgresDialect({
+        pool: new Pool(new PostgresConfig()),
       }),
     });
     await action(db);

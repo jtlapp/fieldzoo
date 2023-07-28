@@ -14,6 +14,9 @@ export async function clearDatabase(db: Kysely<any>): Promise<void> {
     await sql.raw(dropSql).execute(db);
   }
 
+  // must drop this extension before dropping functions
+  await sql.raw(`drop extension if exists citext`).execute(db);
+
   const functionNames = await existingFunctions(db);
   if (functionNames.length > 0) {
     const dropSql = `${functionNames

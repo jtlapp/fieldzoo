@@ -4,11 +4,15 @@
 
 import * as path from "path";
 import pg from "pg";
-const { Client } = pg;
+const { Pool } = pg;
 import { promises as fs } from "fs";
 import * as dotenv from "dotenv";
-import { Kysely, Migrator, FileMigrationProvider } from "kysely";
-import { PostgresClientDialect } from "kysely-pg-client";
+import {
+  Kysely,
+  Migrator,
+  FileMigrationProvider,
+  PostgresDialect,
+} from "kysely";
 import { fileURLToPath } from "url";
 
 import { MIGRATIONS_PATH, TEST_ENV } from "@fieldzoo/app-config";
@@ -20,13 +24,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PATH_TO_ROOT = path.join(__dirname, "../../../..");
 
 let db: Kysely<any> | null = null;
-let client: InstanceType<typeof Client> | null = null;
+let pool: InstanceType<typeof Pool> | null = null;
 
 export function getTestDB(): Kysely<any> {
   if (!db) {
     dotenv.config({ path: path.join(PATH_TO_ROOT, TEST_ENV) });
-    client = new Client(new PostgresConfig());
-    db = new Kysely<any>({ dialect: new PostgresClientDialect({ client }) });
+    pool = new Pool(new PostgresConfig());
+    db = new Kysely<any>({ dialect: new PostgresDialect({ pool }) });
   }
   return db;
 }
@@ -34,7 +38,7 @@ export function getTestDB(): Kysely<any> {
 export async function closeTestDB(): Promise<void> {
   if (db) await db.destroy();
   db = null;
-  client = null;
+  pool = null;
 }
 
 export async function resetTestDB(): Promise<void> {
