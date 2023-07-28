@@ -2,6 +2,7 @@ import { fail, redirect } from "@sveltejs/kit";
 import { ValidationException } from "typebox-validators";
 import { StatusCodes } from "http-status-codes";
 
+import { createBase64UUID } from "@fieldzoo/base64-uuid";
 import { DatabaseError, PG_UNIQUE_VIOLATION } from "@fieldzoo/postgres-utils";
 
 import { auth } from "$lib/server/lucia";
@@ -16,7 +17,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
   default: async ({ request, locals }) => {
-    console.log("**** auth/signup");
     const formData = await request.formData();
     let credentials: Credentials;
 
@@ -25,7 +25,6 @@ export const actions: Actions = {
         email: formData.get("email") as string,
         password: formData.get("password") as string,
       });
-      console.log("**** credentials", credentials);
     } catch (e: unknown) {
       if (!(e instanceof ValidationException)) throw e;
       return fail(StatusCodes.BAD_REQUEST, { message: e.message });
@@ -33,6 +32,7 @@ export const actions: Actions = {
 
     try {
       const user = await auth.createUser({
+        userId: createBase64UUID(),
         key: {
           providerId: "email", // identifying field
           providerUserId: credentials.email, // unique id
@@ -57,7 +57,6 @@ export const actions: Actions = {
           message: "Email address already is use",
         });
       }
-      console.log("**** e", e);
       return fail(StatusCodes.INTERNAL_SERVER_ERROR, {
         message: "An unknown error occurred",
       });

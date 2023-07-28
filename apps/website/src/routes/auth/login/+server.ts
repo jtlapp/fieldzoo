@@ -16,7 +16,6 @@ export const POST = (async ({ request, locals }) => {
       email: data.email as string,
       password: data.password as string,
     });
-    console.log("**** credentials", credentials);
   } catch (e: unknown) {
     if (!(e instanceof ValidationException)) throw e;
     throw error(StatusCodes.BAD_REQUEST, { message: e.message });
@@ -29,12 +28,10 @@ export const POST = (async ({ request, locals }) => {
       credentials.email,
       credentials.password
     );
-    console.log("**** user", user);
     const session = await auth.createSession({
       userId: user.userId,
       attributes: {},
     });
-    console.log("**** session", session);
     locals.auth.setSession(session); // set session cookie
   } catch (e) {
     if (

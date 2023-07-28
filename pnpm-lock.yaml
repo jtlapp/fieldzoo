@@ -57,6 +57,7 @@ importers:
 
   apps/website:
     specifiers:
+      '@fieldzoo/base64-uuid': workspace:*
       '@fieldzoo/env-config': workspace:*
       '@fieldzoo/general-model': workspace:*
       '@fieldzoo/generic-types': workspace:*
@@ -93,6 +94,7 @@ importers:
       vite-tsconfig-paths: ^4.2.0
       vitest: ^0.32.2
     dependencies:
+      '@fieldzoo/base64-uuid': link:../../utils/base64-uuid
       '@fieldzoo/env-config': link:../../utils/env-config
       '@fieldzoo/general-model': link:../../models/general-model
       '@fieldzoo/generic-types': link:../../utils/generic-types

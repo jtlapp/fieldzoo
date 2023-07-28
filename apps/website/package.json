@@ -17,6 +17,7 @@
     "test:unit": "vitest"
   },
   "dependencies": {
+    "@fieldzoo/base64-uuid": "workspace:*",
     "@fieldzoo/env-config": "workspace:*",
     "@fieldzoo/general-model": "workspace:*",
     "@fieldzoo/generic-types": "workspace:*",

@@ -5,7 +5,6 @@ import { StatusCodes } from "http-status-codes";
 import type { RequestHandler } from "./$types";
 
 export const GET = (async ({ locals }) => {
-  console.log("**** GET logout");
   const session = await locals.auth.validate();
   if (!session) {
     throw error(StatusCodes.UNAUTHORIZED, "not logged in");

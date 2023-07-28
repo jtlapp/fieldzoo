@@ -21,13 +21,17 @@ export class UserRepo {
   }
 
   /**
-   * Adds a user to the repository.
+   * Adds a user to the repository. NOTE: When using Lucia authentication,
+   * Lucia will create the user row in the table, so don't use this method.
    * @param user User to add.
    * @returns A new user instance with its assigned UUID.
-   * @throws DatabaseErrpr, such as when the user handle or
+   * @throws DatabaseError, such as when the user handle or
    *  email is not unique.
    */
   async add(user: User): Promise<User> {
+    if (user.id !== "") {
+      throw new Error("User already has an ID");
+    }
     return await this.#table.insert().returnOne(user);
   }
 
@@ -74,7 +78,7 @@ export class UserRepo {
    * Updates a user, including changing its `modifiedAt` date.
    * @param user User with modified values.
    * @returns Whether the user was found and updated.
-   * @throws DatabaseErrpr, such as when the user handle or
+   * @throws DatabaseError, such as when the user handle or
    *  email is not unique.
    */
   async update(user: User): Promise<boolean> {
