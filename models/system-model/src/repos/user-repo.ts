@@ -5,7 +5,7 @@ import { ValidationException } from "typebox-validators";
 import { createBase64UUID } from "@fieldzoo/base64-uuid";
 import { TimestampedTable } from "@fieldzoo/general-model";
 
-import { Database, UserProfiles } from "../tables/table-interfaces";
+import { Database, Users } from "../tables/table-interfaces";
 import { User } from "../entities/user.js";
 import { UserID } from "../values/user-id.js";
 import { toUserHandle } from "../values/user-handle.js";
@@ -89,10 +89,10 @@ export class UserRepo {
   private getMapper(db: Kysely<Database>) {
     return new TableMapper(db, "users", {
       keyColumns: ["id"],
-      insertReturnColumns:
-        TimestampedTable.addInsertReturnColumns<UserProfiles>(["id"]),
-      updateReturnColumns:
-        TimestampedTable.addUpdateReturnColumns<UserProfiles>(),
+      insertReturnColumns: TimestampedTable.addInsertReturnColumns<Users>([
+        "id",
+      ]),
+      updateReturnColumns: TimestampedTable.addUpdateReturnColumns<Users>(),
     }).withTransforms({
       insertTransform: (user: User) =>
         TimestampedTable.removeGeneratedValues({

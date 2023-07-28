@@ -3,7 +3,7 @@
 import { Generated } from "kysely";
 
 export interface Database {
-  users: UserProfiles;
+  users: Users;
   glossaries: Glossaries;
   glossary_versions: GlossaryVersions;
   user_glossary_permissions: UserGlossaryPermissions;
@@ -11,7 +11,7 @@ export interface Database {
   term_versions: TermVersions;
 }
 
-export interface UserProfiles {
+export interface Users {
   id: string;
   email: string;
   displayName: string | null;
