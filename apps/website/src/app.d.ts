@@ -21,7 +21,7 @@ declare global {
     type DatabaseUserAttributes = {
       email: EmailAddress;
       name: UserName;
-      handle: UserHandle;
+      userHandle: UserHandle;
       lastLoginAt: Date | null;
       disabledAt: Date | null;
     };
