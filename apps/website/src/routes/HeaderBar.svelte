@@ -4,6 +4,7 @@
   import { Button } from "ui-components";
 
   import { SITE_NAME } from "$lib/constants";
+  import LoginButton from "./LoginButton.svelte";
   import LoggedInMenu from "./LoggedInMenu.svelte";
   import DarkModeToggle from "./DarkModeToggle.svelte";
 
@@ -11,9 +12,6 @@
 
   function signUp() {
     window.location.href = "/auth/signup";
-  }
-  function login() {
-    window.location.href = "/auth/login";
   }
 </script>
 
@@ -26,7 +24,7 @@
       <LoggedInMenu {session} />
     {:else}
       <Button variant="ghost" class="mr-3" on:click={signUp}>Sign up</Button>
-      <Button variant="primary" class="mr-3" on:click={login}>Login</Button>
+      <LoginButton />
     {/if}
     <DarkModeToggle class="ml-3 flex scale-90" />
   </div>

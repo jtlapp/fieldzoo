@@ -1,17 +1,14 @@
 <script lang="ts">
-  import { createDialog } from "@melt-ui/svelte";
+  import type { createDialog } from "@melt-ui/svelte";
 
-  import { Button, Modal } from "ui-components";
+  import { Button, Dialog } from "ui-components";
 
   const credentials = {
     email: "",
     password: "",
   };
 
-  const { overlay, content, title, description, open } = createDialog();
-  open.subscribe(() => open.set(true));
-
-  async function submit() {
+  async function login(open: ReturnType<typeof createDialog>["open"]) {
     const response = await fetch("/api/v1/auth/login", {
       method: "POST",
       headers: {
@@ -19,16 +16,24 @@
       },
       body: JSON.stringify(credentials),
     });
+    open.set(false);
 
     if (response.ok) {
-      window.location.href = "/";
+      location.reload();
     } else {
       alert("Invalid credentials");
     }
   }
 </script>
 
-<Modal {overlay} {content} {title} {description}>
+<Dialog>
+  <Button
+    slot="trigger"
+    variant="primary"
+    class="mr-3"
+    let:trigger
+    action={trigger.action}>Login</Button
+  >
   <h2 slot="title">Login</h2>
   <p slot="description">Please enter your credentials</p>
   <div slot="content">
@@ -41,8 +46,8 @@
       <input id="password" type="password" bind:value={credentials.password} />
     </fieldset>
   </div>
-  <div slot="buttons">
-    <Button variant="primary" on:click={submit}>Login</Button>
+  <div slot="buttons" let:open>
+    <Button variant="primary" on:click={() => login(open)}>Login</Button>
     <a href="/auth/signup">Create an account</a>
   </div>
-</Modal>
+</Dialog>

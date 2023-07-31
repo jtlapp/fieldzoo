@@ -1,4 +1,4 @@
-import { redirect, fail } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
 import { StatusCodes } from "http-status-codes";
 
 import { type UserID, toUserID } from "@fieldzoo/system-model";
@@ -15,10 +15,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
   }
 
   const userRepo = locals.repos.userRepo;
-  if (await userRepo.isEmailVerified(userID)) {
-    throw redirect(StatusCodes.MOVED_TEMPORARILY, "/auth/login");
-  }
-  return {};
+  return { emailVerified: await userRepo.isEmailVerified(userID) };
 };
 
 export const actions: Actions = {

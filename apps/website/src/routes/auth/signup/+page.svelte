@@ -23,5 +23,3 @@
 {#if form?.message}
   <p class="error">{form.message}</p>
 {/if}
-
-<a href="/auth/login">Sign in</a>

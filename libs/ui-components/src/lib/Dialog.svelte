@@ -13,7 +13,7 @@
       <slot name="title" slot="title" />
       <slot name="description" slot="description" />
       <slot name="content" slot="content" />
-      <slot name="buttons" slot="buttons" />
+      <slot name="buttons" slot="buttons" {open} close={$close} />
     </Modal>
   {/if}
 </div>
