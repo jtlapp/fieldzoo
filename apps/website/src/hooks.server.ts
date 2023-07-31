@@ -1,8 +1,14 @@
-import { auth } from "$lib/server/lucia";
 import type { Handle } from "@sveltejs/kit";
 
+import { createLucia } from "$lib/server/lucia";
+import { DatabaseRepos } from "$lib/server/database-repos";
+
+const databaseRepos = new DatabaseRepos();
+const lucia = createLucia(databaseRepos.connectionPool);
+
 export const handle: Handle = async ({ event, resolve }) => {
-  // we can pass `event` because we used the SvelteKit middleware
-  event.locals.auth = auth.handleRequest(event);
+  event.locals.lucia = lucia;
+  event.locals.auth = lucia.handleRequest(event);
+  event.locals.repos = databaseRepos;
   return await resolve(event);
 };

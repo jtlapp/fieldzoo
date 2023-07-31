@@ -7,10 +7,11 @@
   import type { LayoutData } from "./$types";
 
   export let data: LayoutData;
-  console.log("**** layout data", data);
+
+  $: session = data.session;
 </script>
 
 <div class="container mx-auto text-center">
-  <HeaderBar session={data.session} />
+  <HeaderBar {session} />
   <slot />
 </div>

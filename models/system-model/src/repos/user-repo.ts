@@ -54,6 +54,21 @@ export class UserRepo {
   }
 
   /**
+   * Indicates whether the user's email address has been verified.
+   * @param id ID of the user to check.
+   * @returns whether the user's email address has been verified.
+   */
+  async isEmailVerified(id: UserID): Promise<boolean> {
+    const result = await this.db
+      .selectFrom("users")
+      .where(({ and, cmpr }) =>
+        and([cmpr("id", "=", id), cmpr("emailVerified", "=", true)])
+      )
+      .executeTakeFirst();
+    return result !== undefined;
+  }
+
+  /**
    * Indicates whether the provided user handle is valid and unique.
    * @param userHandle User handle to check.
    * @returns true if the user handle is valid and unique, false otherwise.

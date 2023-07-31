@@ -1,5 +1,5 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
-import { testDate, testUUID } from "@fieldzoo/testing-utils";
+import { testBase64Uuid, testDate } from "@fieldzoo/testing-utils";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
 import {
   testDisplayName,
@@ -14,8 +14,8 @@ import { testTermID } from "../values/term-id.test";
 import { testGlossaryID } from "../values/glossary-id.test";
 import { TermVersion } from "./term-version";
 
-const SAMPLE_USER_ID = "ae19af00-af09-af09-af09-abcde129af00";
-const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
+const SAMPLE_USER_ID = "X".repeat(BASE64_UUID_LENGTH);
+const SAMPLE_GLOSSARY_ID = "Y".repeat(BASE64_UUID_LENGTH);
 
 const ERROR_MSG = "Invalid term version";
 
@@ -44,7 +44,9 @@ describe("TermVersion entity", () => {
       (modifiedAt) => createTermVersion({ modifiedAt }),
       (skip) => skip === undefined
     );
-    testUUID(ERROR_MSG, (modifiedBy) => createTermVersion({ modifiedBy }));
+    testBase64Uuid(ERROR_MSG, (modifiedBy) =>
+      createTermVersion({ modifiedBy })
+    );
     testWhatChangedLine(ERROR_MSG, (whatChangedLine) =>
       createTermVersion({ whatChangedLine })
     );
@@ -56,7 +58,7 @@ describe("TermVersion entity", () => {
         {
           termID: 1,
           versionNumber: 1,
-          glossaryID: SAMPLE_UUID,
+          glossaryID: SAMPLE_GLOSSARY_ID,
           displayName: "",
           description: "",
           modifiedBy: SAMPLE_USER_ID,
@@ -83,7 +85,7 @@ function createTermVersion(
   return TermVersion.castFrom({
     termID: 1,
     versionNumber: 1,
-    glossaryID: SAMPLE_UUID,
+    glossaryID: SAMPLE_GLOSSARY_ID,
     displayName: "Good Name",
     description: "This\nis\nfine.",
     modifiedBy: SAMPLE_USER_ID,

@@ -1,6 +1,6 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
-import { testDate, testUUID } from "@fieldzoo/testing-utils";
+import { testBase64Uuid, testDate } from "@fieldzoo/testing-utils";
 import { testVersionNumber } from "@fieldzoo/system-model/dist/test";
 
 import { Glossary } from "./glossary";
@@ -34,8 +34,8 @@ describe("Glossary entity", () => {
       (skip) => skip === 0
     );
 
-    testUUID(ERROR_MSG, (ownerID) => createGlossary({ ownerID }));
-    testUUID(ERROR_MSG, (modifiedBy) => createGlossary({ modifiedBy }));
+    testBase64Uuid(ERROR_MSG, (ownerID) => createGlossary({ ownerID }));
+    testBase64Uuid(ERROR_MSG, (modifiedBy) => createGlossary({ modifiedBy }));
     testDisplayName(ERROR_MSG, (name) => createGlossary({ name }));
 
     testMultilineDescription(

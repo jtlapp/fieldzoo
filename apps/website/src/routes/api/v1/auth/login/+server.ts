@@ -1,6 +1,5 @@
-import { auth } from "$lib/server/lucia";
-import { LuciaError } from "lucia";
 import { error } from "@sveltejs/kit";
+import { LuciaError } from "lucia";
 import { ValidationException } from "typebox-validators";
 import { StatusCodes } from "http-status-codes";
 
@@ -8,9 +7,18 @@ import type { RequestHandler } from "./$types";
 import { type Credentials, toCredentials } from "$lib/server/credentials";
 
 export const POST = (async ({ request, locals }) => {
-  const data = await request.json();
-  let credentials: Credentials;
+  const data: Credentials = await request.json();
 
+  const session = await locals.auth.validate();
+  if (session) {
+    // TODO: redirects in an API?
+    if (!session.user.emailVerified) {
+      return new Response(null, { status: StatusCodes.UNAUTHORIZED });
+    }
+    return new Response(null, { status: StatusCodes.NO_CONTENT });
+  }
+
+  let credentials: Credentials;
   try {
     credentials = toCredentials({
       email: data.email as string,
@@ -23,16 +31,19 @@ export const POST = (async ({ request, locals }) => {
 
   try {
     // find user by key and validate password
-    const user = await auth.useKey(
+    const user = await locals.lucia.useKey(
       "email",
       credentials.email,
       credentials.password
     );
-    const session = await auth.createSession({
+    const session = await locals.lucia.createSession({
       userId: user.userId,
       attributes: {},
     });
     locals.auth.setSession(session); // set session cookie
+    await locals.lucia.updateUserAttributes(user.userId, {
+      lastLoginAt: new Date(),
+    });
   } catch (e) {
     if (
       e instanceof LuciaError &&
@@ -43,12 +54,8 @@ export const POST = (async ({ request, locals }) => {
         message: "Incorrect email address or password",
       });
     }
-    throw error(StatusCodes.INTERNAL_SERVER_ERROR, {
-      message: "An unknown error occurred",
-    });
+    throw error(StatusCodes.INTERNAL_SERVER_ERROR);
   }
-
-  // TODO: update lastLoginAt
 
   return new Response(null, { status: StatusCodes.NO_CONTENT });
 }) satisfies RequestHandler;

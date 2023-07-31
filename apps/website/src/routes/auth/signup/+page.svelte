@@ -1,6 +1,10 @@
 <script lang="ts">
   import { Button } from "ui-components";
+
   import { enhance } from "$app/forms";
+  import type { ActionData } from "./$types";
+
+  export let form: ActionData;
 </script>
 
 <h1>Sign up</h1>
@@ -16,5 +20,8 @@
   </fieldset>
   <Button variant="primary" type="submit">Sign up</Button>
 </form>
+{#if form?.message}
+  <p class="error">{form.message}</p>
+{/if}
 
 <a href="/auth/login">Sign in</a>

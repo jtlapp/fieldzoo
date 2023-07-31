@@ -5,9 +5,10 @@ import { StatusCodes } from "http-status-codes";
 import { createBase64UUID } from "@fieldzoo/base64-uuid";
 import { DatabaseError, PG_UNIQUE_VIOLATION } from "@fieldzoo/postgres-utils";
 
-import { auth } from "$lib/server/lucia";
-import type { Actions, PageServerLoad } from "./$types";
 import { type Credentials, toCredentials } from "$lib/server/credentials";
+import { sendEmailVerificationLink } from "$lib/server/email";
+import type { Actions, PageServerLoad } from "./$types";
+import type { UserID } from "@fieldzoo/system-model";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();
@@ -30,8 +31,9 @@ export const actions: Actions = {
       return fail(StatusCodes.BAD_REQUEST, { message: e.message });
     }
 
+    let userID: UserID;
     try {
-      const user = await auth.createUser({
+      const luciaUser = await locals.lucia.createUser({
         userId: createBase64UUID(),
         key: {
           providerId: "email", // identifying field
@@ -40,17 +42,17 @@ export const actions: Actions = {
         },
         attributes: {
           email: credentials.email,
+          emailVerified: false,
           displayName: null,
           userHandle: null,
           lastLoginAt: null,
           disabledAt: null,
         },
       });
-      const session = await auth.createSession({
-        userId: user.userId,
-        attributes: {},
-      });
-      locals.auth.setSession(session); // set session cookie
+      userID = luciaUser.userId as UserID;
+      const emailVerificationRepo = locals.repos.emailVerificationRepo;
+      const token = await emailVerificationRepo.getToken(userID);
+      await sendEmailVerificationLink(token);
     } catch (e) {
       if (e instanceof DatabaseError && e.code === PG_UNIQUE_VIOLATION) {
         return fail(StatusCodes.BAD_REQUEST, {
@@ -58,13 +60,13 @@ export const actions: Actions = {
         });
       }
       return fail(StatusCodes.INTERNAL_SERVER_ERROR, {
-        message: "An unknown error occurred",
+        message: "Internal server error",
       });
     }
-    // TODO: update lastLoginAt
 
-    // redirect to
-    // make sure you don't throw inside a try/catch block!
-    throw redirect(StatusCodes.MOVED_TEMPORARILY, "/");
+    throw redirect(
+      StatusCodes.MOVED_TEMPORARILY,
+      "/auth/email-verification/" + userID
+    );
   },
 };

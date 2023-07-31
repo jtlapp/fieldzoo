@@ -16,7 +16,7 @@ const db = getTestDB();
 
 afterAll(() => closeTestDB());
 
-test.only("inserts, updates, and deletes terms", async () => {
+test("inserts, updates, and deletes terms", async () => {
   await resetTestDB();
   const userID = (await createTestUser(db, "Jane Doe", "jdoe@xyz.pdq"))!.id;
 

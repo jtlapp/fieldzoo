@@ -21,11 +21,13 @@ import { EmptyStringable, Nullable } from "@fieldzoo/typebox-types";
 /**
  * Class representing a valid user.
  */
+// TODO: which entities am I actually validating in the app?
 export class User extends TimestampedEntity {
   static schema = Type.Object({
     ...super.timestampedSchema.properties,
     id: EmptyStringable(toUserID.schema),
     email: toEmailAddress.schema,
+    emailVerified: Type.Boolean(),
     displayName: toUserDisplayName.schema,
     userHandle: toUserHandle.schema,
     lastLoginAt: Nullable(Type.Date()),
@@ -36,6 +38,7 @@ export class User extends TimestampedEntity {
   /**
    * @param id User ID, a base-64 encoded UUID.
    * @param email User's email address
+   * @param emailVerified Whether the user's email address has been verified.
    * @param displayName User's display name. May be null because the initial
    *  name is acquired from the login account provider, but there is no
    *  standard for communicating this name.
@@ -48,6 +51,7 @@ export class User extends TimestampedEntity {
   constructor(
     readonly id: UserID,
     public email: EmailAddress,
+    public emailVerified: boolean,
     public displayName: UserDisplayName | null,
     public userHandle: UserHandle | null,
     public lastLoginAt: Date | null,
@@ -85,6 +89,7 @@ export class User extends TimestampedEntity {
     return new User(
       fields.id as UserID,
       fields.email as EmailAddress,
+      fields.emailVerified as boolean,
       fields.displayName as UserDisplayName | null,
       fields.userHandle as UserHandle | null,
       fields.lastLoginAt as Date,

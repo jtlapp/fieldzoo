@@ -20,6 +20,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     tb
       .addColumn("id", "text", (col) => col.primaryKey())
       .addColumn("email", sql`citext`, (col) => col.unique().notNull())
+      .addColumn("emailVerified", "boolean", (col) => col.notNull())
       .addColumn("displayName", "text")
       .addColumn("userHandle", sql`citext`, (col) => col.unique())
       .addColumn("lastLoginAt", "timestamp")
@@ -47,6 +48,28 @@ export async function up(db: Kysely<any>): Promise<void> {
     )
     .addColumn("active_expires", "bigint", (col) => col.notNull())
     .addColumn("idle_expires", "bigint", (col) => col.notNull())
+    .execute();
+
+  // email verifications table
+
+  await db.schema
+    .createTable("email_verifications")
+    .addColumn("token", "text", (col) => col.primaryKey())
+    .addColumn("userID", "text", (col) =>
+      col.references("users.id").notNull().onDelete("cascade")
+    )
+    .addColumn("expiresAt", "bigint", (col) => col.notNull())
+    .execute();
+
+  // password resets table
+
+  await db.schema
+    .createTable("password_resets")
+    .addColumn("token", "text", (col) => col.primaryKey())
+    .addColumn("userID", "text", (col) =>
+      col.references("users.id").notNull().onDelete("cascade")
+    )
+    .addColumn("expiresAt", "bigint", (col) => col.notNull())
     .execute();
 
   // glossaries table

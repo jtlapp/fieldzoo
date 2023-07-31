@@ -9,14 +9,12 @@
 
   export let session: Session | null;
 
-  const signUp = () => {
-    console.log("**** clicked signup");
+  function signUp() {
     window.location.href = "/auth/signup";
-  };
-  const login = () => {
-    console.log("**** clicked login");
+  }
+  function login() {
     window.location.href = "/auth/login";
-  };
+  }
 </script>
 
 <div class="flex flex-row items-center justify-between py-2">

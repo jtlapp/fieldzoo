@@ -1,9 +1,11 @@
 // NOTE: This file will ultimately be generated, so can't use special types.
 
-import { Generated } from "kysely";
+import { ColumnType, Generated } from "kysely";
 
 export interface Database {
   users: Users;
+  email_verifications: EmailVerifications;
+  password_resets: PasswordResets;
   glossaries: Glossaries;
   glossary_versions: GlossaryVersions;
   user_glossary_permissions: UserGlossaryPermissions;
@@ -14,12 +16,25 @@ export interface Database {
 export interface Users {
   id: string;
   email: string;
+  emailVerified: boolean;
   displayName: string | null;
   userHandle: string | null;
   lastLoginAt: Date | null;
   createdAt: Date;
   modifiedAt: Date;
   disabledAt: Date | null;
+}
+
+export interface EmailVerifications {
+  token: string;
+  userID: string;
+  expiresAt: ColumnType<bigint, number>;
+}
+
+export interface PasswordResets {
+  token: string;
+  userID: string;
+  expiresAt: ColumnType<bigint, number>;
 }
 
 export interface Glossaries {

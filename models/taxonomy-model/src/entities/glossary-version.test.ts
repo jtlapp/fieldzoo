@@ -1,5 +1,5 @@
 import { BASE64_UUID_LENGTH } from "@fieldzoo/base64-uuid";
-import { testDate, testUUID } from "@fieldzoo/testing-utils";
+import { testDate, testBase64Uuid } from "@fieldzoo/testing-utils";
 import { UnvalidatedFields } from "@fieldzoo/generic-types";
 import {
   testDisplayName,
@@ -13,8 +13,8 @@ import {
 import { testGlossaryID } from "../values/glossary-id.test";
 import { GlossaryVersion } from "./glossary-version";
 
-const SAMPLE_USER_ID = "ae19af00-af09-af09-af09-abcde129af00";
-const SAMPLE_UUID = "X".repeat(BASE64_UUID_LENGTH);
+const SAMPLE_USER_ID = "X".repeat(BASE64_UUID_LENGTH);
+const SAMPLE_GLOSSARY_ID = "Y".repeat(BASE64_UUID_LENGTH);
 const ERROR_MSG = "Invalid glossary version";
 
 describe("GlossaryVersion entity", () => {
@@ -25,8 +25,10 @@ describe("GlossaryVersion entity", () => {
     testVersionNumber(ERROR_MSG, (versionNumber) =>
       createGlossaryVersion({ versionNumber })
     );
-    testUUID(ERROR_MSG, (ownerID) => createGlossaryVersion({ ownerID }));
-    testUUID(ERROR_MSG, (modifiedBy) => createGlossaryVersion({ modifiedBy }));
+    testBase64Uuid(ERROR_MSG, (ownerID) => createGlossaryVersion({ ownerID }));
+    testBase64Uuid(ERROR_MSG, (modifiedBy) =>
+      createGlossaryVersion({ modifiedBy })
+    );
     testDisplayName(ERROR_MSG, (name) => createGlossaryVersion({ name }));
 
     testMultilineDescription(
@@ -56,7 +58,7 @@ describe("GlossaryVersion entity", () => {
     expect(() =>
       GlossaryVersion.castFrom(
         {
-          glossaryID: SAMPLE_UUID,
+          glossaryID: SAMPLE_GLOSSARY_ID,
           versionNumber: 1,
           ownerID: SAMPLE_USER_ID,
           modifiedBy: SAMPLE_USER_ID,
@@ -73,7 +75,7 @@ describe("GlossaryVersion entity", () => {
 
   it("cannot modify", () => {
     const glossaryVersion = GlossaryVersion.castFrom({
-      glossaryID: SAMPLE_UUID,
+      glossaryID: SAMPLE_GLOSSARY_ID,
       versionNumber: 1,
       ownerID: SAMPLE_USER_ID,
       modifiedBy: SAMPLE_USER_ID,
@@ -99,7 +101,7 @@ function createGlossaryVersion(
   specifiedFields: Partial<UnvalidatedFields<GlossaryVersion>>
 ) {
   return GlossaryVersion.castFrom({
-    glossaryID: SAMPLE_UUID,
+    glossaryID: SAMPLE_GLOSSARY_ID,
     versionNumber: 1,
     ownerID: SAMPLE_USER_ID,
     name: "Good Name",

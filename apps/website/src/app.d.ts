@@ -16,14 +16,17 @@ declare global {
     // interface Platform {}
 
     interface Locals {
+      lucia: import("$lib/server/lucia").Lucia;
       auth: import("lucia").AuthRequest;
+      repos: import("$lib/server/database-repos").DatabaseRepos;
     }
   }
 
   namespace Lucia {
-    type Auth = import("$lib/server/lucia").Auth;
+    type Auth = import("$lib/server/lucia").Lucia;
     type DatabaseUserAttributes = {
       email: EmailAddress;
+      emailVerified: boolean;
       displayName: UserDisplayName | null;
       userHandle: UserHandle | null;
       lastLoginAt: Date | null;

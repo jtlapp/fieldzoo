@@ -7,7 +7,7 @@
   export let session: Session;
 
   async function logout() {
-    await fetch("/auth/logout");
+    await fetch("/api/v1/auth/logout");
     window.location.reload();
   }
 </script>
