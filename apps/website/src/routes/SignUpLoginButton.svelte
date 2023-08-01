@@ -74,31 +74,39 @@
 >
 <div use:portal>
   {#if $open}
-    <div melt={$overlay} class="fixed inset-0 z-40 bg-black/50" />
+    <div melt={$overlay} class="bg-foreground/50 fixed inset-0 z-40" />
     <div
-      class="fixed left-[50%] top-[50%] z-50 max-h-[85vh] w-[90vw]
-                  max-w-[450px] translate-x-[-50%] translate-y-[-50%] rounded-md bg-white
+      class="bg-background fixed left-[50%] top-[50%] z-50 max-h-[85vh]
+                  w-[90vw] max-w-[450px] translate-x-[-50%] translate-y-[-50%] rounded-md
                   p-[25px] shadow-lg"
       melt={$dialogContent}
     >
       <div
         melt={$tabsRoot}
-        class="flex max-w-[25rem] flex-col overflow-hidden rounded-md shadow-lg
-  data-[orientation=vertical]:flex-row"
+        class="flex max-w-[25rem] flex-col
+  overflow-hidden data-[orientation=vertical]:flex-row"
       >
         <div
           melt={$tabsList}
-          class="border-magnum-100 flex shrink-0 overflow-x-auto border-b bg-white
-    data-[orientation=vertical]:flex-col data-[orientation=vertical]:border-r"
+          class="border-primary flex shrink-0 justify-center
+    overflow-x-auto data-[orientation=vertical]:flex-col"
           aria-label="Manage your account"
         >
-          <button melt={$tabsTrigger("signup")} class="trigger">Sign Up</button>
-          <button melt={$tabsTrigger("login")} class="trigger">Login</button>
+          <button
+            melt={$tabsTrigger("signup")}
+            class="trigger data-[state=active]:border-primary border-b-3 w-1/3 border-transparent pb-1"
+            >Sign Up</button
+          >
+          <button
+            melt={$tabsTrigger("login")}
+            class="trigger data-[state=active]:border-primary border-b-3 w-1/3 border-transparent pb-1"
+            >Login</button
+          >
         </div>
-        <div melt={$tabsContent("signup")} class="grow bg-white p-5">
+        <div melt={$tabsContent("signup")} class="grow py-2">
           <p
             melt={$dialogDescription}
-            class="mb-5 mt-[10px] leading-normal text-zinc-600"
+            class="text-foreground/75 mb-5 mt-[10px] leading-normal"
           >
             Please enter your login credentials.
           </p>
@@ -115,14 +123,16 @@
               bind:value={credentials.password}
             />
           </fieldset>
-          <Button variant="primary" on:click={() => signUp(open)}
-            >Sign Up</Button
-          >
+          <div class="flex flex-col items-center pt-2">
+            <Button variant="primary" on:click={() => signUp(open)}
+              >Sign Up</Button
+            >
+          </div>
         </div>
-        <div melt={$tabsContent("login")} class="grow bg-white p-5">
+        <div melt={$tabsContent("login")} class="grow py-2">
           <p
             melt={$dialogDescription}
-            class="mb-5 mt-[10px] leading-normal text-zinc-600"
+            class="text-foreground/75 mb-5 mt-[10px] leading-normal"
           >
             Please enter your login credentials.
           </p>
@@ -138,17 +148,20 @@
               bind:value={credentials.password}
             />
           </fieldset>
-          <Button variant="primary" on:click={() => login(open)}>Login</Button>
+          <div class="flex flex-col items-center pt-2">
+            <Button variant="primary" on:click={() => login(open)}>Login</Button
+            >
+          </div>
         </div>
+        <button
+          melt={$close}
+          class="text-foreground/80 focus:shadow-ring absolute right-[10px] top-[10px]
+                      inline-flex h-[25px] w-[25px] appearance-none items-center
+                      justify-center rounded-full"
+        >
+          <XIcon />
+        </button>
       </div>
     </div>
-    <button
-      melt={$close}
-      class="text-magnum-800 hover:bg-magnum-100 focus:shadow-magnum-400 absolute right-[10px] top-[10px]
-                    inline-flex h-[25px] w-[25px] appearance-none items-center
-                    justify-center rounded-full"
-    >
-      <XIcon />
-    </button>
   {/if}
 </div>

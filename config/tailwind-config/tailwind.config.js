@@ -50,6 +50,14 @@ module.exports = {
           foreground: "hsl(var(--popover-foreground))",
         },
       },
+      borderWidth: {
+        DEFAULT: "1px",
+        0: "0",
+        1: "1px",
+        2: "2px",
+        3: "3px",
+        4: "4px",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
