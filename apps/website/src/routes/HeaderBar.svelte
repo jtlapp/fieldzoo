@@ -4,7 +4,7 @@
   import { Button } from "ui-components";
 
   import { SITE_NAME } from "$lib/constants";
-  import LoginButton from "./LoginButton.svelte";
+  import SignUpLoginButton from "./SignUpLoginButton.svelte";
   import LoggedInMenu from "./LoggedInMenu.svelte";
   import DarkModeToggle from "./DarkModeToggle.svelte";
 
@@ -24,7 +24,7 @@
       <LoggedInMenu {session} />
     {:else}
       <Button variant="ghost" class="mr-3" on:click={signUp}>Sign up</Button>
-      <LoginButton />
+      <SignUpLoginButton initialTab="login" />
     {/if}
     <DarkModeToggle class="ml-3 flex scale-90" />
   </div>

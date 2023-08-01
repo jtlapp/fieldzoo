@@ -11,7 +11,6 @@ export const POST = (async ({ request, locals }) => {
 
   const session = await locals.auth.validate();
   if (session) {
-    // TODO: redirects in an API?
     if (!session.user.emailVerified) {
       return new Response(null, { status: StatusCodes.UNAUTHORIZED });
     }
