@@ -3,6 +3,8 @@
 
   import { Button, XIcon } from "ui-components";
 
+  import CredentialsForm from "./CredentialsForm.svelte";
+
   type TabValue = "login" | "signup";
 
   export let initialTab: TabValue;
@@ -14,7 +16,7 @@
     description: dialogDescription,
     content: dialogContent,
     close,
-    open,
+    open: dialogOpen,
   } = createDialog();
   const {
     root: tabsRoot,
@@ -73,7 +75,7 @@
   action={$dialogTrigger.action}>Login</Button
 >
 <div use:portal>
-  {#if $open}
+  {#if $dialogOpen}
     <div melt={$overlay} class="bg-foreground/50 fixed inset-0 z-40" />
     <div
       class="bg-background fixed left-[50%] top-[50%] z-50 max-h-[85vh]
@@ -104,65 +106,24 @@
           >
         </div>
         <div melt={$tabsContent("signup")} class="grow py-2">
-          <p
-            melt={$dialogDescription}
-            class="text-foreground/75 mb-5 mt-[10px] text-center leading-normal"
-          >
-            Please choose your login credentials.
-          </p>
-
-          <fieldset class="h-field">
-            <label class="w-[108px]" for="email">Email Address</label>
-            <input
-              id="email"
-              class="dark:text-background"
-              bind:value={credentials.email}
-            />
-          </fieldset>
-          <fieldset class="h-field">
-            <label class="w-[108px]" for="password">Password</label>
-            <input
-              id="password"
-              class="dark:text-background"
-              type="password"
-              bind:value={credentials.password}
-            />
-          </fieldset>
-          <div class="flex flex-col items-center pt-3">
-            <Button variant="primary" size="lg" on:click={() => signUp(open)}
-              >Sign Up</Button
-            >
-          </div>
+          <CredentialsForm
+            {credentials}
+            {dialogDescription}
+            {dialogOpen}
+            action={signUp}
+            instructions="Please choose your login credentials."
+            buttonText="Sign Up"
+          />
         </div>
         <div melt={$tabsContent("login")} class="grow py-2">
-          <p
-            melt={$dialogDescription}
-            class="text-foreground/75 mb-5 mt-[10px] text-center leading-normal"
-          >
-            Please enter your login credentials.
-          </p>
-          <fieldset class="h-field">
-            <label class="w-[108px]" for="email">Email Address</label>
-            <input
-              id="email"
-              class="dark:text-background"
-              bind:value={credentials.email}
-            />
-          </fieldset>
-          <fieldset class="h-field">
-            <label class="w-[108px]" for="password">Password</label>
-            <input
-              id="password"
-              class="dark:text-background"
-              type="password"
-              bind:value={credentials.password}
-            />
-          </fieldset>
-          <div class="flex flex-col items-center pt-3">
-            <Button variant="primary" size="lg" on:click={() => login(open)}
-              >Login</Button
-            >
-          </div>
+          <CredentialsForm
+            {credentials}
+            {dialogDescription}
+            {dialogOpen}
+            action={login}
+            instructions="Please enter your login credentials."
+            buttonText="Login"
+          />
         </div>
         <button
           melt={$close}
