@@ -129,7 +129,7 @@
             />
           </fieldset>
           <div class="flex flex-col items-center pt-3">
-            <Button variant="primary" on:click={() => signUp(open)}
+            <Button variant="primary" size="lg" on:click={() => signUp(open)}
               >Sign Up</Button
             >
           </div>
@@ -159,7 +159,8 @@
             />
           </fieldset>
           <div class="flex flex-col items-center pt-3">
-            <Button variant="primary" on:click={() => login(open)}>Login</Button
+            <Button variant="primary" size="lg" on:click={() => login(open)}
+              >Login</Button
             >
           </div>
         </div>
