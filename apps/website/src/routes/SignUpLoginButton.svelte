@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createDialog, createTabs } from "@melt-ui/svelte";
 
-  import { Button, XIcon } from "ui-components";
+  import { Button, DialogCloseX } from "ui-components";
 
   import CredentialsTab from "./CredentialsTab.svelte";
   import CredentialsForm from "./CredentialsForm.svelte";
@@ -118,14 +118,7 @@
             actionText="Login"
           />
         </div>
-        <button
-          melt={$close}
-          class="text-foreground/80 focus:shadow-ring absolute right-[10px] top-[10px]
-                      inline-flex h-[25px] w-[25px] appearance-none items-center
-                      justify-center rounded-full"
-        >
-          <XIcon />
-        </button>
+        <DialogCloseX {close} />
       </div>
     </div>
   {/if}

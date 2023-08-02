@@ -1,5 +1,6 @@
 export { default as Button } from "./lib/Button.svelte";
 export { default as Dialog } from "./lib/Dialog.svelte";
+export { default as DialogCloseX } from "./lib/DialogCloseX.svelte";
 export { default as DropdownMenu } from "./lib/DropdownMenu.svelte";
 export { default as Modal } from "./lib/Modal.svelte";
 
