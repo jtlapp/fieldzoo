@@ -21,9 +21,10 @@ module.exports = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        menu_highlight: {
-          DEFAULT: "hsl(var(--menu-highlight))",
-          foreground: "hsl(var(--menu-highlight-foreground))",
+        selectable: {
+          DEFAULT: "hsl(var(--selectable))",
+          foreground: "hsl(var(--selectable-foreground))",
+          highlight: "hsl(var(--selectable-highlight))",
         },
         primary: {
           DEFAULT: "hsl(var(--primary))",

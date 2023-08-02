@@ -7,8 +7,9 @@
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
 
-    --menu-highlight: 240 80% 50%;
-    --menu-highlight-foreground: 0 0% 98%;
+    --selectable: 240 100% 65%;
+    --selectable-foreground: 0 0% 98%;
+    --selectable-highlight: 240 80% 65%;
 
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
@@ -40,8 +41,9 @@
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
 
-    --menu-highlight: 240 50% 50%;
-    --menu-highlight-foreground: 0 0% 98%;
+    --selectable: 240 100% 75%;
+    --selectable-foreground: 0 0% 98%;
+    --selectable-highlight: 240 80% 65%;
 
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;

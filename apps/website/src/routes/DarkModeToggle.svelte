@@ -41,7 +41,7 @@
     type="checkbox"
   />
   <label for="theme-toggle">
-    <DarkLightIcon class="fill-foreground dark:fill-dark-foreground" />
+    <DarkLightIcon class="dark-light-icon" />
   </label>
 </div>
 
@@ -52,5 +52,13 @@
 
   #theme-toggle + label {
     @apply inline-block h-5 w-5 cursor-pointer;
+  }
+
+  :global(.dark-light-icon path) {
+    @apply fill-foreground;
+  }
+
+  :global(.dark-light-icon:hover path) {
+    @apply fill-selectable;
   }
 </style>

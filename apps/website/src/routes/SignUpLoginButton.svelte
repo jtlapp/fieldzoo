@@ -77,53 +77,58 @@
     <div melt={$overlay} class="bg-foreground/50 fixed inset-0 z-40" />
     <div
       class="bg-background fixed left-[50%] top-[50%] z-50 max-h-[85vh]
-                  w-[90vw] max-w-[450px] translate-x-[-50%] translate-y-[-50%] rounded-md
+                  w-[90vw] max-w-[480px] translate-x-[-50%] translate-y-[-50%] rounded-md
                   p-[25px] shadow-lg"
       melt={$dialogContent}
     >
       <div
         melt={$tabsRoot}
-        class="flex max-w-[25rem] flex-col
+        class="flex flex-col
   overflow-hidden data-[orientation=vertical]:flex-row"
       >
         <div
           melt={$tabsList}
-          class="border-primary flex shrink-0 justify-center
-    overflow-x-auto data-[orientation=vertical]:flex-col"
+          class="flex shrink-0 justify-center overflow-x-auto
+    text-lg data-[orientation=vertical]:flex-col"
           aria-label="Manage your account"
         >
           <button
             melt={$tabsTrigger("signup")}
-            class="trigger data-[state=active]:border-primary border-b-3 w-1/3 border-transparent pb-1"
+            class="trigger data-[state=active]:border-primary border-b-3 hover:bg-selectable-highlight hover:text-selectable-foreground w-1/3 rounded-t-md border-transparent py-1"
             >Sign Up</button
           >
           <button
             melt={$tabsTrigger("login")}
-            class="trigger data-[state=active]:border-primary border-b-3 w-1/3 border-transparent pb-1"
+            class="trigger data-[state=active]:border-primary border-b-3 hover:bg-selectable-highlight hover:text-selectable-foreground w-1/3 rounded-t-md border-transparent py-1"
             >Login</button
           >
         </div>
         <div melt={$tabsContent("signup")} class="grow py-2">
           <p
             melt={$dialogDescription}
-            class="text-foreground/75 mb-5 mt-[10px] leading-normal"
+            class="text-foreground/75 mb-5 mt-[10px] text-center leading-normal"
           >
             Please enter your login credentials.
           </p>
 
           <fieldset class="h-field">
-            <label class="w-[90px]" for="email">Email Address</label>
-            <input id="email" bind:value={credentials.email} />
+            <label class="w-[108px]" for="email">Email Address</label>
+            <input
+              id="email"
+              class="dark:text-background"
+              bind:value={credentials.email}
+            />
           </fieldset>
           <fieldset class="h-field">
-            <label class="w-[90px]" for="password">Password</label>
+            <label class="w-[108px]" for="password">Password</label>
             <input
               id="password"
+              class="dark:text-background"
               type="password"
               bind:value={credentials.password}
             />
           </fieldset>
-          <div class="flex flex-col items-center pt-2">
+          <div class="flex flex-col items-center pt-3">
             <Button variant="primary" on:click={() => signUp(open)}
               >Sign Up</Button
             >
@@ -132,23 +137,28 @@
         <div melt={$tabsContent("login")} class="grow py-2">
           <p
             melt={$dialogDescription}
-            class="text-foreground/75 mb-5 mt-[10px] leading-normal"
+            class="text-foreground/75 mb-5 mt-[10px] text-center leading-normal"
           >
             Please enter your login credentials.
           </p>
           <fieldset class="h-field">
-            <label class="w-[90px]" for="email">Email Address</label>
-            <input id="email" bind:value={credentials.email} />
+            <label class="w-[108px]" for="email">Email Address</label>
+            <input
+              id="email"
+              class="dark:text-background"
+              bind:value={credentials.email}
+            />
           </fieldset>
           <fieldset class="h-field">
-            <label class="w-[90px]" for="password">Password</label>
+            <label class="w-[108px]" for="password">Password</label>
             <input
               id="password"
+              class="dark:text-background"
               type="password"
               bind:value={credentials.password}
             />
           </fieldset>
-          <div class="flex flex-col items-center pt-2">
+          <div class="flex flex-col items-center pt-3">
             <Button variant="primary" on:click={() => login(open)}>Login</Button
             >
           </div>

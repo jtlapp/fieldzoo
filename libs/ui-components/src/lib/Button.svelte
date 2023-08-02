@@ -9,11 +9,13 @@
   export { buttonType as type };
   export let variant: ButtonType = "primary";
   export let action = (_node: HTMLElement) => {};
+
+  const selectable = "border-2 border-background hover:border-selectable";
 </script>
 
 {#if variant == "ghost"}
   <button
-    class="text-foreground bg-background hover:bg-menu_highlight hover:text-menu_highlight-foreground hover:shadow-md {classes}"
+    class="text-foreground bg-background hover:shadow-md {selectable} {classes}"
     type={buttonType}
     use:action
     on:click
@@ -22,7 +24,7 @@
   </button>
 {:else if variant == "primary"}
   <button
-    class="text-primary-foreground bg-primary {classes}"
+    class="text-primary-foreground bg-primary {selectable} {classes}"
     type={buttonType}
     use:action
     on:click
@@ -31,7 +33,7 @@
   </button>
 {:else}
   <button
-    class="text-secondary-foreground bg-secondary shadow-md {classes}"
+    class="text-secondary-foreground bg-secondary shadow-md {selectable} {classes}"
     type={buttonType}
     use:action
     on:click
