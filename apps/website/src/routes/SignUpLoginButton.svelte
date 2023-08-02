@@ -3,6 +3,7 @@
 
   import { Button, XIcon } from "ui-components";
 
+  import CredentialsTab from "./CredentialsTab.svelte";
   import CredentialsForm from "./CredentialsForm.svelte";
 
   type TabValue = "login" | "signup";
@@ -94,16 +95,8 @@
     text-lg data-[orientation=vertical]:flex-col"
           aria-label="Manage your account"
         >
-          <button
-            melt={$tabsTrigger("signup")}
-            class="trigger data-[state=active]:border-primary border-b-3 hover:bg-selectable-highlight hover:text-selectable-foreground w-1/3 rounded-t-md border-transparent py-1"
-            >Sign Up</button
-          >
-          <button
-            melt={$tabsTrigger("login")}
-            class="trigger data-[state=active]:border-primary border-b-3 hover:bg-selectable-highlight hover:text-selectable-foreground w-1/3 rounded-t-md border-transparent py-1"
-            >Login</button
-          >
+          <CredentialsTab {tabsTrigger} value="signup" label="Sign Up" />
+          <CredentialsTab {tabsTrigger} value="login" label="Login" />
         </div>
         <div melt={$tabsContent("signup")} class="grow py-2">
           <CredentialsForm
@@ -112,7 +105,7 @@
             {dialogOpen}
             action={signUp}
             instructions="Please choose your login credentials."
-            buttonText="Sign Up"
+            actionText="Sign Up"
           />
         </div>
         <div melt={$tabsContent("login")} class="grow py-2">
@@ -122,7 +115,7 @@
             {dialogOpen}
             action={login}
             instructions="Please enter your login credentials."
-            buttonText="Login"
+            actionText="Login"
           />
         </div>
         <button

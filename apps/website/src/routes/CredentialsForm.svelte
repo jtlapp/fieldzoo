@@ -11,7 +11,7 @@
   export let dialogDescription: ReturnType<typeof createDialog>["description"];
   export let dialogOpen: ReturnType<typeof createDialog>["open"];
   export let instructions: String;
-  export let buttonText: String;
+  export let actionText: String;
   export let action: (open: typeof dialogOpen) => void;
 </script>
 
@@ -41,6 +41,6 @@
 </fieldset>
 <div class="flex flex-col items-center pt-3">
   <Button variant="primary" size="lg" on:click={() => action(dialogOpen)}
-    >{buttonText}</Button
+    >{actionText}</Button
   >
 </div>
