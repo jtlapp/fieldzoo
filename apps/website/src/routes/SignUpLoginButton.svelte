@@ -108,7 +108,7 @@
             melt={$dialogDescription}
             class="text-foreground/75 mb-5 mt-[10px] text-center leading-normal"
           >
-            Please enter your login credentials.
+            Please choose your login credentials.
           </p>
 
           <fieldset class="h-field">
