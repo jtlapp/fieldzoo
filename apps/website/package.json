@@ -25,7 +25,7 @@
     "@fieldzoo/system-model": "workspace:*",
     "@fieldzoo/typebox-types": "workspace:*",
     "@lucia-auth/adapter-postgresql": "2.0.0",
-    "@melt-ui/svelte": "^0.22.2",
+    "@melt-ui/svelte": "^0.31.0",
     "@sinclair/typebox": "^0.28.14",
     "http-status-codes": "^2.2.0",
     "kysely": "^0.24.2",
@@ -35,7 +35,7 @@
     "ui-components": "workspace:*"
   },
   "devDependencies": {
-    "@melt-ui/pp": "^0.0.4",
+    "@melt-ui/pp": "^0.1.0",
     "@playwright/test": "^1.28.1",
     "@sveltejs/adapter-auto": "^2.0.0",
     "@sveltejs/kit": "^1.20.4",

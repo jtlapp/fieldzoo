@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Session } from "lucia";
+  import { melt } from "@melt-ui/svelte";
 
   import { Button } from "ui-components";
   import { DownCaretIcon, DropdownMenu } from "ui-components";
@@ -18,6 +19,6 @@
     <DownCaretIcon class="mr-[-4px] h-4 w-4" />
   </Button>
   <svelte:fragment slot="menu" let:item>
-    <button class="menu-item" melt={item} on:click={logout}>Log out</button>
+    <button class="menu-item" use:melt={item} on:click={logout}>Log out</button>
   </svelte:fragment>
 </DropdownMenu>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { createDialog } from "@melt-ui/svelte";
+  import { type createDialog, melt } from "@melt-ui/svelte";
   import XIcon from "@/icons/XIcon.svelte";
 
   // Usage:
@@ -15,25 +15,31 @@
   //     <div slot="buttons">buttons</div>
   //   </Modal>
 
-  export let title: ReturnType<typeof createDialog>["title"];
-  export let description: ReturnType<typeof createDialog>["description"];
-  export let overlay: ReturnType<typeof createDialog>["overlay"];
-  export let content: ReturnType<typeof createDialog>["content"];
-  export let close: ReturnType<typeof createDialog>["close"] | undefined =
+  export let title: ReturnType<typeof createDialog>["elements"]["title"];
+  export let description: ReturnType<
+    typeof createDialog
+  >["elements"]["description"];
+  export let overlay: ReturnType<typeof createDialog>["elements"]["overlay"];
+  export let content: ReturnType<typeof createDialog>["elements"]["content"];
+  // TODO: get rid of 'any'
+  export let close: ReturnType<typeof createDialog>["elements"]["close"] | any =
     undefined;
 </script>
 
-<div melt={$overlay} class="fixed inset-0 z-40 bg-black/50" />
+<div use:melt={$overlay} class="fixed inset-0 z-40 bg-black/50" />
 <div
   class="fixed left-[50%] top-[50%] z-50 max-h-[85vh] w-[90vw]
                 max-w-[450px] translate-x-[-50%] translate-y-[-50%] rounded-md bg-white
                 p-[25px] shadow-lg"
-  melt={$content}
+  use:melt={$content}
 >
-  <h2 melt={$title} class="m-0 text-lg font-medium text-black">
+  <h2 use:melt={$title} class="m-0 text-lg font-medium text-black">
     <slot name="title" />
   </h2>
-  <p melt={$description} class="mb-5 mt-[10px] leading-normal text-zinc-600">
+  <p
+    use:melt={$description}
+    class="mb-5 mt-[10px] leading-normal text-zinc-600"
+  >
     <slot name="description" />
   </p>
 
@@ -49,7 +55,7 @@
 
   {#if close !== undefined}
     <button
-      melt={$close}
+      use:melt={$close}
       class="text-magnum-800 hover:bg-magnum-100 focus:shadow-magnum-400 absolute right-[10px] top-[10px]
                     inline-flex h-[25px] w-[25px] appearance-none items-center
                     justify-center rounded-full"

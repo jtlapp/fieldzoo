@@ -4,15 +4,11 @@
   import { Button } from "ui-components";
 
   import { SITE_NAME } from "$lib/constants";
-  import SignUpLoginButton from "./SignUpLoginButton.svelte";
   import LoggedInMenu from "./LoggedInMenu.svelte";
   import DarkModeToggle from "./DarkModeToggle.svelte";
+  import CredentialsDialog from "./CredentialsDialog.svelte";
 
   export let session: Session | null;
-
-  function signUp() {
-    window.location.href = "/auth/signup";
-  }
 </script>
 
 <div class="flex flex-row items-center justify-between py-2">
@@ -23,8 +19,22 @@
     {#if session}
       <LoggedInMenu {session} />
     {:else}
-      <Button variant="ghost" class="mr-3" on:click={signUp}>Sign up</Button>
-      <SignUpLoginButton initialTab="login" />
+      <CredentialsDialog>
+        <svelte:fragment slot="triggers" let:dialogTrigger let:tabsValue>
+          <Button
+            variant="ghost"
+            class="mr-3"
+            action={dialogTrigger.action}
+            on:click={() => tabsValue.set("signup")}>Sign up</Button
+          >
+          <Button
+            variant="primary"
+            class="mr-3"
+            action={dialogTrigger.action}
+            on:click={() => tabsValue.set("login")}>Login</Button
+          >
+        </svelte:fragment>
+      </CredentialsDialog>
     {/if}
     <DarkModeToggle class="ml-3 flex scale-90" />
   </div>

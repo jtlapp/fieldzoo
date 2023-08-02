@@ -1,5 +1,6 @@
 <script lang="ts" context="module">
   export type ButtonType = "primary" | "secondary" | "ghost";
+  export type ButtonSize = "sm" | "md" | "lg";
 </script>
 
 <script lang="ts">
