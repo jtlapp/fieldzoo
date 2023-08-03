@@ -4,7 +4,7 @@ import { ValidationException } from "typebox-validators";
 import { StatusCodes } from "http-status-codes";
 
 import type { RequestHandler } from "./$types";
-import { type Credentials, toCredentials } from "$lib/server/credentials";
+import { type Credentials, toCredentials } from "$lib/credentials";
 
 export const POST = (async ({ request, locals }) => {
   const data: Credentials = await request.json();

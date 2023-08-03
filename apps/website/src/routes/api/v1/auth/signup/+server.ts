@@ -5,7 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import { createBase64UUID } from "@fieldzoo/base64-uuid";
 import { DatabaseError, PG_UNIQUE_VIOLATION } from "@fieldzoo/postgres-utils";
 
-import { type Credentials, toCredentials } from "$lib/server/credentials";
+import { type Credentials, toCredentials } from "$lib/credentials";
 import { sendEmailVerificationLink } from "$lib/server/email";
 import type { UserID } from "@fieldzoo/system-model";
 

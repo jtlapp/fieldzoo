@@ -3,9 +3,11 @@
   import { createDialog, createTabs, melt } from "@melt-ui/svelte";
 
   import { DialogCloseX } from "ui-components";
+  import type { UnvalidatedFields } from "@fieldzoo/generic-types";
 
   import CredentialsTab from "./CredentialsTab.svelte";
   import CredentialsForm from "./CredentialsForm.svelte";
+  import type { Credentials } from "$lib/credentials";
 
   const tabsValue = writable("");
 
@@ -28,7 +30,8 @@
       trigger: tabsTrigger,
     },
   } = createTabs({ value: tabsValue });
-  const credentials = {
+
+  let credentials: UnvalidatedFields<Credentials> = {
     email: "",
     password: "",
   };

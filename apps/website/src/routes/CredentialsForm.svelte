@@ -1,22 +1,23 @@
 <script lang="ts">
-  import type { createDialog } from "@melt-ui/svelte";
+  import { type createDialog, melt } from "@melt-ui/svelte";
 
   import { Button } from "ui-components";
+  import type { UnvalidatedFields } from "@fieldzoo/generic-types";
 
-  // TODO: base on Credentials type
-  export let credentials: {
-    email: string;
-    password: string;
-  };
-  export let dialogDescription: ReturnType<typeof createDialog>["description"];
-  export let dialogOpen: ReturnType<typeof createDialog>["open"];
+  import type { Credentials } from "$lib/credentials";
+
+  export let credentials: UnvalidatedFields<Credentials>;
+  export let dialogDescription: ReturnType<
+    typeof createDialog
+  >["elements"]["description"];
+  export let dialogOpen: ReturnType<typeof createDialog>["states"]["open"];
   export let instructions: String;
   export let actionText: String;
   export let action: (open: typeof dialogOpen) => void;
 </script>
 
 <p
-  melt={$dialogDescription}
+  use:melt={$dialogDescription}
   class="text-foreground/75 mb-5 mt-[10px] text-center leading-normal"
 >
   {instructions}
