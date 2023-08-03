@@ -1,4 +1,4 @@
-<h1>You email has been verified</h1>
+<h1>Your email has been verified</h1>
 
 <p>You are now logged in.</p>
 
