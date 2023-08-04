@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@fieldzoo/typebox-types": "workspace:*",
-    "@sinclair/typebox": "^0.28.14"
+    "@sinclair/typebox": "^0.30.2"
   },
   "devDependencies": {
     "@fieldzoo/testing-utils": "workspace:*",

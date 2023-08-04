@@ -28,8 +28,8 @@
   "dependencies": {
     "@fieldzoo/env-config": "workspace:*",
     "@fieldzoo/typebox-types": "workspace:*",
-    "@sinclair/typebox": "^0.28.14",
+    "@sinclair/typebox": "^0.30.2",
     "dotenv": "^16.0.3",
-    "typebox-validators": "^0.2.22"
+    "typebox-validators": "^0.3.0"
   }
 }

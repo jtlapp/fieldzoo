@@ -23,7 +23,7 @@
     "fix-mismatches": "npx syncpack fix-mismatches && pnpm install"
   },
   "devDependencies": {
-    "nx": "16.2.1",
+    "nx": "16.6.0",
     "prettier": "^2.8.7",
     "prettier-plugin-svelte": "^2.10.1",
     "prettier-plugin-tailwindcss": "^0.2.5",
